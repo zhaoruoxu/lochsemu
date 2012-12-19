@@ -319,8 +319,7 @@ void Process::LoadApiInfo()
     for (int i = 0; i < nEmuApis; i++) {
         uint index = LX_MAKE_WINAPI_INDEX(i);
         ApiInfo info = { 
-            LxGetWinAPIName(index), 
-            LxGetWinAPIModuleName(index)
+            LxGetWinAPIModuleName(index), LxGetWinAPIName(index)
         };
         m_addressApiInfo[index] = info;
     }

@@ -11,24 +11,29 @@ void Debugger::DumpInstruction() const
         m_currInstPtr->Main.Inst.Opcode);
     StdDumpLight("%s", m_currInstPtr->Main.CompleteInstr);
 
-
     u32 target = 0;
+    const char *mnemonic = m_currInstPtr->Main.Inst.Mnemonic;
     if (m_currInstPtr->Main.Inst.Opcode == 0xff) {
         // CALL or JMP r/m32
-        target = m_currCpuPtr->ReadOperand32(m_currInstPtr, m_currInstPtr->Main.Argument1, NULL);
+        if (strstr(mnemonic, "jmp") == mnemonic || strstr(mnemonic, "call") == mnemonic)  {
+            target = m_currCpuPtr->ReadOperand32(m_currInstPtr, m_currInstPtr->Main.Argument1, NULL);
+        }
 
-    } else if (m_currInstPtr->Main.Inst.Opcode == 0xe8) {
+    } else if (m_currInstPtr->Main.Inst.Opcode == 0xe8 && strstr(mnemonic, "call") == mnemonic) {
         // call rel32
         target = m_currCpuPtr->EIP + m_currInstPtr->Length + (u32) m_currInstPtr->Aux.op1.immediate;
         // decode instruction at target
         pbyte codePtr = m_currCpuPtr->GetCodePtr(target);
         Instruction inst;
         LxDecode(codePtr, &inst, target);
-        if (inst.Main.Inst.Opcode == 0xff) {
+
+        if (inst.Main.Inst.Opcode == 0xff && 
+            (strstr(inst.Main.Inst.Mnemonic, "jmp") == inst.Main.Inst.Mnemonic)) {
             target = m_currCpuPtr->ReadOperand32(&inst, inst.Main.Argument1, NULL);
+        } else {
+            target = 0;
         }
     }
-
 
     const ApiInfo *info = m_currCpuPtr->Proc()->GetApiInfoFromAddress(target);
     if (info) {
