@@ -50,9 +50,13 @@ LX_API uint         QueryWinAPIIndexByName(HMODULE hModule, const char *funcName
 LX_API uint         QueryWinAPIIndexByOrdinal(const char *dllName, uint ordinal);
 LX_API uint         QueryWinAPIIndexByOrdinal(HMODULE hModule, uint ordinal);
 LX_API uint         QueryLibraryIndex(const char *dllName);
+LX_API uint         LxGetTotalWinAPIs();
 
 LX_API HMODULE      LxGetModuleHandle(const char *dllName);
 LX_API const char * LxGetModuleName(HMODULE hModule);
+
+LX_API const char * LxGetWinAPIModuleName(u32 index);
+LX_API const char * LxGetWinAPIName(u32 index);
 
 void CallWindowsAPI(Processor *cpu, u32 val);
 

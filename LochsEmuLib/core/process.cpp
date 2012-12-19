@@ -64,6 +64,8 @@ LochsEmu::LxResult Process::Initialize(Emulator *emu)
     V_RETURN( InitPEB() );
 
     V_RETURN( InitMainThread() );
+
+    LoadApiInfo();
     
     RET_SUCCESS();
 }
@@ -284,6 +286,44 @@ void Process::ProcessEpilog()
 u32 Process::GetEntryPoint() const
 {
     return m_mainThread->GetThreadInfo()->EntryPoint;
+}
+
+const LochsEmu::ApiInfo *Process::GetApiInfoFromAddress( u32 addr ) const
+{
+    auto iter = m_addressApiInfo.find(addr);
+    if (iter == m_addressApiInfo.end()) { return NULL; }
+    return &iter->second;
+}
+
+void Process::LoadApiInfo()
+{
+    uint nModules = m_loader->GetNumOfModules();
+    for (uint i = 0; i < nModules; i++) {
+        const ModuleInfo *moduleInfo = m_loader->GetModuleInfo(i);
+        std::string moduleName = moduleInfo->Name;
+        for (auto ex : moduleInfo->Exports) {
+            ApiInfo info = { moduleName, ex.Name };
+            m_addressApiInfo[ex.Address] = info;
+        }
+
+        for (auto import : moduleInfo->Imports) {
+            const std::string &dllName = import.first;
+            for (auto importFunc : import.second) {
+                ApiInfo info = { dllName, importFunc.Name };
+                m_addressApiInfo[importFunc.IATOffset] = info;
+            }
+        }
+    }
+
+    const int nEmuApis = LxGetTotalWinAPIs();
+    for (int i = 0; i < nEmuApis; i++) {
+        uint index = LX_MAKE_WINAPI_INDEX(i);
+        ApiInfo info = { 
+            LxGetWinAPIName(index), 
+            LxGetWinAPIModuleName(index)
+        };
+        m_addressApiInfo[index] = info;
+    }
 }
 
 END_NAMESPACE_LOCHSEMU()

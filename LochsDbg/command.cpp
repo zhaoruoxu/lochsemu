@@ -2,13 +2,41 @@
 #include "debugger.h"
 #include "processor.h"
 #include "stack.h"
+#include "winapi.h"
 
 
 void Debugger::DumpInstruction() const
 {
     StdDumpDark("[%I64d][%08x][%02x]    ", m_instCount, m_currCpuPtr->EIP, 
         m_currInstPtr->Main.Inst.Opcode);
-    StdDumpLight("%s\n", m_currInstPtr->Main.CompleteInstr);
+    StdDumpLight("%s", m_currInstPtr->Main.CompleteInstr);
+
+
+    u32 target = 0;
+    if (m_currInstPtr->Main.Inst.Opcode == 0xff) {
+        // CALL or JMP r/m32
+        target = m_currCpuPtr->ReadOperand32(m_currInstPtr, m_currInstPtr->Main.Argument1, NULL);
+
+    } else if (m_currInstPtr->Main.Inst.Opcode == 0xe8) {
+        // call rel32
+        target = m_currCpuPtr->EIP + m_currInstPtr->Length + (u32) m_currInstPtr->Aux.op1.immediate;
+        // decode instruction at target
+        pbyte codePtr = m_currCpuPtr->GetCodePtr(target);
+        Instruction inst;
+        LxDecode(codePtr, &inst, target);
+        if (inst.Main.Inst.Opcode == 0xff) {
+            target = m_currCpuPtr->ReadOperand32(&inst, inst.Main.Argument1, NULL);
+        }
+    }
+
+
+    const ApiInfo *info = m_currCpuPtr->Proc()->GetApiInfoFromAddress(target);
+    if (info) {
+        StdDumpLight(" < %s:%s >", info->ModuleName.c_str(), info->FunctionName.c_str());
+    }
+
+    StdDumpLight("\n");
+
 }
 
 

@@ -129,12 +129,12 @@ void LxLogInternal(LogLevel level, const char *format, va_list args)
     LxGetDateTime(dtBuffer);
     vsprintf(buffer, format, args);
 
-    if (level != LOG_LEVEL_DEBUG) {
+    //if (level != LOG_LEVEL_DEBUG) {
         wOldMode = LxChangeConsoleMode(consoleMode[level]);
         printf(prompt[level]);
         LxChangeConsoleMode( wOldMode );
         printf(buffer);
-    }
+    //}
     /*
      * Log to file even not in debug mode
      */

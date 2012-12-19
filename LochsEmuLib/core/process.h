@@ -21,6 +21,11 @@ enum LoadReason {
     LX_LOAD_THREAD_DETACH = DLL_THREAD_DETACH,
 };
 
+struct ApiInfo {
+    std::string ModuleName;
+    std::string FunctionName;
+};
+
 class LX_API Process {
 public:
     static const uint   ProcessHeapStart = 0x1000;
@@ -50,6 +55,7 @@ public:
     ModuleInfo *    GetModuleInfo(uint n) { return m_loader->GetModuleInfo(n); }
     uint            LoadModule(LPCSTR lpFileName);
     u32             GetEntryPoint() const;
+    const ApiInfo * GetApiInfoFromAddress(u32 addr) const;
 protected:
     LxResult        InitHeap();
     LxResult        InitPEB();
@@ -57,6 +63,7 @@ protected:
     u32             DetermineHeapBase(u32 base, u32 reserve);
     void            ProcessProlog();
     void            ProcessEpilog();
+    void            LoadApiInfo();
 
 protected:
     Emulator *      m_emu;
@@ -67,6 +74,11 @@ protected:
     Thread *        m_mainThread;       /* also contained in m_threads */
     std::vector<Heap *>     m_heaps; /* [0] is process main heap */
     u32             m_PebAddress;
+
+    /*
+     * 各模块导出函数地址与模块名称和函数名称的映射
+     */
+    std::map<u32, ApiInfo> m_addressApiInfo;  
 };
 
 INLINE Thread *Process::GetThread(ThreadID id) const {

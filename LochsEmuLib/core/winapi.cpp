@@ -290,7 +290,17 @@ WinAPIInfo WinAPIInfoTable[] = {
 
 uint WinAPINotAvailable(Processor *cpu)
 {
-    LxFatal("Windows API not available: [%08x] %s\n", cpu->EIP, cpu->CurrentInst()->Main.CompleteInstr);
+    u32 target = cpu->Offset32(cpu->CurrentInst()->Main.Argument1);
+    const ApiInfo *info = cpu->Proc()->GetApiInfoFromAddress(target);
+    const char *dllName = "unknown";
+    const char *funcName = "unknown";
+    if (info) {
+        dllName = info->ModuleName.c_str();
+        funcName = info->FunctionName.c_str();
+    }
+    LxFatal("Windows API not available: [%08x] %s <%s:%s>\n", 
+        cpu->EIP, cpu->CurrentInst()->Main.CompleteInstr,
+        dllName, funcName);
     return 0;
 }
 
@@ -393,6 +403,23 @@ void CallWindowsAPI( Processor *cpu, u32 val )
     uint r = apiFunc(cpu);
     cpu->EIP = cpu->Pop32();
     cpu->ESP += r * 4;
+}
+
+LX_API const char * LxGetWinAPIModuleName( u32 index )
+{
+    const WinAPIInfo &info = WinAPIInfoTable[LX_WINAPI_NUM(index)];
+    return WrappedLibraryTable[info.DllIndex];
+}
+
+LX_API const char * LxGetWinAPIName( u32 index )
+{
+    const WinAPIInfo &info = WinAPIInfoTable[LX_WINAPI_NUM(index)];
+    return info.FuncName;
+}
+
+LX_API uint LxGetTotalWinAPIs()
+{
+    return sizeof(WinAPIInfoTable) / sizeof(WinAPIInfo);
 }
 
 

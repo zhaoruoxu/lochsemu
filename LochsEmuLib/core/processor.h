@@ -261,7 +261,8 @@ public:
     /************************************************************************/
     INLINE u32      GetStackParam32     (uint num);
     INLINE void *   GetStackParamPtr32  (uint num);
-    pbyte           GetCodePtr          (void) const { Assert(Mem); return Mem->GetRawData(EIP); }
+    pbyte           GetCodePtr          () const { Assert(Mem); return Mem->GetRawData(EIP); }
+    pbyte           GetCodePtr          (u32 eip) const { return Mem->GetRawData(eip); }
     INLINE u32      GetCallbackEntry    (uint callbackId) const;
     INLINE void     SetCallbackEntry    (uint callbackId, u32 entry);
     INLINE u32      GetFSOffset         (u32 addr) const;
@@ -321,7 +322,7 @@ public:
     // Read from mem/reg
     INLINE u8       ReadOperand8        (const Instruction *inst,   const ARGTYPE &oper,    u32 *offset);
     INLINE u16      ReadOperand16       (const Instruction *inst,   const ARGTYPE &oper,    u32 *offset);
-    INLINE u32      ReadOperand32       (const Instruction *inst,   const ARGTYPE &oper,    u32 *offset);
+    INLINE u32      ReadOperand32       (const Instruction *inst,   const ARGTYPE &oper,    u32 *offset) const;
     INLINE u64      ReadOperand64       (const Instruction *inst,   const ARGTYPE &oper,    u32 *offset);
     INLINE u128     ReadOperand128      (const Instruction *inst,   const ARGTYPE &oper,    u32 *offset);
 
@@ -800,7 +801,7 @@ INLINE u16 Processor::ReadOperand16( const Instruction *inst, const ARGTYPE &ope
     return 0;
 }
 
-INLINE u32 Processor::ReadOperand32( const Instruction *inst, const ARGTYPE &oper, u32 *offset )
+INLINE u32 Processor::ReadOperand32( const Instruction *inst, const ARGTYPE &oper, u32 *offset ) const
 {
     if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
         return GP_Reg32(REG_NUM(oper.ArgType));
