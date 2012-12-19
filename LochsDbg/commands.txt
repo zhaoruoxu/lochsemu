@@ -1,0 +1,28 @@
+Commands:
+
+<enter>
+	step
+
+r
+	run
+
+bp
+	view all CPU breakpoints
+
+bp hex32
+	add CPU breakpoint 'hex32'
+
+bpr
+	remove all breakpoints
+
+stack (n=10)
+	view n dwords from top of current stack
+	
+mem
+	view all sections info
+	
+page hex32
+	view content of page contain address 'hex32'
+
+sec hex32
+	view pages info in a section containing 'hex32'

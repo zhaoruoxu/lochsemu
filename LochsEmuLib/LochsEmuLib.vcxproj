@@ -1,0 +1,284 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug - Alternative|Win32">
+      <Configuration>Debug - Alternative</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F9360164-655E-4557-9355-83994282858B}</ProjectGuid>
+    <RootNamespace>LochsEmuLib</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - Alternative|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug - Alternative|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(ProjectName)\$(Configuration)\obj\</IntDir>
+    <LinkIncremental />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(ProjectName)\$(Configuration)\obj\</IntDir>
+    <LinkIncremental />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - Alternative|Win32'">
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(ProjectName)\$(Configuration)\obj\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>core; common; ../; ./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_USRDLL;LOCHSEMU_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>3rdparty\BeaEngine\BeaEngine.lib;shlwapi.lib;mscoree.lib;winmm.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>crt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Profile>true</Profile>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>core; common; ../; ./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_USRDLL;LOCHSEMU_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>3rdparty\BeaEngine\BeaEngine.lib;shlwapi.lib;mscoree.lib;winmm.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>crt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug - Alternative|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>core; common; ../; ./;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_USRDLL;LOCHSEMU_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>3rdparty\BeaEngine\BeaEngine.lib;shlwapi.lib;mscoree.lib;winmm.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>crt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="cpu\cmpxchg.cpp" />
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="core\callback.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="core\coprocessor.cpp" />
+    <ClCompile Include="core\debug.cpp" />
+    <ClCompile Include="core\emulator.cpp" />
+    <ClCompile Include="core\exception.cpp" />
+    <ClCompile Include="core\heap.cpp" />
+    <ClCompile Include="cpu\inst_table.cpp" />
+    <ClCompile Include="core\lochsemu.cpp" />
+    <ClCompile Include="core\memory.cpp" />
+    <ClCompile Include="core\peloader.cpp" />
+    <ClCompile Include="core\pemodule.cpp" />
+    <ClCompile Include="core\pluginmgr.cpp" />
+    <ClCompile Include="core\process.cpp" />
+    <ClCompile Include="core\processor.cpp" />
+    <ClCompile Include="core\refproc.cpp" />
+    <ClCompile Include="core\section.cpp" />
+    <ClCompile Include="core\simd.cpp" />
+    <ClCompile Include="core\stack.cpp" />
+    <ClCompile Include="core\thread.cpp" />
+    <ClCompile Include="core\win32.cpp" />
+    <ClCompile Include="core\winapi.cpp" />
+    <ClCompile Include="3rdparty\libdasm\libdasm.cpp" />
+    <ClCompile Include="cpu\adc.cpp" />
+    <ClCompile Include="cpu\add.cpp" />
+    <ClCompile Include="cpu\and.cpp" />
+    <ClCompile Include="cpu\bt.cpp" />
+    <ClCompile Include="cpu\call.cpp" />
+    <ClCompile Include="cpu\cbw.cpp" />
+    <ClCompile Include="cpu\cdq.cpp" />
+    <ClCompile Include="cpu\cmp.cpp" />
+    <ClCompile Include="cpu\cpu_misc.cpp" />
+    <ClCompile Include="cpu\dec.cpp" />
+    <ClCompile Include="cpu\div.cpp" />
+    <ClCompile Include="cpu\enter-leave.cpp" />
+    <ClCompile Include="cpu\ext.cpp" />
+    <ClCompile Include="cpu\flag.cpp" />
+    <ClCompile Include="cpu\idiv.cpp" />
+    <ClCompile Include="cpu\imul.cpp" />
+    <ClCompile Include="cpu\inc.cpp" />
+    <ClCompile Include="cpu\int.cpp" />
+    <ClCompile Include="cpu\jcc.cpp" />
+    <ClCompile Include="cpu\jump.cpp" />
+    <ClCompile Include="cpu\lea.cpp" />
+    <ClCompile Include="cpu\loop.cpp" />
+    <ClCompile Include="cpu\mov.cpp" />
+    <ClCompile Include="cpu\movXX.cpp" />
+    <ClCompile Include="cpu\mul.cpp" />
+    <ClCompile Include="cpu\neg.cpp" />
+    <ClCompile Include="cpu\not.cpp" />
+    <ClCompile Include="cpu\or.cpp" />
+    <ClCompile Include="cpu\pop.cpp" />
+    <ClCompile Include="cpu\push.cpp" />
+    <ClCompile Include="cpu\ret.cpp" />
+    <ClCompile Include="cpu\rotate.cpp" />
+    <ClCompile Include="cpu\sar.cpp" />
+    <ClCompile Include="cpu\sbb.cpp" />
+    <ClCompile Include="cpu\setcc.cpp" />
+    <ClCompile Include="cpu\shl.cpp" />
+    <ClCompile Include="cpu\shr.cpp" />
+    <ClCompile Include="cpu\string.cpp" />
+    <ClCompile Include="cpu\sub.cpp" />
+    <ClCompile Include="cpu\test.cpp" />
+    <ClCompile Include="cpu\xadd.cpp" />
+    <ClCompile Include="cpu\xchg.cpp" />
+    <ClCompile Include="cpu\xlat.cpp" />
+    <ClCompile Include="cpu\xor.cpp" />
+    <ClCompile Include="winapi\advapi32.cpp" />
+    <ClCompile Include="winapi\comctl32.cpp" />
+    <ClCompile Include="winapi\gdi32.cpp" />
+    <ClCompile Include="winapi\kernel32.cpp" />
+    <ClCompile Include="winapi\kernelbase.cpp" />
+    <ClCompile Include="winapi\mscoree.cpp" />
+    <ClCompile Include="winapi\ntdll.cpp" />
+    <ClCompile Include="winapi\oleaut32.cpp" />
+    <ClCompile Include="winapi\shell32.cpp" />
+    <ClCompile Include="winapi\user32.cpp" />
+    <ClCompile Include="winapi\winapi_misc.cpp" />
+    <ClCompile Include="winapi\winmm.cpp" />
+    <ClCompile Include="common\config.cpp" />
+    <ClCompile Include="common\diriter.cpp" />
+    <ClCompile Include="common\logger.cpp" />
+    <ClCompile Include="common\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug - Alternative|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="fpu\fadd.cpp" />
+    <ClCompile Include="fpu\fcomp.cpp" />
+    <ClCompile Include="fpu\fdiv.cpp" />
+    <ClCompile Include="fpu\fld.cpp" />
+    <ClCompile Include="fpu\fmul.cpp" />
+    <ClCompile Include="fpu\fpu_arith_misc.cpp" />
+    <ClCompile Include="fpu\fpu_ctrl.cpp" />
+    <ClCompile Include="fpu\fpu_data_misc.cpp" />
+    <ClCompile Include="fpu\fpu_ext.cpp" />
+    <ClCompile Include="fpu\fst.cpp" />
+    <ClCompile Include="fpu\fsub.cpp" />
+    <ClCompile Include="simd\simd_misc.cpp" />
+    <ClCompile Include="simd\simd_mov.cpp" />
+    <ClCompile Include="simd\simd_pxor.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="core\callback.h" />
+    <ClInclude Include="core\coprocessor.h" />
+    <ClInclude Include="core\debug.h" />
+    <ClInclude Include="core\emulator.h" />
+    <ClInclude Include="core\exception.h" />
+    <ClInclude Include="core\heap.h" />
+    <ClInclude Include="core\inst_table.h" />
+    <ClInclude Include="core\instruction.h" />
+    <ClInclude Include="core\lochsemu.h" />
+    <ClInclude Include="core\memdesc.h" />
+    <ClInclude Include="core\memory.h" />
+    <ClInclude Include="core\peloader.h" />
+    <ClInclude Include="core\pemodule.h" />
+    <ClInclude Include="core\pluginapi.h" />
+    <ClInclude Include="core\pluginmgr.h" />
+    <ClInclude Include="core\process.h" />
+    <ClInclude Include="core\processor.h" />
+    <ClInclude Include="core\refproc.h" />
+    <ClInclude Include="core\section.h" />
+    <ClInclude Include="core\simd.h" />
+    <ClInclude Include="core\stack.h" />
+    <ClInclude Include="core\thread.h" />
+    <ClInclude Include="core\win32.h" />
+    <ClInclude Include="core\winapi.h" />
+    <ClInclude Include="3rdparty\BeaEngine\BeaEngine.h" />
+    <ClInclude Include="3rdparty\libdasm\libdasm.h" />
+    <ClInclude Include="3rdparty\libdasm\opcode_tables.h" />
+    <ClInclude Include="common\config.h" />
+    <ClInclude Include="common\diriter.h" />
+    <ClInclude Include="common\hashtable.h" />
+    <ClInclude Include="common\logger.h" />
+    <ClInclude Include="common\singleton.h" />
+    <ClInclude Include="common\stdafx.h" />
+    <ClInclude Include="common\targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

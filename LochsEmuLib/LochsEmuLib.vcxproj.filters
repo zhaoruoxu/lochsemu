@@ -1,0 +1,450 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\core">
+      <UniqueIdentifier>{280cf902-2430-4ec6-af24-174de3a47ad1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\3rdparty">
+      <UniqueIdentifier>{907db5de-7a9d-4018-91fe-1d34ec653693}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\cpu">
+      <UniqueIdentifier>{6418b65d-42a5-47c9-9627-eb708550c2cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\winapi">
+      <UniqueIdentifier>{508d0055-b6b1-4293-a2f4-48518527b75b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\common">
+      <UniqueIdentifier>{b0985f41-43ea-43aa-9860-6c06018f91a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\fpu">
+      <UniqueIdentifier>{4aeb8525-9da6-48a1-84cd-605e424decf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\simd">
+      <UniqueIdentifier>{ce71ab71-e811-4ed1-95eb-5f071eb0b5b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\core">
+      <UniqueIdentifier>{ffb57e93-2aeb-4ada-9d96-c6e44b6850c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\3rdparty">
+      <UniqueIdentifier>{6637e56e-060e-4182-9382-22b95b0ecd49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\common">
+      <UniqueIdentifier>{770556df-420b-42a1-b81d-246e3f98271e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\callback.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\coprocessor.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\debug.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\emulator.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\exception.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\heap.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\inst_table.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\lochsemu.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\memory.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\peloader.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\pemodule.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\pluginmgr.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\process.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\processor.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\refproc.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\section.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\simd.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\stack.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\thread.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\win32.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\winapi.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\libdasm\libdasm.cpp">
+      <Filter>Source Files\3rdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\adc.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\add.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\and.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\bt.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\call.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\cbw.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\cdq.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\cmp.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\cpu_misc.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\dec.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\div.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\enter-leave.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\ext.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\flag.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\idiv.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\imul.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\inc.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\int.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\jcc.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\jump.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\lea.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\loop.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\mov.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\movXX.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\mul.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\neg.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\not.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\or.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\pop.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\push.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\ret.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\rotate.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\sar.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\sbb.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\setcc.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\shl.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\shr.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\string.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\sub.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\test.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\xadd.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\xchg.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\xlat.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\xor.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="winapi\advapi32.cpp">
+      <Filter>Source Files\winapi</Filter>
+    </ClCompile>
+    <ClCompile Include="winapi\comctl32.cpp">
+      <Filter>Source Files\winapi</Filter>
+    </ClCompile>
+    <ClCompile Include="winapi\gdi32.cpp">
+      <Filter>Source Files\winapi</Filter>
+    </ClCompile>
+    <ClCompile Include="winapi\kernel32.cpp">
+      <Filter>Source Files\winapi</Filter>
+    </ClCompile>
+    <ClCompile Include="winapi\kernelbase.cpp">
+      <Filter>Source Files\winapi</Filter>
+    </ClCompile>
+    <ClCompile Include="winapi\mscoree.cpp">
+      <Filter>Source Files\winapi</Filter>
+    </ClCompile>
+    <ClCompile Include="winapi\ntdll.cpp">
+      <Filter>Source Files\winapi</Filter>
+    </ClCompile>
+    <ClCompile Include="winapi\oleaut32.cpp">
+      <Filter>Source Files\winapi</Filter>
+    </ClCompile>
+    <ClCompile Include="winapi\shell32.cpp">
+      <Filter>Source Files\winapi</Filter>
+    </ClCompile>
+    <ClCompile Include="winapi\user32.cpp">
+      <Filter>Source Files\winapi</Filter>
+    </ClCompile>
+    <ClCompile Include="winapi\winapi_misc.cpp">
+      <Filter>Source Files\winapi</Filter>
+    </ClCompile>
+    <ClCompile Include="winapi\winmm.cpp">
+      <Filter>Source Files\winapi</Filter>
+    </ClCompile>
+    <ClCompile Include="common\config.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\diriter.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\logger.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\stdafx.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="fpu\fadd.cpp">
+      <Filter>Source Files\fpu</Filter>
+    </ClCompile>
+    <ClCompile Include="fpu\fcomp.cpp">
+      <Filter>Source Files\fpu</Filter>
+    </ClCompile>
+    <ClCompile Include="fpu\fdiv.cpp">
+      <Filter>Source Files\fpu</Filter>
+    </ClCompile>
+    <ClCompile Include="fpu\fld.cpp">
+      <Filter>Source Files\fpu</Filter>
+    </ClCompile>
+    <ClCompile Include="fpu\fmul.cpp">
+      <Filter>Source Files\fpu</Filter>
+    </ClCompile>
+    <ClCompile Include="fpu\fpu_arith_misc.cpp">
+      <Filter>Source Files\fpu</Filter>
+    </ClCompile>
+    <ClCompile Include="fpu\fpu_ctrl.cpp">
+      <Filter>Source Files\fpu</Filter>
+    </ClCompile>
+    <ClCompile Include="fpu\fpu_data_misc.cpp">
+      <Filter>Source Files\fpu</Filter>
+    </ClCompile>
+    <ClCompile Include="fpu\fpu_ext.cpp">
+      <Filter>Source Files\fpu</Filter>
+    </ClCompile>
+    <ClCompile Include="fpu\fst.cpp">
+      <Filter>Source Files\fpu</Filter>
+    </ClCompile>
+    <ClCompile Include="fpu\fsub.cpp">
+      <Filter>Source Files\fpu</Filter>
+    </ClCompile>
+    <ClCompile Include="simd\simd_misc.cpp">
+      <Filter>Source Files\simd</Filter>
+    </ClCompile>
+    <ClCompile Include="simd\simd_mov.cpp">
+      <Filter>Source Files\simd</Filter>
+    </ClCompile>
+    <ClCompile Include="simd\simd_pxor.cpp">
+      <Filter>Source Files\simd</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\cmpxchg.cpp">
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="core\callback.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\coprocessor.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\debug.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\emulator.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\exception.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\heap.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\inst_table.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\instruction.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\lochsemu.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\memdesc.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\memory.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\peloader.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\pemodule.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\pluginapi.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\pluginmgr.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\process.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\processor.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\refproc.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\section.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\simd.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\stack.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\thread.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\win32.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\winapi.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\BeaEngine\BeaEngine.h">
+      <Filter>Header Files\3rdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libdasm\libdasm.h">
+      <Filter>Header Files\3rdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\libdasm\opcode_tables.h">
+      <Filter>Header Files\3rdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="common\config.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\diriter.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\hashtable.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\logger.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\singleton.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\stdafx.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\targetver.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>
