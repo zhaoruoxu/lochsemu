@@ -154,12 +154,21 @@ LX_API void _LxDebug(const char *format, ...) {
     LxLogInternal(LOG_LEVEL_DEBUG, format, args);
     va_end(args);
 }
+
 LX_API void LxWarning(const char *format, ...) {
     va_list args;
     va_start(args, format);
     LxLogInternal(LOG_LEVEL_WARNING, format, args);
     va_end(args);
 }
+
+LX_API void LxError(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    LxLogInternal(LOG_LEVEL_FATAL, format, args);
+    va_end(args);
+}
+
 LX_API void LxFatal(const char *format, ...) {
     va_list args;
     va_start(args, format);

@@ -25,13 +25,13 @@ ARIETIS_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, P
 
     Json::Value root;
     Json::Reader reader;
-    std::ifstream fin("../Arietis/test.json");
+    std::ifstream fin("../../Arietis/test.json");
 
     char buf[256];
     GetCurrentDirectory(256, buf);
 
     if (!fin.is_open()) {
-        LxFatal("Cannot open test.json\n");
+        LxError("Cannot open test.json\n");
     }
     if (!reader.parse(fin, root)) {
         LxFatal("Error loading test.json\n");

@@ -217,6 +217,7 @@ typedef LxResult (*InstHandler)(Processor *cpu, const Instruction *inst);
 LX_API void             LxInfo(const char *format, ...);
 LX_API void             _LxDebug(const char *format, ...);
 LX_API void             LxWarning(const char *format, ...);
+LX_API void             LxError(const char *format, ...);
 LX_API void             LxFatal(const char *format, ...);
 LX_API void             LxReportError(LxResult lr);
 
