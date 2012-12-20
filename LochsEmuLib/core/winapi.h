@@ -352,6 +352,20 @@ DECLARE_WINAPI_ENTRY(Oleaut32_SysAllocString);
 DECLARE_WINAPI_ENTRY(Oleaut32_SysAllocStringByteLen);
 DECLARE_WINAPI_ENTRY(Oleaut32_SysFreeString);
 
+/************************************************************************/
+/* ws2_32.dll                                                           */
+/************************************************************************/
+DECLARE_WINAPI_ENTRY(Ws2_32_accept);
+DECLARE_WINAPI_ENTRY(Ws2_32_bind);
+DECLARE_WINAPI_ENTRY(Ws2_32_closesocket);
+DECLARE_WINAPI_ENTRY(Ws2_32_htonl);
+DECLARE_WINAPI_ENTRY(Ws2_32_htons);
+DECLARE_WINAPI_ENTRY(Ws2_32_listen);
+DECLARE_WINAPI_ENTRY(Ws2_32_recv);
+DECLARE_WINAPI_ENTRY(Ws2_32_socket);
+DECLARE_WINAPI_ENTRY(Ws2_32_WSAStartup);
+DECLARE_WINAPI_ENTRY(Ws2_32_WSACleanup);
+
 
 END_NAMESPACE_LOCHSEMU()
 

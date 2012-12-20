@@ -225,7 +225,6 @@ LochsEmu::LxResult PeLoader::LoadIAT( uint nModule )
         if (IsEmulatedLibrary(dllName)) {
             // Load from API Hooking table
             for (uint i = 0; i < importIter->second.size(); i++) {
-
                 uint index;
                 if (importIter->second[i].Ordinal != (uint) -1) {
                     // import by ordinal in emulated library

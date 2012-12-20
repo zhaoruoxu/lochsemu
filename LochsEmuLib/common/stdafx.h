@@ -32,3 +32,4 @@
 #include <sstream>
 #include <ShlObj.h>
 #include <WinCrypt.h>
+#include <WinSock2.h>

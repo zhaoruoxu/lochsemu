@@ -82,7 +82,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>3rdparty\BeaEngine\BeaEngine.lib;shlwapi.lib;mscoree.lib;winmm.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>3rdparty\BeaEngine\BeaEngine.lib;ws2_32.lib;shlwapi.lib;mscoree.lib;winmm.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>crt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <Profile>true</Profile>
@@ -238,6 +238,7 @@
     <ClCompile Include="simd\simd_misc.cpp" />
     <ClCompile Include="simd\simd_mov.cpp" />
     <ClCompile Include="simd\simd_pxor.cpp" />
+    <ClCompile Include="winapi\ws2_32.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\callback.h" />

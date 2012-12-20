@@ -36,7 +36,7 @@ LxResult Call_FF_ext2(Processor *cpu, const Instruction *inst)
 
     cpu->ESP -= 4;
     cpu->MemWrite32(cpu->ESP, cpu->EIP, LX_REG_SS);
-    u32 origEip = cpu->EIP;
+    u32 origEip = cpu->EIP - inst->Length;
     cpu->EIP = val1;
 
     if (LX_IS_WINAPI(val1)) {

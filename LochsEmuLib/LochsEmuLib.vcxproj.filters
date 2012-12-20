@@ -339,6 +339,9 @@
     <ClCompile Include="cpu\cmpxchg.cpp">
       <Filter>Source Files\cpu</Filter>
     </ClCompile>
+    <ClCompile Include="winapi\ws2_32.cpp">
+      <Filter>Source Files\winapi</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\callback.h">

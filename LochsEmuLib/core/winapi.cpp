@@ -274,6 +274,18 @@ WinAPIInfo WinAPIInfoTable[] = {
     {  8, 0, "RegOpenKeyExA", Advapi32_RegOpenKeyExA },
     {  8, 0, "RegOpenKeyExW", Advapi32_RegOpenKeyExW },
     
+    /* ws2_32.dll */
+    { 16, 0x01, "accept", Ws2_32_accept },
+    { 16, 0x02, "bind", Ws2_32_bind },
+    { 16, 0x03, "closesocket", Ws2_32_closesocket },
+    { 16, 0x08, "htonl", Ws2_32_htonl },
+    { 16, 0x09, "htons", Ws2_32_htons },
+    { 16, 0x0d, "listen", Ws2_32_listen },
+    { 16, 0x10, "recv", Ws2_32_recv },
+    { 16, 0x17, "socket", Ws2_32_socket },
+    { 16, 0x73, "WSAStartup", Ws2_32_WSAStartup },
+    { 16, 0x74, "WSACleanup", Ws2_32_WSACleanup },
+
     /* shell32.dll */
     { 18, 0, "SHGetMalloc", Shell32_SHGetMalloc },
     { 18, 0, "SHGetPathFromIDListA", Shell32_SHGetPathFromIDListA },

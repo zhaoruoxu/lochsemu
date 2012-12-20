@@ -145,16 +145,19 @@ ImportTable PeModule::GetImports( Memory *mem, u32 imageBase )
         } else {
             pOrigThunk = (PIMAGE_THUNK_DATA) mem->GetRawData(imageBase + origThunk);
         }
-        Assert(pOrigThunk);
+        Assert(pOrigThunk); 
 
         int idxFunc = 0;
         while (true) {
             if (pOrigThunk[idxFunc].u1.AddressOfData == 0) break;
             if (pOrigThunk[idxFunc].u1.AddressOfData & IMAGE_ORDINAL_FLAG) {
                 // import by ordinal
-                funcs.push_back(ImportEntry(IMAGE_ORDINAL(pOrigThunk[idxFunc].u1.AddressOfData) - 1, 
+                LxWarning("Importing by ordinal!!! This may contain error.\n");
+                int ord = IMAGE_ORDINAL(pOrigThunk[idxFunc].u1.AddressOfData);
+                LxWarning("DLL: %s, ordinal: %d\n", dllName, ord);
+                funcs.push_back(ImportEntry(ord, 
                     import.FirstThunk + idxFunc * sizeof(IMAGE_THUNK_DATA) + imageBase));
-                LxWarning("Import by ordinal not supported, in DLL: %s\n", dllName);
+                //LxWarning("Import by ordinal not supported, in DLL: %s\n", dllName);
             } else {
                 // import by name
                 const char *funcName = (const char *) mem->GetRawData(imageBase + pOrigThunk[idxFunc].u1.AddressOfData + 2);

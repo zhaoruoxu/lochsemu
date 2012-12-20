@@ -30,6 +30,21 @@ LxResult Movdqa_0F6F(Processor *cpu, const Instruction *inst)
     RET_SUCCESS();
 }
 
+LxResult Movd_0F7E(Processor *cpu, const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize) {
+        // 66 prefix, sse
+        u128 val = cpu->ReadOperand128(inst, inst->Main.Argument2, NULL);
+        cpu->WriteOperand32(inst, inst->Main.Argument1, cpu->Offset32(inst->Main.Argument1),
+            val.dat[0]);
+    } else {
+        u64 val = cpu->ReadOperand64(inst, inst->Main.Argument2, NULL);
+        cpu->WriteOperand32(inst, inst->Main.Argument1, cpu->Offset32(inst->Main.Argument1),
+            (u32) val);
+    }
+    RET_SUCCESS();
+}
+
 LxResult Movdqa_0F7F(Processor *cpu, const Instruction *inst)
 {
     if (inst->Main.Prefix.OperandSize) {	//SSE

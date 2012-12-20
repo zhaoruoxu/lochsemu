@@ -207,12 +207,12 @@ enum INSTRUCTION_TYPE
 
 enum EFLAGS_STATES
 {
-  TE_ = 1,
-  MO_ = 2,
-  RE_ = 4,
-  SE_ = 8,
-  UN_ = 0x10,
-  PR_ = 0x20
+  TE_ = 1,      // tested
+  MO_ = 2,      // modified
+  RE_ = 4,      // reset
+  SE_ = 8,      // set
+  UN_ = 0x10,   // undefined behavior
+  PR_ = 0x20    // restore prior state
 };
 
 enum BRANCH_TYPE
