@@ -5,6 +5,8 @@
 #include "Arietis.h"
 #include "winapi.h"
 
+#include <json/json.h>
+
 PluginHandle    g_handle;
 Config          g_config;
 
@@ -20,6 +22,22 @@ ARIETIS_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, P
         LxInfo("Arietis is disabled\n");
         return false;
     }
+
+    Json::Value root;
+    Json::Reader reader;
+    std::ifstream fin("../Arietis/test.json");
+
+    char buf[256];
+    GetCurrentDirectory(256, buf);
+
+    if (!fin.is_open()) {
+        LxFatal("Cannot open test.json\n");
+    }
+    if (!reader.parse(fin, root)) {
+        LxFatal("Error loading test.json\n");
+    }
+
+    LxInfo("haha = %s\n", root["haha"].asCString());
 
     return true;
 }

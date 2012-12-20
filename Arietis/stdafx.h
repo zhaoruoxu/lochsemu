@@ -20,5 +20,6 @@
 #include <iostream>
 #include <cctype>
 #include <winternl.h>
+#include <fstream>
 
 // TODO: reference additional headers your program requires here

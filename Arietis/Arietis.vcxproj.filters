@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\3rdparty">
+      <UniqueIdentifier>{d039ba61-b8ee-48ca-8bfa-e87a159183f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\3rdparty\json">
+      <UniqueIdentifier>{1e572efa-8ff4-45fa-8180-cc44e64cc90e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\3rdparty">
+      <UniqueIdentifier>{e36767a5-283e-466e-bec5-a2c1256eb3cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\3rdparty\json">
+      <UniqueIdentifier>{593d6157-d151-41d3-bafc-016662e5e374}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -27,6 +39,36 @@
     <ClInclude Include="Arietis.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="3rdparty\include\json\autolink.h">
+      <Filter>Header Files\3rdparty\json</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\include\json\config.h">
+      <Filter>Header Files\3rdparty\json</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\include\json\features.h">
+      <Filter>Header Files\3rdparty\json</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\include\json\forwards.h">
+      <Filter>Header Files\3rdparty\json</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\include\json\json.h">
+      <Filter>Header Files\3rdparty\json</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\include\json\reader.h">
+      <Filter>Header Files\3rdparty\json</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\include\json\value.h">
+      <Filter>Header Files\3rdparty\json</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\include\json\writer.h">
+      <Filter>Header Files\3rdparty\json</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\src\json\json_batchallocator.h">
+      <Filter>Source Files\3rdparty\json</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\src\json\json_tool.h">
+      <Filter>Source Files\3rdparty\json</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -38,5 +80,25 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="3rdparty\src\json\json_reader.cpp">
+      <Filter>Source Files\3rdparty\json</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\src\json\json_value.cpp">
+      <Filter>Source Files\3rdparty\json</Filter>
+    </ClCompile>
+    <ClCompile Include="3rdparty\src\json\json_writer.cpp">
+      <Filter>Source Files\3rdparty\json</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="3rdparty\src\json\json_internalarray.inl">
+      <Filter>Source Files\3rdparty\json</Filter>
+    </None>
+    <None Include="3rdparty\src\json\json_internalmap.inl">
+      <Filter>Source Files\3rdparty\json</Filter>
+    </None>
+    <None Include="3rdparty\src\json\json_valueiterator.inl">
+      <Filter>Source Files\3rdparty\json</Filter>
+    </None>
   </ItemGroup>
 </Project>
