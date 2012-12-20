@@ -410,11 +410,22 @@ LX_API const char *LxGetModuleName( HMODULE hModule )
 void CallWindowsAPI( Processor *cpu, u32 val )
 {
     Assert(LX_IS_WINAPI(val));
-    WinAPIHandler apiFunc = WinAPIInfoTable[LX_WINAPI_NUM(val)].Handler;
+
+    uint apiIndex = LX_WINAPI_NUM(val);
+
+    if (cpu->Thr()) {
+        cpu->Thr()->Plugins()->OnWinapiPreCall(cpu, apiIndex);
+    }
+
+    WinAPIHandler apiFunc = WinAPIInfoTable[apiIndex].Handler;
 
     uint r = apiFunc(cpu);
     cpu->EIP = cpu->Pop32();
     cpu->ESP += r * 4;
+
+    if (cpu->Thr()) {
+        cpu->Thr()->Plugins()->OnWinapiPostCall(cpu, apiIndex);
+    }
 }
 
 LX_API const char * LxGetWinAPIModuleName( u32 index )

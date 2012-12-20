@@ -23,6 +23,8 @@ struct LoadedPluginInfo {
     LochsEmu_Process_PreRun         ProcessPreRun;
     LochsEmu_Process_PostRun        ProcessPostRun;
     LochsEmu_Process_PreLoad        ProcessPreLoad;
+    LochsEmu_Winapi_PreCall         WinapiPreCall;
+    LochsEmu_Winapi_PostCall        WinapiPostCall;
 
     LoadedPluginInfo() {
         Handle                      = (HMODULE) 0;
@@ -35,6 +37,8 @@ struct LoadedPluginInfo {
         ProcessPreRun               = NULL;
         ProcessPostRun              = NULL;
         ProcessPreLoad              = NULL;
+        WinapiPreCall               = NULL;
+        WinapiPostCall              = NULL;
     }
 };
 
@@ -52,6 +56,9 @@ public:
     INLINE LxResult OnProcessPreRun         (const Process *proc, Processor *cpu);
     INLINE LxResult OnProcessPostRun        (const Process *proc);
     INLINE LxResult OnProcessPreLoad        (PeLoader *loader);
+    INLINE LxResult OnWinapiPreCall         (Processor *cpu, uint apiIndex);
+    INLINE LxResult OnWinapiPostCall        (Processor *cpu, uint apiIndex);
+
 private:
     bool            FindPluginDirectory();
     LxResult        LoadPlugins();
@@ -70,6 +77,8 @@ private:
     INLINE void     SafeCallProcessPreRun(const LoadedPluginInfo &plugin, const Process *proc, Processor *cpu);
     INLINE void     SafeCallProcessPostRun(const LoadedPluginInfo &plugin, const Process *proc);
     INLINE void     SafeCallProcessPreLoad(const LoadedPluginInfo &plugin, PeLoader *loader);
+    INLINE void     SafeCallWinapiPreCall(const LoadedPluginInfo &plugin, Processor *cpu, uint apiIndex);
+    INLINE void     SafeCallWinapiPostCall(const LoadedPluginInfo &plugin, Processor *cpu, uint apiIndex);
 private:
     std::string         m_pluginDirectory;
 
@@ -161,6 +170,25 @@ PluginManager::OnProcessPreLoad( PeLoader *loader )
     RET_SUCCESS();
 }
 
+
+INLINE LxResult 
+PluginManager::OnWinapiPreCall( Processor *cpu, uint apiIndex )
+{
+    if (!m_enablePlugins) RET_SUCCESS();
+    for (auto plugin : m_plugins) {
+        SafeCallWinapiPreCall(plugin, cpu, apiIndex);
+    }
+    RET_SUCCESS();
+}
+
+INLINE LxResult PluginManager::OnWinapiPostCall( Processor *cpu, uint apiIndex )
+{
+    if (!m_enablePlugins) RET_SUCCESS();
+    for (auto plugin : m_plugins) {
+        SafeCallWinapiPostCall(plugin, cpu, apiIndex);
+    }
+    RET_SUCCESS();
+}
 
 INLINE void 
 PluginManager::SafeCallProcessorPreExecute
@@ -261,6 +289,31 @@ PluginManager::SafeCallProcessPreLoad
 }
 
 
+INLINE void 
+PluginManager::SafeCallWinapiPreCall
+    ( 
+    const LoadedPluginInfo &plugin, 
+    Processor *cpu, 
+    uint apiIndex 
+    )
+{
+    if (plugin.WinapiPreCall) {
+        plugin.WinapiPreCall(cpu, apiIndex);
+    }
+}
+
+INLINE void 
+PluginManager::SafeCallWinapiPostCall
+    ( 
+    const LoadedPluginInfo &plugin, 
+    Processor *cpu, 
+    uint apiIndex 
+    )
+{
+    if (plugin.WinapiPostCall) {
+        plugin.WinapiPostCall(cpu, apiIndex);
+    }
+}
 
 
 END_NAMESPACE_LOCHSEMU()

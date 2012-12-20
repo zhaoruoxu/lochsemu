@@ -2,12 +2,20 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LochsEmu", "LochsEmu\LochsEmu.vcxproj", "{1B62A323-0A3B-4DB7-9AE2-A1BBD32EC173}"
+	ProjectSection(ProjectDependencies) = postProject
+		{86DD9AC1-7D04-4FED-8B93-11B38D7F4812} = {86DD9AC1-7D04-4FED-8B93-11B38D7F4812}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LochsEmuLib", "LochsEmuLib\LochsEmuLib.vcxproj", "{F9360164-655E-4557-9355-83994282858B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LochsDbg", "LochsDbg\LochsDbg.vcxproj", "{CD930A39-FF2F-49CD-938D-799D5661CD83}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StatusDisplay", "StatusDisplay\StatusDisplay.vcxproj", "{502B54ED-F880-4BE7-AD46-20A49CA0088E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Arietis", "Arietis\Arietis.vcxproj", "{86DD9AC1-7D04-4FED-8B93-11B38D7F4812}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F9360164-655E-4557-9355-83994282858B} = {F9360164-655E-4557-9355-83994282858B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +39,10 @@ Global
 		{502B54ED-F880-4BE7-AD46-20A49CA0088E}.Debug|Win32.Build.0 = Debug|Win32
 		{502B54ED-F880-4BE7-AD46-20A49CA0088E}.Release|Win32.ActiveCfg = Release|Win32
 		{502B54ED-F880-4BE7-AD46-20A49CA0088E}.Release|Win32.Build.0 = Release|Win32
+		{86DD9AC1-7D04-4FED-8B93-11B38D7F4812}.Debug|Win32.ActiveCfg = Debug|Win32
+		{86DD9AC1-7D04-4FED-8B93-11B38D7F4812}.Debug|Win32.Build.0 = Debug|Win32
+		{86DD9AC1-7D04-4FED-8B93-11B38D7F4812}.Release|Win32.ActiveCfg = Release|Win32
+		{86DD9AC1-7D04-4FED-8B93-11B38D7F4812}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -33,6 +33,8 @@ typedef void (* LochsEmu_Processor_MemWrite)    (const Processor *cpu, u32 addre
 typedef void (* LochsEmu_Process_PreRun)        (const Process *proc, Processor *cpu);
 typedef void (* LochsEmu_Process_PostRun)       (const Process *proc);
 typedef void (* LochsEmu_Process_PreLoad)       (PeLoader *loader);
+typedef void (* LochsEmu_Winapi_PreCall)        (Processor *cpu, uint apiIndex);
+typedef void (* LochsEmu_Winapi_PostCall)       (Processor *cpu, uint apiIndex);
 
 
 END_NAMESPACE_LOCHSEMU()

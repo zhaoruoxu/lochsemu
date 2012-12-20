@@ -107,6 +107,10 @@ void PluginManager::LoadAPIAddrs( LoadedPluginInfo *plugin )
         GetProcAddress(plugin->Handle, "LochsEmu_Process_PostRun");
     plugin->ProcessPreLoad = (LochsEmu_Process_PreLoad)
         GetProcAddress(plugin->Handle, "LochsEmu_Process_PreLoad");
+    plugin->WinapiPreCall = (LochsEmu_Winapi_PreCall)
+        GetProcAddress(plugin->Handle, "LochsEmu_Winapi_PreCall");
+    plugin->WinapiPostCall = (LochsEmu_Winapi_PostCall)
+        GetProcAddress(plugin->Handle, "LochsEmu_Winapi_PostCall");
 }
 
 
@@ -139,7 +143,6 @@ void PluginManager::SafeCallPluginCleanup(const LoadedPluginInfo &plugin)
 {
     plugin.Cleanup();
 }
-
 
 
 
