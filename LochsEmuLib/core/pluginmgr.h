@@ -64,21 +64,7 @@ private:
     LxResult        LoadPlugins();
     void            LoadAPIAddrs(LoadedPluginInfo *plugin);
     bool            CheckPlugin(const LoadedPluginInfo &plugin);
-    bool            SafeCallPluginInit(LoadedPluginInfo *plugin, const LochsEmuInterface *lochsemu);
-    void            SafeCallPluginCleanup(const LoadedPluginInfo &plugin);
-    INLINE void     SafeCallProcessorPreExecute(const LoadedPluginInfo &plugin, 
-                        Processor *cpu, const Instruction *inst);
-    INLINE void     SafeCallProcessorPostExecute(const LoadedPluginInfo &plugin,
-                        Processor *cpu, const Instruction *inst);
-    INLINE void     SafeCallProcessorMemRead(const LoadedPluginInfo &plugin,
-                        const Processor *cpu, u32 addr, u32 nBytes, cpbyte data);
-    INLINE void     SafeCallProcessorMemWrite(const LoadedPluginInfo &plugin,
-                        const Processor *cpu, u32 addr, u32 nBytes, cpbyte data);
-    INLINE void     SafeCallProcessPreRun(const LoadedPluginInfo &plugin, const Process *proc, Processor *cpu);
-    INLINE void     SafeCallProcessPostRun(const LoadedPluginInfo &plugin, const Process *proc);
-    INLINE void     SafeCallProcessPreLoad(const LoadedPluginInfo &plugin, PeLoader *loader);
-    INLINE void     SafeCallWinapiPreCall(const LoadedPluginInfo &plugin, Processor *cpu, uint apiIndex);
-    INLINE void     SafeCallWinapiPostCall(const LoadedPluginInfo &plugin, Processor *cpu, uint apiIndex);
+
 private:
     std::string         m_pluginDirectory;
 
@@ -94,8 +80,9 @@ INLINE LxResult
 PluginManager::OnProcessorPreExecute( Processor *cpu, const Instruction *inst )
 {
     if (!m_enablePlugins) RET_SUCCESS();
-    for (uint i = 0; i < m_numPlugins; i++) {
-        SafeCallProcessorPreExecute(m_plugins[i], cpu, inst);
+    for (auto plugin : m_plugins) {
+        if (plugin.ProcessorPreExecute)
+            plugin.ProcessorPreExecute(cpu, inst);
     }
     RET_SUCCESS();
 }
@@ -104,8 +91,9 @@ INLINE LxResult
 PluginManager::OnProcessorPostExecute( Processor *cpu, const Instruction *inst )
 {
     if (!m_enablePlugins) RET_SUCCESS();
-    for (uint i = 0; i < m_numPlugins; i++) {
-        SafeCallProcessorPostExecute(m_plugins[i], cpu, inst);
+    for (auto plugin : m_plugins) {
+        if (plugin.ProcessorPostExecute)
+            plugin.ProcessorPostExecute(cpu, inst);
     }
     RET_SUCCESS();
 }
@@ -114,8 +102,9 @@ INLINE LxResult
 PluginManager::OnProcessorMemRead( const Processor *cpu, u32 addr, u32 nBytes, cpbyte data )
 {
     if (!m_enablePlugins) RET_SUCCESS();
-    for (uint i = 0; i < m_numPlugins; i++) {
-        SafeCallProcessorMemRead(m_plugins[i], cpu, addr, nBytes, data);
+    for (auto plugin : m_plugins) {
+        if (plugin.ProcessorMemRead)
+            plugin.ProcessorMemRead(cpu, addr, nBytes, data);
     }
     RET_SUCCESS();
 }
@@ -124,8 +113,9 @@ INLINE LxResult
 PluginManager::OnProcessorMemWrite( const Processor *cpu, u32 addr, u32 nBytes, cpbyte data)
 {
     if (!m_enablePlugins) RET_SUCCESS();
-    for (uint i = 0; i < m_numPlugins; i++) {
-        SafeCallProcessorMemWrite(m_plugins[i], cpu, addr, nBytes, data);
+    for (auto plugin : m_plugins) {
+        if (plugin.ProcessorMemWrite)
+            plugin.ProcessorMemWrite(cpu, addr, nBytes, data);
     }
     RET_SUCCESS();
 }
@@ -134,8 +124,9 @@ INLINE LxResult
 PluginManager::OnExit( void )
 {
     if (!m_enablePlugins) RET_SUCCESS();
-    for (uint i = 0; i < m_numPlugins; i++) {
-        SafeCallPluginCleanup(m_plugins[i]);
+    for (auto plugin : m_plugins) {
+        if (plugin.Cleanup)
+            plugin.Cleanup();
     }
     RET_SUCCESS();
 }
@@ -144,8 +135,9 @@ INLINE LxResult
 PluginManager::OnProcessPreRun( const Process *proc, Processor *cpu )
 {
     if (!m_enablePlugins) RET_SUCCESS();
-    for (uint i = 0; i < m_numPlugins; i++) {
-        SafeCallProcessPreRun(m_plugins[i], proc, cpu);
+    for (auto plugin : m_plugins) {
+        if (plugin.ProcessPreRun)
+            plugin.ProcessPreRun(proc, cpu);
     }
     RET_SUCCESS();
 }
@@ -154,8 +146,9 @@ INLINE LxResult
 PluginManager::OnProcessPostRun( const Process *proc )
 {
     if (!m_enablePlugins) RET_SUCCESS();
-    for (uint i = 0; i < m_numPlugins; i++) {
-        SafeCallProcessPostRun(m_plugins[i], proc);
+    for (auto plugin : m_plugins) {
+        if (plugin.ProcessPostRun)
+            plugin.ProcessPostRun(proc);
     }
     RET_SUCCESS();
 }
@@ -164,8 +157,9 @@ INLINE LxResult
 PluginManager::OnProcessPreLoad( PeLoader *loader )
 {
     if (!m_enablePlugins) RET_SUCCESS();
-    for (uint i = 0; i < m_numPlugins; i++) {
-        SafeCallProcessPreLoad(m_plugins[i], loader);
+    for (auto plugin : m_plugins) {
+        if (plugin.ProcessPreLoad)
+            plugin.ProcessPreLoad(loader);
     }
     RET_SUCCESS();
 }
@@ -176,145 +170,22 @@ PluginManager::OnWinapiPreCall( Processor *cpu, uint apiIndex )
 {
     if (!m_enablePlugins) RET_SUCCESS();
     for (auto plugin : m_plugins) {
-        SafeCallWinapiPreCall(plugin, cpu, apiIndex);
+        if (plugin.WinapiPreCall)
+            plugin.WinapiPreCall(cpu, apiIndex);
     }
     RET_SUCCESS();
 }
 
-INLINE LxResult PluginManager::OnWinapiPostCall( Processor *cpu, uint apiIndex )
+INLINE LxResult 
+PluginManager::OnWinapiPostCall( Processor *cpu, uint apiIndex )
 {
     if (!m_enablePlugins) RET_SUCCESS();
     for (auto plugin : m_plugins) {
-        SafeCallWinapiPostCall(plugin, cpu, apiIndex);
+        if (plugin.WinapiPostCall)
+            plugin.WinapiPostCall(cpu, apiIndex);
     }
     RET_SUCCESS();
 }
-
-INLINE void 
-PluginManager::SafeCallProcessorPreExecute
-    (
-    const LoadedPluginInfo &plugin, 
-    Processor *cpu, 
-    const Instruction *inst
-    )
-{
-    // also, may wanna enable SEH here
-    if (plugin.ProcessorPreExecute) {
-        plugin.ProcessorPreExecute(cpu, inst);
-    }
-}
-
-
-INLINE void 
-PluginManager::SafeCallProcessorPostExecute
-    (
-    const LoadedPluginInfo &plugin,
-    Processor *cpu, 
-    const Instruction *inst 
-    )
-{
-    if (plugin.ProcessorPostExecute) {
-        plugin.ProcessorPostExecute(cpu, inst);
-    }
-}
-
-
-INLINE void 
-PluginManager::SafeCallProcessorMemRead
-    (
-    const LoadedPluginInfo &plugin, 
-    const Processor *cpu, 
-    u32 addr, 
-    u32 nBytes, 
-    cpbyte data
-    )
-{
-    if (plugin.ProcessorMemRead) {
-        plugin.ProcessorMemRead(cpu, addr, nBytes, data);
-    }
-}
-
-
-INLINE void 
-PluginManager::SafeCallProcessorMemWrite
-    (
-    const LoadedPluginInfo &plugin, 
-    const Processor *cpu, 
-    u32 addr, 
-    u32 nBytes, 
-    cpbyte data 
-    )
-{
-    if (plugin.ProcessorMemWrite) {
-        plugin.ProcessorMemWrite(cpu, addr, nBytes, data);
-    }
-}
-
-INLINE void
-PluginManager::SafeCallProcessPreRun
-    (
-    const LoadedPluginInfo &plugin,
-    const Process *proc, 
-    Processor *cpu
-    )
-{
-    if (plugin.ProcessPreRun) {
-        plugin.ProcessPreRun(proc, cpu);
-    }
-}
-
-INLINE void
-PluginManager::SafeCallProcessPostRun
-    (
-    const LoadedPluginInfo &plugin,
-    const Process *proc
-    )
-{
-    if (plugin.ProcessPostRun) {
-        plugin.ProcessPostRun(proc);
-    }
-}
-
-
-INLINE void 
-PluginManager::SafeCallProcessPreLoad
-    ( 
-    const LoadedPluginInfo &plugin, 
-    PeLoader *loader 
-    )
-{
-    if (plugin.ProcessPreLoad) {
-        plugin.ProcessPreLoad(loader);
-    }
-}
-
-
-INLINE void 
-PluginManager::SafeCallWinapiPreCall
-    ( 
-    const LoadedPluginInfo &plugin, 
-    Processor *cpu, 
-    uint apiIndex 
-    )
-{
-    if (plugin.WinapiPreCall) {
-        plugin.WinapiPreCall(cpu, apiIndex);
-    }
-}
-
-INLINE void 
-PluginManager::SafeCallWinapiPostCall
-    ( 
-    const LoadedPluginInfo &plugin, 
-    Processor *cpu, 
-    uint apiIndex 
-    )
-{
-    if (plugin.WinapiPostCall) {
-        plugin.WinapiPostCall(cpu, apiIndex);
-    }
-}
-
 
 END_NAMESPACE_LOCHSEMU()
 

@@ -66,7 +66,7 @@ LxResult PluginManager::LoadPlugins()
         plugin.Init         = (LochsEmu_Plugin_Initialize) GetProcAddress(plugin.Handle, "LochsEmu_Plugin_Initialize");
         if (plugin.Init) {
             // try calling Init routine
-            bool initOkay   = SafeCallPluginInit(&plugin, &lochsemu);
+            bool initOkay   = plugin.Init(&lochsemu, &plugin.Info); //SafeCallPluginInit(&plugin, &lochsemu);
 
             if (!CheckPlugin(plugin)) continue;
 
@@ -128,20 +128,6 @@ bool PluginManager::CheckPlugin( const LoadedPluginInfo &plugin )
         }
     }
     return true;
-}
-
-
-bool PluginManager::SafeCallPluginInit(LoadedPluginInfo *plugin, 
-                                       const LochsEmuInterface *lochsemu )
-{
-    // may wanna enable SEH here; preventing any bug in plugin crashing the core
-    return plugin->Init(lochsemu, &plugin->Info);
-}
-
-
-void PluginManager::SafeCallPluginCleanup(const LoadedPluginInfo &plugin)
-{
-    plugin.Cleanup();
 }
 
 
