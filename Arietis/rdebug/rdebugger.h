@@ -19,17 +19,17 @@ public:
 
     bool Connect(const std::string &addr, uint port);
     bool SendString(const char *str);
+    std::string ReceiveString();
 
 private:
-    static const int BufferSize = 1024;
-    bool Send(const char *buf, int len);
+    static const int BufferSize = 4096;
+    bool SendBuffer(const char *buf, int len);
 
 private:
     State       m_state;
     SOCKET      m_socket;
     std::string m_serverAddr;
     uint        m_port;
-    char        m_buffer[BufferSize];
 };
  
 #endif // __RDEBUG_RDEBUGGER_H__

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "rdebugger.h"
 
+#define MSG_TERMINATOR  "\n\n"
+
 RDebugger::RDebugger()
 {
     m_state = DISCONNECTED;
@@ -23,7 +25,6 @@ bool RDebugger::Connect(const std::string &addr, uint port)
     WSADATA wsaData;
     SOCKADDR_IN serverAddr;
 
-    ZeroMemory(m_buffer, sizeof(char) * BufferSize);
     WSAStartup(MAKEWORD(1, 1), &wsaData);
 
     m_socket                = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -36,39 +37,78 @@ bool RDebugger::Connect(const std::string &addr, uint port)
         LxError("Connection failed, error = %d\n", WSAGetLastError());
         return false;
     }
-    ZeroMemory(m_buffer, BufferSize);
-    sprintf_s(m_buffer, BufferSize, "arietis %x\n", ArietisVersion);
-    send(m_socket, m_buffer, BufferSize, 0);
 
-    ZeroMemory(m_buffer, BufferSize);
+    char buf[256];
+    sprintf_s(buf, 256, "arietis %x", ArietisVersion);
 
-    int nret = recv(m_socket, m_buffer, BufferSize, 0);
+    if (!SendString(buf)) {
+        LxFatal("Unable to establish connection\n");
+        return false;
+    }
 
-    if (!strcmp(m_buffer, "hello")) {
-        LxInfo("Arietis: connected to remote debugger\n");
-        m_state = CONNECTED;
+    std::string respond = ReceiveString();
+    
+    if (respond == "hello") {
+        LxInfo("Arietis: connection established\n");
     } else {
-        LxError("Connection failed, server reply: %s\n", m_buffer);
+        LxFatal("Unable to establish connection, server says: %s\n", respond.c_str());
     }
 
     return m_state == CONNECTED;
 }
 
-bool RDebugger::Send( const char *buf, int len )
-{
-    return false;
-}
-
 bool RDebugger::SendString( const char *str )
 {
-    if (m_state != CONNECTED) return false;
+    //if (m_state != CONNECTED) return false;
 
-    Assert(strlen(str) < BufferSize-1);
-    ZeroMemory(m_buffer, BufferSize);
+    std::string msg(str);
+    msg += MSG_TERMINATOR;
 
-    strcpy(m_buffer, str);
-    strcat(m_buffer, "\n");
+    uint ptr = 0;
+    char buf[BufferSize];
 
-    send(m_socket, m_buffer, BufferSize, 0);
+    while (ptr < msg.length()) {
+        ZeroMemory(buf, BufferSize);
+        memcpy(buf, msg.c_str() + ptr, min(BufferSize, msg.length() - ptr));
+        if (!SendBuffer(buf, BufferSize)) return false;
+        ptr += BufferSize;
+    }
+
     return true;
+}
+
+std::string RDebugger::ReceiveString()
+{
+    std::string msg;
+    char buf[BufferSize];
+
+    while (true) {
+        ZeroMemory(buf, BufferSize);
+        recv(m_socket, buf, BufferSize, 0);
+        const char *term = strstr(buf, MSG_TERMINATOR);
+        if (term) {
+            buf[term - buf] = '\0';
+            msg += buf;
+            break;
+        }
+        msg += buf;
+    }
+    return msg;
+}
+
+bool RDebugger::SendBuffer(const char *buf, int len)
+{
+    //Assert(m_state == CONNECTED);
+
+    int nret = send(m_socket, buf, len, 0);
+
+    //char buf[256];
+    //ZeroMemory(buf, 256);
+    //nret = recv(m_socket, buf, 256, 0);
+    //if (strcmp(buf, "okay")) {
+    //    LxError("Connection error, received: %s\n", buf);
+    //    return false;
+    //}
+
+    return nret <= BufferSize;
 }
