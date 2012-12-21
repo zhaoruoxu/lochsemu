@@ -4,18 +4,17 @@ Created on 2012-12-21
 @author: Administrator
 '''
 
-import sys
 import socket
+from common import VERSION
 
-VERSION         = 0x20121221
 BUFFER_SIZE     = 4096
-MSG_TERMINATOR  = b'\n\n'
+MSG_TERMINATOR  = '\n\n'
 
 def Recv(conn):
-    msg = b''
+    msg = ''
     while True:
         buf = conn.recv(BUFFER_SIZE)
-        if buf == b'\n\n':
+        if buf == '\n\n':
             raise RuntimeError('conn.rect() failed')
         termPos = buf.find(MSG_TERMINATOR)
         if termPos == -1:
@@ -24,7 +23,7 @@ def Recv(conn):
         msg += buf[:termPos]
         break
     # conn.send(b'okay')
-    return str(msg, 'ascii')
+    return msg
 
 def Send(conn, msg):
     msg += MSG_TERMINATOR
@@ -36,7 +35,7 @@ def Send(conn, msg):
             raise RuntimeError('conn.send() failed')
         totalSent += sent
     
-def main(argv):
+def StartServer():
     print('Arietis Remote Debugging Server, version %x' % (VERSION))
     
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -53,7 +52,7 @@ def main(argv):
             msg = Recv(conn)
             print(msg)
             # do something here
-            Send(conn, b'hello')
+            Send(conn, 'hello')
             
             while True:
                 msg = Recv(conn)
@@ -61,12 +60,9 @@ def main(argv):
                 if msg[:3] == 'bye':
                     print('client goodbye')
                     break
-        except ConnectionResetError:
-            print('Connection reset')
+        #except ConnectionResetError:
+        #    print('Connection reset')
         except socket.timeout:
             print('timed out')
         conn.close()
     
-
-if __name__ == '__main__':
-    main(sys.argv)

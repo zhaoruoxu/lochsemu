@@ -35,3 +35,4 @@ LochsEmu/pi_data.txt
 *.opensdf
 *.sdf
 LochsEmu.sdf
+*.pyc
