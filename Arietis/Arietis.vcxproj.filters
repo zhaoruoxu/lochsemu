@@ -25,6 +25,18 @@
     <Filter Include="Source Files\3rdparty\json">
       <UniqueIdentifier>{593d6157-d151-41d3-bafc-016662e5e374}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\taint">
+      <UniqueIdentifier>{88069ee4-ab8a-41c4-a30f-3439a95b6be2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\taint">
+      <UniqueIdentifier>{669f15ec-3162-4a0f-8763-bde027c561fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\rdebug">
+      <UniqueIdentifier>{13e2c61f-7482-461b-8f52-e0d40156e034}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\rdebug">
+      <UniqueIdentifier>{5ed49cf2-5a4d-440a-afae-2989bddd7d46}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -69,6 +81,15 @@
     <ClInclude Include="3rdparty\src\json\json_tool.h">
       <Filter>Source Files\3rdparty\json</Filter>
     </ClInclude>
+    <ClInclude Include="taint\engine.h">
+      <Filter>Header Files\taint</Filter>
+    </ClInclude>
+    <ClInclude Include="taint\taint.h">
+      <Filter>Header Files\taint</Filter>
+    </ClInclude>
+    <ClInclude Include="rdebug\rdebugger.h">
+      <Filter>Header Files\rdebug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -88,6 +109,15 @@
     </ClCompile>
     <ClCompile Include="3rdparty\src\json\json_writer.cpp">
       <Filter>Source Files\3rdparty\json</Filter>
+    </ClCompile>
+    <ClCompile Include="taint\taint.cpp">
+      <Filter>Source Files\taint</Filter>
+    </ClCompile>
+    <ClCompile Include="taint\engine.cpp">
+      <Filter>Source Files\taint</Filter>
+    </ClCompile>
+    <ClCompile Include="rdebug\rdebugger.cpp">
+      <Filter>Source Files\rdebug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

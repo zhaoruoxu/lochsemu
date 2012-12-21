@@ -13,6 +13,8 @@
 
 #include "pluginapi.h"
 
+static const uint ArietisVersion = 0x20121221;
+
 using namespace LochsEmu;
 
 ARIETIS_API bool LochsEmu_Plugin_Initialize         (const LochsEmuInterface *lochsemu, PluginInfo *info); 
