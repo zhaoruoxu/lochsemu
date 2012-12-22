@@ -16,15 +16,15 @@
  */
 
 static int RegMap[]  = {
-    -1,  0,  4, -1,  8,  0, -1, -1, 12, -1, -1, -1, -1, -1, -1, -1,
-    16, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    20, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1,  0,  1, -1,  2,  0, -1, -1,  3, -1, -1, -1, -1, -1, -1, -1,
+     4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+     5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    24, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+     6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    28
+     7
 };
 
 MemoryTaint::MemoryTaint( )
@@ -32,12 +32,29 @@ MemoryTaint::MemoryTaint( )
 
 }
 
-Taint* MemoryTaint::Get( u32 addr )
+Taint MemoryTaint::Get( u32 addr )
 {
     if (m_status.find(addr) == m_status.end()) {
         m_status[addr] = Taint();
     }
-    return &m_status[addr];
+    return m_status[addr];
+}
+
+Taint MemoryTaint::Get( u32 addr, u32 len )
+{
+    Taint ret = Get(addr);
+    for (uint i = 1; i < len; i++) {
+        ret |= Get(addr + i);
+    }
+    return ret;
+}
+
+void MemoryTaint::Set( const Taint &t, u32 addr, u32 len /*= 1*/ )
+{
+    Assert(len > 0);
+    for (uint i = 0; i < len; i++) {
+        m_status[addr + i] = t;
+    }
 }
 
 
@@ -70,36 +87,50 @@ void TaintEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
         return;
 
     if (strstr(inst->Main.Inst.Mnemonic, "cmp")) return;
-    int len = min(arg1.ArgSize, arg2.ArgSize) / 8;
-    for (int i = 0; i < len; i++) {
-        Taint *t = GetTaint(cpu, inst, arg1, i);
-        Taint *s = GetTaint(cpu, inst, arg2, i);
-        *t |= *s;
-        if (t->IsTainted(DEBUG_TAINT)) {
-            LxInfo("%s  %s is propagated\n", inst->Main.CompleteInstr, arg1.ArgMnemonic);
-        }
-    }
 
+    DefaultTaintPropagate(cpu, inst);
     if (strstr(inst->Main.Inst.Mnemonic, "add")) {
-        int len = arg1.ArgSize / 8;
-        for (int i = 0; i < len; i++) {
-            Taint *t = GetTaint(cpu, inst, arg1, i);
-            t->Set(DEBUG_TAINT);
-            LxInfo("%s  %s is introduced\n", inst->Main.CompleteInstr, arg1.ArgMnemonic);
-        }
+        Taint t;
+        t.Set(DEBUG_TAINT);
+        SetTaint(cpu, arg1, t);
     }
 }
 
-Taint* TaintEngine::GetTaint(const Processor *cpu, const Instruction *inst, 
-                            const ARGTYPE &oper, int offset )
+
+Taint TaintEngine::GetTaint( const Processor *cpu, const ARGTYPE &oper )
 {
     if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
-        return &m_cpuTaint.GPRegs[RegMap[REG_NUM(oper.ArgType)] + oper.ArgPosition + offset];
+        int index = RegMap[REG_NUM(oper.ArgType)];
+        return m_cpuTaint.GPRegs[index];
     } else if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
-        u32 o = cpu->Offset32(oper) + offset;
-        return m_memTaint.Get(o);
+        u32 o = cpu->Offset32(oper);
+        return m_memTaint.Get(o, oper.ArgSize / 8);
     } else {
-        // nothing to do
-        return NULL;
+        return Taint();
     }
+}
+
+void TaintEngine::SetTaint( const Processor *cpu, const ARGTYPE &oper, const Taint &t )
+{
+    Assert(t.GetIndices() > 0);
+    if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
+        m_cpuTaint.GPRegs[RegMap[REG_NUM(oper.ArgType)]] = t;
+    } else if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
+        u32 o = cpu->Offset32(oper);
+        return m_memTaint.Set(t, o, oper.ArgSize / 8);
+    } else {
+
+    }
+}
+
+
+void TaintEngine::DefaultTaintPropagate( Processor *cpu, const Instruction *inst )
+{
+    // op1 = op1 op op2
+    const ARGTYPE &arg1 = inst->Main.Argument1;
+    const ARGTYPE &arg2 = inst->Main.Argument2;
+
+    if (OPERAND_TYPE(arg2.ArgType) == CONSTANT_TYPE) return;
+    Taint t = GetTaint(cpu, arg1) | GetTaint(cpu, arg2);
+    SetTaint(cpu, arg1, t);
 }

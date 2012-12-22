@@ -9,7 +9,7 @@
 
 struct ProcessorTaint {
 
-    Taint GPRegs[4 * 8];
+    Taint GPRegs[8];
     
     Taint OF;
     Taint SF;
@@ -30,7 +30,9 @@ struct ProcessorTaint {
 class MemoryTaint {
 public:
     MemoryTaint();
-    Taint*      Get(u32 addr);
+    Taint       Get(u32 addr);
+    Taint       Get(u32 addr, u32 len);
+    void        Set(const Taint &t, u32 addr, u32 len = 1);
 private:
     std::unordered_map<u32, Taint> m_status;
 };
@@ -47,12 +49,14 @@ public:
     void        OnWinapiPreCall    (Processor *cpu, uint apiIndex);
     void        OnWinapiPostCall   (Processor *cpu, uint apiIndex);
 
+    void        DefaultTaintPropagate   (Processor *cpu, const Instruction *inst);
 private:
     ProcessorTaint  m_cpuTaint;
     MemoryTaint     m_memTaint;
 
 private:
-    Taint*      GetTaint(const Processor *cpu, const Instruction *inst, const ARGTYPE &oper, int offset);
+    Taint       GetTaint(const Processor *cpu, const ARGTYPE &oper);
+    void        SetTaint(const Processor *cpu, const ARGTYPE &oper, const Taint &t);
 
     void        TaintIntroduce();
     void        TaintPropagate();   // !!! special handlers for instructions
