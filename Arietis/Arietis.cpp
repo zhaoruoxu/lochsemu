@@ -58,7 +58,9 @@ ARIETIS_API void LochsEmu_Winapi_PreCall( Processor *cpu, uint apiIndex )
     auto apiName = LxGetWinAPIName(apiIndex);
     char buf[256];
     sprintf(buf, "%s:%s", dllName, apiName);
-    g_rdebugger.SendString(buf);
+    if (!g_rdebugger.SendString(buf)) {
+        LxFatal("SendString failed\n");
+    }
     LxWarning("ARIETIS PRE  %s:%s\n", dllName, apiName);
 }
 

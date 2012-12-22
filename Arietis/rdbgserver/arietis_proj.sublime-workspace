@@ -1,0 +1,320 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"buf",
+				"BUFFER_SIZE"
+			],
+			[
+				"height",
+				"Height"
+			],
+			[
+				"Seg",
+				"SegCircle"
+			],
+			[
+				"plas",
+				"plastic-r"
+			],
+			[
+				"pla",
+				"plastic-ks"
+			],
+			[
+				"debug",
+				"debugMaterial"
+			],
+			[
+				"get",
+				"getText"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "Packages/Python/Python.sublime-build",
+	"command_palette":
+	{
+		"height": 61.0,
+		"selected_items":
+		[
+			[
+				"git",
+				"Git: New Tag"
+			],
+			[
+				"package",
+				"Package Control: Disable Package"
+			],
+			[
+				"pack",
+				"Package Control: Install Package"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: in",
+				"Package Control: Install Package"
+			],
+			[
+				"Snippet: ",
+				"Snippet: Table"
+			]
+		],
+		"width": 522.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Code/loccs/lochsemu.vs2012/Arietis/rdbgserver/arietis/server/test.py",
+		"/C/Code/loccs/lochsemu.vs2012/Arietis/rdbgserver/arietis/gui/__init__.py",
+		"/C/Code/loccs/lochsemu.vs2012/Arietis/rdbgserver/arietis/common/__init__.py",
+		"/C/Code/loccs/lochsemu.vs2012/Arietis/rdbgserver/arietis/main.py",
+		"/C/Code/loccs/lochsemu.vs2012/Arietis/rdbgserver/arietis/server/__init__.py",
+		"/C/Code/loccs/andromeda.sublime-project",
+		"/C/Code/loccs/lochsemu.vs2012/Arietis/rdbgserver/src/server.py",
+		"/C/Code/Lyrae/scenes/wavefront.json",
+		"/C/Code/Lyrae/scenes/volume.json",
+		"/C/Code/Lyrae/scenes/pollballs.json",
+		"/C/Code/Lyrae/scenes/3balls.json",
+		"/C/Code/Lyrae/scenes/debug.json",
+		"/C/Code/Lyrae/scenes/mesh-normal.json",
+		"/C/Code/Lyrae/scenes/magnifier.json",
+		"/C/Code/Lyrae/scenes/book.json",
+		"/C/Tools/SublimeText2/Data/Packages/GBK Encoding Support/tmp/test.ahk                C%3A%5CUsers%5CAdministrator%5CDesktop%5Ctest.ahk",
+		"/C/AppData/Firefox/gm_scripts/Google_Dark/gdark1b.user.js",
+		"/C/Users/Administrator/Desktop/test.ahk",
+		"/C/Users/Administrator/Desktop/B95CB715788707EFCA12C81CCB33334524139C60.asc",
+		"/C/Tools/SublimeText2/Data/Packages/User/Preferences.sublime-settings",
+		"/C/Code/Lyrae/shapes/squareT.obj",
+		"/C/Code/Lyrae/shapes/box.obj",
+		"/C/Code/Lyrae/shapes/magnifier.obj",
+		"/C/Code/Lyrae/shapes/sphere.obj",
+		"/C/Code/Lyrae/shapes/book/book-body.obj",
+		"/C/Code/Lyrae/shapes/book/book-leftpage.obj",
+		"/C/Code/Lyrae/shapes/magnifier.py",
+		"/C/Users/ADMINI~1/AppData/Local/Temp/Rar$DRa0.694/_pbrt_src_1.02_reorganized_20071111/integrators/bidirectional.cpp",
+		"/C/Users/ADMINI~1/AppData/Local/Temp/Rar$DRa0.409/_pbrt_src_1.02_reorganized_20071111/integrators/bdpt/bdpt2.cpp",
+		"/C/Users/ADMINI~1/AppData/Local/Temp/Rar$DRa0.000/_pbrt_src_1.02_reorganized_20071111/integrators/bdpt/bdpt1.cpp",
+		"/C/Users/Administrator/AppData/Local/Temp/Rar$DIa0.256/bdpt.h",
+		"/C/Python32/Tools/pynche/Main.py",
+		"/C/Program Files (x86)/LyX20/Python/Lib/lib2to3/main.py",
+		"/C/Tools/Crack/Immunity Debugger/Libs/x86smt/prettysolver.py",
+		"/C/Code/Lyrae/scenes/texture.json",
+		"/C/Code/Lyrae/shapes/square3x1.obj",
+		"/C/Code/github/pbrt-v2/src/core/pbrt.h",
+		"/D/ThinkNT/Documents/ICICS2012/program_partition.txt",
+		"/C/Code/loccs/andromeda/Andromeda.Test/il_programs/add.lxil",
+		"/C/Code/loccs/andromeda/Andromeda.Test/il_programs/debug.lxil.json",
+		"/F/software/Coding/Source Insight/3570.txt",
+		"/C/Code/loccs/andromeda/Andromeda.Test/il_programs/debug.lxil",
+		"/C/Code/loccs/andromeda/Andromeda.Test/il_programs/fibonacci.lxil",
+		"/C/Windows/System32/drivers/etc/hosts",
+		"/C/Tools/goagent/local/proxy.ini",
+		"/C/Code/loccs/andromeda/Andromeda.Test/il_programs/add.lxil.json",
+		"/C/Tools/SublimeText2/Data/Packages/User/lxil.tmLanguage",
+		"/C/Program Files (x86)/Common Files/Blizzard Entertainment/BlizzardDownloader.ini",
+		"/C/Code/loccs/andromeda/Andromeda.IL/sample_programs/debug.lxil.json",
+		"/C/Code/loccs/andromeda/Andromeda.IL/sample_programs/debug.lxil",
+		"/C/Code/loccs/andromeda/Andromeda.IL/sample_programs/debug.lxil.data",
+		"/C/Code/LochsEmu.VS2008/bin/Debug/plugins/lochstrace.ini",
+		"/C/Users/Administrator/Desktop/diaos/apk_to_dlist/class.dlist",
+		"/C/Code/eclipse/RC4/src/edu/loccs/rc4/MainActivity.java",
+		"/D/Tools/SublimeText2/Data/Packages/User/run.py",
+		"/D/sjtu/Presentations/a_smart_fuzzer_for_x86_executables/figures/buffer_overflow.png",
+		"/D/Tools/SublimeText2/Data/Packages/GBK Encoding Support/tmp/NewCCT-HOWTO.txt                D%3A%5CTools%5CCTEX%5CCTeX%5Ccct%5Cdoc%5CNewCCT-HOWTO.txt",
+		"/D/Tools/CTEX/CTeX/cct/doc/NewCCT-HOWTO.txt",
+		"/D/Tools/SublimeText2/Data/Packages/GBK Encoding Support/tmp/addr2tex-sample.txt                D%3A%5CTools%5CCTEX%5CCTeX%5Ccct%5Cdoc%5Caddr2tex-sample.txt",
+		"/D/Tools/CTEX/CTeX/cct/doc/addr2tex-sample.txt",
+		"/D/Tools/SublimeText2/Data/Packages/GBK Encoding Support/tmp/addr2tex-README.txt                D%3A%5CTools%5CCTEX%5CCTeX%5Ccct%5Cdoc%5Caddr2tex-README.txt",
+		"/D/Tools/CTEX/CTeX/cct/doc/addr2tex-README.txt",
+		"/D/Tools/SublimeText2/Data/Packages/GBK Encoding Support/tmp/Readme.txt                D%3A%5CTools%5CCTEX%5CReadme.txt",
+		"/D/Tools/CTEX/Readme.txt",
+		"/D/Tools/SublimeText2/Data/Packages/GBK Encoding Support/tmp/Changes.txt                D%3A%5CTools%5CCTEX%5CChanges.txt",
+		"/D/Tools/CTEX/Changes.txt",
+		"/D/Tools/SublimeText2/Data/Packages/User/Preferences.sublime-settings",
+		"/C/Users/Administrator/Documents/BioWare/Mass Effect/Logs/MassEffect.log",
+		"/D/Tools/Crack/ida61/cfg/ida.cfg",
+		"/D/Tools/SublimeText2/Data/Packages/Terminal/Base File.sublime-settings",
+		"/D/Code/Loccs/LochsEmu/LochsEmuLib/core/callback.h",
+		"/D/games/FPS/call of duty modern warfare 3/teknogods.ini",
+		"/D/Tools/SublimeText2/Data/Packages/User/Default (Windows).sublime-keymap",
+		"/D/Tools/SublimeText2/Data/Packages/User/pdflatex.sublime-build",
+		"/D/Temp/tex/test.tex",
+		"/D/Tools/SublimeText2/Data/Packages/User/ShowPdf.py",
+		"/D/Tools/SublimeText2/Data/Packages/User/test.py",
+		"/D/Tools/SublimeText2/Data/Packages/Default/Default (Windows).sublime-keymap",
+		"/D/Temp/tex/",
+		"/D/Tools/SublimeText2/Data/Packages/LaTeX/Frame.sublime-snippet",
+		"/D/Temp/tex/test.pdf",
+		"/D/Tools/SublimeText2/Data/Packages/User/latex.sublime-build",
+		"/D/games/QQGame/GameShow/script/item/10006_2.py",
+		"/D/Tools/SublimeText2/Data/Packages/Default/Preferences.sublime-settings",
+		"/D/Code/Loccs/LochsEmu/LochsEmuLib/core/stack.cpp",
+		"/D/Code/Loccs/LochsEmu/LochsEmuLib/core/processor.h",
+		"/D/Tools/SublimeText2/sublime_plugin.py",
+		"/D/masm32/tutorial/fputute/index.html",
+		"/D/games/FPS/call of duty modern warfare 3/TeknoMW3-Readme.txt",
+		"/D/games/FPS/call of duty modern warfare 3/说明.txt",
+		"/D/Tools/SublimeText2/Data/Packages/User/Plain text.sublime-settings"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			".bmp",
+			"\" },",
+			"sig",
+			"debug",
+			"texture",
+			"\"value\" : 270",
+			"rotatez",
+			"sphere0",
+			"backwall",
+			"Defaultpost",
+			"dav",
+			"security",
+			"OPCODE_BYTES",
+			"ctrl+d",
+			"2",
+			"infty",
+			"int_",
+			"\\]",
+			"}",
+			"beamersetaveragebackground",
+			"lochsemu",
+			"{",
+			")",
+			"font"
+		],
+		"highlight": true,
+		"in_selection": true,
+		"preserve_case": true,
+		"regex": false,
+		"replace_history":
+		[
+			".jpg",
+			"-mix\" },",
+			"sigma",
+			"matte",
+			"kd",
+			"\"angle\" : 0, \"axis\" : [ 0, 0, 0 ]",
+			"rotate",
+			"sphere-arealight",
+			"frontwall"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 29.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 211.0
+	},
+	"replace":
+	{
+		"height": 60.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"ver",
+				"server/__init__.py"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 143.0,
+	"status_bar_visible": true
+}

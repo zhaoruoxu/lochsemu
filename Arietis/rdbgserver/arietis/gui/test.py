@@ -7,25 +7,31 @@ import wx
 import os
 from common import VERSION
 
+class MyPanel(wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent)
+        
+        self.quote = wx.StaticText(self, label = 'Your quote:', pos = (20, 30))
+        
+        self.logger = wx.TextCtrl(self, pos = (300, 20), size = (200, 300), style = wx.TE_MULTILINE | wx.TE_READONLY)
+        
+        self.button = wx.Button(self, label = 'Save', pos = (200, 325))
+        self.Bind(wx.EVT_BUTTON, self.OnClick, self.button)
+    
+    def OnClick(self, event):
+        self.logger.AppendText('Click with id %d\n' % event.GetId())
+
 class ArietisDebugger(wx.Frame):
     
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, title=title, size=(600, 600))
 
         self.InitUI()
-        self.dirname = ''
         
     def InitUI(self):
         
-        self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
-        self.control.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.NORMAL, False, 'Consolas'))
-        
-        
-        self.InitMenuBar()
-        
-        self.CreateStatusBar()
-        
-        self.InitSizers()
+        panel = wx.Panel(self)
+        self.quote = wx.StaticText(panel, label="Your quote:", pos=(20, 30))
         
         self.Show(True)
         
@@ -82,6 +88,14 @@ class ArietisDebugger(wx.Frame):
 def testGUI():
     print('what?')
     app = wx.App(False)
-    ArietisDebugger(None, 'Arietis version %x' % (VERSION))
+    # ArietisDebugger(None, 'Arietis version %x' % (VERSION))
+    window = wx.Frame(None, -1, 'Arietis')
+    
+    nb = wx.Notebook(window)
+    nb.AddPage(MyPanel(nb), "hahaha")
+    nb.AddPage(MyPanel(nb), 'shit')
+    
+    
+    window.Show()
     
     app.MainLoop()

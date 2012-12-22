@@ -10,6 +10,7 @@ RDebugger::RDebugger()
 
 RDebugger::~RDebugger()
 {
+    if (m_state == DISCONNECTED) return;
     SendString("bye");
     closesocket(m_socket);
     WSACleanup();
@@ -50,6 +51,7 @@ bool RDebugger::Connect(const std::string &addr, uint port)
     
     if (respond == "hello") {
         LxInfo("Arietis: connection established\n");
+        m_state = CONNECTED;
     } else {
         LxFatal("Unable to establish connection, server says: %s\n", respond.c_str());
     }

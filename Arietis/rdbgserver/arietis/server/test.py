@@ -5,7 +5,7 @@ Created on 2012-12-21
 '''
 
 import socket
-from arietis.common import VERSION
+from common import VERSION
 
 BUFFER_SIZE     = 4096
 MSG_TERMINATOR  = '\n\n'
