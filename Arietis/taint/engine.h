@@ -5,6 +5,7 @@
  
 #include "Arietis.h"
 #include "taint.h"
+#include "instruction.h"
 
 struct ProcessorTaint {
 
@@ -28,10 +29,10 @@ struct ProcessorTaint {
 
 class MemoryTaint {
 public:
-    MemoryTaint(int nPieces);
+    MemoryTaint();
+    Taint*      Get(u32 addr);
 private:
     std::unordered_map<u32, Taint> m_status;
-    int     m_nPieces;
 };
 
 class TaintEngine {
@@ -40,13 +41,22 @@ public:
     TaintEngine();
     ~TaintEngine();
 
-    void Initialize();
-    void OnPreExecute       (Processor *cpu, const Instruction *inst);
-    void OnPostExecute      (Processor *cpu, const Instruction *inst);
-    void OnWinapiPreCall    (Processor *cpu, uint apiIndex);
-    void OnWinapiPostCall   (Processor *cpu, uint apiIndex);
+    void        Initialize();
+    void        OnPreExecute       (Processor *cpu, const Instruction *inst);
+    void        OnPostExecute      (Processor *cpu, const Instruction *inst);
+    void        OnWinapiPreCall    (Processor *cpu, uint apiIndex);
+    void        OnWinapiPostCall   (Processor *cpu, uint apiIndex);
 
 private:
+    ProcessorTaint  m_cpuTaint;
+    MemoryTaint     m_memTaint;
+
+private:
+    Taint*      GetTaint(const Processor *cpu, const Instruction *inst, const ARGTYPE &oper, int offset);
+
+    void        TaintIntroduce();
+    void        TaintPropagate();   // !!! special handlers for instructions
+    void        TaintSanitize();
 
 };
  

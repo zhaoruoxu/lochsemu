@@ -15,6 +15,7 @@ PluginHandle    g_handle;
 Config          g_config;
 
 RDebugger       g_rdebugger;
+TaintEngine     g_engine;
 
 ARIETIS_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, PluginInfo *info)
 {
@@ -43,30 +44,37 @@ ARIETIS_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, P
         LxFatal("Error loading test.json\n");
     }
 
-    Taint t(23);
-
-    LxInfo("haha = %s\n", root["haha"].asCString());
-
-    g_rdebugger.Connect("127.0.0.1", 7777);
+    g_engine.Initialize();
 
     return true;
 }
 
 ARIETIS_API void LochsEmu_Winapi_PreCall( Processor *cpu, uint apiIndex )
 {
-    auto dllName = LxGetWinAPIModuleName(apiIndex);
-    auto apiName = LxGetWinAPIName(apiIndex);
-    char buf[256];
-    sprintf(buf, "%s:%s", dllName, apiName);
-    if (!g_rdebugger.SendString(buf)) {
-        LxFatal("SendString failed\n");
-    }
-    LxWarning("ARIETIS PRE  %s:%s\n", dllName, apiName);
+    //auto dllName = LxGetWinAPIModuleName(apiIndex);
+    //auto apiName = LxGetWinAPIName(apiIndex);
+    //char buf[256];
+    //sprintf(buf, "%s:%s", dllName, apiName);
+    //if (!g_rdebugger.SendString(buf)) {
+    //    LxFatal("SendString failed\n");
+    //}
+    //LxWarning("ARIETIS PRE  %s:%s\n", dllName, apiName);
 }
 
 ARIETIS_API void LochsEmu_Winapi_PostCall( Processor *cpu, uint apiIndex )
 {
-    auto dllName = LxGetWinAPIModuleName(apiIndex);
-    auto apiName = LxGetWinAPIName(apiIndex);
-    LxWarning("ARIETIS POST %s:%s\n", dllName, apiName);
+    //auto dllName = LxGetWinAPIModuleName(apiIndex);
+    //auto apiName = LxGetWinAPIName(apiIndex);
+    //LxWarning("ARIETIS POST %s:%s\n", dllName, apiName);
+}
+
+ARIETIS_API void LochsEmu_Processor_PreExecute(Processor *cpu, const Instruction *inst)
+{
+    
+
+}
+
+ARIETIS_API void LochsEmu_Processor_PostExecute(Processor *cpu, const Instruction *inst)
+{
+    g_engine.OnPostExecute(cpu, inst);
 }

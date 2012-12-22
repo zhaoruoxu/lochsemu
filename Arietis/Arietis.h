@@ -20,6 +20,9 @@ using namespace LochsEmu;
 ARIETIS_API bool LochsEmu_Plugin_Initialize         (const LochsEmuInterface *lochsemu, PluginInfo *info); 
 ARIETIS_API void LochsEmu_Winapi_PreCall            (Processor *cpu, uint apiIndex);
 ARIETIS_API void LochsEmu_Winapi_PostCall           (Processor *cpu, uint apiIndex);
+ARIETIS_API void LochsEmu_Processor_PreExecute(Processor *cpu, const Instruction *inst);
+ARIETIS_API void LochsEmu_Processor_PostExecute(Processor *cpu, const Instruction *inst);
+
 
 extern HMODULE  g_module;
 extern Config   g_config;

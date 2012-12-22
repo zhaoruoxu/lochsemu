@@ -9,15 +9,32 @@
 // Per BYTE Taint structure
 class Taint {
 public:
-    Taint(int nPieces);
+    Taint(int nIndices = 32);
     Taint(const Taint &t);
     Taint(Taint &&t);
     Taint &operator=(Taint rhs);
     virtual ~Taint();
 
-    int     GetPieces() const { return m_nPieces; }
+    int         GetIndices() const { return m_nIndices; }
+    bool        IsTainted(int index) const { 
+        Assert(index < m_nIndices); return m_data[index] != 0; 
+    }
+    void        Set(int index) { 
+        Assert(index < m_nIndices); m_data[index] = 1; 
+    }
+    void        Reset(int index) { 
+        Assert(index < m_nIndices); m_data[index] = 0; 
+    }
+    Taint       operator&(const Taint &rhs) const;
+    Taint       operator|(const Taint &rhs) const;
+    Taint       operator^(const Taint &rhs) const;
+    Taint&      operator&=(const Taint &rhs);
+    Taint&      operator|=(const Taint &rhs);
+    Taint&      operator^=(const Taint &rhs);
+
+    std::string ToString() const;
 private:
-    int         m_nPieces;
+    int         m_nIndices;
     pbyte       m_data;
 };
  
