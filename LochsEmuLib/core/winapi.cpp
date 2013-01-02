@@ -320,7 +320,7 @@ uint WinAPINotAvailable(Processor *cpu)
 LX_API uint QueryLibraryIndex( const char *dllName )
 {
     static uint N = sizeof(WrappedLibraryTable) / sizeof(const char *);
-	if (StrStrI(dllName, "api-ms-win"))
+	if (StrStrIA(dllName, "api-ms-win"))
 		dllName = "kernel32.dll";		// quick hack for api-ms-... DLLs
     uint len = strlen(dllName);
     for (uint i = 0; i < N; i++) {
@@ -334,7 +334,7 @@ LX_API uint QueryLibraryIndex( const char *dllName )
 LX_API uint QueryWinAPIIndexByName( const char *dllName, const char *funcName )
 {
     HMODULE hModule = NULL;
-    if (StrStrI(dllName, "api-ms-win-core"))
+    if (StrStrIA(dllName, "api-ms-win-core"))
         hModule = LxGetModuleHandle("kernel32.dll");
     else
         hModule = LxGetModuleHandle(dllName);
@@ -364,7 +364,7 @@ LX_API uint QueryWinAPIIndexByName( HMODULE hModule, const char *funcName )
 LX_API uint QueryWinAPIIndexByOrdinal( const char *dllName, uint ordinal )
 {
     HMODULE hModule = NULL;
-    if (StrStrI(dllName, "api-ms-win-core"))
+    if (StrStrIA(dllName, "api-ms-win-core"))
         hModule = LxGetModuleHandle("kernel32.dll");
     else 
         hModule = LxGetModuleHandle(dllName);
@@ -388,7 +388,7 @@ LX_API uint QueryWinAPIIndexByOrdinal( HMODULE hModule, uint ordinal )
 
 LX_API bool IsEmulatedLibrary( const char *dllName )
 {
-    if (StrStrI(dllName, "api-ms-win-core")) return true; // quick hack for win7 system
+    if (StrStrIA(dllName, "api-ms-win-core")) return true; // quick hack for win7 system
     return QueryLibraryIndex(dllName) != 0;
 }
 

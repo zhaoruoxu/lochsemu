@@ -97,10 +97,10 @@ class LX_API PeModule {
     // An PE module: exe or dll
 public:
     PeModule();
-    PeModule(LPCTSTR lpFileName);
+    PeModule(LPCSTR lpFileName);
     virtual ~PeModule();
     
-    LxResult    Load(LPCTSTR path);
+    LxResult    Load(LPCSTR path);
     void        Unload();
 
 public:

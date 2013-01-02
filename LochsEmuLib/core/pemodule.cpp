@@ -15,7 +15,7 @@ PeModule::PeModule()
     m_size = 0;
 }
 
-PeModule::PeModule( LPCTSTR lpFileName )
+PeModule::PeModule( LPCSTR lpFileName )
 {
     m_data = NULL;
     m_dosHeader = NULL;
@@ -34,7 +34,7 @@ PeModule::~PeModule()
 LxResult PeModule::Load(LPCSTR path)
 {
     strcpy(m_info.Name, LxFileName(path).c_str());
-    HANDLE hFile = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL,
+    HANDLE hFile = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL,
         OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (INVALID_HANDLE_VALUE == hFile) {
         return LX_RESULT_ERROR_OPEN_FILE;

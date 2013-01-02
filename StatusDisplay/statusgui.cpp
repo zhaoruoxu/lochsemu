@@ -1,34 +1,16 @@
 #include "stdafx.h"
-
 #include "StatusDisplay.h"
-
-
-class MyFrame: public wxFrame
-{
-public:
-    MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
-private:
-    void OnHello(wxCommandEvent& event);
-    void OnExit(wxCommandEvent& event);
-    void OnAbout(wxCommandEvent& event);
-    DECLARE_EVENT_TABLE()
-};
+#include "statusgui.h"
 
 enum {
     ID_Hello = 1
 };
 
-BEGIN_EVENT_TABLE(MyFrame, wxFrame)
-EVT_MENU(ID_Hello, MyFrame::OnHello)
-EVT_MENU(wxID_EXIT, MyFrame::OnExit)
-EVT_MENU(wxID_ABOUT, MyFrame::OnAbout)
-END_EVENT_TABLE()
-
-class MyApp: public wxApp
-{
-public:
-    virtual bool OnInit();
-};
+// wxBEGIN_EVENT_TABLE(StatusDisplayFrame, wxFrame)
+// EVT_MENU(ID_Hello, StatusDisplayFrame::OnHello)
+// EVT_MENU(wxID_EXIT, StatusDisplayFrame::OnExit)
+// EVT_MENU(wxID_ABOUT, StatusDisplayFrame::OnAbout)
+// wxEND_EVENT_TABLE()
 
 void RunGUI()
 {
@@ -39,55 +21,63 @@ void RunGUI()
     wxEntry(hInstance);
 }
 
-MyApp& wxGetApp() { return *static_cast<MyApp*>(wxApp::GetInstance()); }
+StatusDisplay& wxGetApp() { return *static_cast<StatusDisplay*>(wxApp::GetInstance()); }
 
 wxAppConsole *wxCreateApp()
 {
     wxAppConsole::CheckBuildOptions(WX_BUILD_OPTIONS_SIGNATURE, "your program");
-    return new MyApp;
+    return new StatusDisplay;
 }
 
 wxAppInitializer wxTheAppInitializer((wxAppInitializerFunction) wxCreateApp);
 
-bool MyApp::OnInit()
+bool StatusDisplay::OnInit()
 {
-    MyFrame *frame = new MyFrame( "Hello World", wxPoint(50, 50), wxSize(450, 340) );
+    StatusDisplayFrame *frame = new StatusDisplayFrame( "Hello World", wxPoint(50, 50), wxSize(450, 340) );
     frame->Show( true );
     SetTopWindow(frame);
     return true;
 }
 
-MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
+StatusDisplayFrame::StatusDisplayFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
-//     wxMenu *menuFile = new wxMenu;
-//     menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
-//         "Help string shown in status bar for this menu item");
-//     menuFile->AppendSeparator();
-//     menuFile->Append(wxID_EXIT);
-//     wxMenu *menuHelp = new wxMenu;
-//     menuHelp->Append(wxID_ABOUT);
-//     wxMenuBar *menuBar = new wxMenuBar;
-//     menuBar->Append( menuFile, "&File" );
-//     menuBar->Append( menuHelp, "&Help" );
-//     SetMenuBar( menuBar );
+    wxMenu *menuFile = new wxMenu;
+    menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
+        "Help string shown in status bar for this menu item");
+    menuFile->AppendSeparator();
+    menuFile->Append(wxID_EXIT);
+    wxMenu *menuHelp = new wxMenu;
+    menuHelp->Append(wxID_ABOUT);
+    wxMenuBar *menuBar = new wxMenuBar;
+    menuBar->Append( menuFile, "&File" );
+    menuBar->Append( menuHelp, "&Help" );
+    SetMenuBar( menuBar );
     wxString str("hahaha");
     CreateStatusBar();
     SetStatusText( "Welcome to wxWidgets!" );
+
+//     Connect(ID_Hello, wxEVT_COMMAND_MENU_SELECTED, 
+//         wxCommandEventHandler(StatusDisplayFrame::OnHello));
+//     Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,
+//         wxCommandEventHandler(StatusDisplayFrame::OnExit));
+//     Connect(wxID_ABOUT, wxEVT_COMMAND_MENU_SELECTED,
+//         wxCommandEventHandler(StatusDisplayFrame::OnAbout));
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &StatusDisplayFrame::OnHello, this, ID_Hello);
 }
 
-void MyFrame::OnExit(wxCommandEvent& event)
+void StatusDisplayFrame::OnExit(wxCommandEvent& event)
 {
     Close( true );
 }
 
-void MyFrame::OnAbout(wxCommandEvent& event)
+void StatusDisplayFrame::OnAbout(wxCommandEvent& event)
 {
     wxMessageBox( "This is a wxWidgets' Hello world sample",
         "About Hello World", wxOK | wxICON_INFORMATION );
 }
 
-void MyFrame::OnHello(wxCommandEvent& event)
+void StatusDisplayFrame::OnHello(wxCommandEvent& event)
 {
     wxLogMessage("Hello world from wxWidgets!");
 }

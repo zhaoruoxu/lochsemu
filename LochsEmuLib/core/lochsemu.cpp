@@ -180,9 +180,9 @@ LX_API void LxFatal(const char *format, ...) {
     exit(EXIT_FAILURE);
 }
 
-LX_API bool LxFileExists( LPCTSTR filepath )
+LX_API bool LxFileExists( LPCSTR filepath )
 {
-    return PathFileExists(filepath) != 0;
+    return PathFileExistsA(filepath) != 0;
 }
 
 LX_API bool LxWideToByte( LPCWSTR w, LPSTR b, int len)
@@ -314,6 +314,31 @@ LX_API void LxRun(int argc, LPSTR argv[])
     LxEmulator.Run();
 }
 
+LX_API void LxRun( int argc, LPWSTR argv[] )
+{
+    const int BufSize = 4096;
+
+    LPSTR *args = new LPSTR[argc];
+    for (int i = 0; i < argc; i++) {
+        LPSTR arg = new CHAR[BufSize];
+        ZeroMemory(arg, BufSize);
+        if (wcslen(argv[i]) >= BufSize) {
+            LxFatal("Fuck Unicode\n");
+        }
+        LxWideToByte(argv[i], arg, BufSize);
+        args[i] = arg;
+    }
+    
+    V( LxEmulator.Initialize() );
+    V( LxEmulator.LoadModule(argc, args) );
+    LxEmulator.Run();
+
+    for (int i = 0; i < argc; i++) {
+        SAFE_DELETE_ARRAY(args[i]);
+    }
+    SAFE_DELETE_ARRAY(args);
+}
+
 LX_API const std::string &LxGetRuntimeDirectory()
 {
     static std::string runtimeDirectory;
@@ -322,7 +347,7 @@ LX_API const std::string &LxGetRuntimeDirectory()
 
     char    pathBuf[MAX_PATH];
     HMODULE hModule = GetModuleHandle(NULL);
-    uint    pathLength = GetModuleFileName(hModule, pathBuf, MAX_PATH);
+    uint    pathLength = GetModuleFileNameA(hModule, pathBuf, MAX_PATH);
 
     if (pathLength && (pathLength < sizeof(pathBuf))) {
         std::string  runtimePath(pathBuf, pathLength);
@@ -342,7 +367,7 @@ LX_API const std::string &LxGetRuntimeDirectory()
 LX_API std::string LxGetModuleDirectory( HMODULE hModule )
 {
     char        pathBuf[MAX_PATH];
-    uint        pathLength = GetModuleFileName(hModule, pathBuf, MAX_PATH);
+    uint        pathLength = GetModuleFileNameA(hModule, pathBuf, MAX_PATH);
     std::string runtimeDirectory;
 
     if (pathLength && (pathLength < sizeof(pathBuf))) {

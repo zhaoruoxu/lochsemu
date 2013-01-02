@@ -229,7 +229,7 @@ LX_API std::string      LxGetModuleDirectory(HMODULE hModule);
 LX_API void             LxFormatTimeMS(DWORD time, char *buf);
 LX_API void             LxFormatTimeS(DWORD time, char *buf);
 LX_API void             LxGetDateTime(char *buffer);
-LX_API bool             LxFileExists(LPCTSTR filepath);
+LX_API bool             LxFileExists(LPCSTR filepath);
 LX_API bool             LxWideToByte(LPCWSTR w, LPSTR b, int len);
 LX_API bool             LxByteToWide(LPCSTR b, LPWSTR w, int len);
 LX_API std::string      LxFilePath(const char *fullPath);
@@ -247,6 +247,7 @@ LX_API INLINE u32       LxRegConvert(u32 beaReg);
 /************************************************************************/
 bool                    LxInit();
 LX_API void             LxRun(int argc, LPSTR argv[]);
+LX_API void             LxRun(int argc, LPWSTR argv[]);
 LX_API void             LxReset();
 
 

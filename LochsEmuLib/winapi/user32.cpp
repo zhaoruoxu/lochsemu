@@ -234,7 +234,7 @@ uint User32_GetDlgItemTextA(Processor *cpu)
     RET_VALUE = (u32) GetDlgItemTextA(
         (HWND)      PARAM(0),
         (int)       PARAM(1),
-        (LPTSTR)    PARAM_PTR(2),
+        (LPSTR)    PARAM_PTR(2),
         (int)       PARAM(3)
         );
     RET_PARAMS(4);
@@ -382,7 +382,7 @@ uint User32_LoadStringA(Processor *cpu)
 	hInstance = LxEmulator.TranslateModule(hInstance);
 	RET_VALUE = LoadStringA(hInstance,
 		(UINT)		PARAM(1),
-		(LPTSTR)	PARAM_PTR(2),
+		(LPSTR)	PARAM_PTR(2),
 		(int)		PARAM(3)
 		);
 	RET_PARAMS(4);
@@ -526,7 +526,7 @@ uint User32_SetDlgItemTextA(Processor *cpu)
 	RET_VALUE = (u32) SetDlgItemTextA(
 		(HWND)	PARAM(0),
 		(int)	PARAM(1),
-		(LPCTSTR)	PARAM_PTR(2)
+		(LPCSTR)	PARAM_PTR(2)
 		);
 	RET_PARAMS(3);
 }

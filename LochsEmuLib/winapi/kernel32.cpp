@@ -25,7 +25,7 @@ uint Pgort90_FindActCtxSectionStringW(Processor *cpu)
 
 uint Kernel32_AddAtomA(Processor *cpu)
 {
-	RET_VALUE = (u32) AddAtomA((LPCTSTR) PARAM_PTR(0));
+	RET_VALUE = (u32) AddAtomA((LPCSTR) PARAM_PTR(0));
 	RET_PARAMS(1);
 }
 
@@ -81,7 +81,7 @@ uint Kernel32_CreateFileW(Processor *cpu)
 
 uint kernel32_CreateProcessA(Processor *cpu)
 {
-	LPSTARTUPINFO si = (LPSTARTUPINFO) PARAM_PTR(8);
+	LPSTARTUPINFOA si = (LPSTARTUPINFOA) PARAM_PTR(8);
 	si->lpReserved2 = si->lpReserved2 == NULL ? NULL : 
 		(LPBYTE) cpu->Mem->GetRawData((u32) si->lpReserved2);
 	si->lpReserved = si->lpReserved == NULL ? NULL :
@@ -91,14 +91,14 @@ uint kernel32_CreateProcessA(Processor *cpu)
 	si->lpTitle = si->lpTitle == NULL ? NULL :
 		(LPSTR) cpu->Mem->GetRawData((u32) si->lpTitle);
 	RET_VALUE = (u32) CreateProcessA(
-		(LPCTSTR)		PARAM_PTR(0),
-		(LPTSTR)		PARAM_PTR(1),
+		(LPCSTR)		PARAM_PTR(0),
+		(LPSTR)		PARAM_PTR(1),
 		(LPSECURITY_ATTRIBUTES)	PARAM_PTR(2),
 		(LPSECURITY_ATTRIBUTES)	PARAM_PTR(3),
 		(BOOL)			PARAM(4),
 		(DWORD)			PARAM(5),
 		(LPVOID)		PARAM_PTR(6),
-		(LPCTSTR)		PARAM_PTR(7),
+		(LPCSTR)		PARAM_PTR(7),
 		si,
 		(LPPROCESS_INFORMATION)	PARAM_PTR(9)
 		);
@@ -111,7 +111,7 @@ uint Kernel32_CreateSemaphoreA(Processor *cpu)
 		(LPSECURITY_ATTRIBUTES) PARAM(0),
 		(LONG) PARAM(1),
 		(LONG) PARAM(2),
-		(LPCTSTR) PARAM_PTR(3)
+		(LPCSTR) PARAM_PTR(3)
 		);
 	RET_PARAMS(4);
 }
@@ -184,7 +184,7 @@ uint Kernel32_FindActCtxSectionStringW(Processor *cpu)
 
 uint Kernel32_FindAtomA(Processor *cpu)
 {
-	RET_VALUE = (u32) FindAtomA((LPCTSTR) PARAM_PTR(0));
+	RET_VALUE = (u32) FindAtomA((LPCSTR) PARAM_PTR(0));
 	RET_PARAMS(1);
 }
 
@@ -207,8 +207,8 @@ uint Kernel32_FindResourceExA(Processor *cpu)
 {
 	RET_VALUE = (u32) FindResourceExA(
 		(HMODULE)	PARAM(0),
-		(LPCTSTR)	PARAM_PTR(1),
-		(LPCTSTR)	PARAM_PTR(2),
+		(LPCSTR)	PARAM_PTR(1),
+		(LPCSTR)	PARAM_PTR(2),
 		(WORD)		PARAM(3)
 		);
 	RET_PARAMS(4);
@@ -273,7 +273,7 @@ uint Kernel32_GetAtomNameA(Processor *cpu)
 {
 	RET_VALUE = (u32) GetAtomNameA(
 		(ATOM) PARAM(0),
-		(LPTSTR) PARAM_PTR(1),
+		(LPSTR) PARAM_PTR(1),
 		(int) PARAM(2)
 		);
 	RET_PARAMS(3);
@@ -367,6 +367,9 @@ uint Kernel32_GetDriveTypeA(Processor *cpu)
 }
 uint Kernel32_GetEnvironmentStrings(Processor *cpu)
 {
+#ifdef GetEnvironmentStrings
+#undef GetEnvironmentStrings
+#endif
     // TODO
     const u32 BASE = 0x500000;
     LPCSTR ptr = GetEnvironmentStrings();
@@ -414,7 +417,7 @@ uint Kernel32_GetExitCodeProcess(Processor *cpu)
 
 uint Kernel32_GetFileAttributesA(Processor *cpu)
 {
-	RET_VALUE = (u32) GetFileAttributesA((LPCTSTR) PARAM_PTR(0));
+	RET_VALUE = (u32) GetFileAttributesA((LPCSTR) PARAM_PTR(0));
 	RET_PARAMS(1);
 }
 
@@ -646,7 +649,7 @@ uint Kernel32_GetVersion( Processor *cpu )
 uint Kernel32_GetVersionExA(Processor *cpu)
 {
     cpu->EAX = (u32) GetVersionExA(
-        (LPOSVERSIONINFO) PARAM_PTR(0)
+        (LPOSVERSIONINFOA) PARAM_PTR(0)
         );
     RET_PARAMS(1);
 }

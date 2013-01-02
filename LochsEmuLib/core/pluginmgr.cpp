@@ -46,7 +46,7 @@ LxResult PluginManager::Initialize()
 LxResult PluginManager::LoadPlugins()
 {
     m_plugins.reserve(4);
-    DirectoryIterator   iter(m_pluginDirectory.c_str(), "*.dll");
+    DirectoryIteratorA   iter(m_pluginDirectory.c_str(), "*.dll");
 
     for (; !iter.Done(); iter.Next()) {
         std::string path = iter.GetFullPath();

@@ -35,7 +35,7 @@ ARIETIS_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, P
     std::ifstream fin("../Arietis/test.json");
 
     char buf[256];
-    GetCurrentDirectory(256, buf);
+    GetCurrentDirectoryA(256, buf);
 
     if (!fin.is_open()) {
         LxError("Cannot open test.json\n");

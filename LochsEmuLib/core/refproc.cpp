@@ -107,7 +107,7 @@ void RefProcess::CheckInitialized( void )
 RefProcess::ModuleLoadInfo * RefProcess::GetModuleLoadInfo( LPCSTR name )
 {
     for (uint i = 0; i < m_modules.size(); i++) {
-        if (StrStrI(m_modules[i].Path.c_str(), name)) {
+        if (StrStrIA(m_modules[i].Path.c_str(), name)) {
             return &m_modules[i];
         }
     }
