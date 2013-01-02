@@ -162,12 +162,13 @@ void StatusDisplayFrame::OnTextChange( wxCommandEvent& event )
     wxString interval = m_textInterval->GetValue();
     long val;
     if (interval.ToLong(&val)) {
-        //m_textInterval->SetBackgroundColour(wxColour("White"));
+        m_textInterval->SetBackgroundColour(wxColour("White"));
         m_buttonApply->Enable(true);
     } else {
-        //m_textInterval->SetBackgroundColour(wxColour("#ff0000"));
+        m_textInterval->SetBackgroundColour(wxColour("#ff0000"));
         m_buttonApply->Enable(false);
     }
+    m_textInterval->Refresh(true);
 }
 
 void StatusDisplayFrame::OnApply( wxCommandEvent& event )
