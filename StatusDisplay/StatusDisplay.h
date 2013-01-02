@@ -16,4 +16,6 @@ using namespace LochsEmu;
 
 extern HMODULE g_module;
 
+void RunGUI();
+
 STATUSDISPLAY_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, PluginInfo *info);

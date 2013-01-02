@@ -135,13 +135,14 @@ int GetThreadCount()
 
 DWORD __stdcall StatusDisplayThread(LPVOID lpParams)
 {
-    char buf[128];
-    while (true) {
-        sprintf(buf, "LOCHSEMU<%s> CPU: %d%%    MEM: %d MB    Threads: %d", 
-            LxEmulator.IsLoaded() ? LxEmulator.Proc()->GetModuleInfo(0)->Name : "NOT_LOADED", 
-            get_cpu_usage(), GetMemUsage(), GetThreadCount());
-        SetConsoleTitle(buf);
-        Sleep(g_interval);
-    }
+//    char buf[128];
+//     while (true) {
+//         sprintf(buf, "LOCHSEMU<%s> CPU: %d%%    MEM: %d MB    Threads: %d", 
+//             LxEmulator.IsLoaded() ? LxEmulator.Proc()->GetModuleInfo(0)->Name : "NOT_LOADED", 
+//             get_cpu_usage(), GetMemUsage(), GetThreadCount());
+//         SetConsoleTitle(buf);
+//         Sleep(g_interval);
+//     }
+    RunGUI();
     return 0;
 }
