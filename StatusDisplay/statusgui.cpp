@@ -27,11 +27,7 @@ END_EVENT_TABLE()
 class MyApp: public wxApp
 {
 public:
-    MyApp() { m_frame = NULL; }
-    virtual ~MyApp() { SAFE_DELETE(m_frame); }
     virtual bool OnInit();
-private:
-    MyFrame *m_frame;
 };
 
 void RunGUI()
@@ -55,8 +51,9 @@ wxAppInitializer wxTheAppInitializer((wxAppInitializerFunction) wxCreateApp);
 
 bool MyApp::OnInit()
 {
-    m_frame = new MyFrame( "Hello World", wxPoint(50, 50), wxSize(450, 340) );
-    m_frame->Show( true );
+    MyFrame *frame = new MyFrame( "Hello World", wxPoint(50, 50), wxSize(450, 340) );
+    frame->Show( true );
+    SetTopWindow(frame);
     return true;
 }
 
@@ -74,6 +71,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 //     menuBar->Append( menuFile, "&File" );
 //     menuBar->Append( menuHelp, "&Help" );
 //     SetMenuBar( menuBar );
+    wxString str("hahaha");
     CreateStatusBar();
     SetStatusText( "Welcome to wxWidgets!" );
 }
