@@ -125,7 +125,7 @@ LxResult Processor::Run(u32 entry)
 
 LxResult Processor::RunCallback(uint id)
 {
-    LxDebug("Running callback #%d\n", id);
+    //LxDebug("Running callback #%d\n", id);
     u32 entry = GetCallbackEntry(id);
 
     V( RunConditional(entry) );
@@ -135,7 +135,7 @@ LxResult Processor::RunCallback(uint id)
 
 LxResult Processor::RunConditional( u32 entry )
 {
-    LxDebug("Running conditional(entry = %x)\n", entry);
+    //LxDebug("Running conditional(entry = %x)\n", entry);
     EIP = entry;
 
     m_terminated = false;

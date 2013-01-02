@@ -57,7 +57,7 @@ static u64 file_time_2_utc(const FILETIME* ftime)
     return li.QuadPart;
 }
 
-int get_cpu_usage()
+int GetCpuUsage()
 {
     static i64 last_time_ = 0;
     static i64 last_system_time_ = 0;

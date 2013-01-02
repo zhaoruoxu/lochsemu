@@ -14,8 +14,12 @@
 
 using namespace LochsEmu;
 
-extern HMODULE g_module;
+extern HMODULE          g_module;
+extern Config           g_config;
 
 void RunGUI();
+int GetCpuUsage();
+int GetMemUsage();
+int GetThreadCount();
 
 STATUSDISPLAY_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, PluginInfo *info);
