@@ -1,10 +1,6 @@
 #include "stdafx.h"
 
-class MyApp: public wxApp
-{
-public:
-    virtual bool OnInit();
-};
+#include "StatusDisplay.h"
 
 
 class MyFrame: public wxFrame
@@ -28,11 +24,23 @@ EVT_MENU(wxID_EXIT, MyFrame::OnExit)
 EVT_MENU(wxID_ABOUT, MyFrame::OnAbout)
 END_EVENT_TABLE()
 
+class MyApp: public wxApp
+{
+public:
+    MyApp() { m_frame = NULL; }
+    virtual ~MyApp() { SAFE_DELETE(m_frame); }
+    virtual bool OnInit();
+private:
+    MyFrame *m_frame;
+};
+
 void RunGUI()
 {
     //wxDISABLE_DEBUG_SUPPORT();
 
-    wxEntry(0, NULL);
+    HINSTANCE hInstance = GetModuleHandle(NULL);
+
+    wxEntry(hInstance);
 }
 
 MyApp& wxGetApp() { return *static_cast<MyApp*>(wxApp::GetInstance()); }
@@ -47,25 +55,25 @@ wxAppInitializer wxTheAppInitializer((wxAppInitializerFunction) wxCreateApp);
 
 bool MyApp::OnInit()
 {
-    MyFrame *frame = new MyFrame( "Hello World", wxPoint(50, 50), wxSize(450, 340) );
-    frame->Show( true );
+    m_frame = new MyFrame( "Hello World", wxPoint(50, 50), wxSize(450, 340) );
+    m_frame->Show( true );
     return true;
 }
 
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
-    wxMenu *menuFile = new wxMenu;
-    menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
-        "Help string shown in status bar for this menu item");
-    menuFile->AppendSeparator();
-    menuFile->Append(wxID_EXIT);
-    wxMenu *menuHelp = new wxMenu;
-    menuHelp->Append(wxID_ABOUT);
-    wxMenuBar *menuBar = new wxMenuBar;
-    menuBar->Append( menuFile, "&File" );
-    menuBar->Append( menuHelp, "&Help" );
-    SetMenuBar( menuBar );
+//     wxMenu *menuFile = new wxMenu;
+//     menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
+//         "Help string shown in status bar for this menu item");
+//     menuFile->AppendSeparator();
+//     menuFile->Append(wxID_EXIT);
+//     wxMenu *menuHelp = new wxMenu;
+//     menuHelp->Append(wxID_ABOUT);
+//     wxMenuBar *menuBar = new wxMenuBar;
+//     menuBar->Append( menuFile, "&File" );
+//     menuBar->Append( menuHelp, "&Help" );
+//     SetMenuBar( menuBar );
     CreateStatusBar();
     SetStatusText( "Welcome to wxWidgets!" );
 }
