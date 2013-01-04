@@ -5,24 +5,23 @@
 #include "Arietis.h"
 #include "winapi.h"
 
-#include <json/json.h>
+#include "engine.h"
 
-#include "taint/taint.h"
-#include "taint/engine.h"
+#include <json/json.h>
 
 #include "gui/gui.h"
 
 PluginHandle    g_handle;
 Config          g_config;
 
-TaintEngine     g_engine;
+ArietisEngine   g_engine;
 
 ARIETIS_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, PluginInfo *info)
 {
     g_handle = lochsemu->Handle;
     strcpy_s(info->Name, sizeof(info->Name), "Arietis");
 
-    std::string cfgFile = LxGetModuleDirectory(g_module) + "lochsdbg.ini";
+    std::string cfgFile = LxGetModuleDirectory(g_module) + "arietis.ini";
     g_config.Initialize(cfgFile.c_str());
 
     if (!g_config.GetInt("General", "Enabled", 1)) {
@@ -72,7 +71,7 @@ ARIETIS_API void LochsEmu_Winapi_PostCall( Processor *cpu, uint apiIndex )
 
 ARIETIS_API void LochsEmu_Processor_PreExecute(Processor *cpu, const Instruction *inst)
 {
-    
+    g_engine.OnPreExecute(cpu, inst);
 
 }
 

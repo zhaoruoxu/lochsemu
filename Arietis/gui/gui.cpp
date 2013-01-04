@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "gui.h"
 #include "mainframe.h"
-
+#include "Arietis.h"
 
 HANDLE      g_guiThread;
 
@@ -36,7 +36,7 @@ wxAppInitializer wxTheAppInitializer((wxAppInitializerFunction) wxCreateApp);
 
 bool ArietisApp::OnInit()
 {
-    ArietisFrame *frame = new ArietisFrame;
+    ArietisFrame *frame = new ArietisFrame(&g_engine);
     frame->Show(true);
     //SetTopWindow(frame);
     return true;

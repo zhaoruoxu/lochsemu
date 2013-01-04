@@ -8,7 +8,9 @@
 void RunGUI();
 
 class ArietisFrame;
-class TaintPanel;
+class LogPanel;
+class CpuPanel;
+
 
 class ArietisApp : public wxApp {
 public:

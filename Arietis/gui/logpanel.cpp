@@ -20,7 +20,7 @@ void LogPanel::InitUI()
     sizer0->Add(buttonClear, 0, wxALIGN_RIGHT);
     sizer->Add(sizer0, 0, wxALL | wxALIGN_RIGHT);
 
-    m_log = new wxTextCtrl(this, wxID_ANY, "log", wxDefaultPosition, wxDefaultSize,
+    m_log = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
         wxTE_MULTILINE | wxTE_RICH2 | wxNO_BORDER);
     sizer->Add(m_log, 1, wxALL | wxEXPAND);
     
@@ -32,4 +32,9 @@ void LogPanel::InitUI()
 void LogPanel::OnClear(wxCommandEvent &event)
 {
     m_log->Clear();
+}
+
+void LogPanel::Log( const wxString &s )
+{
+    m_log->AppendText(s + "\n");
 }

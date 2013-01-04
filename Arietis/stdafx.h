@@ -25,6 +25,7 @@
 #include <WinSock2.h>
 #include <Psapi.h>
 #include <Tlhelp32.h>
+#include <memory>
 
 #include <wx/wxprec.h>
 #include <wx/aui/aui.h>

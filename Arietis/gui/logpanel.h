@@ -10,6 +10,8 @@ class LogPanel : public wxPanel {
 public:
     LogPanel(wxWindow *parent);
 
+    void        Log(const wxString &s);
+
 private:
     void        InitUI();
 

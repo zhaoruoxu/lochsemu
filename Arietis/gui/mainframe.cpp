@@ -6,19 +6,28 @@
 
 #include "utilities.h"
 
+#include "engine.h"
+
 enum {
+    /* view */
     ID_LoadPerspective = 1,
     ID_SavePerspective,
     ID_ResetPerspective,
+
+    /* debug */
+    ID_StepInto,
+
     ID_StatusTimer,
 };
 
-ArietisFrame::ArietisFrame()
-    : wxFrame(NULL, wxID_ANY, "Arietis", wxDefaultPosition, wxSize(800, 800), 
+ArietisFrame::ArietisFrame(ArietisEngine *engine)
+    : m_engine(engine), wxFrame(NULL, wxID_ANY, "Arietis", wxDefaultPosition, wxSize(800, 800), 
     wxDEFAULT_FRAME_STYLE), m_statusTimer(this, ID_StatusTimer)
 {
     InitMisc();
     InitUI();
+
+    m_engine->SetGuiFrame(this);
 }
 
 ArietisFrame::~ArietisFrame()
@@ -41,11 +50,11 @@ void ArietisFrame::InitUI()
 
     m_auiManager.SetManagedWindow(this);
 
-    LogPanel *logPanel = new LogPanel(this);
-    CpuPanel *cpuPanel = new CpuPanel(this);
+    m_logPanel = new LogPanel(this);
+    m_cpuPanel = new CpuPanel(this);
 
-    m_auiManager.AddPane(cpuPanel, wxAuiPaneInfo().Name("Taint").CenterPane());
-    m_auiManager.AddPane(logPanel, wxAuiPaneInfo().Name("Log").Bottom());
+    m_auiManager.AddPane(m_cpuPanel, wxAuiPaneInfo().Name("Taint").CenterPane());
+    m_auiManager.AddPane(m_logPanel, wxAuiPaneInfo().Name("Log").Bottom());
 
     m_auiManager.Update();
     m_defaultPerspective = m_auiManager.SavePerspective();
@@ -62,6 +71,9 @@ void ArietisFrame::InitMenu()
     menuView->Append(ID_SavePerspective, "Save perspective");
     menuView->Append(ID_ResetPerspective, "Reset perspective");
 
+    wxMenu *menuDebug = new wxMenu;
+    menuDebug->Append(ID_StepInto, "Step Into");
+
     wxMenu *menuHelp = new wxMenu;
     menuHelp->Append(wxID_ABORT, "&About");
 
@@ -70,6 +82,7 @@ void ArietisFrame::InitMenu()
     wxMenuBar *menu = new wxMenuBar;
     menu->Append(menuFile, "&File");
     menu->Append(menuView, "&View");
+    menu->Append(menuDebug, "&Debug");
     menu->Append(menuHelp, "&Help");
     SetMenuBar(menu);
 
@@ -78,6 +91,7 @@ void ArietisFrame::InitMenu()
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnLoadPerspective, this, ID_LoadPerspective);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnSavePerspective, this, ID_SavePerspective);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnResetPerspective, this, ID_ResetPerspective);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnStepInto, this, ID_StepInto);
 }
 
 
@@ -146,4 +160,15 @@ void ArietisFrame::OnStatusTimer( wxTimerEvent &event )
     m_statusbar->SetStatusText(wxString::Format("CPU: %d%%", GetCpuUsage()), 1);
     m_statusbar->SetStatusText(wxString::Format("MEM: %d MB", GetMemUsage()), 2);
     m_statusbar->SetStatusText(wxString::Format("Threads: %d", GetThreadCount()), 3);
+}
+
+void ArietisFrame::OnStepInto( wxCommandEvent &event )
+{
+    DebugLog("step into");
+    m_engine->OnStepInto();
+}
+
+void ArietisFrame::DebugLog( const wxString &s )
+{
+    m_logPanel->Log(s);
 }

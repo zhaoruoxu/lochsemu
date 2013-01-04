@@ -81,9 +81,6 @@
     <ClInclude Include="3rdparty\src\json\json_tool.h">
       <Filter>Source Files\3rdparty\json</Filter>
     </ClInclude>
-    <ClInclude Include="taint\engine.h">
-      <Filter>Header Files\taint</Filter>
-    </ClInclude>
     <ClInclude Include="taint\taint.h">
       <Filter>Header Files\taint</Filter>
     </ClInclude>
@@ -101,6 +98,18 @@
     </ClInclude>
     <ClInclude Include="utilities.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="parallel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="debugger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="taint\taintengine.h">
+      <Filter>Header Files\taint</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -125,9 +134,6 @@
     <ClCompile Include="taint\taint.cpp">
       <Filter>Source Files\taint</Filter>
     </ClCompile>
-    <ClCompile Include="taint\engine.cpp">
-      <Filter>Source Files\taint</Filter>
-    </ClCompile>
     <ClCompile Include="gui\gui.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
@@ -142,6 +148,18 @@
     </ClCompile>
     <ClCompile Include="utilities.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="parallel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="debugger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="taint\taintengine.cpp">
+      <Filter>Source Files\taint</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

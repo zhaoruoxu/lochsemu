@@ -24,8 +24,15 @@ ARIETIS_API void LochsEmu_Processor_PreExecute(Processor *cpu, const Instruction
 ARIETIS_API void LochsEmu_Processor_PostExecute(Processor *cpu, const Instruction *inst);
 
 
-extern HMODULE  g_module;
-extern Config   g_config;
+
+class Mutex;
+class ArietisEngine;
+class Debugger;
+
+extern HMODULE          g_module;
+extern Config           g_config;
+extern ArietisEngine    g_engine;
+
 
 #endif // __ARIETIS_ARIETIS_H__
 
