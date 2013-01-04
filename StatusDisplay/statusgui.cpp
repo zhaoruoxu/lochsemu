@@ -43,7 +43,7 @@ bool StatusDisplay::OnInit()
 }
 
 StatusDisplayFrame::StatusDisplayFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
-    : wxFrame(NULL, wxID_ANY, title, pos, size, wxCAPTION | wxCLIP_CHILDREN | wxCLOSE_BOX), 
+    : wxFrame(NULL, wxID_ANY, title, pos, size, wxCAPTION | wxFRAME_TOOL_WINDOW), 
     m_timer(this, ID_Timer)
 {
     m_updateInterval = max(g_config.GetInt("General", "UpdateInterval", 1000), 50);
@@ -118,19 +118,19 @@ void StatusDisplayFrame::InitControls()
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &StatusDisplayFrame::OnApply, this, wxID_APPLY);
 
     wxBoxSizer *sizer1 = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText *box1 = new wxStaticText(panel, -1, "CPU:", wxDefaultPosition, wxSize(50, -1));
+    wxStaticText *box1 = new wxStaticText(panel, -1, "CPU:", wxDefaultPosition, wxSize(80, -1));
     m_textCpuUsage = new wxStaticText(panel, -1, "");
     sizer1->Add(box1, 0, wxLEFT | wxTOP, Border);
     sizer1->Add(m_textCpuUsage, 0, wxLEFT | wxTOP | wxALIGN_LEFT, Border);
 
     wxBoxSizer *sizer2 = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText *box2 = new wxStaticText(panel, -1, "MEM:", wxDefaultPosition, wxSize(50, -1));
+    wxStaticText *box2 = new wxStaticText(panel, -1, "MEM:", wxDefaultPosition, wxSize(80, -1));
     m_textMemUsage = new wxStaticText(panel, -1, "");
     sizer2->Add(box2, 0, wxLEFT | wxTOP, Border);
     sizer2->Add(m_textMemUsage, 0, wxLEFT | wxTOP | wxALIGN_LEFT, Border);
 
     wxBoxSizer *sizer3 = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText *box3 = new wxStaticText(panel, -1, "Threads:", wxDefaultPosition, wxSize(50, -1));
+    wxStaticText *box3 = new wxStaticText(panel, -1, "Threads:", wxDefaultPosition, wxSize(80, -1));
     m_textThreads = new wxStaticText(panel, -1, "");
     sizer3->Add(box3, 0, wxLEFT | wxTOP, Border);
     sizer3->Add(m_textThreads, 0, wxLEFT | wxTOP | wxALIGN_LEFT, Border);
