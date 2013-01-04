@@ -13,6 +13,7 @@ public:
 
 
     void    DebugLog(const wxString &s);
+    void    DebugStepCallback(const Processor *cpu, const Instruction *inst);
 private:
     void    OnExit(wxCommandEvent &event);
     void    OnAbout(wxCommandEvent &event);
@@ -32,11 +33,13 @@ private:
     void    InitUI();
     void    InitMenu();
     void    InitStatusBar();
+    void    InitToolbars();
 private:
     ArietisEngine * m_engine;
 
     LogPanel *      m_logPanel;
     CpuPanel *      m_cpuPanel;
+    RegPanel *      m_regPanel;
 
     wxString        m_defaultPerspective;
     wxAuiManager    m_auiManager;

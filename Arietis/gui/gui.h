@@ -10,6 +10,7 @@ void RunGUI();
 class ArietisFrame;
 class LogPanel;
 class CpuPanel;
+class RegPanel;
 
 
 class ArietisApp : public wxApp {

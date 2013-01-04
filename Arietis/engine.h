@@ -15,6 +15,7 @@ public:
     void            Initialize();
 
     void            SetGuiFrame(ArietisFrame *frame) { m_gui = frame; }
+    ArietisFrame *  GetGUI() const { Assert(m_gui); return m_gui; }
 
     void            OnPreExecute(Processor *cpu, const Instruction *inst);
     void            OnPostExecute(Processor *cpu, const Instruction *inst);

@@ -111,6 +111,9 @@
     <ClInclude Include="taint\taintengine.h">
       <Filter>Header Files\taint</Filter>
     </ClInclude>
+    <ClInclude Include="gui\regpanel.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -160,6 +163,9 @@
     </ClCompile>
     <ClCompile Include="taint\taintengine.cpp">
       <Filter>Source Files\taint</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\regpanel.cpp">
+      <Filter>Source Files\gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

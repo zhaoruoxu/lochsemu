@@ -22,6 +22,8 @@ void LogPanel::InitUI()
 
     m_log = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
         wxTE_MULTILINE | wxTE_RICH2 | wxNO_BORDER);
+    wxFont f(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, "Lucida Console");
+    m_log->SetFont(f);
     sizer->Add(m_log, 1, wxALL | wxEXPAND);
     
     SetSizer(sizer);

@@ -29,5 +29,6 @@
 
 #include <wx/wxprec.h>
 #include <wx/aui/aui.h>
+#include <wx/statline.h>
 
 // TODO: reference additional headers your program requires here

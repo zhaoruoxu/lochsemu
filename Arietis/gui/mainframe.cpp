@@ -3,10 +3,12 @@
 
 #include "logpanel.h"
 #include "cpupanel.h"
+#include "regpanel.h"
 
 #include "utilities.h"
-
 #include "engine.h"
+
+#include "instruction.h"
 
 enum {
     /* view */
@@ -18,6 +20,9 @@ enum {
     ID_StepInto,
 
     ID_StatusTimer,
+
+    /* toolbar */
+    ID_ToolbarDebug,
 };
 
 ArietisFrame::ArietisFrame(ArietisEngine *engine)
@@ -45,6 +50,7 @@ void ArietisFrame::InitUI()
 {
     InitMenu();
     InitStatusBar();
+    InitToolbars();
 
     Bind(wxEVT_CLOSE_WINDOW, &ArietisFrame::OnClose, this, wxID_ANY);
 
@@ -52,9 +58,11 @@ void ArietisFrame::InitUI()
 
     m_logPanel = new LogPanel(this);
     m_cpuPanel = new CpuPanel(this);
+    m_regPanel = new RegPanel(this);
 
-    m_auiManager.AddPane(m_cpuPanel, wxAuiPaneInfo().Name("Taint").CenterPane());
-    m_auiManager.AddPane(m_logPanel, wxAuiPaneInfo().Name("Log").Bottom());
+    m_auiManager.AddPane(m_cpuPanel, wxAuiPaneInfo().Name("Taint").Caption("CPU").CenterPane());
+    m_auiManager.AddPane(m_regPanel, wxAuiPaneInfo().Name("Reg").Caption("Registers").Right());
+    m_auiManager.AddPane(m_logPanel, wxAuiPaneInfo().Name("Log").Caption("Log").Bottom());
 
     m_auiManager.Update();
     m_defaultPerspective = m_auiManager.SavePerspective();
@@ -108,6 +116,23 @@ void ArietisFrame::InitStatusBar()
     m_statusTimer.Start(g_config.GetInt("General", "StatusUpdateInterval", 1000));
     Bind(wxEVT_TIMER, &ArietisFrame::OnStatusTimer, this, ID_StatusTimer);
 }
+
+
+void ArietisFrame::InitToolbars()
+{
+    wxToolBar *tbDebug = CreateToolBar(wxTB_DOCKABLE | wxTB_HORZ_TEXT | wxTB_NOICONS, ID_ToolbarDebug, "Debug");
+
+    wxBitmap bitmap(16, 15);
+
+    //tbDebug->AddTool(ID_StepInto, "StepInto", bitmap);
+    tbDebug->AddControl(new wxButton(tbDebug, ID_StepInto, "Step Into", 
+        wxDefaultPosition, wxSize(60, -1)));
+
+    tbDebug->Realize();
+
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnStepInto, this, ID_StepInto);
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // Event handlers
@@ -164,11 +189,16 @@ void ArietisFrame::OnStatusTimer( wxTimerEvent &event )
 
 void ArietisFrame::OnStepInto( wxCommandEvent &event )
 {
-    DebugLog("step into");
     m_engine->OnStepInto();
 }
 
 void ArietisFrame::DebugLog( const wxString &s )
 {
     m_logPanel->Log(s);
+}
+
+void ArietisFrame::DebugStepCallback( const Processor *cpu, const Instruction *inst )
+{
+    m_regPanel->SetValues(cpu);
+    DebugLog(wxString::Format("%s", inst->Main.CompleteInstr));
 }
