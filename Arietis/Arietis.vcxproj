@@ -54,15 +54,16 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;ARIETIS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__WXWIN__;__WXDEBUG__;WIN32;_DEBUG;_WINDOWS;_USRDLL;ARIETIS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>./; ../; 3rdparty/include; ../LochsEmuLib/core; ../LochsEmuLib; ../LochsEmuLib/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WXWIN)\include; $(WXWIN)\lib\vc_lib\mswud; ./; ../; 3rdparty/include; ../LochsEmuLib/core; ../LochsEmuLib; ../LochsEmuLib/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>../bin/Debug/LochsEmuLib.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../bin/Debug/LochsEmuLib.lib;ws2_32.lib;wxmsw29ud_core.lib;wxbase29ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wxmsw29ud_aui.lib;comctl32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(WXWIN)\lib\vc_lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -72,16 +73,17 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;ARIETIS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__WXWIN__;__WXDEBUG__;WIN32;NDEBUG;_WINDOWS;_USRDLL;ARIETIS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>./; ../; 3rdparty/include; ../LochsEmuLib/core; ../LochsEmuLib; ../LochsEmuLib/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WXWIN)\include; $(WXWIN)\lib\vc_lib\mswu;./; ../; 3rdparty/include; ../LochsEmuLib/core; ../LochsEmuLib; ../LochsEmuLib/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>../bin/Release/LochsEmuLib.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../bin/Release/LochsEmuLib.lib;ws2_32.lib;wxmsw29u_core.lib;wxbase29u.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wxmsw29u_aui.lib;comctl32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(WXWIN)\lib\vc_lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -99,11 +101,15 @@
     <ClInclude Include="3rdparty\src\json\json_batchallocator.h" />
     <ClInclude Include="3rdparty\src\json\json_tool.h" />
     <ClInclude Include="Arietis.h" />
-    <ClInclude Include="rdebug\rdebugger.h" />
+    <ClInclude Include="gui\cpupanel.h" />
+    <ClInclude Include="gui\gui.h" />
+    <ClInclude Include="gui\logpanel.h" />
+    <ClInclude Include="gui\mainframe.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="taint\engine.h" />
     <ClInclude Include="taint\taint.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="utilities.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rdparty\src\json\json_reader.cpp" />
@@ -118,13 +124,17 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="rdebug\rdebugger.cpp" />
+    <ClCompile Include="gui\cpupanel.cpp" />
+    <ClCompile Include="gui\gui.cpp" />
+    <ClCompile Include="gui\logpanel.cpp" />
+    <ClCompile Include="gui\mainframe.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="taint\engine.cpp" />
     <ClCompile Include="taint\taint.cpp" />
+    <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="3rdparty\src\json\json_internalarray.inl" />

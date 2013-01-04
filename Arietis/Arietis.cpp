@@ -9,12 +9,12 @@
 
 #include "taint/taint.h"
 #include "taint/engine.h"
-#include "rdebug/rdebugger.h"
+
+#include "gui/gui.h"
 
 PluginHandle    g_handle;
 Config          g_config;
 
-RDebugger       g_rdebugger;
 TaintEngine     g_engine;
 
 ARIETIS_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, PluginInfo *info)
@@ -45,6 +45,8 @@ ARIETIS_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, P
     }
 
     g_engine.Initialize();
+
+    RunGUI();
 
     return true;
 }

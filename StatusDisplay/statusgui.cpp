@@ -107,7 +107,7 @@ void StatusDisplayFrame::InitControls()
     wxBoxSizer *sizer0 = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText *box0 = new wxStaticText(panel, -1, "Update Interval:");
     m_textInterval = new wxTextCtrl(panel, ID_Text_UpdateInt, wxString::Format("%d", m_updateInterval), 
-        wxDefaultPosition, wxSize(40, 25));
+        wxDefaultPosition, wxSize(40, 25), 0, wxTextValidator(wxFILTER_DIGITS));
     m_buttonApply = new wxButton(panel, wxID_APPLY, "&Apply", wxDefaultPosition, wxSize(40, 25));
     sizer0->Add(box0, 0, wxLEFT | wxTOP, Border);
     sizer0->Add(m_textInterval, 0, wxLEFT | wxTOP, Border);
@@ -136,7 +136,7 @@ void StatusDisplayFrame::InitControls()
     sizer3->Add(m_textThreads, 0, wxLEFT | wxTOP | wxALIGN_LEFT, Border);
 
     wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
-
+    
     sizer->Add(sizer0);
     sizer->Add(sizer1);
     sizer->Add(sizer2);
@@ -159,15 +159,7 @@ void StatusDisplayFrame::UpdateControls()
 
 void StatusDisplayFrame::OnTextChange( wxCommandEvent& event )
 {
-    wxString interval = m_textInterval->GetValue();
-    long val;
-    if (interval.ToLong(&val)) {
-        m_textInterval->SetBackgroundColour(wxColour("White"));
-        m_buttonApply->Enable(true);
-    } else {
-        m_textInterval->SetBackgroundColour(wxColour("#ff0000"));
-        m_buttonApply->Enable(false);
-    }
+    m_buttonApply->Enable(true);
     m_textInterval->Refresh(true);
 }
 

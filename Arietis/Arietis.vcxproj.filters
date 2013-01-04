@@ -31,11 +31,11 @@
     <Filter Include="Source Files\taint">
       <UniqueIdentifier>{669f15ec-3162-4a0f-8763-bde027c561fe}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\rdebug">
-      <UniqueIdentifier>{13e2c61f-7482-461b-8f52-e0d40156e034}</UniqueIdentifier>
+    <Filter Include="Header Files\gui">
+      <UniqueIdentifier>{9f122b0f-8713-4128-b1d5-3b3803a87a00}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\rdebug">
-      <UniqueIdentifier>{5ed49cf2-5a4d-440a-afae-2989bddd7d46}</UniqueIdentifier>
+    <Filter Include="Source Files\gui">
+      <UniqueIdentifier>{73e5b7b4-e8c8-49ed-b0e8-2054dfc53720}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -87,8 +87,20 @@
     <ClInclude Include="taint\taint.h">
       <Filter>Header Files\taint</Filter>
     </ClInclude>
-    <ClInclude Include="rdebug\rdebugger.h">
-      <Filter>Header Files\rdebug</Filter>
+    <ClInclude Include="gui\gui.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\mainframe.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\logpanel.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\cpupanel.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -116,8 +128,20 @@
     <ClCompile Include="taint\engine.cpp">
       <Filter>Source Files\taint</Filter>
     </ClCompile>
-    <ClCompile Include="rdebug\rdebugger.cpp">
-      <Filter>Source Files\rdebug</Filter>
+    <ClCompile Include="gui\gui.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\mainframe.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\logpanel.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\cpupanel.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="utilities.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

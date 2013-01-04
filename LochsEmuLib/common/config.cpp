@@ -4,7 +4,7 @@
 BEGIN_NAMESPACE_LOCHSEMU()
 
 
-const uint Config::BufSize = 256;
+const uint Config::BufSize = 40960;
 
 
 Config::Config()
@@ -42,7 +42,7 @@ std::string Config::GetString(LPCSTR lpSection, LPCSTR lpName, LPCSTR lpDefault 
     if (dwBytes == 0) {
         LxWarning("Config::GetString 0 bytes, Section=%s, Key=%s\n", lpSection, lpName);
     }
-    if (!strcmp(buf, lpDefault)) {
+    if (lpDefault && !strcmp(buf, lpDefault)) {
         B( WritePrivateProfileStringA(lpSection, lpName, lpDefault, m_fileName.c_str()) );
     }
     return std::string(buf);

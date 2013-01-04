@@ -26,6 +26,6 @@ ARIETIS_API void LochsEmu_Processor_PostExecute(Processor *cpu, const Instructio
 
 extern HMODULE  g_module;
 extern Config   g_config;
- 
+
 #endif // __ARIETIS_ARIETIS_H__
 
