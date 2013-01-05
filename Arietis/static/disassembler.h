@@ -11,6 +11,9 @@ public:
     struct Inst {
         InstPtr     instPtr;
         u32         eip;
+        std::string dllName;
+        std::string funcName;
+
         Inst() : instPtr(NULL), eip(0) {}
         Inst(InstPtr ptr, u32 e):instPtr(ptr), eip(e) {}
     };
@@ -34,6 +37,7 @@ public:
     void        OnPreExecute(const Processor *cpu, const Instruction *inst);
 private:
     void        RecursiveDisassemble(const Processor *cpu, u32 eip, const Section *sec);
+    void        AttachApiInfo(const Processor *cpu, u32 eip, Inst &inst);
 private:
     DataUpdateHandler   m_dataUpdateHandler;
     InstDisasmMap       m_instMap;

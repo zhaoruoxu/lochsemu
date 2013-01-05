@@ -54,6 +54,10 @@ void ArietisFrame::InitUI()
     m_auiManager.Update();
     m_defaultPerspective = m_auiManager.SavePerspective();
     Centre();
+
+    if (g_config.GetInt("General", "AutoLoadPerpective", 1) != 0) {
+        OnLoadPerspective(wxCommandEvent());
+    }
 }
 
 void ArietisFrame::InitMenu()
@@ -127,6 +131,7 @@ void ArietisFrame::InitToolbars()
 //////////////////////////////////////////////////////////////////////////
 void ArietisFrame::OnExit( wxCommandEvent &event )
 {
+
     Close();
 }
 
@@ -143,7 +148,9 @@ void ArietisFrame::OnClose( wxCloseEvent &event )
 //             return;
 //         }
 //     }
-    
+    if (g_config.GetInt("General", "AutoSavePerspective", 1) != 0) {
+        OnSavePerspective(wxCommandEvent());
+    }
     Destroy();
 }
 

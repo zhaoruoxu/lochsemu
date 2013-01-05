@@ -19,27 +19,30 @@ public:
 
     void        OnPaint(wxPaintEvent& event);
     void        OnEraseBackground(wxEraseEvent& event);
+    void        OnLeftClick(wxMouseEvent& event);
     //wxCoord     OnGetRowHeight(size_t row) const override;
     //wxCoord     OnGetColumnWidth(size_t column) const override;
 private:
-    void        InitUI();
     void        InitLogic();
     void        InitRender();
     void        Draw(wxBufferedPaintDC &dc);
     void        DrawInst(wxBufferedPaintDC &dc, const Disassembler::Inst &inst, int index);
-    void        HighlightCurrentInst(wxBufferedPaintDC &dc);
     wxPoint     GetCurrentScrolledPos() const;
 private:
     
     /* render */
     int         m_widthIp;
     int         m_widthDisasm;
+    int         m_widthInfo;
     int         m_width;
     int         m_height;
+    int         m_lineHeight;
     wxFontMetrics   m_fontMetrics;
     int         m_currIndex;
+    int         m_currSelIndex;
     int         m_minDistanceToBottom;
     wxBrush     m_curlineBrush;
+    wxBrush     m_sellineBrush;
 
     wxFont      m_font;
     wxDataViewListCtrl *    m_list;

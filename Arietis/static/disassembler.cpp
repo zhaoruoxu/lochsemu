@@ -39,6 +39,7 @@ void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, const Se
         InstPtr inst(new Instruction);
         LxDecode(cpu->Mem->GetRawData(eip), inst.get(), eip);
         m_instMap[eip] = Inst(inst, eip);
+        AttachApiInfo(cpu, eip, m_instMap[eip]);
 
         u32 opcode = inst->Main.Inst.Opcode;
         if (opcode == 0xc3 || opcode == 0xcb || opcode == 0xc2 || opcode == 0xca) {
@@ -57,6 +58,42 @@ void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, const Se
         const Section *nextSec = cpu->Mem->GetSection(nextEip);
         if (sec != nextSec) return;
         eip = nextEip;
+    }
+}
+
+void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, Inst &inst )
+{
+    u32 target = 0;
+    u32 opcode = inst.instPtr->Main.Inst.Opcode;
+    const char *mnemonic = inst.instPtr->Main.Inst.Mnemonic;
+    if (opcode == 0xff) {
+        // CALL or JMP r/m32
+        if (strstr(mnemonic, "jmp") == mnemonic || strstr(mnemonic, "call") == mnemonic) {
+            if (OPERAND_TYPE(inst.instPtr->Main.Argument1.ArgType) == MEMORY_TYPE &&
+                inst.instPtr->Main.Argument1.Memory.BaseRegister == 0 &&
+                inst.instPtr->Main.Argument1.Memory.IndexRegister == 0) {
+                target = cpu->ReadOperand32(inst.instPtr.get(), inst.instPtr->Main.Argument1, NULL);
+            }
+        }
+    } else if (opcode == 0xe8 && strstr(mnemonic, "call") == mnemonic) {
+        target = eip + inst.instPtr->Length + (u32) inst.instPtr->Aux.op1.immediate;
+        
+        if (cpu->Mem->GetSection(target))
+            RecursiveDisassemble(cpu, target, cpu->Mem->GetSection(target));
+        auto iter = m_instMap.find(target);
+        Assert(iter != m_instMap.end());
+        const Instruction &instCalled = *iter->second.instPtr;
+        if (instCalled.Main.Inst.Opcode == 0xff &&
+            (strstr(instCalled.Main.Inst.Mnemonic, "jmp") == instCalled.Main.Inst.Mnemonic)) 
+        {
+            target = cpu->ReadOperand32(&instCalled, instCalled.Main.Argument1, NULL);
+        }
+    }
+
+    const ApiInfo *info = cpu->Proc()->GetApiInfoFromAddress(target);
+    if (info) {
+        inst.dllName = info->ModuleName;
+        inst.funcName = info->FunctionName;
     }
 }
 
