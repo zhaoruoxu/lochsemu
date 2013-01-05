@@ -5,7 +5,7 @@
 
 
 LogPanel::LogPanel( wxWindow *parent )
-    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(600, 300))
+    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(600, 150))
 {
     InitUI();
 }

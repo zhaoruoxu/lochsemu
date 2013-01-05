@@ -31,6 +31,7 @@ private:
     void        Draw(wxBufferedPaintDC &dc);
     void        DrawInst(wxBufferedPaintDC &dc, const Disassembler::Inst &inst, int index);
     wxPoint     GetCurrentScrolledPos() const;
+    int         CalcJumpLineWidth(int idx1, int idx2) const;
 private:
     
     /* render */
@@ -44,9 +45,17 @@ private:
     int         m_currIndex;
     int         m_currSelIndex;
     int         m_minDistanceToBottom;
+    bool        m_isLeftDown;
+    bool        m_showTargetNameInstead;
+    int         m_jumpLineWidthMax;
+    int         m_jumpLineWidthMin;
+    int         m_jumpLineInstDistMax;
+
     wxBrush     m_curlineBrush;
     wxBrush     m_sellineBrush;
-    bool        m_isLeftDown;
+    wxBrush     m_zerolineBrush;
+    wxColour    m_callRetColor;
+    wxColour    m_jumpColor;
 
     wxFont      m_font;
     wxDataViewListCtrl *    m_list;

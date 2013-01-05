@@ -9,13 +9,14 @@ class Disassembler {
 public:
     typedef std::shared_ptr<Instruction>    InstPtr;
     struct Inst {
-        InstPtr     instPtr;
+        InstPtr     ptr;
         u32         eip;
+        u32         target;
         std::string dllName;
         std::string funcName;
 
-        Inst() : instPtr(NULL), eip(0) {}
-        Inst(InstPtr ptr, u32 e):instPtr(ptr), eip(e) {}
+        Inst() : ptr(NULL), eip(0) {}
+        Inst(InstPtr ptr, u32 e):ptr(ptr), eip(e) {}
     };
     typedef std::vector<Inst>       InstVector;
     typedef std::map<u32, Inst>     InstDisasmMap;
@@ -37,10 +38,12 @@ public:
     void        OnPreExecute(const Processor *cpu, const Instruction *inst);
 private:
     void        RecursiveDisassemble(const Processor *cpu, u32 eip, const Section *sec);
-    void        AttachApiInfo(const Processor *cpu, u32 eip, Inst &inst);
+    void        AttachApiInfo(const Processor *cpu, u32 eip, const Section *sec, Inst &inst);
 private:
     DataUpdateHandler   m_dataUpdateHandler;
-    InstDisasmMap       m_instMap;
+    const Section *     m_lastSec;
+    //InstDisasmMap       m_instMap;
+    std::unordered_map<const Section *, InstDisasmMap> m_secMap;
 };
 
 #endif // __ARIETIS_STATIC_DISASSEMBLER_H__

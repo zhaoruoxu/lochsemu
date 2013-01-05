@@ -40,7 +40,7 @@ void CpuPanel::InitLogic()
 
 void CpuPanel::InitRender()
 {
-    m_widthIp       = g_config.GetInt("CpuPanel", "WidthIp", 70);
+    m_widthIp       = g_config.GetInt("CpuPanel", "WidthIp", 80);
     m_widthDisasm   = g_config.GetInt("CpuPanel", "WidthDisasm", 300);
     m_widthInfo     = g_config.GetInt("CpuPanel", "WidthInfo", 300);
     m_width         = m_widthIp + m_widthDisasm + m_widthInfo;
@@ -50,8 +50,16 @@ void CpuPanel::InitRender()
     m_font = wxFont(g_config.GetInt("CpuPanel", "FontSize", 8), wxFONTFAMILY_DEFAULT,
         wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, 
         g_config.GetString("CpuPanel", "FontName", "Lucida Console"));
-    m_curlineBrush = wxBrush(wxColor(g_config.GetString("CpuPanel", "CurrentLineColor", "#00FF00")));
+    m_curlineBrush = wxBrush(wxColor(g_config.GetString("CpuPanel", "CurrentLineColor", "#B100D7")));
     m_sellineBrush = wxBrush(wxColor(g_config.GetString("CpuPanel", "SelectedLineColor", "#B0B0B0")));
+    m_zerolineBrush = wxBrush(wxColor(g_config.GetString("CpuPanel", "ZeroLineColor", "#D0D0D0")));
+    m_jumpColor = wxColour(g_config.GetString("CpuPanel", "JumpColor", "#008080"));
+    m_callRetColor = wxColour(g_config.GetString("CpuPanel", "CallRetColor", "#f00000"));
+
+    m_showTargetNameInstead = g_config.GetInt("CpuPanel", "ShowTargetNameInsteadOfAddress", 1) != 0;
+    m_jumpLineWidthMax  = g_config.GetInt("CpuPanel", "JumpLineWidthMax", 15);
+    m_jumpLineWidthMin  = g_config.GetInt("CpuPanel", "JumpLineWidthMin", 3);
+    m_jumpLineInstDistMax   = g_config.GetInt("CpuPanel", "JumpLineInstDistanceMax", 20);
 
     SetFont(m_font);
     SetBackgroundStyle(wxBG_STYLE_PAINT);
@@ -103,14 +111,36 @@ void CpuPanel::Draw( wxBufferedPaintDC &dc )
     static const int VertLineOffset = -2;
     wxPoint p = GetCurrentScrolledPos();
     wxSize cs = GetClientSize();
-    int idxStart = p.y / m_lineHeight - 1;
-    int idxEnd = (p.y + cs.GetHeight()) / m_lineHeight + 1;
+    const int idxStart = p.y / m_lineHeight - 1;
+    const int idxEnd = (p.y + cs.GetHeight()) / m_lineHeight + 1;
 
     /* instructions */
     int index = 0;
     for (auto &inst : *m_insts) {
         if (idxStart <= index && index <= idxEnd)
             DrawInst(dc, inst.second, index);
+        index++;
+    }
+
+    /* instruction jump lines */
+    index = 0;
+    for (auto &inst : *m_insts) {
+        if (inst.second.target != 0 && m_insts->find(inst.second.target) != m_insts->end()) {
+            int rindex = m_eipIndex[inst.second.target];
+            if ((idxStart <= index && index <= idxEnd) || 
+                (idxStart <= rindex && rindex <= idxEnd)) {
+                int w0 = m_widthIp - 2;
+                int w = w0 - CalcJumpLineWidth(index, rindex);
+                int offset = m_lineHeight / 2;
+                int h1 = index * m_lineHeight + offset;
+                int h2 = rindex * m_lineHeight + offset;
+                dc.SetPen(*wxBLACK_PEN);
+                dc.DrawCircle(w0, h1, 1);
+                dc.DrawLine(w0, h1, w, h1);
+                dc.DrawLine(w, h1, w, h2);
+                dc.DrawLine(w0, h2, w, h2);
+            }
+        }
         index++;
     }
 
@@ -140,29 +170,48 @@ void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const Disassembler::Inst &inst, 
     if (!IsExposed(rectScrolled)) return;
 
     dc.SetPen(*wxTRANSPARENT_PEN);
-    // highlight current selected line
-    if (index == m_currSelIndex) {
+
+    u32 opcode = inst.ptr->Main.Inst.Opcode;
+    if (index == m_currIndex) {
+        // highlight current line
+        dc.SetBrush(m_curlineBrush);
+        dc.DrawRectangle(rectToDraw);
+    } else if (index == m_currSelIndex) {
+        // highlight current selected line
         dc.SetBrush(m_sellineBrush);
         dc.DrawRectangle(rectToDraw);
-    }
-
-    // highlight current line
-    if (index == m_currIndex) {
-        dc.SetBrush(m_curlineBrush);
+    } else if (opcode == 0) {
+        // darken zero line
+        dc.SetBrush(m_zerolineBrush);
         dc.DrawRectangle(rectToDraw);
     }
 
     int h = m_lineHeight * index + 1;
     dc.SetBrush(*wxWHITE_BRUSH);
+
+    // draw ip address
     dc.DrawText(wxString::Format("%08X", inst.eip), 0,h );
-    dc.DrawText(wxString::Format("%s", inst.instPtr->Main.CompleteInstr),
-        m_widthIp, h);
+
+    wxString instr(inst.ptr->Main.CompleteInstr);
+    if (opcode != 0) {
+        if (instr.StartsWith("call") || instr.StartsWith("ret")) {
+            dc.SetTextForeground(m_callRetColor);
+        } else if (instr.StartsWith("j")) {
+            dc.SetTextForeground(m_jumpColor);
+        } else {
+            dc.SetTextForeground(*wxBLACK);
+        }
+    }
     if (!inst.dllName.empty() || !inst.funcName.empty()) {
         wxString dll(inst.dllName);
-        dc.DrawText(wxString::Format("%s:%s", dll.SubString(0, dll.Length()-5), 
+        dc.DrawText(wxString::Format("%s<%s:%s>", inst.ptr->Main.Inst.Mnemonic, dll.SubString(0, dll.Length()-5), 
             inst.funcName.c_str()),
-            m_widthIp + m_widthDisasm, h);
+            m_widthIp, h);
+    } else {
+        dc.DrawText(instr, m_widthIp, h);
     }
+    
+    dc.SetTextForeground(*wxBLACK);
 }
 
 void CpuPanel::OnDataUpdate( const Disassembler::InstDisasmMap *insts )
@@ -229,4 +278,11 @@ void CpuPanel::OnMouseMove( wxMouseEvent& event )
 void CpuPanel::OnMouseLeave( wxMouseEvent& event )
 {
     m_isLeftDown = false;
+}
+
+int CpuPanel::CalcJumpLineWidth(int idx1, int idx2) const
+{
+    int dist = min(abs(idx1 - idx2), m_jumpLineInstDistMax);
+    return m_jumpLineWidthMin + (m_jumpLineWidthMax - m_jumpLineWidthMin) * 
+        dist / m_jumpLineInstDistMax;
 }
