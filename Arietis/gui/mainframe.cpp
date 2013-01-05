@@ -10,21 +10,6 @@
 
 #include "instruction.h"
 
-enum {
-    /* view */
-    ID_LoadPerspective = 1,
-    ID_SavePerspective,
-    ID_ResetPerspective,
-
-    /* debug */
-    ID_StepInto,
-
-    ID_StatusTimer,
-
-    /* toolbar */
-    ID_ToolbarDebug,
-};
-
 ArietisFrame::ArietisFrame(ArietisEngine *engine)
     : m_engine(engine), wxFrame(NULL, wxID_ANY, "Arietis", wxDefaultPosition, wxSize(800, 800), 
     wxDEFAULT_FRAME_STYLE), m_statusTimer(this, ID_StatusTimer)
@@ -33,6 +18,7 @@ ArietisFrame::ArietisFrame(ArietisEngine *engine)
     InitUI();
 
     m_engine->SetGuiFrame(this);
+    NotifyMainThread();
 }
 
 ArietisFrame::~ArietisFrame()

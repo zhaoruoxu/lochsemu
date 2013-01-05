@@ -6,12 +6,30 @@
 #include "Arietis.h"
 
 void RunGUI();
+void NotifyMainThread();
 
 class ArietisFrame;
 class LogPanel;
 class CpuPanel;
 class RegPanel;
 
+enum {
+    /* view */
+    ID_LoadPerspective = 1,
+    ID_SavePerspective,
+    ID_ResetPerspective,
+
+    /* debug */
+    ID_StepInto,
+
+    ID_StatusTimer,
+
+    /* toolbar */
+    ID_ToolbarDebug,
+
+    /* cpu panel */
+    ID_CpuInstList,
+};
 
 class ArietisApp : public wxApp {
 public:

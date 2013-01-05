@@ -26,12 +26,14 @@ ARIETIS_API void LochsEmu_Processor_PostExecute(Processor *cpu, const Instructio
 
 
 class Mutex;
+class Semaphore;
 class ArietisEngine;
 class Debugger;
 
 extern HMODULE          g_module;
 extern Config           g_config;
 extern ArietisEngine    g_engine;
+extern Semaphore        g_guiSem;
 
 
 #endif // __ARIETIS_ARIETIS_H__

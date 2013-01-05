@@ -109,8 +109,8 @@ public:
     std::vector<SectionInfo>    GetMemoryInfo() const;
     std::vector<PageInfo>       GetSectionInfo(u32 address) const;
     SectionDesc     GetSectionDesc(u32 address) const;
-protected:
     Section *       GetSection(u32 address) const { return m_sectionTable[PAGE_NUM(address)]; }
+protected:
     void            InsertSection(Section *sec);
     void            RemoveSection(Section *sec);
     bool            IsHeap(Section *sec) const { return m_heaps.find(sec) != m_heaps.end(); }

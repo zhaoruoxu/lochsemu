@@ -15,6 +15,7 @@ PluginHandle    g_handle;
 Config          g_config;
 
 ArietisEngine   g_engine;
+Semaphore       g_guiSem;
 
 ARIETIS_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, PluginInfo *info)
 {
@@ -46,6 +47,8 @@ ARIETIS_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, P
     g_engine.Initialize();
 
     RunGUI();
+
+    g_guiSem.Wait();
 
     return true;
 }

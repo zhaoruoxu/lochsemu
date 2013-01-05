@@ -6,6 +6,7 @@
 #include "Arietis.h"
 #include "debugger.h"
 #include "gui/gui.h"
+#include "static/disassembler.h"
 
 class ArietisEngine {
 public:
@@ -14,7 +15,7 @@ public:
 
     void            Initialize();
 
-    void            SetGuiFrame(ArietisFrame *frame) { m_gui = frame; }
+    void            SetGuiFrame(ArietisFrame *frame);
     ArietisFrame *  GetGUI() const { Assert(m_gui); return m_gui; }
 
     void            OnPreExecute(Processor *cpu, const Instruction *inst);
@@ -26,6 +27,7 @@ public:
     void            Log(const wxString &s);
 private:
     Debugger        m_debugger;
+    Disassembler    m_disassembler;
     ArietisFrame *  m_gui;
 };
 

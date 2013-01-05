@@ -2,6 +2,7 @@
 #include "gui.h"
 #include "mainframe.h"
 #include "Arietis.h"
+#include "parallel.h"
 
 HANDLE      g_guiThread;
 
@@ -30,6 +31,11 @@ wxAppConsole *wxCreateApp()
 {
     wxAppConsole::CheckBuildOptions(WX_BUILD_OPTIONS_SIGNATURE, "ArietisApp");
     return new ArietisApp;
+}
+
+void NotifyMainThread()
+{
+    g_guiSem.Post();
 }
 
 wxAppInitializer wxTheAppInitializer((wxAppInitializerFunction) wxCreateApp);

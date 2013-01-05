@@ -2,6 +2,7 @@
 #include "engine.h"
 
 #include "gui/mainframe.h"
+#include "gui/cpupanel.h"
 
 ArietisEngine::ArietisEngine() : m_debugger(this)
 {
@@ -20,6 +21,7 @@ void ArietisEngine::Initialize()
 
 void ArietisEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 {
+    m_disassembler.OnPreExecute(cpu, inst);
     m_debugger.OnPreExecute(cpu, inst);
 }
 
@@ -36,4 +38,15 @@ void ArietisEngine::OnStepInto()
 void ArietisEngine::Log( const wxString &s )
 {
     m_gui->DebugLog(s);
+}
+
+void ArietisEngine::SetGuiFrame( ArietisFrame *frame )
+{
+    m_gui = frame;
+    m_disassembler.RegisterInstDisasmHandler([this](const Disassembler::InstVector &insts) {
+        this->m_gui->GetCpuPanel()->OnInstDisasm(insts);
+    });
+    m_disassembler.RegisterPtrChangeHandler([this](u32 addr) {
+        this->m_gui->GetCpuPanel()->OnPtrChange(addr);
+    });
 }

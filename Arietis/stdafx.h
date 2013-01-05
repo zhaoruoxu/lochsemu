@@ -26,9 +26,11 @@
 #include <Psapi.h>
 #include <Tlhelp32.h>
 #include <memory>
+#include <functional>
 
 #include <wx/wxprec.h>
 #include <wx/aui/aui.h>
 #include <wx/statline.h>
+#include <wx/listctrl.h>
 
 // TODO: reference additional headers your program requires here

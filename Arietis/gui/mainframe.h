@@ -14,6 +14,10 @@ public:
 
     void    DebugLog(const wxString &s);
     void    DebugStepCallback(const Processor *cpu, const Instruction *inst);
+
+    CpuPanel *  GetCpuPanel() const { return m_cpuPanel; }
+    RegPanel *  GetRegPanel() const { return m_regPanel; }
+    LogPanel *  GetLogPanel() const { return m_logPanel; }
 private:
     void    OnExit(wxCommandEvent &event);
     void    OnAbout(wxCommandEvent &event);
