@@ -19,7 +19,10 @@ public:
 
     void        OnPaint(wxPaintEvent& event);
     void        OnEraseBackground(wxEraseEvent& event);
-    void        OnLeftClick(wxMouseEvent& event);
+    void        OnLeftDown(wxMouseEvent& event);
+    void        OnLeftUp(wxMouseEvent& event);
+    void        OnMouseLeave(wxMouseEvent& event);
+    void        OnMouseMove(wxMouseEvent& event);
     //wxCoord     OnGetRowHeight(size_t row) const override;
     //wxCoord     OnGetColumnWidth(size_t column) const override;
 private:
@@ -43,6 +46,7 @@ private:
     int         m_minDistanceToBottom;
     wxBrush     m_curlineBrush;
     wxBrush     m_sellineBrush;
+    bool        m_isLeftDown;
 
     wxFont      m_font;
     wxDataViewListCtrl *    m_list;

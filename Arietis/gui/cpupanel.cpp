@@ -10,7 +10,7 @@ static bool InstCmp(const Disassembler::Inst &lhs, const Disassembler::Inst &rhs
 
 CpuPanel::CpuPanel( wxWindow *parent )
     : wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxSize(400, 400),
-    wxVSCROLL | wxHSCROLL), m_insts(NULL)
+    wxVSCROLL), m_insts(NULL)
     //m_font(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, "Lucida Console")
 {
     InitLogic();
@@ -18,7 +18,10 @@ CpuPanel::CpuPanel( wxWindow *parent )
 
     Bind(wxEVT_PAINT, &CpuPanel::OnPaint, this, wxID_ANY);
     Bind(wxEVT_ERASE_BACKGROUND, &CpuPanel::OnEraseBackground, this, wxID_ANY);
-    Bind(wxEVT_LEFT_DOWN, &CpuPanel::OnLeftClick, this, wxID_ANY);
+    Bind(wxEVT_LEFT_DOWN, &CpuPanel::OnLeftDown, this, wxID_ANY);
+    Bind(wxEVT_LEFT_UP, &CpuPanel::OnLeftUp, this, wxID_ANY);
+    Bind(wxEVT_MOTION, &CpuPanel::OnMouseMove, this, wxID_ANY);
+    Bind(wxEVT_LEAVE_WINDOW, &CpuPanel::OnMouseLeave, this, wxID_ANY);
 }
 
 int wxCALLBACK InstListItemCmp(wxIntPtr item1, wxIntPtr item2, wxIntPtr sortData)
@@ -53,22 +56,22 @@ void CpuPanel::InitRender()
     SetFont(m_font);
     SetBackgroundStyle(wxBG_STYLE_PAINT);
 
-//     wxClientDC dc(this);
-//     dc.SetFont(m_font);
-//     m_fontMetrics = dc.GetFontMetrics();
     m_currIndex = 0;
     m_currSelIndex = -1;
-    //SetScrollRate(1, m_fontMetrics.height);
+    m_isLeftDown = false;
+
+    wxClientDC dc(this);
+    dc.SetFont(m_font);
+    m_fontMetrics = dc.GetFontMetrics();
+    m_lineHeight = m_fontMetrics.height + 2;
+
+    SetScrollRate(10, m_lineHeight);
 }
 
 void CpuPanel::OnPaint( wxPaintEvent& event )
 {
-//     wxPaintDC dc(this);
-//     dc.SetBrush(wxBrush(wxColor("red"), wxBRUSHSTYLE_SOLID));
-//     dc.DrawRectangle(wxPoint(0, 0), m_size);
     wxBufferedPaintDC dc(this);
     DoPrepareDC(dc);
-
     dc.SetBackground(*wxWHITE_BRUSH);
     dc.Clear();
 
@@ -155,7 +158,9 @@ void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const Disassembler::Inst &inst, 
     dc.DrawText(wxString::Format("%s", inst.instPtr->Main.CompleteInstr),
         m_widthIp, h);
     if (!inst.dllName.empty() || !inst.funcName.empty()) {
-        dc.DrawText(wxString::Format("%s::%s", inst.dllName.c_str(), inst.funcName.c_str()),
+        wxString dll(inst.dllName);
+        dc.DrawText(wxString::Format("%s:%s", dll.SubString(0, dll.Length()-5), 
+            inst.funcName.c_str()),
             m_widthIp + m_widthDisasm, h);
     }
 }
@@ -169,13 +174,6 @@ void CpuPanel::OnDataUpdate( const Disassembler::InstDisasmMap *insts )
     for (auto &inst : *m_insts) {
         m_eipIndex[inst.first] = index++;
     }
-
-    wxClientDC dc(this);
-    dc.SetFont(m_font);
-    m_fontMetrics = dc.GetFontMetrics();
-    m_lineHeight = m_fontMetrics.height + 2;
-
-    SetScrollRate(10, m_lineHeight);
 
     m_height = m_lineHeight * insts->size();
     SetVirtualSize(m_width, m_height);
@@ -204,12 +202,31 @@ void CpuPanel::OnPtrChange( u32 addr )
     Refresh();
 }
 
-void CpuPanel::OnLeftClick( wxMouseEvent& event )
+void CpuPanel::OnLeftDown( wxMouseEvent& event )
 {
-    wxClientDC dc(this);
-    wxPoint p = event.GetLogicalPosition(dc);
+    wxPoint p = event.GetPosition();
     wxPoint ps = GetViewStart();
     m_currSelIndex = ps.y + p.y / m_lineHeight;
+    m_isLeftDown = true;
 
     Refresh();
+}
+
+void CpuPanel::OnLeftUp( wxMouseEvent& event )
+{
+    m_isLeftDown = false;
+}
+
+void CpuPanel::OnMouseMove( wxMouseEvent& event )
+{
+    if (!m_isLeftDown) return;
+    wxPoint p = event.GetPosition();
+    wxPoint ps = GetViewStart();
+    m_currSelIndex = ps.y + p.y / m_lineHeight;
+    Refresh();
+}
+
+void CpuPanel::OnMouseLeave( wxMouseEvent& event )
+{
+    m_isLeftDown = false;
 }
