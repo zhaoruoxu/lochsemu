@@ -31,6 +31,8 @@ void Debugger::Initialize()
 void Debugger::OnPreExecute( Processor *cpu, const Instruction *inst )
 {
     m_engine->GetGUI()->DebugStepCallback(cpu, inst);
+
+    //if (m_ptrChangeHandler) m_ptrChangeHandler(cpu->EIP);
     m_semaphore.Wait();
 
     //m_engine->Log(wxString::Format("Executing [%08x]  %s", cpu->EIP, inst->Main.CompleteInstr));

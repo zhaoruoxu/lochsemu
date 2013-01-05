@@ -526,5 +526,4 @@ void Processor::WriteOperand128(const Instruction *inst, const ARGTYPE &oper, u3
     }
 }
 
-
 END_NAMESPACE_LOCHSEMU()

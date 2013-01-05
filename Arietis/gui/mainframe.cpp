@@ -9,6 +9,7 @@
 #include "engine.h"
 
 #include "instruction.h"
+#include "processor.h"
 
 ArietisFrame::ArietisFrame(ArietisEngine *engine)
     : m_engine(engine), wxFrame(NULL, wxID_ANY, "Arietis", wxDefaultPosition, wxSize(800, 800), 
@@ -67,7 +68,7 @@ void ArietisFrame::InitMenu()
     menuView->Append(ID_ResetPerspective, "Reset perspective");
 
     wxMenu *menuDebug = new wxMenu;
-    menuDebug->Append(ID_StepInto, "Step Into");
+    menuDebug->Append(ID_StepInto, "Step Into\tF11");
 
     wxMenu *menuHelp = new wxMenu;
     menuHelp->Append(wxID_ABORT, "&About");
@@ -187,5 +188,6 @@ void ArietisFrame::DebugLog( const wxString &s )
 void ArietisFrame::DebugStepCallback( const Processor *cpu, const Instruction *inst )
 {
     m_regPanel->SetValues(cpu);
-    DebugLog(wxString::Format("%s", inst->Main.CompleteInstr));
+    m_cpuPanel->OnPtrChange(cpu->EIP);
+    //DebugLog(wxString::Format("%s", inst->Main.CompleteInstr));
 }

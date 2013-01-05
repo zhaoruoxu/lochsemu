@@ -10,23 +10,14 @@ static bool InstCmp(const Disassembler::Inst &lhs, const Disassembler::Inst &rhs
 
 CpuPanel::CpuPanel( wxWindow *parent )
     : wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxSize(400, 400),
-    wxVSCROLL | wxHSCROLL),
-    m_font(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, "Lucida Console")
+    wxVSCROLL | wxHSCROLL), m_insts(NULL)
+    //m_font(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, "Lucida Console")
 {
-    //InitUI();
     InitLogic();
     InitRender();
 
-    SetFont(m_font);
-    
-    //SetVirtualSize(2000, 2000);
-    SetScrollRate(1, 10);
-    SetBackgroundStyle(wxBG_STYLE_PAINT);
-
     Bind(wxEVT_PAINT, &CpuPanel::OnPaint, this, wxID_ANY);
     Bind(wxEVT_ERASE_BACKGROUND, &CpuPanel::OnEraseBackground, this, wxID_ANY);
-
-    m_insts = NULL;
 }
 
 int wxCALLBACK InstListItemCmp(wxIntPtr item1, wxIntPtr item2, wxIntPtr sortData)
@@ -64,6 +55,23 @@ void CpuPanel::InitRender()
 {
     m_widthIp = g_config.GetInt("CpuPanel", "WidthIp", 70);
     m_widthDisasm = g_config.GetInt("CpuPanel", "WidthDisasm", 215);
+    m_minDistanceToBottom = g_config.GetInt("CpuPanel", "MinDistanceToBottom", 7);
+
+    m_font = wxFont(g_config.GetInt("CpuPanel", "FontSize", 8), wxFONTFAMILY_DEFAULT,
+        wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, 
+        g_config.GetString("CpuPanel", "FontName", "Lucida Console"));
+    m_curlineBrush = wxBrush(wxColor(g_config.GetString("CpuPanel", "CurrentLineColor", "#00FF00")));
+
+    m_width = m_widthIp + m_widthDisasm;
+
+    SetFont(m_font);
+    SetBackgroundStyle(wxBG_STYLE_PAINT);
+
+    wxClientDC dc(this);
+    dc.SetFont(m_font);
+    m_fontMetrics = dc.GetFontMetrics();
+    m_currIndex = 0;
+    SetScrollRate(1, m_fontMetrics.height);
 }
 
 void CpuPanel::OnPaint( wxPaintEvent& event )
@@ -86,35 +94,27 @@ void CpuPanel::OnEraseBackground( wxEraseEvent& event )
 
 }
 
-void CpuPanel::OnDataUpdate( const Disassembler::InstDisasmMap *insts )
-{
-    m_insts = insts;
-    wxClientDC dc(this);
-    dc.SetFont(m_font);
-    m_fontMetrics = dc.GetFontMetrics();
-    SetScrollRate(10, m_fontMetrics.height);
-
-    m_width = m_widthIp + m_widthDisasm;
-    m_height = m_fontMetrics.height * insts->size();
-    SetVirtualSize(m_width, m_height);
-    Refresh();
-}
-
 void CpuPanel::OnPreExecute( const Processor *cpu, const Instruction *inst )
 {
 }
 
-void CpuPanel::Draw( wxBufferedPaintDC &dc )
+
+wxPoint CpuPanel::GetCurrentScrolledPos() const
 {
-    static const int VertLineOffset = -2;
     int px, py;
     wxPoint vs = GetViewStart();
     GetScrollPixelsPerUnit(&px, &py);
-    int x = vs.x * px;
-    int y = vs.y * py;
+    return wxPoint(vs.x * px, vs.y * py);
+}
+
+
+void CpuPanel::Draw( wxBufferedPaintDC &dc )
+{
+    static const int VertLineOffset = -2;
+    wxPoint p = GetCurrentScrolledPos();
     wxSize cs = GetClientSize();
-    int idxStart = (y - m_fontMetrics.height) / m_fontMetrics.height;
-    int idxEnd = (y + cs.GetHeight() + m_fontMetrics.height) / m_fontMetrics.height;
+    int idxStart = (p.y - m_fontMetrics.height) / m_fontMetrics.height;
+    int idxEnd = (p.y + cs.GetHeight() + m_fontMetrics.height) / m_fontMetrics.height;
 
     /* instructions */
     int index = 0;
@@ -127,30 +127,95 @@ void CpuPanel::Draw( wxBufferedPaintDC &dc )
     /* clear unwanted */
     dc.SetPen(*wxWHITE_PEN);
     dc.SetBrush(*wxWHITE_BRUSH);
-    dc.DrawRectangle(x + m_widthIp + m_widthDisasm + VertLineOffset, y, 
-        m_width, y + cs.GetHeight());
+    dc.DrawRectangle(p.x + m_widthIp + m_widthDisasm + VertLineOffset, p.y, 
+        m_width, p.y + cs.GetHeight());
 
     dc.SetPen(*wxGREY_PEN);
+
     /* vertical lines */
-    int lineX = x + m_widthIp + VertLineOffset;
-    int lineY0 = y, lineY1 = y + cs.GetHeight();
+    int lineX = p.x + m_widthIp + VertLineOffset;
+    int lineY0 = p.y, lineY1 = p.y + cs.GetHeight();
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
     lineX += m_widthDisasm;
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
+    /* highlight */
+    //HighlightCurrentInst(dc);
 }
 
 void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const Disassembler::Inst &inst, int index )
 {
-    wxRect rectToDraw(0, m_fontMetrics.height * index,
-        m_width, m_fontMetrics.height * (index+1));
-    CalcScrolledPosition(rectToDraw.x, rectToDraw.y, &rectToDraw.x, &rectToDraw.y);
-    if (!IsExposed(rectToDraw)) return;
+    wxRect rectToDraw(0, m_fontMetrics.height * index, m_width, m_fontMetrics.height);
+    wxRect rectScrolled = rectToDraw;
+    CalcScrolledPosition(rectToDraw.x, rectToDraw.y, &rectScrolled.x, &rectScrolled.y);
+    if (!IsExposed(rectScrolled)) return;
 
+    if (index == m_currIndex) {
+        dc.SetPen(*wxTRANSPARENT_PEN);
+        dc.SetBrush(m_curlineBrush);
+        dc.DrawRectangle(rectToDraw);
+        dc.SetBrush(*wxWHITE_BRUSH);
+    }
     dc.DrawText(wxString::Format("%08X", inst.eip), 0, m_fontMetrics.height * index);
     dc.DrawText(wxString::Format("%s", inst.instPtr->Main.CompleteInstr),
         m_widthIp, m_fontMetrics.height * index);
 }
 
+void CpuPanel::HighlightCurrentInst( wxBufferedPaintDC &dc )
+{
+    wxRect r(0, m_fontMetrics.height * m_currIndex, m_width, m_fontMetrics.height);
+    CalcScrolledPosition(r.x, r.y, &r.x, &r.y);
+    if (!IsExposed(r)) return;
+
+    wxBrush oldBrush = dc.GetBrush();
+    wxPen   oldPen = dc.GetPen();
+    dc.SetBrush(*wxRED_BRUSH);
+    //dc.SetPen(*wxTRANSPARENT_PEN);
+    dc.DrawRectangle(r);
+    dc.SetBrush(oldBrush);
+    //dc.SetPen(oldPen);
+}
+
+void CpuPanel::OnDataUpdate( const Disassembler::InstDisasmMap *insts )
+{
+    m_insts = insts;
+
+    m_eipIndex.clear();
+    int index = 0;
+    for (auto &inst : *m_insts) {
+        m_eipIndex[inst.first] = index++;
+    }
+
+    wxClientDC dc(this);
+    dc.SetFont(m_font);
+    m_fontMetrics = dc.GetFontMetrics();
+    SetScrollRate(10, m_fontMetrics.height);
+
+    m_height = m_fontMetrics.height * insts->size();
+    SetVirtualSize(m_width, m_height);
+
+    Refresh();
+}
+
+void CpuPanel::OnPtrChange( u32 addr )
+{
+    auto iter = m_eipIndex.find(addr);
+    if (iter == m_eipIndex.end()) {
+        LxFatal("Cannot find index in GUI CpuPanel::EipIndex\n");
+    }
+    m_currIndex = iter->second;
+    //Scroll(0, m_currIndex);
+
+    wxPoint p = GetViewStart();
+    wxSize cs = GetClientSize();
+    int h = cs.GetHeight() / m_fontMetrics.height;
+    if (m_currIndex < p.y) {
+        Scroll(0, m_currIndex);
+    } else if (m_currIndex - p.y > h - m_minDistanceToBottom) {
+        Scroll(0, m_currIndex - (h - m_minDistanceToBottom));
+    }
+
+    Refresh();
+}
 
 // wxCoord CpuPanel::OnGetRowHeight( size_t row ) const
 // {
@@ -189,9 +254,6 @@ void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const Disassembler::Inst &inst, 
 //     m_list->SortItems(InstListItemCmp, 0);
 // }
 // 
-// void CpuPanel::OnPtrChange( u32 addr )
-// {
-//     LxInfo("%08x\n", addr);
-// }
+
 
 

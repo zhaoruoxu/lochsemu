@@ -12,7 +12,7 @@ public:
     CpuPanel(wxWindow *parent);
 
 //     void        OnInstDisasm(const Disassembler::InstVector &insts);
-//     void        OnPtrChange(u32 addr);
+    void        OnPtrChange(u32 addr);
     void        OnDataUpdate(const Disassembler::InstDisasmMap *insts);
     void        OnPreExecute(const Processor *cpu, const Instruction *inst);
 
@@ -27,6 +27,8 @@ private:
     void        InitRender();
     void        Draw(wxBufferedPaintDC &dc);
     void        DrawInst(wxBufferedPaintDC &dc, const Disassembler::Inst &inst, int index);
+    void        HighlightCurrentInst(wxBufferedPaintDC &dc);
+    wxPoint     GetCurrentScrolledPos() const;
 private:
     
     /* render */
@@ -35,10 +37,14 @@ private:
     int         m_width;
     int         m_height;
     wxFontMetrics   m_fontMetrics;
+    int         m_currIndex;
+    int         m_minDistanceToBottom;
+    wxBrush     m_curlineBrush;
 
     wxFont      m_font;
     wxDataViewListCtrl *    m_list;
     const Disassembler::InstDisasmMap *   m_insts;
+    std::map<u32, int>      m_eipIndex;
     //wxListCtrl  *   m_list;
     //Disassembler::InstVector    m_instVector;
 };

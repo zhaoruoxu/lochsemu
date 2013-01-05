@@ -7,7 +7,7 @@
 
 Disassembler::Disassembler()
 {
-    m_ptrChangeHandler  = nullptr;
+    //m_ptrChangeHandler  = nullptr;
     m_dataUpdateHandler = nullptr;
 }
 
@@ -26,7 +26,7 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
         //if (m_instDisasmHandler) m_instDisasmHandler(m_instVecTemp);
         if (m_dataUpdateHandler) m_dataUpdateHandler(&m_instMap);
     }
-    if (m_ptrChangeHandler) m_ptrChangeHandler(eip);
+    //if (m_ptrChangeHandler) m_ptrChangeHandler(eip);
 }
 
 void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, const Section *sec )

@@ -18,7 +18,7 @@ public:
     typedef std::map<u32, Inst>     InstDisasmMap;
     
     typedef std::function<void (const InstVector &vec)>     InstDisasmHandler;
-    typedef std::function<void (u32 addr)>                  PtrChangeHandler;
+    
     typedef std::function<void (const InstDisasmMap *insts)>    DataUpdateHandler;
     
 public:
@@ -26,9 +26,7 @@ public:
     virtual ~Disassembler();
 
     //void        RegisterInstDisasmHandler(InstDisasmHandler h) { m_instDisasmHandler = h; }
-    void        RegisterPtrChangeHandler(PtrChangeHandler h) { 
-        m_ptrChangeHandler = h; 
-    }
+
     void        RegisterDataUpdateHandler(DataUpdateHandler h) {
         m_dataUpdateHandler = h;
     }
@@ -37,7 +35,6 @@ public:
 private:
     void        RecursiveDisassemble(const Processor *cpu, u32 eip, const Section *sec);
 private:
-    PtrChangeHandler    m_ptrChangeHandler;
     DataUpdateHandler   m_dataUpdateHandler;
     InstDisasmMap       m_instMap;
 };
