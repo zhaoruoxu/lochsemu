@@ -33,5 +33,7 @@
 #include <wx/statline.h>
 #include <wx/listctrl.h>
 #include <wx/dataview.h>
+#include <wx/vscroll.h>
+#include <wx/dcbuffer.h>
 
 // TODO: reference additional headers your program requires here

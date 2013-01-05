@@ -52,6 +52,7 @@ void ArietisFrame::InitUI()
 
     m_auiManager.Update();
     m_defaultPerspective = m_auiManager.SavePerspective();
+    Centre();
 }
 
 void ArietisFrame::InitMenu()

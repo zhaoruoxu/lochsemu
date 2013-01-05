@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "Arietis.h"
 #include "winapi.h"
+#include "instruction.h"
 
 #include "engine.h"
 
@@ -16,6 +17,8 @@ Config          g_config;
 
 ArietisEngine   g_engine;
 Semaphore       g_guiSem;
+
+
 
 ARIETIS_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, PluginInfo *info)
 {

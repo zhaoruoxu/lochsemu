@@ -9,11 +9,24 @@ static bool InstCmp(const Disassembler::Inst &lhs, const Disassembler::Inst &rhs
 }
 
 CpuPanel::CpuPanel( wxWindow *parent )
-    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(400, 400)),
+    : wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxSize(400, 400),
+    wxVSCROLL | wxHSCROLL),
     m_font(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, "Lucida Console")
 {
-    InitUI();
+    //InitUI();
     InitLogic();
+    InitRender();
+
+    SetFont(m_font);
+    
+    //SetVirtualSize(2000, 2000);
+    SetScrollRate(1, 10);
+    SetBackgroundStyle(wxBG_STYLE_PAINT);
+
+    Bind(wxEVT_PAINT, &CpuPanel::OnPaint, this, wxID_ANY);
+    Bind(wxEVT_ERASE_BACKGROUND, &CpuPanel::OnEraseBackground, this, wxID_ANY);
+
+    m_insts = NULL;
 }
 
 int wxCALLBACK InstListItemCmp(wxIntPtr item1, wxIntPtr item2, wxIntPtr sortData)
@@ -27,61 +40,127 @@ int wxCALLBACK InstListItemCmp(wxIntPtr item1, wxIntPtr item2, wxIntPtr sortData
 
 void CpuPanel::InitUI()
 {
-    SetFont(m_font);
     wxBoxSizer *vsizer = new wxBoxSizer(wxVERTICAL);
-
-//     m_list = new wxListCtrl(this, ID_CpuInstList, wxDefaultPosition, wxDefaultSize,
-//         wxLC_REPORT | wxLC_VRULES | wxLC_SORT_ASCENDING | wxNO_BORDER);
-//     
-//     
-// 
-//     wxListItem col0;
-//     col0.SetId(0);
-//     col0.SetText("IP");
-//     col0.SetWidth(70);
-//     m_list->InsertColumn(0, col0);
-// 
-//     wxListItem col1;
-//     col1.SetId(1);
-//     col1.SetText("Disassembly");
-//     col1.SetWidth(300);
-//     m_list->InsertColumn(1, col1);
 
     m_list = new wxDataViewListCtrl(this, ID_CpuInstList, wxDefaultPosition, wxDefaultSize,
         wxDV_SINGLE | wxDV_VERT_RULES | wxNO_BORDER);
 
     m_list->AppendTextColumn("IP", wxDATAVIEW_CELL_INERT, 70);
-    m_list->AppendTextColumn("Disassembly", wxDATAVIEW_CELL_INERT, 215);
+    m_list->AppendTextColumn("Disassembly", wxDATAVIEW_CELL_INERT, 300);
     m_list->SetRowHeight(12);
-
-//     wxVector<wxVariant> data;
-//     data.push_back(wxVariant(true));
-//     data.push_back(wxVariant("row1"));
-//     m_list->AppendItem(data);
-//     data.clear();
-//     data.push_back( wxVariant(false) );
-//     data.push_back( wxVariant("row 3") );
-//     m_list->AppendItem(data);
 
     vsizer->Add(m_list, 1, wxALL | wxEXPAND);
 
     SetSizer(vsizer);
 }
 
-void CpuPanel::OnPreExecute( const Processor *cpu, const Instruction *inst )
-{
-    wxVector<wxVariant> data;
-    data.push_back(wxVariant(wxString::Format("%08X", cpu->EIP)));
-    data.push_back(wxVariant(inst->Main.CompleteInstr));
-    //m_list->InsertItem(0, data);
-    m_list->AppendItem(data);
-    m_list->SelectRow(m_list->GetItemCount()-1);
-}
 
 void CpuPanel::InitLogic()
 {
     //std::make_heap(m_instVector.begin(), m_instVector.end(), InstCmp);
 }
+
+void CpuPanel::InitRender()
+{
+    m_widthIp = g_config.GetInt("CpuPanel", "WidthIp", 70);
+    m_widthDisasm = g_config.GetInt("CpuPanel", "WidthDisasm", 215);
+}
+
+void CpuPanel::OnPaint( wxPaintEvent& event )
+{
+//     wxPaintDC dc(this);
+//     dc.SetBrush(wxBrush(wxColor("red"), wxBRUSHSTYLE_SOLID));
+//     dc.DrawRectangle(wxPoint(0, 0), m_size);
+    wxBufferedPaintDC dc(this);
+    DoPrepareDC(dc);
+
+    dc.SetBackground(*wxWHITE_BRUSH);
+    dc.Clear();
+
+    if (m_insts == NULL) return;
+    Draw(dc);
+}
+
+void CpuPanel::OnEraseBackground( wxEraseEvent& event )
+{
+
+}
+
+void CpuPanel::OnDataUpdate( const Disassembler::InstDisasmMap *insts )
+{
+    m_insts = insts;
+    wxClientDC dc(this);
+    dc.SetFont(m_font);
+    m_fontMetrics = dc.GetFontMetrics();
+    SetScrollRate(10, m_fontMetrics.height);
+
+    m_width = m_widthIp + m_widthDisasm;
+    m_height = m_fontMetrics.height * insts->size();
+    SetVirtualSize(m_width, m_height);
+    Refresh();
+}
+
+void CpuPanel::OnPreExecute( const Processor *cpu, const Instruction *inst )
+{
+}
+
+void CpuPanel::Draw( wxBufferedPaintDC &dc )
+{
+    static const int VertLineOffset = -2;
+    int px, py;
+    wxPoint vs = GetViewStart();
+    GetScrollPixelsPerUnit(&px, &py);
+    int x = vs.x * px;
+    int y = vs.y * py;
+    wxSize cs = GetClientSize();
+    int idxStart = (y - m_fontMetrics.height) / m_fontMetrics.height;
+    int idxEnd = (y + cs.GetHeight() + m_fontMetrics.height) / m_fontMetrics.height;
+
+    /* instructions */
+    int index = 0;
+    for (auto &inst : *m_insts) {
+        if (idxStart <= index && index <= idxEnd)
+            DrawInst(dc, inst.second, index);
+        index++;
+    }
+
+    /* clear unwanted */
+    dc.SetPen(*wxWHITE_PEN);
+    dc.SetBrush(*wxWHITE_BRUSH);
+    dc.DrawRectangle(x + m_widthIp + m_widthDisasm + VertLineOffset, y, 
+        m_width, y + cs.GetHeight());
+
+    dc.SetPen(*wxGREY_PEN);
+    /* vertical lines */
+    int lineX = x + m_widthIp + VertLineOffset;
+    int lineY0 = y, lineY1 = y + cs.GetHeight();
+    dc.DrawLine(lineX, lineY0, lineX, lineY1);
+    lineX += m_widthDisasm;
+    dc.DrawLine(lineX, lineY0, lineX, lineY1);
+}
+
+void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const Disassembler::Inst &inst, int index )
+{
+    wxRect rectToDraw(0, m_fontMetrics.height * index,
+        m_width, m_fontMetrics.height * (index+1));
+    CalcScrolledPosition(rectToDraw.x, rectToDraw.y, &rectToDraw.x, &rectToDraw.y);
+    if (!IsExposed(rectToDraw)) return;
+
+    dc.DrawText(wxString::Format("%08X", inst.eip), 0, m_fontMetrics.height * index);
+    dc.DrawText(wxString::Format("%s", inst.instPtr->Main.CompleteInstr),
+        m_widthIp, m_fontMetrics.height * index);
+}
+
+
+// wxCoord CpuPanel::OnGetRowHeight( size_t row ) const
+// {
+//     return 8;
+// }
+// 
+// wxCoord CpuPanel::OnGetColumnWidth( size_t column ) const
+// {
+//     return 100;
+// }
 
 // void CpuPanel::OnInstDisasm( const Disassembler::InstVector &insts )
 // {

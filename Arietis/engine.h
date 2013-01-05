@@ -27,7 +27,7 @@ public:
     void            Log(const wxString &s);
 private:
     Debugger        m_debugger;
-    //Disassembler    m_disassembler;
+    Disassembler    m_disassembler;
     ArietisFrame *  m_gui;
 };
 
