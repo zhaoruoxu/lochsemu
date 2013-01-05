@@ -37,6 +37,12 @@
     <Filter Include="Source Files\gui">
       <UniqueIdentifier>{73e5b7b4-e8c8-49ed-b0e8-2054dfc53720}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\static">
+      <UniqueIdentifier>{373b660e-b157-4c82-8b70-71e6499f22fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\static">
+      <UniqueIdentifier>{fd34186e-8ff1-461b-a298-9c560ac51ed0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -114,6 +120,9 @@
     <ClInclude Include="gui\regpanel.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
+    <ClInclude Include="static\disassembler.h">
+      <Filter>Header Files\static</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -166,6 +175,9 @@
     </ClCompile>
     <ClCompile Include="gui\regpanel.cpp">
       <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="static\disassembler.cpp">
+      <Filter>Source Files\static</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

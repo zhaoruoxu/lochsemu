@@ -109,6 +109,7 @@
     <ClInclude Include="gui\mainframe.h" />
     <ClInclude Include="gui\regpanel.h" />
     <ClInclude Include="parallel.h" />
+    <ClInclude Include="static\disassembler.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="taint\taintengine.h" />
     <ClInclude Include="taint\taint.h" />
@@ -145,6 +146,7 @@
     <ClCompile Include="gui\mainframe.cpp" />
     <ClCompile Include="gui\regpanel.cpp" />
     <ClCompile Include="parallel.cpp" />
+    <ClCompile Include="static\disassembler.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
