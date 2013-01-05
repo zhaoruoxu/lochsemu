@@ -32,5 +32,6 @@
 #include <wx/aui/aui.h>
 #include <wx/statline.h>
 #include <wx/listctrl.h>
+#include <wx/dataview.h>
 
 // TODO: reference additional headers your program requires here
