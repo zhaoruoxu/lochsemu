@@ -123,6 +123,12 @@
     <ClInclude Include="gui\contextpanel.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
+    <ClInclude Include="tracer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\tracepanel.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -177,6 +183,12 @@
       <Filter>Source Files\static</Filter>
     </ClCompile>
     <ClCompile Include="gui\contextpanel.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="tracer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\tracepanel.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
   </ItemGroup>

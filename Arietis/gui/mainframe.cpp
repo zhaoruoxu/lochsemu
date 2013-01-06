@@ -3,6 +3,7 @@
 
 #include "logpanel.h"
 #include "cpupanel.h"
+#include "tracepanel.h"
 #include "contextpanel.h"
 
 #include "utilities.h"
@@ -11,8 +12,8 @@
 #include "instruction.h"
 #include "processor.h"
 
-ArietisFrame::ArietisFrame(ArietisEngine *engine)
-    : m_engine(engine), wxFrame(NULL, wxID_ANY, "Arietis", wxDefaultPosition, wxSize(800, 800), 
+ArietisFrame::ArietisFrame(AEngine *engine)
+    : m_engine(engine), wxFrame(NULL, wxID_ANY, "Arietis", wxDefaultPosition, wxSize(1000, 800), 
     wxDEFAULT_FRAME_STYLE), m_statusTimer(this, ID_StatusTimer)
 {
     InitMisc();
@@ -43,14 +44,14 @@ void ArietisFrame::InitUI()
 
     m_auiManager.SetManagedWindow(this);
 
-    m_logPanel = new LogPanel(this);
-    m_cpuPanel = new CpuPanel(this);
-    m_contextPanel = new ContextPanel(this);
+    m_cpuPanel      = new CpuPanel(this);
+    m_contextPanel  = new ContextPanel(this);
+    m_tracePanel    = new CompositeTracePanel(this);
 
+    m_auiManager.AddPane(m_tracePanel, wxAuiPaneInfo().Name("Trace").Caption("Trace").Center());
     m_auiManager.AddPane(m_cpuPanel, wxAuiPaneInfo().Name("Taint").Caption("CPU").CenterPane());
     m_auiManager.AddPane(m_contextPanel, wxAuiPaneInfo().Name("Context").Caption("Context").Right());
-    m_auiManager.AddPane(m_logPanel, wxAuiPaneInfo().Name("Log").Caption("Log").Bottom());
-
+    
     m_auiManager.Update();
     m_defaultPerspective = m_auiManager.SavePerspective();
     Centre();
@@ -108,7 +109,7 @@ void ArietisFrame::InitMenu()
 
 void ArietisFrame::InitStatusBar()
 {
-    static const int Widths[] = { -1, 70, 80, 75 };
+    static const int Widths[] = { -1, 40, 70, 80, 75 };
     m_statusbar = CreateStatusBar(_countof(Widths));
     m_statusbar->SetStatusWidths(_countof(Widths), Widths);
 //     m_statusbar->SetStatusText("0", 0);
@@ -187,9 +188,9 @@ void ArietisFrame::OnResetPerspective( wxCommandEvent &event )
 
 void ArietisFrame::OnStatusTimer( wxTimerEvent &event )
 {
-    m_statusbar->SetStatusText(wxString::Format("CPU: %d%%", GetCpuUsage()), 1);
-    m_statusbar->SetStatusText(wxString::Format("MEM: %d MB", GetMemUsage()), 2);
-    m_statusbar->SetStatusText(wxString::Format("Threads: %d", GetThreadCount()), 3);
+    m_statusbar->SetStatusText(wxString::Format("CPU: %d%%", GetCpuUsage()), 2);
+    m_statusbar->SetStatusText(wxString::Format("MEM: %d MB", GetMemUsage()), 3);
+    m_statusbar->SetStatusText(wxString::Format("Threads: %d", GetThreadCount()), 4);
 }
 
 void ArietisFrame::OnStepInto( wxCommandEvent &event )
@@ -217,16 +218,20 @@ void ArietisFrame::OnToggleBreakpoint( wxCommandEvent &event )
     m_engine->GetDebugger()->OnToggleBreakpoint();
 }
 
-void ArietisFrame::DebugLog( const wxString &s )
+void ArietisFrame::PreExecSingleStepCallback( const Processor *cpu, const Instruction *inst )
 {
-    m_logPanel->Log(s);
+    m_contextPanel->UpdateData(m_engine->GetCurrentInstContext(), "Dynamic Execution");
+    m_cpuPanel->OnPtrChange(cpu->EIP);
+    m_tracePanel->UpdateData();
 }
 
-void ArietisFrame::DebugStepCallback( const Processor *cpu, const Instruction *inst )
+void ArietisFrame::PostExecSingleStepCallback( const Processor *cpu, const Instruction *inst )
 {
-    //m_regPanel->SetValues(cpu);
-    m_contextPanel->UpdateData(m_engine->GetCurrentInstContext());
-    m_cpuPanel->OnPtrChange(cpu->EIP);
-    //DebugLog(wxString::Format("%s", inst->Main.CompleteInstr));
+    //m_tracePanel->UpdateData();
+}
+
+void ArietisFrame::ReportBusy( bool isBusy )
+{
+    m_statusbar->SetStatusText(isBusy ? "Busy" : "", 1);
 }
 

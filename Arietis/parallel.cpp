@@ -15,12 +15,12 @@ Mutex::~Mutex()
     CloseHandle(m_hMutex);
 }
 
-void Mutex::Wait( int t )
+void Mutex::Wait( int t ) const
 {
     WaitForSingleObject(m_hMutex, t);
 }
 
-void Mutex::Release()
+void Mutex::Release() const
 {
     ReleaseMutex(m_hMutex);
 }

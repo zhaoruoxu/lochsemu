@@ -15,13 +15,14 @@ public:
 
     void        OnPaint(wxPaintEvent &event);
     void        OnEraseBackground(wxEraseEvent& event);
-    void        UpdateData(const InstContext &ctx);
+    void        UpdateData(const InstContext &ctx, const char *dataDesc);
 private:
     void        InitRender();
     void        Draw(wxBufferedPaintDC &dc);
 private:
     MutexCS *   m_mutex;
     InstContext m_data;
+    wxString    m_dataDesc;
 
     static const wxString  RegLabels[];
     wxFont      m_font;

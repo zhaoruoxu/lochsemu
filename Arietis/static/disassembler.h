@@ -4,6 +4,7 @@
 #define __ARIETIS_STATIC_DISASSEMBLER_H__
 
 #include "Arietis.h"
+#include "instruction.h"
 
 class Disassembler {
 public:
@@ -38,6 +39,7 @@ public:
 
     void        OnPreExecute(const Processor *cpu, const Instruction *inst);
     void        UpdateInstContext(InstContext &ctx) const;
+    Inst        GetInst(const Processor *cpu, u32 eip);
 private:
     void        RecursiveDisassemble(const Processor *cpu, u32 eip, const Section *sec, u32 entryEip);
     void        AttachApiInfo(const Processor *cpu, u32 eip, const Section *sec, Inst &inst);

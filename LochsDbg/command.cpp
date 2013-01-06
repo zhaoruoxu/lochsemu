@@ -5,7 +5,7 @@
 #include "winapi.h"
 
 
-void Debugger::DumpInstruction() const
+void ADebugger::DumpInstruction() const
 {
     StdDumpDark("[%I64d][%08x][%02x]    ", m_instCount, m_currCpuPtr->EIP, 
         m_currInstPtr->Main.Inst.Opcode);
@@ -45,13 +45,13 @@ void Debugger::DumpInstruction() const
 }
 
 
-void Debugger::DumpPrevInst() const
+void ADebugger::DumpPrevInst() const
 {
     StdDumpDark("[%I64d][%08x][%02x]    ", m_instCount-1, m_lastEip, m_lastInst.Main.Inst.Opcode);
     StdDumpDark("%s\n", m_lastInst.Main.CompleteInstr);
 }
 
-void Debugger::DumpCPU() const
+void ADebugger::DumpCPU() const
 {
     StdDumpLight("    EAX[%08x] ECX[%08x] EDX[%08x] EBX[%08x]\n    ESP[%08x] EBP[%08x] ESI[%08x] EDI[%08x]\n",
         m_currCpuPtr->EAX, m_currCpuPtr->ECX, m_currCpuPtr->EDX, m_currCpuPtr->EBX, 
@@ -70,7 +70,7 @@ void Debugger::DumpCPU() const
 }
 
 
-void Debugger::DumpMemAccesses( void ) const
+void ADebugger::DumpMemAccesses( void ) const
 {
     if (m_memReadCount > 0) {
         StdDumpLight("    MR: ");
@@ -91,7 +91,7 @@ void Debugger::DumpMemAccesses( void ) const
 }
 
 
-void Debugger::DumpStack( int nItems )
+void ADebugger::DumpStack( int nItems )
 {
     if (nItems < 0 || nItems > g_config.GetInt("Display", "MaxStackItems", 1024)) {
         nItems = g_config.GetInt("Display", "DefaultStackItems", 10);
@@ -110,7 +110,7 @@ void Debugger::DumpStack( int nItems )
 }
 
 
-void Debugger::DumpMem()
+void ADebugger::DumpMem()
 {
     std::vector<SectionInfo> info = m_currCpuPtr->Mem->GetMemoryInfo();
     StdDumpDark("\tNo.   Range                 Size      Module Desc\n");
@@ -122,7 +122,7 @@ void Debugger::DumpMem()
 }
 
 
-void Debugger::DumpSection( u32 address )
+void ADebugger::DumpSection( u32 address )
 {
     static const LPCSTR PageState[] = {
         "FREE     ", "RESERVED ", "COMMITTED" 
@@ -161,7 +161,7 @@ void Debugger::DumpSection( u32 address )
 }
 
 
-void Debugger::DumpPage( u32 address )
+void ADebugger::DumpPage( u32 address )
 {
     u32 base = PAGE_HIGH(address);
     if (!m_currCpuPtr->Mem->Contains(base)) {
@@ -191,7 +191,7 @@ void Debugger::DumpPage( u32 address )
 }   
 
 
-void Debugger::SetBreakpoint( u32 addr )
+void ADebugger::SetBreakpoint( u32 addr )
 {
     StdOut("bp set: %08x\n", addr);
     m_breakpoints.insert(addr);
@@ -201,7 +201,7 @@ void Debugger::SetBreakpoint( u32 addr )
 }
 
 
-void Debugger::RemoveBreakpoint( u32 addr )
+void ADebugger::RemoveBreakpoint( u32 addr )
 {
     if (addr == 0) {
         m_breakpoints.clear();
@@ -215,7 +215,7 @@ void Debugger::RemoveBreakpoint( u32 addr )
 
 
 
-void Debugger::ListBreakpoints()
+void ADebugger::ListBreakpoints()
 {
     StdDumpDark("    Total:\t");
     StdDumpLight("%d\n", m_breakpoints.size());

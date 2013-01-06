@@ -5,20 +5,27 @@
 
 #include "Arietis.h"
 #include "debugger.h"
+#include "tracer.h"
 #include "gui/gui.h"
 #include "static/disassembler.h"
 
 struct InstContext {
-    Disassembler::Inst  inst;
+    static const int    RegCount = 8;
+    static const int    FlagCount = 11;
+    static const std::string FlagNames[];
 
-    static const int RegCount = 8;
-    u32 regs[RegCount];
+    u32                 regs[RegCount];
+    u32                 flags[FlagCount];
+    std::string         moduleName;
+    u32                 moduleImageBase;
+
+    Disassembler::Inst  inst;
 };
 
-class ArietisEngine {
+class AEngine {
 public:
-    ArietisEngine();
-    ~ArietisEngine();
+    AEngine();
+    ~AEngine();
 
     void            Initialize();
 
@@ -29,14 +36,22 @@ public:
     void            OnPostExecute(Processor *cpu, const Instruction *inst);
     void            OnProcessPreRun(const Process *proc, const Processor *cpu);
 
-    Debugger *      GetDebugger() { return &m_debugger; }
+    ADebugger *     GetDebugger() { return &m_debugger; }
+    ATracer *       GetTracer() { return &m_tracer; }
+    Disassembler *  GetDisassembler() { return &m_disassembler; }
     InstContext     GetCurrentInstContext() const;
+    void            EnableTracer(bool isEnabled) { m_tracerEnabled = isEnabled; }
+
+    void            ReportBusy(bool isBusy);
     
-    void            Log(const wxString &s);
 private:
-    Debugger        m_debugger;
+    ADebugger       m_debugger;
+    ATracer         m_tracer;
     Disassembler    m_disassembler;
     ArietisFrame *  m_gui;
+    u32             m_currEip;
+
+    bool            m_tracerEnabled;
 };
 
 #endif // __ARIETIS_ENGINE_H__

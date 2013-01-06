@@ -108,12 +108,14 @@
     <ClInclude Include="gui\logpanel.h" />
     <ClInclude Include="gui\mainframe.h" />
     <ClInclude Include="gui\contextpanel.h" />
+    <ClInclude Include="gui\tracepanel.h" />
     <ClInclude Include="parallel.h" />
     <ClInclude Include="static\disassembler.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="taint\taintengine.h" />
     <ClInclude Include="taint\taint.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="tracer.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +132,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Arietis.cpp" />
+    <ClCompile Include="gui\tracepanel.cpp" />
+    <ClCompile Include="tracer.cpp" />
     <ClCompile Include="debugger.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>

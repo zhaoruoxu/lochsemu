@@ -10,8 +10,8 @@ public:
     Mutex(bool initialOwner);
     ~Mutex();
 
-    void Wait(int t = INFINITE);
-    void Release();
+    void Wait(int t = INFINITE) const;
+    void Release() const;
 private:
     HANDLE m_hMutex;
 };

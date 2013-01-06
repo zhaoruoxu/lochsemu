@@ -9,9 +9,9 @@ void RunGUI();
 void NotifyMainThread();
 
 class ArietisFrame;
-class LogPanel;
 class CpuPanel;
 class ContextPanel;
+class CompositeTracePanel;
 
 enum {
     /* view */

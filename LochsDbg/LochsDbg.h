@@ -33,7 +33,7 @@ LOCHSDBG_API void LochsEmu_Process_PostRun          (const Process *proc);
 /*
  * Class Declarations
  */
-class   Debugger;
+class   ADebugger;
 class   DataStream;
 class   Console;
 

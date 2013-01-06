@@ -23,6 +23,7 @@ public:
     void        OnEraseBackground(wxEraseEvent& event);
     void        OnLeftDown(wxMouseEvent& event);
     void        OnLeftUp(wxMouseEvent& event);
+    void        OnRightDown(wxMouseEvent& event);
     void        OnMouseLeave(wxMouseEvent& event);
     void        OnMouseMove(wxMouseEvent& event);
     //wxCoord     OnGetRowHeight(size_t row) const override;
@@ -62,7 +63,6 @@ private:
     wxColour    m_jumpColor;
 
     wxFont      m_font;
-    wxDataViewListCtrl *    m_list;
     Disassembler::InstDisasmMap     m_insts;
     std::map<u32, int>      m_eipIndex;
     MutexCS *   m_mutex;

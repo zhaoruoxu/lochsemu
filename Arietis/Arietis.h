@@ -30,13 +30,14 @@ class Mutex;
 class Semaphore;
 class MutexCS;
 class MutexCSLock;
-class ArietisEngine;
-class Debugger;
+class AEngine;
+class ADebugger;
 struct InstContext;
+class ATracer;
 
 extern HMODULE          g_module;
 extern Config           g_config;
-extern ArietisEngine    g_engine;
+extern AEngine    g_engine;
 extern Semaphore        g_guiSem;
 
 

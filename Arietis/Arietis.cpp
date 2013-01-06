@@ -15,7 +15,7 @@
 PluginHandle    g_handle;
 Config          g_config;
 
-ArietisEngine   g_engine;
+AEngine   g_engine;
 Semaphore       g_guiSem;
 
 

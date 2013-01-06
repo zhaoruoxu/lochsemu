@@ -3,48 +3,51 @@
 
 #include "gui/mainframe.h"
 #include "gui/cpupanel.h"
+#include "gui/tracepanel.h"
 
 #include "instruction.h"
+#include "processor.h"
 
-ArietisEngine::ArietisEngine() : m_debugger(this)
+AEngine::AEngine() : m_debugger(this), m_tracer(this)
 {
 
 }
 
-ArietisEngine::~ArietisEngine()
+AEngine::~AEngine()
 {
 
 }
 
-void ArietisEngine::Initialize()
+void AEngine::Initialize()
 {
     m_debugger.Initialize();
+    m_tracerEnabled = g_config.GetInt("Tracer", "EnableOnStart", 1) != 0;
+    m_currEip = 0;
 }
 
-void ArietisEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
+void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 {
+    m_currEip = cpu->EIP;
     m_disassembler.OnPreExecute(cpu, inst);
     m_gui->GetCpuPanel()->OnPreExecute(cpu, inst);
     m_debugger.OnPreExecute(cpu, inst);
 }
 
-void ArietisEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
+void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 {
     m_debugger.OnPostExecute(cpu, inst);
+    if (m_tracerEnabled) {
+        m_tracer.TraceInst(cpu, m_currEip);
+    }
 }
 
-
-void ArietisEngine::Log( const wxString &s )
-{
-    m_gui->DebugLog(s);
-}
-
-void ArietisEngine::SetGuiFrame( ArietisFrame *frame )
+void AEngine::SetGuiFrame( ArietisFrame *frame )
 {
     m_gui = frame;
     m_disassembler.RegisterDataUpdateHandler([this](const Disassembler::InstDisasmMap *insts) {
         this->m_gui->GetCpuPanel()->OnDataUpdate(insts);
     });
+    m_gui->GetTracePanel()->SetTracer(&m_tracer);
 
 //     m_disassembler.RegisterInstDisasmHandler([this](const Disassembler::InstVector &insts) {
 //         this->m_gui->GetCpuPanel()->OnInstDisasm(insts);
@@ -54,12 +57,12 @@ void ArietisEngine::SetGuiFrame( ArietisFrame *frame )
 //     });
 }
 
-void ArietisEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
+void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
 {
     m_debugger.OnProcPreRun(proc, cpu);
 }
 
-InstContext ArietisEngine::GetCurrentInstContext() const
+InstContext AEngine::GetCurrentInstContext() const
 {
     InstContext context;
     m_debugger.UpdateInstContext(context);
@@ -67,4 +70,11 @@ InstContext ArietisEngine::GetCurrentInstContext() const
     return context;
 }
 
+void AEngine::ReportBusy( bool isBusy )
+{
+    m_gui->ReportBusy(isBusy);
+}
 
+const std::string InstContext::FlagNames[] = {
+    "OF", "SF", "ZF", "AF", "PF", "CF", "TF", "IF", "DF", "NT", "RF"
+};

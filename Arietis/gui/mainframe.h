@@ -8,16 +8,19 @@
 
 class ArietisFrame : public wxFrame {
 public:
-    ArietisFrame(ArietisEngine *engine);
+    ArietisFrame(AEngine *engine);
     ~ArietisFrame();
 
 
-    void    DebugLog(const wxString &s);
-    void    DebugStepCallback(const Processor *cpu, const Instruction *inst);
+    //void    DebugLog(const wxString &s);
+    void    PreExecSingleStepCallback(const Processor *cpu, const Instruction *inst);
+    void    PostExecSingleStepCallback(const Processor *cpu, const Instruction *inst);
 
     CpuPanel *  GetCpuPanel() const { return m_cpuPanel; }
     ContextPanel *  GetRegPanel() const { return m_contextPanel; }
-    LogPanel *  GetLogPanel() const { return m_logPanel; }
+    CompositeTracePanel *    GetTracePanel() const { return m_tracePanel; }
+    //LogPanel *  GetLogPanel() const { return m_logPanel; }
+    void    ReportBusy(bool isBusy);
 private:
     void    OnExit(wxCommandEvent &event);
     void    OnAbout(wxCommandEvent &event);
@@ -43,11 +46,11 @@ private:
     void    InitStatusBar();
     void    InitToolbars();
 private:
-    ArietisEngine * m_engine;
+    AEngine * m_engine;
 
-    LogPanel *      m_logPanel;
     CpuPanel *      m_cpuPanel;
     ContextPanel *  m_contextPanel;
+    CompositeTracePanel *    m_tracePanel;
 
     wxString        m_defaultPerspective;
     wxAuiManager    m_auiManager;

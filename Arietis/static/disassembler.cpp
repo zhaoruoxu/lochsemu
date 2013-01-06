@@ -133,8 +133,20 @@ void Disassembler::UpdateInstContext( InstContext &ctx ) const
     
     const Section *sec = m_currProcessor->Mem->GetSection(m_currProcessor->EIP);
     auto iterSec = m_secMap.find(sec);
+    Assert(iterSec != m_secMap.end());
     const InstDisasmMap &im = iterSec->second;
     auto iter = im.find(m_currProcessor->EIP);
+    Assert(iter != im.end());
     ctx.inst = iter->second;
+}
+
+Disassembler::Inst Disassembler::GetInst( const Processor *cpu, u32 eip )
+{
+    Section *sec = cpu->Mem->GetSection(eip);
+    auto iterSec = m_secMap.find(sec);
+    Assert(iterSec != m_secMap.end());
+    auto iter = iterSec->second.find(eip);
+    Assert(iter != iterSec->second.end());
+    return iter->second;
 }
 

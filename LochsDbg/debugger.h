@@ -47,10 +47,10 @@ struct MemAccessInfo {
     }
 };
 
-class Debugger {
+class ADebugger {
 public:
-    Debugger();
-    virtual ~Debugger();
+    ADebugger();
+    virtual ~ADebugger();
 
     void            Initialize      (void);
     void            PreExecute      (Processor *cpu, const Instruction *inst);
@@ -113,6 +113,6 @@ private:
     Tracer              m_tracer;
 };
 
-extern Debugger     LxDebugger;
+extern ADebugger     LxDebugger;
 
 #endif // __LOCHSDBG_DEBUGGER_H__

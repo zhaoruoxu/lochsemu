@@ -22,6 +22,7 @@ CpuPanel::CpuPanel( wxWindow *parent )
     Bind(wxEVT_LEFT_UP, &CpuPanel::OnLeftUp, this, wxID_ANY);
     Bind(wxEVT_MOTION, &CpuPanel::OnMouseMove, this, wxID_ANY);
     Bind(wxEVT_LEAVE_WINDOW, &CpuPanel::OnMouseLeave, this, wxID_ANY);
+    Bind(wxEVT_RIGHT_DOWN, &CpuPanel::OnRightDown, this, wxID_ANY);
 }
 
 CpuPanel::~CpuPanel()
@@ -50,7 +51,7 @@ void CpuPanel::InitRender()
     m_sellineBrush = wxBrush(wxColor(g_config.GetString("CpuPanel", "SelectedLineColor", "#B0B0B0")));
     m_zerolineBrush = wxBrush(wxColor(g_config.GetString("CpuPanel", "ZeroLineColor", "#D0D0D0")));
     m_jumpColor = wxColour(g_config.GetString("CpuPanel", "JumpColor", "#0080ff"));
-    m_callRetColor = wxColour(g_config.GetString("CpuPanel", "CallRetColor", "#f00000"));
+    m_callRetColor = wxColour(g_config.GetString("CpuPanel", "CallRetColor", "#f000f0"));
 
     m_showTargetNameInstead = g_config.GetInt("CpuPanel", "ShowTargetNameInsteadOfAddress", 1) != 0;
     m_jumpLineWidthMax  = g_config.GetInt("CpuPanel", "JumpLineWidthMax", 15);
@@ -145,9 +146,9 @@ void CpuPanel::Draw( wxBufferedPaintDC &dc )
 void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const Disassembler::Inst &inst, int index )
 {
     wxRect rectToDraw(0, m_lineHeight * index, m_width, m_lineHeight);
-    wxRect rectScrolled = rectToDraw;
-    CalcScrolledPosition(rectToDraw.x, rectToDraw.y, &rectScrolled.x, &rectScrolled.y);
-    if (!IsExposed(rectScrolled)) return;
+//     wxRect rectScrolled = rectToDraw;
+//     CalcScrolledPosition(rectToDraw.x, rectToDraw.y, &rectScrolled.x, &rectScrolled.y);
+//     if (!IsExposed(rectScrolled)) return;
 
     dc.SetPen(*wxTRANSPARENT_PEN);
 
@@ -294,6 +295,7 @@ void CpuPanel::OnPtrChange( u32 addr )
     }
 
     Refresh();
+    Update();
 }
 
 void CpuPanel::OnLeftDown( wxMouseEvent& event )
@@ -316,8 +318,11 @@ void CpuPanel::OnMouseMove( wxMouseEvent& event )
     if (!m_isLeftDown) return;
     wxPoint p = event.GetPosition();
     wxPoint ps = GetViewStart();
-    m_currSelIndex = ps.y + p.y / m_lineHeight;
-    Refresh();
+    int selIndex = ps.y + p.y / m_lineHeight;
+    if (selIndex != m_currSelIndex) {
+        m_currSelIndex = selIndex;
+        Refresh();
+    }
 }
 
 void CpuPanel::OnMouseLeave( wxMouseEvent& event )
@@ -330,4 +335,9 @@ int CpuPanel::CalcJumpLineWidth(int idx1, int idx2) const
     int dist = min(abs(idx1 - idx2), m_jumpLineInstDistMax);
     return m_jumpLineWidthMin + (m_jumpLineWidthMax - m_jumpLineWidthMin) * 
         dist / m_jumpLineInstDistMax;
+}
+
+void CpuPanel::OnRightDown( wxMouseEvent& event )
+{
+    Scroll(0, m_currIndex);
 }

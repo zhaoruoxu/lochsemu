@@ -6,9 +6,9 @@
 #include "config.h"
 #include "diff.h"
 
-Debugger LxDebugger;
+ADebugger LxDebugger;
 
-Debugger::Debugger()
+ADebugger::ADebugger()
 {
     m_input         = NULL;
     m_state         = STATE_SINGLESTEP;
@@ -20,12 +20,12 @@ Debugger::Debugger()
     m_currCpuPtr    = NULL;
 }
 
-Debugger::~Debugger()
+ADebugger::~ADebugger()
 {
     SAFE_DELETE(m_input);
 }
 
-void Debugger::Initialize( void )
+void ADebugger::Initialize( void )
 {
     m_input = new Console;
     std::string traceFile = LxGetModuleDirectory(g_module) + "lochsdbg_trace.txt";
@@ -36,14 +36,14 @@ void Debugger::Initialize( void )
     }
 }
 
-void Debugger::ProcessPreRun( const Process *proc, Processor *cpu )
+void ADebugger::ProcessPreRun( const Process *proc, Processor *cpu )
 {
     if (g_config.GetInt("Breakpoints", "BreakOnEntryPoint", 1)) {
         m_breakpoints.insert(proc->GetEntryPoint());
     }
 }
 
-void Debugger::PreExecute( Processor *cpu, const Instruction *inst )
+void ADebugger::PreExecute( Processor *cpu, const Instruction *inst )
 {
     m_currCpuPtr    = cpu;
     m_currInstPtr   = inst;
@@ -70,7 +70,7 @@ void Debugger::PreExecute( Processor *cpu, const Instruction *inst )
 }
 
 
-void Debugger::PrintContext( void ) const
+void ADebugger::PrintContext( void ) const
 {
     if (m_instCount) {
         StdDumpLight("--------------------------------------------------------------\n");
@@ -81,7 +81,7 @@ void Debugger::PrintContext( void ) const
     DumpInstruction();
 }
 
-bool Debugger::ParseExecCommand( const std::string &line )
+bool ADebugger::ParseExecCommand( const std::string &line )
 {
     std::stringstream ss;
     ss << line;
@@ -187,7 +187,7 @@ bool Debugger::ParseExecCommand( const std::string &line )
 }
 
 
-void Debugger::PostExecute( Processor *cpu, const Instruction *inst )
+void ADebugger::PostExecute( Processor *cpu, const Instruction *inst )
 {
     //m_currCpuPtr    = cpu;
     //m_currInstPtr   = inst;
@@ -212,7 +212,7 @@ void Debugger::PostExecute( Processor *cpu, const Instruction *inst )
     //m_memWriteCount = 0;
 }
 
-void Debugger::CheckBreakpoints()
+void ADebugger::CheckBreakpoints()
 {
     u32 eip = m_currCpuPtr->EIP;
     if (m_breakpoints.find(eip) != m_breakpoints.end()) {
@@ -227,7 +227,7 @@ void Debugger::CheckBreakpoints()
 }
 
 
-std::string Debugger::GetCommandString()
+std::string ADebugger::GetCommandString()
 {
     StdDumpLight("%08x %s>", m_currCpuPtr->EIP, LxDiff.IsSynced() ? "SYNC" : "NSYNC");
     std::string line = m_input->ReadLine();
@@ -235,7 +235,7 @@ std::string Debugger::GetCommandString()
     return line;
 }
 
-void Debugger::MemRead( const Processor *cpu, u32 addr, u32 nBytes, cpbyte data )
+void ADebugger::MemRead( const Processor *cpu, u32 addr, u32 nBytes, cpbyte data )
 {
     Assert(nBytes <= 16);
     if (m_memReadCount >= MemBufferSize) return; // Too many memory access, ignore
@@ -249,7 +249,7 @@ void Debugger::MemRead( const Processor *cpu, u32 addr, u32 nBytes, cpbyte data 
     }
 }
 
-void Debugger::MemWrite( const Processor *cpu, u32 addr, u32 nBytes, cpbyte data )
+void ADebugger::MemWrite( const Processor *cpu, u32 addr, u32 nBytes, cpbyte data )
 {
     Assert(nBytes <= 16);
     if (m_memWriteCount >= MemBufferSize) return; // Too many memory access, ignore
@@ -263,7 +263,7 @@ void Debugger::MemWrite( const Processor *cpu, u32 addr, u32 nBytes, cpbyte data
     }
 }
 
-void Debugger::TraceInstruction()
+void ADebugger::TraceInstruction()
 {
     if (!m_tracer.Enabled()) return;
     if (m_memReadCount > 0) {
@@ -286,7 +286,7 @@ void Debugger::TraceInstruction()
     m_tracer.Trace("[%08x]  %s\n", m_currCpuPtr->EIP, m_currInstPtr->Main.CompleteInstr);
 }
 
-void Debugger::SaveBreakpoints()
+void ADebugger::SaveBreakpoints()
 {
     const uint numBps = m_breakpoints.size();
     g_config.SetInt("Breakpoints", "Number", numBps);
@@ -300,7 +300,7 @@ void Debugger::SaveBreakpoints()
     }
 }
 
-void Debugger::LoadBreakpoints()
+void ADebugger::LoadBreakpoints()
 {
     const uint numBps = g_config.GetInt("Breakpoints", "Number", 0);
     char buf[64];

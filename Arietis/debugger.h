@@ -7,7 +7,7 @@
 #include "parallel.h"
 
 
-class Debugger {
+class ADebugger {
 public:
     enum State {
         STATE_RUNNING,
@@ -17,8 +17,8 @@ public:
         STATE_TERMINATED,
     };
 public:
-    Debugger(ArietisEngine *engine);
-    ~Debugger();
+    ADebugger(AEngine *engine);
+    ~ADebugger();
 
     void        Initialize();
     void        OnPreExecute(Processor *cpu, const Instruction *inst);
@@ -34,13 +34,13 @@ public:
     void        UpdateInstContext(InstContext &ctx) const;
 
 private:
-    void        DoSingleStep(const Processor *cpu, const Instruction *inst);
+    void        DoPreExecSingleStep(const Processor *cpu, const Instruction *inst);
     void        CheckBreakpoints(const Processor *cpu, const Instruction *inst);
 private:
     State               m_state;
     u32                 m_stepOverEip;
 
-    ArietisEngine *     m_engine;
+    AEngine *     m_engine;
     Semaphore           m_semaphore;
 
     const Processor *   m_currProcessor;
