@@ -37,10 +37,12 @@ public:
     }
 
     void        OnPreExecute(const Processor *cpu, const Instruction *inst);
+    void        UpdateInstContext(InstContext &ctx) const;
 private:
     void        RecursiveDisassemble(const Processor *cpu, u32 eip, const Section *sec, u32 entryEip);
     void        AttachApiInfo(const Processor *cpu, u32 eip, const Section *sec, Inst &inst);
 private:
+    const Processor *   m_currProcessor;
     DataUpdateHandler   m_dataUpdateHandler;
     const Section *     m_lastSec;
     //InstDisasmMap       m_instMap;

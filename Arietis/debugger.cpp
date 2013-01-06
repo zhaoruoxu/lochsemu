@@ -125,3 +125,16 @@ void Debugger::OnProcPreRun( const Process *proc, const Processor *cpu )
         m_engine->GetGUI()->DebugLog("Main module entry reached");
     }
 }
+
+void Debugger::OnTerminate()
+{
+    m_state = STATE_TERMINATED;
+    m_semaphore.Post();
+}
+
+void Debugger::UpdateInstContext( InstContext &ctx ) const
+{
+    for (int i = 0; i < InstContext::RegCount; i++) {
+        ctx.regs[i] = m_currProcessor->GP_Regs[i].X32;
+    }
+}

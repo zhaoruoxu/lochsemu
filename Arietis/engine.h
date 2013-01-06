@@ -10,7 +10,9 @@
 
 struct InstContext {
     Disassembler::Inst  inst;
-    u32 gp_regs[8];
+
+    static const int RegCount = 8;
+    u32 regs[RegCount];
 };
 
 class ArietisEngine {
@@ -28,6 +30,7 @@ public:
     void            OnProcessPreRun(const Process *proc, const Processor *cpu);
 
     Debugger *      GetDebugger() { return &m_debugger; }
+    InstContext     GetCurrentInstContext() const;
     
     void            Log(const wxString &s);
 private:

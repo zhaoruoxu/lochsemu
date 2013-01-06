@@ -59,4 +59,12 @@ void ArietisEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
     m_debugger.OnProcPreRun(proc, cpu);
 }
 
+InstContext ArietisEngine::GetCurrentInstContext() const
+{
+    InstContext context;
+    m_debugger.UpdateInstContext(context);
+    m_disassembler.UpdateInstContext(context);
+    return context;
+}
+
 

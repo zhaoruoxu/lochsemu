@@ -107,7 +107,7 @@
     <ClInclude Include="gui\gui.h" />
     <ClInclude Include="gui\logpanel.h" />
     <ClInclude Include="gui\mainframe.h" />
-    <ClInclude Include="gui\regpanel.h" />
+    <ClInclude Include="gui\contextpanel.h" />
     <ClInclude Include="parallel.h" />
     <ClInclude Include="static\disassembler.h" />
     <ClInclude Include="stdafx.h" />
@@ -144,7 +144,7 @@
     <ClCompile Include="gui\gui.cpp" />
     <ClCompile Include="gui\logpanel.cpp" />
     <ClCompile Include="gui\mainframe.cpp" />
-    <ClCompile Include="gui\regpanel.cpp" />
+    <ClCompile Include="gui\contextpanel.cpp" />
     <ClCompile Include="parallel.cpp" />
     <ClCompile Include="static\disassembler.cpp" />
     <ClCompile Include="stdafx.cpp">

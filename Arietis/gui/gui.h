@@ -11,7 +11,7 @@ void NotifyMainThread();
 class ArietisFrame;
 class LogPanel;
 class CpuPanel;
-class RegPanel;
+class ContextPanel;
 
 enum {
     /* view */

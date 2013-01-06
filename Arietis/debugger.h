@@ -29,6 +29,9 @@ public:
     void        OnStepOut();
     void        OnRun();
     void        OnToggleBreakpoint();
+    void        OnTerminate();
+
+    void        UpdateInstContext(InstContext &ctx) const;
 
 private:
     void        DoSingleStep(const Processor *cpu, const Instruction *inst);

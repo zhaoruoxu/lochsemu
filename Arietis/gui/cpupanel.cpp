@@ -3,11 +3,6 @@
 #include "instruction.h"
 #include "processor.h"
 
-static bool InstCmp(const Disassembler::Inst &lhs, const Disassembler::Inst &rhs)
-{
-    return lhs.eip < rhs.eip;
-}
-
 template <typename T>
 static INLINE bool InRangeIncl(T val, T t0, T t1) {
     return t0 <= val && val <= t1;
@@ -32,15 +27,6 @@ CpuPanel::CpuPanel( wxWindow *parent )
 CpuPanel::~CpuPanel()
 {
     MutexCS::Destroy(m_mutex);
-}
-
-int wxCALLBACK InstListItemCmp(wxIntPtr item1, wxIntPtr item2, wxIntPtr sortData)
-{
-    if (item1 > item2)
-        return 1;
-    if (item1 < item2)
-        return -1;
-    return 0;
 }
 
 void CpuPanel::InitLogic()

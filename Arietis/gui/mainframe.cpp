@@ -3,7 +3,7 @@
 
 #include "logpanel.h"
 #include "cpupanel.h"
-#include "regpanel.h"
+#include "contextpanel.h"
 
 #include "utilities.h"
 #include "engine.h"
@@ -45,10 +45,10 @@ void ArietisFrame::InitUI()
 
     m_logPanel = new LogPanel(this);
     m_cpuPanel = new CpuPanel(this);
-    m_regPanel = new RegPanel(this);
+    m_contextPanel = new ContextPanel(this);
 
     m_auiManager.AddPane(m_cpuPanel, wxAuiPaneInfo().Name("Taint").Caption("CPU").CenterPane());
-    m_auiManager.AddPane(m_regPanel, wxAuiPaneInfo().Name("Reg").Caption("Registers").Right());
+    m_auiManager.AddPane(m_contextPanel, wxAuiPaneInfo().Name("Context").Caption("Context").Right());
     m_auiManager.AddPane(m_logPanel, wxAuiPaneInfo().Name("Log").Caption("Log").Bottom());
 
     m_auiManager.Update();
@@ -141,7 +141,6 @@ void ArietisFrame::InitToolbars()
 //////////////////////////////////////////////////////////////////////////
 void ArietisFrame::OnExit( wxCommandEvent &event )
 {
-
     Close();
 }
 
@@ -152,16 +151,17 @@ void ArietisFrame::OnAbout( wxCommandEvent &event )
 
 void ArietisFrame::OnClose( wxCloseEvent &event )
 {
-//     if (event.CanVeto()) {
-//         if (wxMessageBox("Really??", "Don't", wxICON_QUESTION | wxYES_NO) != wxYES) {
-//             event.Veto();
-//             return;
-//         }
-//     }
+    if (event.CanVeto()) {
+        if (wxMessageBox("Closing this window will terminate emulation.\n\nYou sure?", "Don't", wxICON_QUESTION | wxYES_NO) != wxYES) {
+            event.Veto();
+            return;
+        }
+    }
     if (g_config.GetInt("General", "AutoSavePerspective", 1) != 0) {
         OnSavePerspective(wxCommandEvent());
     }
     Destroy();
+    m_engine->GetDebugger()->OnTerminate();
 }
 
 void ArietisFrame::OnSavePerspective( wxCommandEvent &event )
@@ -224,7 +224,8 @@ void ArietisFrame::DebugLog( const wxString &s )
 
 void ArietisFrame::DebugStepCallback( const Processor *cpu, const Instruction *inst )
 {
-    m_regPanel->SetValues(cpu);
+    //m_regPanel->SetValues(cpu);
+    m_contextPanel->UpdateData(m_engine->GetCurrentInstContext());
     m_cpuPanel->OnPtrChange(cpu->EIP);
     //DebugLog(wxString::Format("%s", inst->Main.CompleteInstr));
 }

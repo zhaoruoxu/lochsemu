@@ -32,7 +32,7 @@ class MutexCS;
 class MutexCSLock;
 class ArietisEngine;
 class Debugger;
-
+struct InstContext;
 
 extern HMODULE          g_module;
 extern Config           g_config;

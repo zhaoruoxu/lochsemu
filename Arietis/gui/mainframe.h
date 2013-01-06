@@ -16,7 +16,7 @@ public:
     void    DebugStepCallback(const Processor *cpu, const Instruction *inst);
 
     CpuPanel *  GetCpuPanel() const { return m_cpuPanel; }
-    RegPanel *  GetRegPanel() const { return m_regPanel; }
+    ContextPanel *  GetRegPanel() const { return m_contextPanel; }
     LogPanel *  GetLogPanel() const { return m_logPanel; }
 private:
     void    OnExit(wxCommandEvent &event);
@@ -47,7 +47,7 @@ private:
 
     LogPanel *      m_logPanel;
     CpuPanel *      m_cpuPanel;
-    RegPanel *      m_regPanel;
+    ContextPanel *  m_contextPanel;
 
     wxString        m_defaultPerspective;
     wxAuiManager    m_auiManager;

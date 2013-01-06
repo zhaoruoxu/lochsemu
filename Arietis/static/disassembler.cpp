@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "disassembler.h"
+#include "engine.h"
 
 #include "processor.h"
 #include "instruction.h"
@@ -9,7 +10,8 @@ Disassembler::Disassembler()
 {
     //m_ptrChangeHandler  = nullptr;
     m_dataUpdateHandler = nullptr;
-    m_lastSec = NULL;
+    m_lastSec           = NULL;
+    m_currProcessor     = NULL;
 }
 
 Disassembler::~Disassembler()
@@ -19,6 +21,8 @@ Disassembler::~Disassembler()
 
 void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
 {
+    m_currProcessor = cpu;
+
     u32 eip = cpu->EIP;
     Section *sec = cpu->Mem->GetSection(eip);
     if (m_secMap.find(sec) == m_secMap.end()) {
@@ -121,5 +125,16 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, const Section *
         inst.dllName = info->ModuleName;
         inst.funcName = info->FunctionName;
     }
+}
+
+void Disassembler::UpdateInstContext( InstContext &ctx ) const
+{
+    Assert(m_currProcessor);
+    
+    const Section *sec = m_currProcessor->Mem->GetSection(m_currProcessor->EIP);
+    auto iterSec = m_secMap.find(sec);
+    const InstDisasmMap &im = iterSec->second;
+    auto iter = im.find(m_currProcessor->EIP);
+    ctx.inst = iter->second;
 }
 

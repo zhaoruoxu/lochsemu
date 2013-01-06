@@ -117,11 +117,11 @@
     <ClInclude Include="taint\taintengine.h">
       <Filter>Header Files\taint</Filter>
     </ClInclude>
-    <ClInclude Include="gui\regpanel.h">
-      <Filter>Header Files\gui</Filter>
-    </ClInclude>
     <ClInclude Include="static\disassembler.h">
       <Filter>Header Files\static</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\contextpanel.h">
+      <Filter>Header Files\gui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -173,11 +173,11 @@
     <ClCompile Include="taint\taintengine.cpp">
       <Filter>Source Files\taint</Filter>
     </ClCompile>
-    <ClCompile Include="gui\regpanel.cpp">
-      <Filter>Source Files\gui</Filter>
-    </ClCompile>
     <ClCompile Include="static\disassembler.cpp">
       <Filter>Source Files\static</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\contextpanel.cpp">
+      <Filter>Source Files\gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
