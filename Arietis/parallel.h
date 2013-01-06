@@ -16,6 +16,30 @@ private:
     HANDLE m_hMutex;
 };
 
+class MutexCS {
+public:
+    static MutexCS *Create();
+    static void Destroy(MutexCS *m);
+private:
+    MutexCS();
+    ~MutexCS();
+    friend class MutexCSLock;
+    MutexCS(MutexCS &);
+    MutexCS &operator=(const MutexCS &);
+
+    CRITICAL_SECTION m_criticalSection;
+};
+
+class MutexCSLock {
+public:
+    MutexCSLock(MutexCS &m);
+    ~MutexCSLock();
+private:
+    MutexCS &m_mutex;
+    MutexCSLock(const MutexCSLock &);
+    MutexCSLock &operator=(const MutexCSLock &);
+};
+
 class Semaphore {
 public:
     Semaphore();

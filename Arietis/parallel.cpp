@@ -56,3 +56,33 @@ bool Semaphore::TryWait()
 {
     return WaitForSingleObject(m_semaphore, 0) == WAIT_OBJECT_0;
 }
+
+MutexCS * MutexCS::Create()
+{
+    return new MutexCS;
+}
+
+void MutexCS::Destroy( MutexCS *m )
+{
+    delete m;
+}
+
+MutexCS::MutexCS()
+{
+    InitializeCriticalSection(&m_criticalSection);
+}
+
+MutexCS::~MutexCS()
+{
+    DeleteCriticalSection(&m_criticalSection);
+}
+
+MutexCSLock::MutexCSLock( MutexCS &m ) : m_mutex(m)
+{
+    EnterCriticalSection(&m_mutex.m_criticalSection);
+}
+
+MutexCSLock::~MutexCSLock()
+{
+    LeaveCriticalSection(&m_mutex.m_criticalSection);
+}

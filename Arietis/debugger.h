@@ -6,9 +6,16 @@
 #include "Arietis.h"
 #include "parallel.h"
 
+
 class Debugger {
 public:
-    //typedef std::function<void (u32 addr)>                  PtrChangeHandler;
+    enum State {
+        STATE_RUNNING,
+        STATE_SINGLESTEP,
+        STATE_STEPOVER,
+        STATE_STEPOUT,
+        STATE_TERMINATED,
+    };
 public:
     Debugger(ArietisEngine *engine);
     ~Debugger();
@@ -16,16 +23,25 @@ public:
     void        Initialize();
     void        OnPreExecute(Processor *cpu, const Instruction *inst);
     void        OnPostExecute(Processor *cpu, const Instruction *inst);
+    void        OnProcPreRun(const Process *proc, const Processor *cpu);
     void        OnStepInto();
-
-//     void        RegisterPtrChangeHandler(PtrChangeHandler h) { 
-//         m_ptrChangeHandler = h; 
-//     }
+    void        OnStepOver();
+    void        OnStepOut();
+    void        OnRun();
+    void        OnToggleBreakpoint();
 
 private:
-    //PtrChangeHandler    m_ptrChangeHandler;
+    void        DoSingleStep(const Processor *cpu, const Instruction *inst);
+    void        CheckBreakpoints(const Processor *cpu, const Instruction *inst);
+private:
+    State               m_state;
+    u32                 m_stepOverEip;
+
     ArietisEngine *     m_engine;
     Semaphore           m_semaphore;
+
+    const Processor *   m_currProcessor;
+    const Instruction * m_currInst;
 };
 
 #endif // __ARIETIS_DEBUGGER_H__

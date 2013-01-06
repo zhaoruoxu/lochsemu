@@ -22,15 +22,17 @@ static void InitConfig();
 
 bool LxInit()
 {
-    int dbgFlags;
-    dbgFlags = _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG );
-    dbgFlags |= _CRTDBG_DELAY_FREE_MEM_DF;
-    dbgFlags |= _CRTDBG_LEAK_CHECK_DF;
-    _CrtSetDbgFlag( dbgFlags);
-    
     InitConfig();
     std::string logFile = LxGetRuntimeDirectory() + "lochsemu.log";
     Log::Instance()->OpenLogFile(logFile.c_str(), true);
+
+    if (LxConfig.GetInt("General", "DetectMemoryLeaks", 1) != 0) {
+        int dbgFlags;
+        dbgFlags = _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG );
+        dbgFlags |= _CRTDBG_DELAY_FREE_MEM_DF;
+        dbgFlags |= _CRTDBG_LEAK_CHECK_DF;
+        _CrtSetDbgFlag( dbgFlags);
+    }
 
     return true;
 }

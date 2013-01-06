@@ -12,11 +12,12 @@ public:
         InstPtr     ptr;
         u32         eip;
         u32         target;
+        u32         entry;  // proc entry
         std::string dllName;
         std::string funcName;
 
-        Inst() : ptr(NULL), eip(0) {}
-        Inst(InstPtr ptr, u32 e):ptr(ptr), eip(e) {}
+        Inst() : ptr(NULL), eip(0), target(-1), entry(-1) {}
+        Inst(InstPtr p, u32 e) : ptr(p), eip(e), target(-1), entry(-1) {}
     };
     typedef std::vector<Inst>       InstVector;
     typedef std::map<u32, Inst>     InstDisasmMap;
@@ -37,7 +38,7 @@ public:
 
     void        OnPreExecute(const Processor *cpu, const Instruction *inst);
 private:
-    void        RecursiveDisassemble(const Processor *cpu, u32 eip, const Section *sec);
+    void        RecursiveDisassemble(const Processor *cpu, u32 eip, const Section *sec, u32 entryEip);
     void        AttachApiInfo(const Processor *cpu, u32 eip, const Section *sec, Inst &inst);
 private:
     DataUpdateHandler   m_dataUpdateHandler;

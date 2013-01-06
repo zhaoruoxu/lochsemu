@@ -8,6 +8,11 @@
 #include "gui/gui.h"
 #include "static/disassembler.h"
 
+struct InstContext {
+    Disassembler::Inst  inst;
+    u32 gp_regs[8];
+};
+
 class ArietisEngine {
 public:
     ArietisEngine();
@@ -20,10 +25,10 @@ public:
 
     void            OnPreExecute(Processor *cpu, const Instruction *inst);
     void            OnPostExecute(Processor *cpu, const Instruction *inst);
+    void            OnProcessPreRun(const Process *proc, const Processor *cpu);
 
-    /* Debugger */
-    void            OnStepInto();
-
+    Debugger *      GetDebugger() { return &m_debugger; }
+    
     void            Log(const wxString &s);
 private:
     Debugger        m_debugger;

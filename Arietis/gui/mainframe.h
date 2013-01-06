@@ -29,7 +29,11 @@ private:
     void    OnResetPerspective(wxCommandEvent &event);
 
     /* Debug */
+    void    OnRun(wxCommandEvent &event);
+    void    OnStepOver(wxCommandEvent &event);
     void    OnStepInto(wxCommandEvent &event);
+    void    OnStepOut(wxCommandEvent &event);
+    void    OnToggleBreakpoint(wxCommandEvent &event);
 
     void    OnStatusTimer(wxTimerEvent &event);
 private:

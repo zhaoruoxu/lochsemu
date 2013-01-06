@@ -72,7 +72,13 @@ void ArietisFrame::InitMenu()
     menuView->Append(ID_ResetPerspective, "Reset perspective");
 
     wxMenu *menuDebug = new wxMenu;
+
+    menuDebug->Append(ID_Run, "Run\tF5");
+    menuDebug->Append(ID_StepOver, "Step Over\tF10");
     menuDebug->Append(ID_StepInto, "Step Into\tF11");
+    menuDebug->Append(ID_StepOut, "Step Out\tShift-F10");
+    menuDebug->AppendSeparator();
+    menuDebug->Append(ID_ToggleBreakpoint, "Toggle Breakpoint\tF2");
 
     wxMenu *menuHelp = new wxMenu;
     menuHelp->Append(wxID_ABORT, "&About");
@@ -92,6 +98,10 @@ void ArietisFrame::InitMenu()
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnSavePerspective, this, ID_SavePerspective);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnResetPerspective, this, ID_ResetPerspective);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnStepInto, this, ID_StepInto);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnStepOver, this, ID_StepOver);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnStepOut, this, ID_StepOut);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnRun, this, ID_Run);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnToggleBreakpoint, this, ID_ToggleBreakpoint);
 }
 
 
@@ -184,7 +194,27 @@ void ArietisFrame::OnStatusTimer( wxTimerEvent &event )
 
 void ArietisFrame::OnStepInto( wxCommandEvent &event )
 {
-    m_engine->OnStepInto();
+    m_engine->GetDebugger()->OnStepInto();
+}
+
+void ArietisFrame::OnRun( wxCommandEvent &event )
+{
+    m_engine->GetDebugger()->OnRun();
+}
+
+void ArietisFrame::OnStepOver( wxCommandEvent &event )
+{
+    m_engine->GetDebugger()->OnStepOver();
+}
+
+void ArietisFrame::OnStepOut( wxCommandEvent &event )
+{
+    m_engine->GetDebugger()->OnStepOut();
+}
+
+void ArietisFrame::OnToggleBreakpoint( wxCommandEvent &event )
+{
+    m_engine->GetDebugger()->OnToggleBreakpoint();
 }
 
 void ArietisFrame::DebugLog( const wxString &s )
@@ -198,3 +228,4 @@ void ArietisFrame::DebugStepCallback( const Processor *cpu, const Instruction *i
     m_cpuPanel->OnPtrChange(cpu->EIP);
     //DebugLog(wxString::Format("%s", inst->Main.CompleteInstr));
 }
+

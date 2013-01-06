@@ -22,13 +22,17 @@ ARIETIS_API void LochsEmu_Winapi_PreCall            (Processor *cpu, uint apiInd
 ARIETIS_API void LochsEmu_Winapi_PostCall           (Processor *cpu, uint apiIndex);
 ARIETIS_API void LochsEmu_Processor_PreExecute(Processor *cpu, const Instruction *inst);
 ARIETIS_API void LochsEmu_Processor_PostExecute(Processor *cpu, const Instruction *inst);
+ARIETIS_API void LochsEmu_Process_PreRun            (const Process *proc, Processor *cpu);
 
 
 
 class Mutex;
 class Semaphore;
+class MutexCS;
+class MutexCSLock;
 class ArietisEngine;
 class Debugger;
+
 
 extern HMODULE          g_module;
 extern Config           g_config;

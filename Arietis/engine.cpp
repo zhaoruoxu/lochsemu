@@ -33,10 +33,6 @@ void ArietisEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
     m_debugger.OnPostExecute(cpu, inst);
 }
 
-void ArietisEngine::OnStepInto()
-{ 
-    m_debugger.OnStepInto(); 
-}
 
 void ArietisEngine::Log( const wxString &s )
 {
@@ -57,3 +53,10 @@ void ArietisEngine::SetGuiFrame( ArietisFrame *frame )
 //         this->m_gui->GetCpuPanel()->OnPtrChange(addr);
 //     });
 }
+
+void ArietisEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
+{
+    m_debugger.OnProcPreRun(proc, cpu);
+}
+
+

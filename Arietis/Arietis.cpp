@@ -85,3 +85,8 @@ ARIETIS_API void LochsEmu_Processor_PostExecute(Processor *cpu, const Instructio
 {
     g_engine.OnPostExecute(cpu, inst);
 }
+
+ARIETIS_API void LochsEmu_Process_PreRun            (const Process *proc, Processor *cpu)
+{
+    g_engine.OnProcessPreRun(proc, cpu);
+}

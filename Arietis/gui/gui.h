@@ -21,6 +21,10 @@ enum {
 
     /* debug */
     ID_StepInto,
+    ID_StepOver,
+    ID_StepOut,
+    ID_Run,
+    ID_ToggleBreakpoint,
 
     ID_StatusTimer,
 

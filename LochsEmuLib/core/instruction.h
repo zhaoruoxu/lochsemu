@@ -21,6 +21,9 @@ public:
         Length = 0;
     }
 
+    static bool IsRet(const Instruction *inst);
+    static bool IsCall(const Instruction *inst);
+
     DISASM          Main;  /* BeaEngine */
 
     INSTRUCTION     Aux;   /* Libdasm */

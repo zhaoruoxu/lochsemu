@@ -6,10 +6,12 @@
 #include "Arietis.h"
 #include "gui.h"
 #include "../static/disassembler.h"
+#include "parallel.h"
 
 class CpuPanel : public wxScrolledWindow {
 public:
     CpuPanel(wxWindow *parent);
+    ~CpuPanel();
 
 //     void        OnInstDisasm(const Disassembler::InstVector &insts);
     void        OnPtrChange(u32 addr);
@@ -30,6 +32,8 @@ private:
     void        InitRender();
     void        Draw(wxBufferedPaintDC &dc);
     void        DrawInst(wxBufferedPaintDC &dc, const Disassembler::Inst &inst, int index);
+    void        DrawJumpIcon(wxBufferedPaintDC &dc, const Disassembler::Inst &inst, int index);
+    void        DrawJumpLines(wxBufferedPaintDC &dc, int istart, int iend);
     wxPoint     GetCurrentScrolledPos() const;
     int         CalcJumpLineWidth(int idx1, int idx2) const;
 private:
@@ -59,8 +63,9 @@ private:
 
     wxFont      m_font;
     wxDataViewListCtrl *    m_list;
-    const Disassembler::InstDisasmMap *   m_insts;
+    Disassembler::InstDisasmMap     m_insts;
     std::map<u32, int>      m_eipIndex;
+    MutexCS *   m_mutex;
     //wxListCtrl  *   m_list;
     //Disassembler::InstVector    m_instVector;
 };

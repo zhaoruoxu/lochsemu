@@ -28,7 +28,7 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
     const InstDisasmMap &instMap = m_secMap[sec];
     if (instMap.find(eip) == instMap.end()) {
         LxDebug("Disassembling...\n");
-        RecursiveDisassemble(cpu, eip, sec);
+        RecursiveDisassemble(cpu, eip, sec, eip);
 
         int count = 0;
         for (auto &iter : m_secMap) 
@@ -42,9 +42,10 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
     m_lastSec = sec;
 }
 
-void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, const Section *sec )
+void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, const Section *sec, u32 entryEip )
 {
     Assert(sec);
+    Assert(entryEip != 0);
 
     while (true) {
         InstDisasmMap &instMap = m_secMap[sec];
@@ -54,18 +55,23 @@ void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, const Se
         LxDecode(cpu->Mem->GetRawData(eip), inst.get(), eip);
         instMap[eip] = Inst(inst, eip);
         AttachApiInfo(cpu, eip, sec, instMap[eip]);
+        //LxInfo("%08x  %s\n", eip, inst->Main.CompleteInstr);
 
         u32 opcode = inst->Main.Inst.Opcode;
         if (opcode == 0xc3 || opcode == 0xcb || opcode == 0xc2 || opcode == 0xca) {
             // 'ret' is met
+            instMap[eip].entry = entryEip;
             return;
         }
 
         u32 addrValue = (u32) inst->Main.Inst.AddrValue;
+        const char *mnemonics = inst->Main.Inst.Mnemonic;
         if (addrValue != 0) {
             if (OPERAND_TYPE(inst->Main.Argument1.ArgType) == CONSTANT_TYPE) {
-                if (cpu->Mem->GetSection(addrValue))
-                    RecursiveDisassemble(cpu, addrValue, cpu->Mem->GetSection(addrValue));
+                if (cpu->Mem->GetSection(addrValue)) {
+                    u32 nextEntry = Instruction::IsCall(inst.get()) ? addrValue : entryEip;
+                    RecursiveDisassemble(cpu, addrValue, cpu->Mem->GetSection(addrValue), nextEntry);
+                }
             }
         }
         u32 nextEip = eip + inst->Length;
@@ -82,18 +88,18 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, const Section *
     const char *mnemonic = inst.ptr->Main.Inst.Mnemonic;
     if (opcode == 0xff) {
         // CALL or JMP r/m32
-        if (strstr(mnemonic, "jmp") == mnemonic || strstr(mnemonic, "call") == mnemonic) {
+        if (strstr(mnemonic, "jmp") == mnemonic || Instruction::IsCall(inst.ptr.get())) {
             if (OPERAND_TYPE(inst.ptr->Main.Argument1.ArgType) == MEMORY_TYPE &&
                 inst.ptr->Main.Argument1.Memory.BaseRegister == 0 &&
                 inst.ptr->Main.Argument1.Memory.IndexRegister == 0) {
                 target = cpu->ReadOperand32(inst.ptr.get(), inst.ptr->Main.Argument1, NULL);
             }
         }
-    } else if (opcode == 0xe8 && strstr(mnemonic, "call") == mnemonic) {
-        target = eip + inst.ptr->Length + (u32) inst.ptr->Aux.op1.immediate;
+    } else if (opcode == 0xe8) {
+        target = (u32) inst.ptr->Main.Inst.AddrValue;
         
         if (cpu->Mem->GetSection(target))
-            RecursiveDisassemble(cpu, target, cpu->Mem->GetSection(target));
+            RecursiveDisassemble(cpu, target, cpu->Mem->GetSection(target), target);
         auto iter = m_secMap[sec].find(target);
         Assert(iter != m_secMap[sec].end());
         const Instruction &instCalled = *iter->second.ptr;
