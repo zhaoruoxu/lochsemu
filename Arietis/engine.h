@@ -50,6 +50,7 @@ private:
     Disassembler    m_disassembler;
     ArietisFrame *  m_gui;
     u32             m_currEip;
+    i64             m_totalExecuted;
 
     bool            m_tracerEnabled;
 };

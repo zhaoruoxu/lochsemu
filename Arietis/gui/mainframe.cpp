@@ -38,7 +38,7 @@ void ArietisFrame::InitUI()
 {
     InitMenu();
     InitStatusBar();
-    InitToolbars();
+    //InitToolbars();
 
     Bind(wxEVT_CLOSE_WINDOW, &ArietisFrame::OnClose, this, wxID_ANY);
 
@@ -48,8 +48,9 @@ void ArietisFrame::InitUI()
     m_contextPanel  = new ContextPanel(this);
     m_tracePanel    = new CompositeTracePanel(this);
 
-    m_auiManager.AddPane(m_tracePanel, wxAuiPaneInfo().Name("Trace").Caption("Trace").Center());
-    m_auiManager.AddPane(m_cpuPanel, wxAuiPaneInfo().Name("Taint").Caption("CPU").CenterPane());
+    
+    m_auiManager.AddPane(m_cpuPanel, wxAuiPaneInfo().Name("Taint").Caption("CPU").Center());
+    m_auiManager.AddPane(m_tracePanel, wxAuiPaneInfo().Name("Trace").Caption("Trace").Top());
     m_auiManager.AddPane(m_contextPanel, wxAuiPaneInfo().Name("Context").Caption("Context").Right());
     
     m_auiManager.Update();

@@ -13,15 +13,17 @@ public:
         static const int RegCount = 8;
         u32     regs[RegCount];
         Disassembler::Inst inst;
+        i64     seq;
 
-        Trace(const Disassembler::Inst &i, const Processor *cpu);
+        Trace(): seq(-1) {}
+        Trace(const Disassembler::Inst &i, const Processor *cpu, i64 seq);
     };
 
     typedef std::vector<Trace>      TraceVec;
 public:
     ATracer(AEngine *engine);
     virtual ~ATracer();
-    void            TraceInst(const Processor *cpu, u32 eip);
+    void            TraceInst(const Processor *cpu, u32 eip, i64 seq);
     void            Lock() const { m_mutex.Wait(); }
     void            Unlock() const { m_mutex.Release(); }
     const TraceVec& GetData() const { return m_traces; }

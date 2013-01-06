@@ -22,7 +22,8 @@ void AEngine::Initialize()
 {
     m_debugger.Initialize();
     m_tracerEnabled = g_config.GetInt("Tracer", "EnableOnStart", 1) != 0;
-    m_currEip = 0;
+    m_currEip       = 0;
+    m_totalExecuted = 0;
 }
 
 void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
@@ -36,8 +37,9 @@ void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 {
     m_debugger.OnPostExecute(cpu, inst);
+    ++m_totalExecuted;
     if (m_tracerEnabled) {
-        m_tracer.TraceInst(cpu, m_currEip);
+        m_tracer.TraceInst(cpu, m_currEip, m_totalExecuted);
     }
 }
 

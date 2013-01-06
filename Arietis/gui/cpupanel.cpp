@@ -300,17 +300,17 @@ void CpuPanel::OnPtrChange( u32 addr )
 
 void CpuPanel::OnLeftDown( wxMouseEvent& event )
 {
-    wxPoint p = event.GetPosition();
-    wxPoint ps = GetViewStart();
-    m_currSelIndex = ps.y + p.y / m_lineHeight;
-    m_isLeftDown = true;
+    wxPoint p       = event.GetPosition();
+    wxPoint ps      = GetViewStart();
+    m_currSelIndex  = ps.y + p.y / m_lineHeight;
+    m_isLeftDown    = true;
 
     Refresh();
 }
 
 void CpuPanel::OnLeftUp( wxMouseEvent& event )
 {
-    m_isLeftDown = false;
+    m_isLeftDown    = false;
 }
 
 void CpuPanel::OnMouseMove( wxMouseEvent& event )
