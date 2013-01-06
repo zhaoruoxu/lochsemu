@@ -30,8 +30,8 @@ ArietisFrame::~ArietisFrame()
 
 void ArietisFrame::InitMisc()
 {
-    std::string cfgFile = LxGetModuleDirectory(g_module) + "arietisapp.ini";
-    g_config.Initialize(cfgFile.c_str());
+    //std::string cfgFile = LxGetModuleDirectory(g_module) + "arietisapp.ini";
+    //g_config.Initialize(cfgFile.c_str());
 }
 
 void ArietisFrame::InitUI()
@@ -226,10 +226,10 @@ void ArietisFrame::PreExecSingleStepCallback( const Processor *cpu, const Instru
     m_tracePanel->UpdateData();
 }
 
-void ArietisFrame::PostExecSingleStepCallback( const Processor *cpu, const Instruction *inst )
-{
-    //m_tracePanel->UpdateData();
-}
+// void ArietisFrame::PostExecSingleStepCallback( const Processor *cpu, const Instruction *inst )
+// {
+//     //m_tracePanel->UpdateData();
+// }
 
 void ArietisFrame::ReportBusy( bool isBusy )
 {

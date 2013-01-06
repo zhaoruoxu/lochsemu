@@ -59,7 +59,7 @@ void TracePanel::OnPaint( wxPaintEvent& event )
 
 void TracePanel::OnEraseBackGround( wxEraseEvent& event )
 {
-
+    
 }
 
 void TracePanel::Draw( wxBufferedPaintDC &dc )

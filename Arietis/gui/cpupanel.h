@@ -16,7 +16,7 @@ public:
 //     void        OnInstDisasm(const Disassembler::InstVector &insts);
     void        OnPtrChange(u32 addr);
     void        OnDataUpdate(const Disassembler::InstDisasmMap *insts);
-    void        OnPreExecute(const Processor *cpu, const Instruction *inst);
+    //void        OnPreExecute(const Processor *cpu, const Instruction *inst);
 
 
     void        OnPaint(wxPaintEvent& event);

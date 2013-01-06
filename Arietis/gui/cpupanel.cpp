@@ -90,10 +90,6 @@ void CpuPanel::OnEraseBackground( wxEraseEvent& event )
 
 }
 
-void CpuPanel::OnPreExecute( const Processor *cpu, const Instruction *inst )
-{
-}
-
 
 wxPoint CpuPanel::GetCurrentScrolledPos() const
 {

@@ -22,7 +22,7 @@ public:
 
     void        Initialize();
     void        OnPreExecute(Processor *cpu, const Instruction *inst);
-    void        OnPostExecute(Processor *cpu, const Instruction *inst);
+    //void        OnPostExecute(Processor *cpu, const Instruction *inst);
     void        OnProcPreRun(const Process *proc, const Processor *cpu);
     void        OnStepInto();
     void        OnStepOver();

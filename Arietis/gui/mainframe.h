@@ -14,7 +14,7 @@ public:
 
     //void    DebugLog(const wxString &s);
     void    PreExecSingleStepCallback(const Processor *cpu, const Instruction *inst);
-    void    PostExecSingleStepCallback(const Processor *cpu, const Instruction *inst);
+    //void    PostExecSingleStepCallback(const Processor *cpu, const Instruction *inst);
 
     CpuPanel *  GetCpuPanel() const { return m_cpuPanel; }
     ContextPanel *  GetRegPanel() const { return m_contextPanel; }
@@ -54,7 +54,7 @@ private:
 
     wxString        m_defaultPerspective;
     wxAuiManager    m_auiManager;
-    Config          m_config;
+    //Config          m_config;
 
     wxTimer         m_statusTimer;
     wxStatusBar *   m_statusbar;

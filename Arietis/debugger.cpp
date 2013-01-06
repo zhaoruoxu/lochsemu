@@ -64,12 +64,12 @@ void ADebugger::OnPreExecute( Processor *cpu, const Instruction *inst )
     }
 }
 
-void ADebugger::OnPostExecute( Processor *cpu, const Instruction *inst )
-{
-    if (m_state == STATE_SINGLESTEP) {
-        m_engine->GetGUI()->PostExecSingleStepCallback(cpu, inst);
-    }
-}
+// void ADebugger::OnPostExecute( Processor *cpu, const Instruction *inst )
+// {
+//     if (m_state == STATE_SINGLESTEP) {
+//         m_engine->GetGUI()->PostExecSingleStepCallback(cpu, inst);
+//     }
+// }
 
 void ADebugger::OnStepInto()
 {

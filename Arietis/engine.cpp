@@ -30,13 +30,13 @@ void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 {
     m_currEip = cpu->EIP;
     m_disassembler.OnPreExecute(cpu, inst);
-    m_gui->GetCpuPanel()->OnPreExecute(cpu, inst);
+    //m_gui->GetCpuPanel()->OnPreExecute(cpu, inst);
     m_debugger.OnPreExecute(cpu, inst);
 }
 
 void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 {
-    m_debugger.OnPostExecute(cpu, inst);
+    //m_debugger.OnPostExecute(cpu, inst);
     ++m_totalExecuted;
     if (m_tracerEnabled) {
         m_tracer.TraceInst(cpu, m_currEip, m_totalExecuted);
