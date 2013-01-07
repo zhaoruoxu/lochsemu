@@ -49,7 +49,7 @@ void ArietisFrame::InitUI()
     m_tracePanel    = new CompositeTracePanel(this);
 
     
-    m_auiManager.AddPane(m_cpuPanel, wxAuiPaneInfo().Name("Taint").Caption("CPU").Center());
+    m_auiManager.AddPane(m_cpuPanel, wxAuiPaneInfo().Name("CPU").Caption("CPU").CenterPane());
     m_auiManager.AddPane(m_tracePanel, wxAuiPaneInfo().Name("Trace").Caption("Trace").Top());
     m_auiManager.AddPane(m_contextPanel, wxAuiPaneInfo().Name("Context").Caption("Context").Right());
     

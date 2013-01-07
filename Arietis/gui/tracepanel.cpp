@@ -3,18 +3,14 @@
 
 
 TracePanel::TracePanel( CompositeTracePanel *parent )
-    : wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxSize(600, 200),
-    wxVSCROLL | wxHSCROLL), m_parent(parent)
+    : CustomScrolledControl(parent, wxSize(600, 200)), m_parent(parent)
 {
     InitRender();
 
-    Bind(wxEVT_PAINT, &TracePanel::OnPaint, this, wxID_ANY);
-    Bind(wxEVT_ERASE_BACKGROUND, &TracePanel::OnEraseBackGround, this, wxID_ANY);
     Bind(wxEVT_LEFT_DOWN, &TracePanel::OnLeftDown, this, wxID_ANY);
     Bind(wxEVT_LEFT_UP, &TracePanel::OnLeftUp, this, wxID_ANY);
     Bind(wxEVT_MOTION, &TracePanel::OnMouseMove, this, wxID_ANY);
     Bind(wxEVT_LEAVE_WINDOW, &TracePanel::OnMouseLeave, this, wxID_ANY);
-    //Bind(wxEVT_SCROLL_CHANGED, &TracePanel::OnScrollChanged, this, wxID_ANY);
     m_currIndex     = -1;
     m_isLeftDown    = false;
 }
@@ -26,44 +22,20 @@ TracePanel::~TracePanel()
 
 void TracePanel::InitRender()
 {
-    SetBackgroundStyle(wxBG_STYLE_PAINT);
-
-    m_font =    wxFont(g_config.GetInt("TracePanel", "FontSize", 8), 
+    wxFont f =    wxFont(g_config.GetInt("TracePanel", "FontSize", 8), 
         wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, 
         g_config.GetString("TracePanel", "FontName", "Lucida Console"));
+    UpdateFont(f);
     m_currPen       = wxPen(wxColour(g_config.GetString("TracePanel", "CurrentColor", "#0080ff")));
     m_currSelPen    = wxPen(wxColour(g_config.GetString("TracePanel", "CurrentSelectionColor", "#808080")));
-    m_bgBrush       = wxBrush(wxColour(g_config.GetString("TracePanel", "BgColor", "#e0e0ff")));
     m_widthIp       = g_config.GetInt("TracePanel", "WidthIp", 70);
     m_widthDisasm   = g_config.GetInt("TracePanel", "WidthDisasm", 300);
     m_width         = m_widthIp + m_widthDisasm;
-
-    SetFont(m_font);
-    wxClientDC dc(this);
-    dc.SetFont(m_font);
-    m_lineHeight    = dc.GetFontMetrics().height;
-    SetScrollRate(1, m_lineHeight);
-}
-
-void TracePanel::OnPaint( wxPaintEvent& event )
-{
-    wxBufferedPaintDC dc(this);
-    DoPrepareDC(dc);
-    dc.SetBackground(m_bgBrush);
-    dc.Clear();
-
-    if (m_parent->m_tracer == NULL) return;
-
-    Draw(dc);
-}
-
-void TracePanel::OnEraseBackGround( wxEraseEvent& event )
-{
-    
 }
 
 void TracePanel::Draw( wxBufferedPaintDC &dc )
 {
+    if (m_parent->m_tracer == NULL) return;
     m_parent->m_tracer->Lock();
 
     const ATracer::TraceVec &vec = m_parent->m_tracer->GetData();
@@ -205,7 +177,7 @@ void TraceInfoPanel::OnPaint( wxPaintEvent &event )
     h += m_lineHeight;
     dc.DrawLine(v, h, v + m_parent->m_tracePanel->m_width, h);
 
-    
+    h += 1;
     dc.DrawText(wxString::Format("Total: %d", m_parent->m_total), 0, h);
     h += m_lineHeight;
     dc.DrawText(wxString::Format("Seq: %I64d", m_trace.seq), 0, h);

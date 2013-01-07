@@ -104,6 +104,7 @@
     <ClInclude Include="debugger.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="gui\cpupanel.h" />
+    <ClInclude Include="gui\custombase.h" />
     <ClInclude Include="gui\gui.h" />
     <ClInclude Include="gui\logpanel.h" />
     <ClInclude Include="gui\mainframe.h" />
@@ -132,6 +133,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Arietis.cpp" />
+    <ClCompile Include="gui\custombase.cpp" />
     <ClCompile Include="gui\tracepanel.cpp" />
     <ClCompile Include="tracer.cpp" />
     <ClCompile Include="debugger.cpp" />

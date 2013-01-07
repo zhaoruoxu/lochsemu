@@ -8,6 +8,7 @@
 void RunGUI();
 void NotifyMainThread();
 
+class CustomScrolledControl;
 class ArietisFrame;
 class CpuPanel;
 class ContextPanel;
@@ -39,5 +40,15 @@ class ArietisApp : public wxApp {
 public:
     virtual bool        OnInit();
 };
+
+template <typename T>
+bool    IntersectAbs(T i0, T i1, T istart, T iend) {
+    return min(i0, i1) <= iend && max(i0, i1) >= istart;
+}
+
+template <typename T>
+bool    Intersect(T ilow, T ihigh, T istart, T iend) {
+    return ilow <= iend && ihigh >= istart;
+}
 
 #endif // __ARIETIS_GUI_GUI_H__

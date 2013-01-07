@@ -7,8 +7,9 @@
 #include "gui.h"
 #include "../static/disassembler.h"
 #include "parallel.h"
+#include "custombase.h"
 
-class CpuPanel : public wxScrolledWindow {
+class CpuPanel : public CustomScrolledControl {
 public:
     CpuPanel(wxWindow *parent);
     ~CpuPanel();
@@ -19,8 +20,6 @@ public:
     //void        OnPreExecute(const Processor *cpu, const Instruction *inst);
 
 
-    void        OnPaint(wxPaintEvent& event);
-    void        OnEraseBackground(wxEraseEvent& event);
     void        OnLeftDown(wxMouseEvent& event);
     void        OnLeftUp(wxMouseEvent& event);
     void        OnRightDown(wxMouseEvent& event);
@@ -31,7 +30,7 @@ public:
 private:
     void        InitLogic();
     void        InitRender();
-    void        Draw(wxBufferedPaintDC &dc);
+    void        Draw(wxBufferedPaintDC &dc) override;
     void        DrawInst(wxBufferedPaintDC &dc, const Disassembler::Inst &inst, int index);
     void        DrawJumpIcon(wxBufferedPaintDC &dc, const Disassembler::Inst &inst, int index);
     void        DrawJumpLines(wxBufferedPaintDC &dc, int istart, int iend);
@@ -45,10 +44,10 @@ private:
     int         m_widthInfo;
     int         m_width;
     int         m_height;
-    int         m_lineHeight;
-    wxFontMetrics   m_fontMetrics;
     int         m_currIndex;
+    u32         m_currEip;
     int         m_currSelIndex;
+    u32         m_currSelEip;
     int         m_minDistanceToBottom;
     bool        m_isLeftDown;
     bool        m_showTargetNameInstead;
@@ -62,9 +61,10 @@ private:
     wxColour    m_callRetColor;
     wxColour    m_jumpColor;
 
-    wxFont      m_font;
     Disassembler::InstDisasmMap     m_insts;
     std::map<u32, int>      m_eipIndex;
+    std::vector<u32>        m_indexEip;
+    std::map<int, int>      m_procEntryEnd;
     MutexCS *   m_mutex;
     //wxListCtrl  *   m_list;
     //Disassembler::InstVector    m_instVector;

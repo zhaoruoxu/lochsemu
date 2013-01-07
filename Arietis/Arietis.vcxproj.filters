@@ -129,6 +129,9 @@
     <ClInclude Include="gui\tracepanel.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
+    <ClInclude Include="gui\custombase.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -189,6 +192,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\tracepanel.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\custombase.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
   </ItemGroup>
