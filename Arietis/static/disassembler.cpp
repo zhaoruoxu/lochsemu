@@ -102,15 +102,17 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, const Section *
     } else if (opcode == 0xe8) {
         target = (u32) inst.ptr->Main.Inst.AddrValue;
         
-        if (cpu->Mem->GetSection(target))
-            RecursiveDisassemble(cpu, target, cpu->Mem->GetSection(target), target);
-        auto iter = m_secMap[sec].find(target);
-        Assert(iter != m_secMap[sec].end());
-        const Instruction &instCalled = *iter->second.ptr;
-        if (instCalled.Main.Inst.Opcode == 0xff &&
-            (strstr(instCalled.Main.Inst.Mnemonic, "jmp") == instCalled.Main.Inst.Mnemonic)) 
-        {
-            target = cpu->ReadOperand32(&instCalled, instCalled.Main.Argument1, NULL);
+        Section *sect = cpu->Mem->GetSection(target);
+        if (sect) {
+            RecursiveDisassemble(cpu, target, sect, target);
+            auto iter = m_secMap[sect].find(target);
+            Assert(iter != m_secMap[sect].end());
+            const Instruction &instCalled = *iter->second.ptr;
+            if (instCalled.Main.Inst.Opcode == 0xff &&
+                (strstr(instCalled.Main.Inst.Mnemonic, "jmp") == instCalled.Main.Inst.Mnemonic)) 
+            {
+                target = cpu->ReadOperand32(&instCalled, instCalled.Main.Argument1, NULL);
+            }
         }
     } else if (*mnemonic == 'j') {
         target = (u32) inst.ptr->Main.Inst.AddrValue;
