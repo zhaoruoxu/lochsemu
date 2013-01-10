@@ -65,6 +65,10 @@
       <AdditionalDependencies>../bin/Debug/LochsEmuLib.lib;ws2_32.lib;wxmsw29ud_core.lib;wxbase29ud.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wxmsw29ud_aui.lib;wxmsw29ud_adv.lib;comctl32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(WXWIN)\lib\vc_lib</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command>$(PYTHON)\python.exe prebuild.py
+</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -101,6 +105,7 @@
     <ClInclude Include="3rdparty\src\json\json_batchallocator.h" />
     <ClInclude Include="3rdparty\src\json\json_tool.h" />
     <ClInclude Include="Arietis.h" />
+    <ClInclude Include="buildver.h" />
     <ClInclude Include="debugger.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="gui\cpupanel.h" />

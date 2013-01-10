@@ -12,9 +12,13 @@
 #include "instruction.h"
 #include "processor.h"
 
+#include "buildver.h"
+
 ArietisFrame::ArietisFrame(AEngine *engine)
-    : m_engine(engine), wxFrame(NULL, wxID_ANY, "Arietis", wxDefaultPosition, wxSize(1000, 800), 
-    wxDEFAULT_FRAME_STYLE), m_statusTimer(this, ID_StatusTimer)
+    : m_engine(engine), wxFrame(NULL, wxID_ANY, 
+    wxString::Format("Arietis %x build %d", ArietisVersion, ARIETIS_BUILD_VERSION), 
+    wxDefaultPosition, wxSize(1000, 800), wxDEFAULT_FRAME_STYLE), 
+    m_statusTimer(this, ID_StatusTimer)
 {
     InitMisc();
     InitUI();

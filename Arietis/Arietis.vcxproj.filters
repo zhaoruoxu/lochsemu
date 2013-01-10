@@ -132,6 +132,9 @@
     <ClInclude Include="gui\custombase.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
+    <ClInclude Include="buildver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
