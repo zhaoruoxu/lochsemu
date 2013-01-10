@@ -31,8 +31,8 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
     bool update = false;
     const InstDisasmMap &instMap = m_secMap[sec];
     if (instMap.find(eip) == instMap.end()) {
-        LxDebug("Disassembling...\n");
-        RecursiveDisassemble(cpu, eip, sec, eip);
+        LxDebug("Disassembling %08x...\n", eip);
+        RecursiveDisassemble(0, cpu, eip, sec, eip);
 
         int count = 0;
         for (auto &iter : m_secMap) 
@@ -46,10 +46,12 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
     m_lastSec = sec;
 }
 
-void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, const Section *sec, u32 entryEip )
+void Disassembler::RecursiveDisassemble( int depth, const Processor *cpu, u32 eip, const Section *sec, u32 entryEip )
 {
     Assert(sec);
     Assert(entryEip != 0);
+
+    if (depth >= MaxRecursiveDepth) return;
 
     while (true) {
         InstDisasmMap &instMap = m_secMap[sec];
@@ -74,7 +76,7 @@ void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, const Se
             if (OPERAND_TYPE(inst->Main.Argument1.ArgType) == CONSTANT_TYPE) {
                 if (cpu->Mem->GetSection(addrValue)) {
                     u32 nextEntry = Instruction::IsCall(inst.get()) ? addrValue : entryEip;
-                    RecursiveDisassemble(cpu, addrValue, cpu->Mem->GetSection(addrValue), nextEntry);
+                    RecursiveDisassemble(depth + 1, cpu, addrValue, cpu->Mem->GetSection(addrValue), nextEntry);
                 }
             }
         }
@@ -104,7 +106,7 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, const Section *
         
         Section *sect = cpu->Mem->GetSection(target);
         if (sect) {
-            RecursiveDisassemble(cpu, target, sect, target);
+            RecursiveDisassemble(0, cpu, target, sect, target);
             auto iter = m_secMap[sect].find(target);
             Assert(iter != m_secMap[sect].end());
             const Instruction &instCalled = *iter->second.ptr;

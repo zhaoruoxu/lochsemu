@@ -53,6 +53,8 @@ private:
     i64             m_totalExecuted;
 
     bool            m_tracerEnabled;
+    bool            m_skipDllEntries;
+    bool            m_mainEntryEntered;
 };
 
 #endif // __ARIETIS_ENGINE_H__

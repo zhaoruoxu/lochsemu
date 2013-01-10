@@ -41,9 +41,11 @@ public:
     void        UpdateInstContext(InstContext &ctx) const;
     Inst        GetInst(const Processor *cpu, u32 eip);
 private:
-    void        RecursiveDisassemble(const Processor *cpu, u32 eip, const Section *sec, u32 entryEip);
+    void        RecursiveDisassemble(int depth, const Processor *cpu, u32 eip, const Section *sec, u32 entryEip);
     void        AttachApiInfo(const Processor *cpu, u32 eip, const Section *sec, Inst &inst);
 private:
+    static const int    MaxRecursiveDepth = 3;
+    int                 m_currDepth;
     const Processor *   m_currProcessor;
     DataUpdateHandler   m_dataUpdateHandler;
     const Section *     m_lastSec;

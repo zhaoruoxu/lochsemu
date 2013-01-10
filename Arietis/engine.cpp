@@ -24,20 +24,28 @@ void AEngine::Initialize()
     m_tracerEnabled = g_config.GetInt("Tracer", "EnableOnStart", 1) != 0;
     m_currEip       = 0;
     m_totalExecuted = 0;
+    m_skipDllEntries    = g_config.GetInt("Engine", "SkipDllEntries", 1) != 0;
+    m_mainEntryEntered  = false;
 }
 
 void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 {
+
     m_currEip = cpu->EIP;
+    
     m_disassembler.OnPreExecute(cpu, inst);
+    if (m_skipDllEntries && !m_mainEntryEntered) return;
+    
     //m_gui->GetCpuPanel()->OnPreExecute(cpu, inst);
     m_debugger.OnPreExecute(cpu, inst);
 }
 
 void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 {
-    //m_debugger.OnPostExecute(cpu, inst);
     ++m_totalExecuted;
+    if (m_skipDllEntries && !m_mainEntryEntered) return;
+    //m_debugger.OnPostExecute(cpu, inst);
+    
     if (m_tracerEnabled) {
         m_tracer.TraceInst(cpu, m_currEip, m_totalExecuted);
     }
@@ -61,6 +69,7 @@ void AEngine::SetGuiFrame( ArietisFrame *frame )
 
 void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
 {
+    m_mainEntryEntered = true;
     m_debugger.OnProcPreRun(proc, cpu);
 }
 

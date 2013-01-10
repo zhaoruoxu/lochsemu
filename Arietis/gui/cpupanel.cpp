@@ -255,9 +255,9 @@ void CpuPanel::OnDataUpdate( const Disassembler::InstDisasmMap *insts )
             Assert(riter != m_eipIndex.end());
             int rindex  = riter->second;
             m_procEntryEnd[rindex] = index;
-//             if (prevRindex != -1 && prevIndex >= rindex) {
-//                 m_procEntryEnd[prevRindex] = rindex - 1;
-//             }
+            //             if (prevRindex != -1 && prevIndex >= rindex) {
+            //                 m_procEntryEnd[prevRindex] = rindex - 1;
+            //             }
             prevIndex   = index;
             prevRindex  = rindex;
         }
@@ -265,7 +265,6 @@ void CpuPanel::OnDataUpdate( const Disassembler::InstDisasmMap *insts )
 
     m_currSelIndex  = -1;
     m_currSelEip    = 0;
-
     m_height = m_lineHeight * insts->size();
     SetVirtualSize(m_width, m_height);
     //Refresh();
