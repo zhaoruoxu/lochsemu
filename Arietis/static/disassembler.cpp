@@ -13,9 +13,8 @@ InstSection::InstSection( InstPool &pool, Mutex &mutex, u32 base, u32 size )
     m_data      = new InstPtr[m_size];
     m_indices   = new u32[m_size];
     ZeroMemory(m_data, sizeof(InstPtr) * m_size);
-    ZeroMemory(m_indices, sizeof(u32) * m_size);
-//     for (u32 i = 0; i < m_size; i++)
-//         m_indices[i] = -1;
+    for (u32 i = 0; i < m_size; i++)
+        m_indices[i] = -1;
 }
 
 InstSection::~InstSection()
@@ -24,21 +23,10 @@ InstSection::~InstSection()
     SAFE_DELETE_ARRAY(m_indices);
 }
 
-
-// void InstSection::AddInst( u32 addr, InstPtr pinst )
-// {
-//     AssertInRanage(addr);
-//     if (m_data[addr - m_base] != NULL) {
-//         LxWarning("Arietis.Disassembler: Adding an instruction to an exsiting one\n");
-//     }
-//     m_data[addr - m_base] = pinst;
-// }
-
 InstPtr InstSection::Alloc( u32 addr )
 {
     Lock();
     AssertInRanage(addr);
-    //if (m_data[addr - m_base] != NULL);
     Assert(m_data[addr - m_base] == NULL);
     InstPtr pinst           = m_pool.Alloc();
     pinst->Eip              = addr;
@@ -78,6 +66,8 @@ InstPtr * InstSection::Begin() const
 void InstSection::UpdateIndices() const
 {
     int idx = 0;
+    for (u32 i = 0; i < m_size; i++)
+        m_indices[i] = -1;
     for (u32 i = 0; i < m_size; i++) {
         if (m_data[i] != NULL) {
             m_data[i]->Index = idx;
@@ -134,7 +124,6 @@ InstPtr InstMem::GetInst( u32 addr ) const
 
 Disassembler::Disassembler()
 {
-    //m_ptrChangeHandler  = nullptr;
     m_dataUpdateHandler = nullptr;
     m_lastSec           = NULL;
     m_currProcessor     = NULL;
@@ -154,24 +143,13 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
     
     m_instMem.Lock();
 
-//     if (m_secMap.find(sec) == m_secMap.end()) {
-//         m_secMap[sec] = InstDisasmMap();
-//     }
     InstSection *instSec = m_instMem.CreateSection(sec->Base(), sec->Size());
-    //if (NULL == instSec) {
-    //    instSec = m_instMem.AddSection(sec->Base(), sec->Size());
-    //}
 
     bool update = false;
-    //const InstDisasmMap &instMap = m_secMap[sec];
     
     if (!instSec->Contains(eip)) {
         LxDebug("Disassembling %08x...\n", eip);
         RecursiveDisassemble(0, cpu, eip, instSec, eip);
-
-//         int count = 0;
-//         for (auto &iter : m_secMap) 
-//             count += iter.second.size();
         LxDebug("Disassemble complete, count = %d\n", instSec->GetCount());
         instSec->UpdateIndices();
         update = true;
@@ -193,29 +171,21 @@ void Disassembler::RecursiveDisassemble( int depth, const Processor *cpu, u32 ei
     if (depth >= MaxRecursiveDepth) return;
 
     while (true) {
-        //InstSection *instSec = m_instMem.GetSection(eip);
         Assert(sec->IsInRange(eip));
-        if (sec->Contains(eip)) return;
-        //if (instMap.find(eip) != instMap.end()) return; // already disassembled
+        if (sec->Contains(eip)) return;     // already disassembled
 
-        //InstPtr inst = new Instruction;
         InstPtr inst = sec->Alloc(eip);
         LxDecode(cpu->Mem->GetRawData(eip), (Instruction *) inst, eip);
-        //instMap[eip] = Inst(inst, eip);
-
         AttachApiInfo(cpu, eip, sec, inst);
-        //LxInfo("%08x  %s\n", eip, inst->Main.CompleteInstr);
 
         u32 opcode = inst->Main.Inst.Opcode;
         if (opcode == 0xc3 || opcode == 0xcb || opcode == 0xc2 || opcode == 0xca) {
             // 'ret' is met
-            //instMap[eip].entry = entryEip;
             inst->Entry = entryEip;
             return;
         }
 
         u32 addrValue = (u32) inst->Main.Inst.AddrValue;
-        //const char *mnemonics = inst->Main.Inst.Mnemonic;
         if (addrValue != 0) {
             if (OPERAND_TYPE(inst->Main.Argument1.ArgType) == CONSTANT_TYPE) {
                 Section *s = cpu->Mem->GetSection(addrValue);
@@ -258,9 +228,6 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *se
             InstPtr instCalled = callSec->GetInst(target);
             Assert(instCalled != NULL);
 
-            // auto iter = m_secMap[sect].find(target);
-            // Assert(iter != m_secMap[sect].end());
-            // const Instruction &instCalled = *iter->second.ptr;
             if (instCalled->Main.Inst.Opcode == 0xff &&
                 (strstr(instCalled->Main.Inst.Mnemonic, "jmp") == instCalled->Main.Inst.Mnemonic)) 
             {
@@ -288,23 +255,4 @@ void Disassembler::UpdateInstContext( InstContext &ctx ) const
 
     InstPtr inst    = m_instMem.GetInst(m_currProcessor->EIP);
     ctx.inst        = inst;
-    
-//     const Section *sec = m_currProcessor->Mem->GetSection(m_currProcessor->EIP);
-//     auto iterSec = m_secMap.find(sec);
-//     Assert(iterSec != m_secMap.end());
-//     const InstDisasmMap &im = iterSec->second;
-//     auto iter = im.find(m_currProcessor->EIP);
-//     Assert(iter != im.end());
-//     ctx.inst = iter->second;
 }
-
-// InstPtr Disassembler::GetInst( const Processor *cpu, u32 eip )
-// {
-//     Section *sec = cpu->Mem->GetSection(eip);
-//     auto iterSec = m_secMap.find(sec);
-//     Assert(iterSec != m_secMap.end());
-//     auto iter = iterSec->second.find(eip);
-//     Assert(iter != iterSec->second.end());
-//     return iter->second;
-// }
-

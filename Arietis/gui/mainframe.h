@@ -12,14 +12,11 @@ public:
     ~ArietisFrame();
 
 
-    //void    DebugLog(const wxString &s);
     void    PreExecSingleStepCallback(const Processor *cpu, const Instruction *inst);
-    //void    PostExecSingleStepCallback(const Processor *cpu, const Instruction *inst);
 
-    CpuPanel *  GetCpuPanel() const { return m_cpuPanel; }
-    ContextPanel *  GetRegPanel() const { return m_contextPanel; }
-    CompositeTracePanel *    GetTracePanel() const { return m_tracePanel; }
-    //LogPanel *  GetLogPanel() const { return m_logPanel; }
+    CpuPanel *              GetCpuPanel() const { return m_cpuPanel; }
+    ContextPanel *          GetRegPanel() const { return m_contextPanel; }
+    CompositeTracePanel *   GetTracePanel() const { return m_tracePanel; }
     void    ReportBusy(bool isBusy);
 private:
     void    OnExit(wxCommandEvent &event);
@@ -54,7 +51,6 @@ private:
 
     wxString        m_defaultPerspective;
     wxAuiManager    m_auiManager;
-    //Config          m_config;
 
     wxTimer         m_statusTimer;
     wxStatusBar *   m_statusbar;

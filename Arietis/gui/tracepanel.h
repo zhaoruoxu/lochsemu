@@ -27,7 +27,6 @@ private:
     void        Init();
 private:
     const ATracer * m_tracer;
-    //wxFont          m_font;
     TracePanel *    m_tracePanel;
     TraceInfoPanel *m_infoPanel;
     int             m_total;
@@ -71,7 +70,6 @@ private:
     void        Draw(wxBufferedPaintDC &dc) override;
     void        DrawTrace(wxBufferedPaintDC &dc, const ATracer::Trace &trace, int index);
 private:
-    //const ATracer *     m_tracer;
     CompositeTracePanel *   m_parent;
 
     wxPen       m_currPen;

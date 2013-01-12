@@ -57,12 +57,8 @@ private:
     wxColour    m_jumpColor;
 
     const InstSection *     m_insts;
-    //std::map<u32, int>      m_eipIndex;
-    //std::vector<u32>        m_indexEip;
     std::map<int, int>      m_procEntryEnd;
-    MutexCS *   m_mutex;
-    //wxListCtrl  *   m_list;
-    //Disassembler::InstVector    m_instVector;
+    MutexCS *               m_mutex;
 };
  
 #endif // __ARIETIS_GUI_CPUPANEL_H__

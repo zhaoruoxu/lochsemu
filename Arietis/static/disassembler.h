@@ -24,7 +24,6 @@ struct Inst : public Instruction {
 };
 
 typedef Inst *  InstPtr;
-
 typedef AllocOnlyPool<Inst>  InstPool;
 
 class InstSection {
@@ -37,8 +36,7 @@ public:
     int             GetCount() const { return m_count; }
     InstPtr         GetInst(u32 addr) const 
     {
-        AssertInRanage(addr);
-        Assert(m_data[addr - m_base]);
+        Assert(Contains(addr));
         return m_data[addr - m_base];
     }
     bool            Contains(u32 addr) const 
@@ -51,7 +49,6 @@ public:
         return m_base <= addr && addr < m_base + m_size; 
     }
 
-    // InstSection is not responsible for cleaning pinst
     InstPtr         Alloc(u32 addr);
     void            Lock() const;
     void            Release() const;
@@ -61,7 +58,11 @@ public:
     InstPtr *       End() const { return m_data + m_size; }
 
     void            UpdateIndices() const;
-    u32             GetEipFromIndex(int idx) const { return m_indices[idx]; }
+    u32             GetEipFromIndex(int idx) const 
+    { 
+        Assert(m_indices[idx] != -1);
+        return m_indices[idx]; 
+    }
 
 private:
     InstSection(const InstSection &);
@@ -99,31 +100,11 @@ private:
 
 class Disassembler {
 public:
-    
-//     struct Inst {
-//         InstPtr     ptr;
-//         u32         eip;
-//         u32         target;
-//         u32         entry;  // proc entry
-//         std::string dllName;
-//         std::string funcName;
-// 
-//         Inst() : ptr(NULL), eip(0), target(-1), entry(-1) {}
-//         Inst(InstPtr p, u32 e) : ptr(p), eip(e), target(-1), entry(-1) {}
-//     };
-
-    //typedef std::vector<Inst>       InstVector;
-    //typedef std::map<u32, Inst>     InstDisasmMap;
-    
-    //typedef std::function<void (const InstVector &vec)>     InstDisasmHandler;
-    
     typedef std::function<void (InstSection *insts)>    DataUpdateHandler;
     
 public:
     Disassembler();
     virtual ~Disassembler();
-
-    //void        RegisterInstDisasmHandler(InstDisasmHandler h) { m_instDisasmHandler = h; }
 
     void        RegisterDataUpdateHandler(DataUpdateHandler h) {
         m_dataUpdateHandler = h;
@@ -141,9 +122,6 @@ private:
     const Processor *   m_currProcessor;
     DataUpdateHandler   m_dataUpdateHandler;
     const Section *     m_lastSec;
-    //InstDisasmMap       m_instMap;
-    //std::unordered_map<const Section *, InstDisasmMap> m_secMap;
-
     InstMem             m_instMem;
 };
 

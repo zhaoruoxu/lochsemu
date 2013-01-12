@@ -46,15 +46,15 @@ void CpuPanel::InitRender()
         wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, 
         g_config.GetString("CpuPanel", "FontName", "Lucida Console"));
     UpdateFont(f);
-    m_curlineBrush = wxBrush(wxColor(g_config.GetString("CpuPanel", "CurrentLineColor", "#00fb3d")));
-    m_sellineBrush = wxBrush(wxColor(g_config.GetString("CpuPanel", "SelectedLineColor", "#B0B0B0")));
+    m_curlineBrush  = wxBrush(wxColor(g_config.GetString("CpuPanel", "CurrentLineColor", "#00fb3d")));
+    m_sellineBrush  = wxBrush(wxColor(g_config.GetString("CpuPanel", "SelectedLineColor", "#B0B0B0")));
     m_zerolineBrush = wxBrush(wxColor(g_config.GetString("CpuPanel", "ZeroLineColor", "#D0D0D0")));
-    m_jumpColor = wxColour(g_config.GetString("CpuPanel", "JumpColor", "#0080ff"));
-    m_callRetColor = wxColour(g_config.GetString("CpuPanel", "CallRetColor", "#f000f0"));
+    m_jumpColor     = wxColour(g_config.GetString("CpuPanel", "JumpColor", "#0080ff"));
+    m_callRetColor  = wxColour(g_config.GetString("CpuPanel", "CallRetColor", "#f000f0"));
 
     m_showTargetNameInstead = g_config.GetInt("CpuPanel", "ShowTargetNameInsteadOfAddress", 1) != 0;
-    m_jumpLineWidthMax  = g_config.GetInt("CpuPanel", "JumpLineWidthMax", 15);
-    m_jumpLineWidthMin  = g_config.GetInt("CpuPanel", "JumpLineWidthMin", 3);
+    m_jumpLineWidthMax      = g_config.GetInt("CpuPanel", "JumpLineWidthMax", 15);
+    m_jumpLineWidthMin      = g_config.GetInt("CpuPanel", "JumpLineWidthMin", 3);
     m_jumpLineInstDistMax   = g_config.GetInt("CpuPanel", "JumpLineInstDistanceMax", 20);
 
     m_currIndex = -1;
@@ -80,7 +80,7 @@ void CpuPanel::Draw( wxBufferedPaintDC &dc )
     wxPoint p   = GetCurrentScrolledPos();
     wxSize cs   = GetClientSize();
     const int idxStart = pv.y;
-    const int idxEnd = idxStart + cs.GetHeight() / m_lineHeight;//(p.y + cs.GetHeight()) / m_lineHeight + 1;
+    const int idxEnd = idxStart + cs.GetHeight() / m_lineHeight;
 
     /* instructions */
     int index = 0;
@@ -107,9 +107,6 @@ void CpuPanel::Draw( wxBufferedPaintDC &dc )
 void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const InstPtr inst, int index )
 {
     wxRect rectToDraw(0, m_lineHeight * index, m_width, m_lineHeight);
-//     wxRect rectScrolled = rectToDraw;
-//     CalcScrolledPosition(rectToDraw.x, rectToDraw.y, &rectScrolled.x, &rectScrolled.y);
-//     if (!IsExposed(rectScrolled)) return;
 
     dc.SetPen(*wxTRANSPARENT_PEN);
 
@@ -191,8 +188,7 @@ void CpuPanel::DrawJumpLines( wxBufferedPaintDC &dc, int istart, int iend )
 
     // draw current selected line jump
     if (m_currSelIndex != -1 && m_insts->GetInst(m_currSelEip)->Target != -1) {
-        int rindex = -1; //m_eipIndex[m_insts[m_currSelEip].target];
-        //auto iter = m_eipIndex.find(m_insts->GetInst(m_currSelEip)->Target);
+        int rindex = -1; 
         if (m_insts->Contains(m_currSelEip)) {
             rindex = m_insts->GetInst(m_currSelEip)->Index;
         }
@@ -230,21 +226,7 @@ void CpuPanel::OnDataUpdate( const InstSection *insts )
     {
         MutexCSLock lock(*m_mutex);
         m_insts = insts;
-
         m_insts->Lock();
-
-//         m_eipIndex.clear();
-//         m_indexEip.clear();
-//         int index = 0;
-//         for (InstPtr *inst = m_insts->Begin(); inst != m_insts->End(); inst = m_insts->Next(inst)) {
-//             m_eipIndex[(*inst)->Eip] = index++;
-//             m_indexEip.push_back((*inst)->Eip);
-//         }
-
-//         for (auto &inst : m_insts) {
-//             m_eipIndex[inst.first] = index++;
-//             m_indexEip.push_back(inst.first);
-//         }
 
         m_procEntryEnd.clear();
         int index = -1;
@@ -254,14 +236,9 @@ void CpuPanel::OnDataUpdate( const InstSection *insts )
             u32 entry   = (*inst)->Entry;
             if (entry == -1) continue;
             if (entry >= (*inst)->Eip) continue;
-            //auto riter  = m_eipIndex.find(entry);
-            //Assert(riter != m_eipIndex.end());
             Assert(m_insts->GetInst(entry));
             int rindex  = m_insts->GetInst(entry)->Index;
             m_procEntryEnd[rindex] = index;
-            //             if (prevRindex != -1 && prevIndex >= rindex) {
-            //                 m_procEntryEnd[prevRindex] = rindex - 1;
-            //             }
             prevIndex   = index;
             prevRindex  = rindex;
         }
@@ -278,14 +255,9 @@ void CpuPanel::OnDataUpdate( const InstSection *insts )
 
 void CpuPanel::OnPtrChange( u32 addr )
 {
-//     auto iter = m_eipIndex.find(addr);
-//     if (iter == m_eipIndex.end()) {
-//         LxFatal("Cannot find index in GUI CpuPanel::EipIndex\n");
-//     }
     Assert(m_insts->GetInst(addr));
     m_currIndex = m_insts->GetInst(addr)->Index;
     m_currEip   = addr;
-    //Scroll(0, m_currIndex);
 
     wxPoint p = GetViewStart();
     wxSize cs = GetClientSize();
@@ -305,7 +277,7 @@ void CpuPanel::OnLeftDown( wxMouseEvent& event )
     wxPoint p       = event.GetPosition();
     wxPoint ps      = GetViewStart();
     m_currSelIndex  = ps.y + p.y / m_lineHeight;
-    m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex); //m_indexEip[m_currSelIndex];
+    m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex); 
     m_isLeftDown    = true;
 
     Refresh();
@@ -324,7 +296,7 @@ void CpuPanel::OnMouseMove( wxMouseEvent& event )
     int selIndex    = ps.y + p.y / m_lineHeight;
     if (selIndex != m_currSelIndex) {
         m_currSelIndex  = selIndex;
-        m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex); //m_indexEip[m_currSelIndex];
+        m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex); 
         Refresh();
     }
 }
