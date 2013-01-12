@@ -70,6 +70,8 @@ LxResult Emulator::LoadModule( int argc, LPSTR argv[] )
 
     m_loaded = true;
 
+    V(m_pluginManager->OnProcessPostLoad(m_loader));
+
     RET_SUCCESS();
 }
 

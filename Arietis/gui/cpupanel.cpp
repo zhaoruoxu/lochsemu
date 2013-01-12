@@ -19,6 +19,8 @@ CpuPanel::CpuPanel( wxWindow *parent ) : CustomScrolledControl(parent, wxSize(40
     Bind(wxEVT_MOTION, &CpuPanel::OnMouseMove, this, wxID_ANY);
     Bind(wxEVT_LEAVE_WINDOW, &CpuPanel::OnMouseLeave, this, wxID_ANY);
     Bind(wxEVT_RIGHT_DOWN, &CpuPanel::OnRightDown, this, wxID_ANY);
+
+    m_insts = NULL;
 }
 
 CpuPanel::~CpuPanel()
@@ -70,34 +72,29 @@ wxPoint CpuPanel::GetCurrentScrolledPos() const
 
 void CpuPanel::Draw( wxBufferedPaintDC &dc )
 {
+    if (m_insts == NULL) return;
     MutexCSLock lock(*m_mutex);
 
     static const int VertLineOffset = -2;
-    wxPoint pv = GetViewStart();
-    wxPoint p = GetCurrentScrolledPos();
-    wxSize cs = GetClientSize();
+    wxPoint pv  = GetViewStart();
+    wxPoint p   = GetCurrentScrolledPos();
+    wxSize cs   = GetClientSize();
     const int idxStart = pv.y;
     const int idxEnd = idxStart + cs.GetHeight() / m_lineHeight;//(p.y + cs.GetHeight()) / m_lineHeight + 1;
 
     /* instructions */
     int index = 0;
-    for (auto &inst : m_insts) {
+    for (InstPtr *inst = m_insts->Begin(); inst != m_insts->End(); inst = m_insts->Next(inst)) {
         if (idxStart <= index && index <= idxEnd)
-            DrawInst(dc, inst.second, index);
+            DrawInst(dc, *inst, index);
         index++;
     }
 
+    /* jump lines */
     DrawJumpLines(dc, idxStart, idxEnd);
 
-    /* clear unwanted */
-//     dc.SetPen(*wxWHITE_PEN);
-//     dc.SetBrush(*wxWHITE_BRUSH);
-//     dc.DrawRectangle(p.x + m_widthIp + m_widthDisasm + VertLineOffset, p.y, 
-//         m_width, p.y + cs.GetHeight());
-
-    dc.SetPen(*wxGREY_PEN);
-
     /* vertical lines */
+    dc.SetPen(*wxGREY_PEN);
     int lineX = m_widthIp + VertLineOffset;
     int lineY0 = p.y, lineY1 = p.y + cs.GetHeight();
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
@@ -107,7 +104,7 @@ void CpuPanel::Draw( wxBufferedPaintDC &dc )
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
 }
 
-void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const Disassembler::Inst &inst, int index )
+void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const InstPtr inst, int index )
 {
     wxRect rectToDraw(0, m_lineHeight * index, m_width, m_lineHeight);
 //     wxRect rectScrolled = rectToDraw;
@@ -116,7 +113,7 @@ void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const Disassembler::Inst &inst, 
 
     dc.SetPen(*wxTRANSPARENT_PEN);
 
-    u32 opcode = inst.ptr->Main.Inst.Opcode;
+    u32 opcode = inst->Main.Inst.Opcode;
     if (index == m_currIndex) {
         // highlight current line
         dc.SetBrush(m_curlineBrush);
@@ -135,11 +132,11 @@ void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const Disassembler::Inst &inst, 
     dc.SetBrush(*wxWHITE_BRUSH);
 
     // draw ip address
-    dc.DrawText(wxString::Format("%08X", inst.eip), 0,h );
+    dc.DrawText(wxString::Format("%08X", inst->Eip), 0,h );
     
     DrawJumpIcon(dc, inst, index);
 
-    wxString instr(inst.ptr->Main.CompleteInstr);
+    wxString instr(inst->Main.CompleteInstr);
     if (opcode != 0) {
         if (instr.StartsWith("call") || instr.StartsWith("ret")) {
             dc.SetTextForeground(m_callRetColor);
@@ -149,11 +146,10 @@ void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const Disassembler::Inst &inst, 
             dc.SetTextForeground(*wxBLACK);
         }
     }
-    if (!inst.dllName.empty() || !inst.funcName.empty()) {
-        wxString dll(inst.dllName);
-        dc.DrawText(wxString::Format("%s<%s:%s>", inst.ptr->Main.Inst.Mnemonic, dll.SubString(0, dll.Length()-5), 
-            inst.funcName.c_str()),
-            m_widthIp, h);
+    if (strlen(inst->DllName) > 0 || strlen(inst->FuncName) > 0) {
+        wxString dll(inst->DllName);
+        dc.DrawText(wxString::Format("%s<%s:%s>", inst->Main.Inst.Mnemonic, 
+            dll.SubString(0, dll.Length()-5), inst->FuncName), m_widthIp, h);
     } else {
         dc.DrawText(instr, m_widthIp, h);
     }
@@ -162,11 +158,11 @@ void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const Disassembler::Inst &inst, 
 }
 
 
-void CpuPanel::DrawJumpIcon( wxBufferedPaintDC &dc, const Disassembler::Inst &inst, int index )
+void CpuPanel::DrawJumpIcon( wxBufferedPaintDC &dc, const InstPtr inst, int index )
 {
-    if (inst.target == -1) return;
+    if (inst->Target == -1) return;
     int halfLine = m_lineHeight / 2;
-    int h = inst.target > inst.eip ? 1 : -1;
+    int h = inst->Target > inst->Eip ? 1 : -1;
     wxPoint pLeft(m_widthIp - 7 - h * 3, index * m_lineHeight + halfLine);
     wxPoint pRight(m_widthIp - 7 + h * 4, index * m_lineHeight + halfLine - h); 
     
@@ -194,11 +190,11 @@ void CpuPanel::DrawJumpLines( wxBufferedPaintDC &dc, int istart, int iend )
     }
 
     // draw current selected line jump
-    if (m_currSelIndex != -1 && m_insts[m_currSelEip].target != -1) {
+    if (m_currSelIndex != -1 && m_insts->GetInst(m_currSelEip)->Target != -1) {
         int rindex = -1; //m_eipIndex[m_insts[m_currSelEip].target];
-        auto iter = m_eipIndex.find(m_insts[m_currSelEip].target);
-        if (iter != m_eipIndex.end()) {
-            rindex = iter->second;
+        //auto iter = m_eipIndex.find(m_insts->GetInst(m_currSelEip)->Target);
+        if (m_insts->Contains(m_currSelEip)) {
+            rindex = m_insts->GetInst(m_currSelEip)->Index;
         }
         if (rindex != -1 && IntersectAbs(rindex, m_currSelIndex, istart, iend)) {
             int x0 = m_widthIp - 3, x1 = x0 - 4;
@@ -211,11 +207,11 @@ void CpuPanel::DrawJumpLines( wxBufferedPaintDC &dc, int istart, int iend )
         }
     }
 
-    if (m_currIndex != -1 && m_insts[m_currEip].target != -1) {
+    if (m_currIndex != -1 && m_insts->GetInst(m_currEip)->Target != -1) {
         int rindex = -1;
-        auto iter = m_eipIndex.find(m_insts[m_currEip].target);
-        if (iter != m_eipIndex.end()) {
-            rindex = iter->second;
+        //auto iter = m_eipIndex.find(m_insts->GetInst(m_currEip)->Target);
+        if (m_insts->Contains(m_currEip)) {
+            rindex = m_insts->GetInst(m_currEip)->Index;
         }
         if (rindex != -1 && IntersectAbs(rindex, m_currIndex, istart, iend)) {
             int x0 = m_widthIp - 3, x1 = x0 - 4;
@@ -229,31 +225,39 @@ void CpuPanel::DrawJumpLines( wxBufferedPaintDC &dc, int istart, int iend )
     }
 }
 
-void CpuPanel::OnDataUpdate( const Disassembler::InstDisasmMap *insts )
+void CpuPanel::OnDataUpdate( const InstSection *insts )
 {
     {
         MutexCSLock lock(*m_mutex);
-        m_insts = *insts;
+        m_insts = insts;
 
-        m_eipIndex.clear();
-        m_indexEip.clear();
-        int index = 0;
-        for (auto &inst : m_insts) {
-            m_eipIndex[inst.first] = index++;
-            m_indexEip.push_back(inst.first);
-        }
+        m_insts->Lock();
+
+//         m_eipIndex.clear();
+//         m_indexEip.clear();
+//         int index = 0;
+//         for (InstPtr *inst = m_insts->Begin(); inst != m_insts->End(); inst = m_insts->Next(inst)) {
+//             m_eipIndex[(*inst)->Eip] = index++;
+//             m_indexEip.push_back((*inst)->Eip);
+//         }
+
+//         for (auto &inst : m_insts) {
+//             m_eipIndex[inst.first] = index++;
+//             m_indexEip.push_back(inst.first);
+//         }
 
         m_procEntryEnd.clear();
-        index = -1;
+        int index = -1;
         int prevIndex = -1, prevRindex = -1;
-        for (auto &inst : m_insts) {
+        for (InstPtr *inst = m_insts->Begin(); inst != m_insts->End(); inst = m_insts->Next(inst)) {
             ++index;
-            u32 entry   = inst.second.entry;
+            u32 entry   = (*inst)->Entry;
             if (entry == -1) continue;
-            if (entry >= inst.second.eip) continue;
-            auto riter  = m_eipIndex.find(entry);
-            Assert(riter != m_eipIndex.end());
-            int rindex  = riter->second;
+            if (entry >= (*inst)->Eip) continue;
+            //auto riter  = m_eipIndex.find(entry);
+            //Assert(riter != m_eipIndex.end());
+            Assert(m_insts->GetInst(entry));
+            int rindex  = m_insts->GetInst(entry)->Index;
             m_procEntryEnd[rindex] = index;
             //             if (prevRindex != -1 && prevIndex >= rindex) {
             //                 m_procEntryEnd[prevRindex] = rindex - 1;
@@ -261,23 +265,26 @@ void CpuPanel::OnDataUpdate( const Disassembler::InstDisasmMap *insts )
             prevIndex   = index;
             prevRindex  = rindex;
         }
+
+        m_insts->Release();
     }
 
     m_currSelIndex  = -1;
     m_currSelEip    = 0;
-    m_height = m_lineHeight * insts->size();
+    m_height = m_lineHeight * insts->GetCount();
     SetVirtualSize(m_width, m_height);
     //Refresh();
 }
 
 void CpuPanel::OnPtrChange( u32 addr )
 {
-    auto iter = m_eipIndex.find(addr);
-    if (iter == m_eipIndex.end()) {
-        LxFatal("Cannot find index in GUI CpuPanel::EipIndex\n");
-    }
-    m_currIndex = iter->second;
-    m_currEip   = m_indexEip[m_currIndex];
+//     auto iter = m_eipIndex.find(addr);
+//     if (iter == m_eipIndex.end()) {
+//         LxFatal("Cannot find index in GUI CpuPanel::EipIndex\n");
+//     }
+    Assert(m_insts->GetInst(addr));
+    m_currIndex = m_insts->GetInst(addr)->Index;
+    m_currEip   = addr;
     //Scroll(0, m_currIndex);
 
     wxPoint p = GetViewStart();
@@ -298,7 +305,7 @@ void CpuPanel::OnLeftDown( wxMouseEvent& event )
     wxPoint p       = event.GetPosition();
     wxPoint ps      = GetViewStart();
     m_currSelIndex  = ps.y + p.y / m_lineHeight;
-    m_currSelEip    = m_indexEip[m_currSelIndex];
+    m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex); //m_indexEip[m_currSelIndex];
     m_isLeftDown    = true;
 
     Refresh();
@@ -317,7 +324,7 @@ void CpuPanel::OnMouseMove( wxMouseEvent& event )
     int selIndex    = ps.y + p.y / m_lineHeight;
     if (selIndex != m_currSelIndex) {
         m_currSelIndex  = selIndex;
-        m_currSelEip    = m_indexEip[m_currSelIndex];
+        m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex); //m_indexEip[m_currSelIndex];
         Refresh();
     }
 }

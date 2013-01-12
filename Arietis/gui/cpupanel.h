@@ -14,25 +14,20 @@ public:
     CpuPanel(wxWindow *parent);
     ~CpuPanel();
 
-//     void        OnInstDisasm(const Disassembler::InstVector &insts);
     void        OnPtrChange(u32 addr);
-    void        OnDataUpdate(const Disassembler::InstDisasmMap *insts);
-    //void        OnPreExecute(const Processor *cpu, const Instruction *inst);
-
+    void        OnDataUpdate(const InstSection *insts);
 
     void        OnLeftDown(wxMouseEvent& event);
     void        OnLeftUp(wxMouseEvent& event);
     void        OnRightDown(wxMouseEvent& event);
     void        OnMouseLeave(wxMouseEvent& event);
     void        OnMouseMove(wxMouseEvent& event);
-    //wxCoord     OnGetRowHeight(size_t row) const override;
-    //wxCoord     OnGetColumnWidth(size_t column) const override;
 private:
     void        InitLogic();
     void        InitRender();
     void        Draw(wxBufferedPaintDC &dc) override;
-    void        DrawInst(wxBufferedPaintDC &dc, const Disassembler::Inst &inst, int index);
-    void        DrawJumpIcon(wxBufferedPaintDC &dc, const Disassembler::Inst &inst, int index);
+    void        DrawInst(wxBufferedPaintDC &dc, const InstPtr inst, int index);
+    void        DrawJumpIcon(wxBufferedPaintDC &dc, const InstPtr inst, int index);
     void        DrawJumpLines(wxBufferedPaintDC &dc, int istart, int iend);
     wxPoint     GetCurrentScrolledPos() const;
     int         CalcJumpLineWidth(int idx1, int idx2) const;
@@ -61,9 +56,9 @@ private:
     wxColour    m_callRetColor;
     wxColour    m_jumpColor;
 
-    Disassembler::InstDisasmMap     m_insts;
-    std::map<u32, int>      m_eipIndex;
-    std::vector<u32>        m_indexEip;
+    const InstSection *     m_insts;
+    //std::map<u32, int>      m_eipIndex;
+    //std::vector<u32>        m_indexEip;
     std::map<int, int>      m_procEntryEnd;
     MutexCS *   m_mutex;
     //wxListCtrl  *   m_list;

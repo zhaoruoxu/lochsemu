@@ -17,15 +17,15 @@ void LX_API LochsDebuggingRoutine()
 //     LxInfo("context: %d  %x\n", sizeof(CONTEXT), sizeof(CONTEXT));
 
 
-//     LxInfo("sizeof(Instruction) = %d\n", sizeof(Instruction));
-//     LxInfo("sizeof(UIntPtr) = %d\n", sizeof(UIntPtr));
-//     LxInfo("sizeof(DISASM) = %d\n", sizeof(DISASM));
-//     LxInfo("sizeof(INSTRUCTION) = %d\n", sizeof(INSTRUCTION));
-//     LxInfo("sizeof(INSTRTYPE) = %d\n", sizeof(INSTRTYPE));
-//     LxInfo("sizeof(ARGTYPE) = %d\n", sizeof(ARGTYPE));
-//     LxInfo("sizeof(PREFIXINFO) = %d\n", sizeof(PREFIXINFO));
-//     LxInfo("sizeof(INST) = %d\n", sizeof(INST));
-//     LxInfo("sizeof(OPERAND) = %d\n", sizeof(OPERAND));
+    LxInfo("sizeof(Instruction) = %d\n", sizeof(Instruction));
+    LxInfo("sizeof(UIntPtr) = %d\n", sizeof(UIntPtr));
+    LxInfo("sizeof(DISASM) = %d\n", sizeof(DISASM));
+    LxInfo("sizeof(INSTRUCTION) = %d\n", sizeof(INSTRUCTION));
+    LxInfo("sizeof(INSTRTYPE) = %d\n", sizeof(INSTRTYPE));
+    LxInfo("sizeof(ARGTYPE) = %d\n", sizeof(ARGTYPE));
+    LxInfo("sizeof(PREFIXINFO) = %d\n", sizeof(PREFIXINFO));
+    LxInfo("sizeof(INST) = %d\n", sizeof(INST));
+    LxInfo("sizeof(OPERAND) = %d\n", sizeof(OPERAND));
 }
 
 END_NAMESPACE_LOCHSEMU()

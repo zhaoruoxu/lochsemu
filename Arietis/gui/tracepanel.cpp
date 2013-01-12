@@ -83,9 +83,9 @@ void TracePanel::DrawTrace( wxBufferedPaintDC &dc, const ATracer::Trace &trace, 
     dc.SetPen(*wxBLACK_PEN);
 
     int w = 0;
-    dc.DrawText(wxString::Format("%08X", trace.inst.eip), w, h);
+    dc.DrawText(wxString::Format("%08X", trace.inst->Eip), w, h);
     w += m_widthIp;
-    dc.DrawText(trace.inst.ptr->Main.CompleteInstr, w, h);
+    dc.DrawText(trace.inst->Main.CompleteInstr, w, h);
 }
 
 void TracePanel::UpdateData()

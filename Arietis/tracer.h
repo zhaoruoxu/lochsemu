@@ -12,11 +12,14 @@ public:
     struct Trace {
         static const int RegCount = 8;
         u32     regs[RegCount];
-        Disassembler::Inst inst;
+        InstPtr inst;
         i64     seq;
 
-        Trace(): seq(-1) {}
-        Trace(const Disassembler::Inst &i, const Processor *cpu, i64 seq);
+        Trace(): seq(-1), inst(NULL) {}
+        Trace(InstPtr i, const Processor *cpu, i64 seq);
+
+//         Trace(const Trace &t);
+//         Trace &operator=(const Trace &t);
     };
 
     typedef std::vector<Trace>      TraceVec;

@@ -59,20 +59,22 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
     dc.DrawText(wxString::Format("----  %s  ----", m_dataDesc), 0, 0);
     h += m_lineHeight;
 
-    if (m_data.inst.ptr) {
-        dc.DrawText("Disassembly:", 0, h);
-        h += m_lineHeight;
-        dc.DrawText(wxString::Format("[ %s ]", m_data.inst.ptr->Main.CompleteInstr), 0, h);
-        h += m_lineHeight;
-    }   
-    if (m_data.inst.entry != -1) {
-        dc.DrawText(wxString::Format("Entry: %08X", m_data.inst.entry), 0, h);
-        h += m_lineHeight;
-    }
-    if (m_data.inst.target != -1) {
-        dc.DrawText(wxString::Format("Target: %08X", m_data.inst.target), 0, h);
+    if (!m_data.inst) return;
+
+    dc.DrawText("Disassembly:", 0, h);
+    h += m_lineHeight;
+    dc.DrawText(wxString::Format("[ %s ]", m_data.inst->Main.CompleteInstr), 0, h);
+    h += m_lineHeight;
+
+    if (m_data.inst->Entry != -1) {
+        dc.DrawText(wxString::Format("Entry: %08X", m_data.inst->Entry), 0, h);
         h += m_lineHeight;
     }
+    if (m_data.inst->Target != -1) {
+        dc.DrawText(wxString::Format("Target: %08X", m_data.inst->Target), 0, h);
+        h += m_lineHeight;
+    }
+
     h += m_lineHeight;
 
     wxString mod = wxString::Format("Module [%s] at %08X", m_data.moduleName, m_data.moduleImageBase);
@@ -84,16 +86,18 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
         dc.DrawText(wxString::Format("%08X", m_data.regs[i]), m_widthRegName, h);
         h += m_lineHeight;
     }
+
+
     h += m_lineHeight;
     dc.DrawText("Eip", 0, h);
-    dc.DrawText(wxString::Format("%08X", m_data.inst.eip), m_widthRegName, h);
+    dc.DrawText(wxString::Format("%08X", m_data.inst->Eip), m_widthRegName, h);
     h += m_lineHeight * 2;
-    
+
     dc.DrawText("  TE MO RE SE", m_widthRegName, h);
     h += m_lineHeight;
 
-    if (m_data.inst.ptr) {
-        u8p pFlag = (u8p) &m_data.inst.ptr->Main.Inst.Flags;
+    if (m_data.inst) {
+        u8p pFlag = (u8p) &m_data.inst->Main.Inst.Flags;
         for (int i = 0; i < InstContext::FlagCount; i++) {
             dc.DrawText(wxString::Format(" %s", InstContext::FlagNames[i]), 0, h);
             wxString flag = wxString::Format("%d  %d  %d  %d  %d", m_data.flags[i],

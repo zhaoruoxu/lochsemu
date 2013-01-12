@@ -12,6 +12,7 @@
 #endif
 
 #include "pluginapi.h"
+#include "json/json.h"
 
 static const uint ArietisVersion = 0x20121221;
 
@@ -23,8 +24,9 @@ ARIETIS_API void LochsEmu_Winapi_PostCall           (Processor *cpu, uint apiInd
 ARIETIS_API void LochsEmu_Processor_PreExecute(Processor *cpu, const Instruction *inst);
 ARIETIS_API void LochsEmu_Processor_PostExecute(Processor *cpu, const Instruction *inst);
 ARIETIS_API void LochsEmu_Process_PreRun            (const Process *proc, Processor *cpu);
+ARIETIS_API void LochsEmu_Process_PostLoad           (PeLoader *loader);
 
-
+typedef Json::Value     AArchive;
 
 class Mutex;
 class Semaphore;
@@ -37,9 +39,9 @@ class ATracer;
 
 extern HMODULE          g_module;
 extern Config           g_config;
-extern AEngine    g_engine;
+extern AEngine          g_engine;
 extern Semaphore        g_guiSem;
-
+extern AArchive         g_archive;
 
 #endif // __ARIETIS_ARIETIS_H__
 

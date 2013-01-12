@@ -7,6 +7,7 @@
 
 #include "instruction.h"
 #include "processor.h"
+#include "buildver.h"
 
 AEngine::AEngine() : m_debugger(this), m_tracer(this)
 {
@@ -15,11 +16,12 @@ AEngine::AEngine() : m_debugger(this), m_tracer(this)
 
 AEngine::~AEngine()
 {
-
+    //Persist();
 }
 
 void AEngine::Initialize()
 {
+    Intro();
     m_debugger.Initialize();
     m_tracerEnabled = g_config.GetInt("Tracer", "EnableOnStart", 1) != 0;
     m_currEip       = 0;
@@ -30,7 +32,7 @@ void AEngine::Initialize()
 
 void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 {
-
+    //m_archive[cpu->EIP] = Json::Value(inst->Main.CompleteInstr);
     m_currEip = cpu->EIP;
     
     m_disassembler.OnPreExecute(cpu, inst);
@@ -38,6 +40,8 @@ void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
     
     //m_gui->GetCpuPanel()->OnPreExecute(cpu, inst);
     m_debugger.OnPreExecute(cpu, inst);
+
+    
 }
 
 void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
@@ -51,10 +55,29 @@ void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
     }
 }
 
+void AEngine::OnProcessPostLoad( const PeLoader *loader )
+{
+//     std::string dir = LxGetModuleDirectory(g_module);
+//     m_archiveFilePath = dir + loader->GetModuleInfo(0)->Name + ".json";
+//     if (LxFileExists(m_archiveFilePath.c_str())) {
+//         Json::Reader reader;
+//         std::ifstream fin(m_archiveFilePath.c_str());
+//         if (!reader.parse(fin, m_archive)) {
+//             LxFatal("Error parsing archive file %s\n", m_archiveFilePath.c_str());
+//         }
+//     }
+}
+
+// void AEngine::Persist()
+// {
+//     std::ofstream fout(m_archiveFilePath, std::ios_base::out | std::ios_base::trunc);
+//     fout << m_archive;
+// }
+
 void AEngine::SetGuiFrame( ArietisFrame *frame )
 {
     m_gui = frame;
-    m_disassembler.RegisterDataUpdateHandler([this](const Disassembler::InstDisasmMap *insts) {
+    m_disassembler.RegisterDataUpdateHandler([this](const InstSection *insts) {
         this->m_gui->GetCpuPanel()->OnDataUpdate(insts);
     });
     m_gui->GetTracePanel()->SetTracer(&m_tracer);
@@ -71,6 +94,8 @@ void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
 {
     m_mainEntryEntered = true;
     m_debugger.OnProcPreRun(proc, cpu);
+
+    //Persist();
 }
 
 InstContext AEngine::GetCurrentInstContext() const
@@ -84,6 +109,15 @@ InstContext AEngine::GetCurrentInstContext() const
 void AEngine::ReportBusy( bool isBusy )
 {
     m_gui->ReportBusy(isBusy);
+}
+
+void AEngine::Intro() const
+{
+    LxWarning("********************************************************\n");
+    LxWarning("\n");
+    LxWarning("        Arietis ver %x build %d\n", ArietisVersion, ARIETIS_BUILD_VERSION);
+    LxWarning("\n");
+    LxWarning("********************************************************\n");
 }
 
 const std::string InstContext::FlagNames[] = {

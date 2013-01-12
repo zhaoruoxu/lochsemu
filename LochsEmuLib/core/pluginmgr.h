@@ -23,6 +23,7 @@ struct LoadedPluginInfo {
     LochsEmu_Process_PreRun         ProcessPreRun;
     LochsEmu_Process_PostRun        ProcessPostRun;
     LochsEmu_Process_PreLoad        ProcessPreLoad;
+    LochsEmu_Process_PostLoad       ProcessPostLoad;
     LochsEmu_Winapi_PreCall         WinapiPreCall;
     LochsEmu_Winapi_PostCall        WinapiPostCall;
 
@@ -37,6 +38,7 @@ struct LoadedPluginInfo {
         ProcessPreRun               = NULL;
         ProcessPostRun              = NULL;
         ProcessPreLoad              = NULL;
+        ProcessPostLoad             = NULL;
         WinapiPreCall               = NULL;
         WinapiPostCall              = NULL;
     }
@@ -48,16 +50,17 @@ public:
     virtual ~PluginManager();
 
     LxResult        Initialize();
-    INLINE LxResult OnExit                  (void);
-    INLINE LxResult OnProcessorPreExecute   (Processor *cpu, const Instruction *inst);
-    INLINE LxResult OnProcessorPostExecute  (Processor *cpu, const Instruction *inst);
-    INLINE LxResult OnProcessorMemRead      (const Processor *cpu, u32 addr, u32 nBytes, cpbyte data);
-    INLINE LxResult OnProcessorMemWrite     (const Processor *cpu, u32 addr, u32 nBytes, cpbyte data);
-    INLINE LxResult OnProcessPreRun         (const Process *proc, Processor *cpu);
-    INLINE LxResult OnProcessPostRun        (const Process *proc);
-    INLINE LxResult OnProcessPreLoad        (PeLoader *loader);
-    INLINE LxResult OnWinapiPreCall         (Processor *cpu, uint apiIndex);
-    INLINE LxResult OnWinapiPostCall        (Processor *cpu, uint apiIndex);
+    LxResult OnExit                 (void);
+    LxResult OnProcessorPreExecute  (Processor *cpu, const Instruction *inst);
+    LxResult OnProcessorPostExecute (Processor *cpu, const Instruction *inst);
+    LxResult OnProcessorMemRead     (const Processor *cpu, u32 addr, u32 nBytes, cpbyte data);
+    LxResult OnProcessorMemWrite    (const Processor *cpu, u32 addr, u32 nBytes, cpbyte data);
+    LxResult OnProcessPreRun        (const Process *proc, Processor *cpu);
+    LxResult OnProcessPostRun       (const Process *proc);
+    LxResult OnProcessPreLoad       (PeLoader *loader);
+    LxResult OnProcessPostLoad      (PeLoader *loader);
+    LxResult OnWinapiPreCall        (Processor *cpu, uint apiIndex);
+    LxResult OnWinapiPostCall       (Processor *cpu, uint apiIndex);
 
 private:
     bool            FindPluginDirectory();
@@ -75,117 +78,6 @@ private:
     bool                m_enablePlugins;
 
 };
-
-INLINE LxResult 
-PluginManager::OnProcessorPreExecute( Processor *cpu, const Instruction *inst )
-{
-    if (!m_enablePlugins) RET_SUCCESS();
-    for (auto plugin : m_plugins) {
-        if (plugin.ProcessorPreExecute)
-            plugin.ProcessorPreExecute(cpu, inst);
-    }
-    RET_SUCCESS();
-}
-
-INLINE LxResult 
-PluginManager::OnProcessorPostExecute( Processor *cpu, const Instruction *inst )
-{
-    if (!m_enablePlugins) RET_SUCCESS();
-    for (auto plugin : m_plugins) {
-        if (plugin.ProcessorPostExecute)
-            plugin.ProcessorPostExecute(cpu, inst);
-    }
-    RET_SUCCESS();
-}
-
-INLINE LxResult 
-PluginManager::OnProcessorMemRead( const Processor *cpu, u32 addr, u32 nBytes, cpbyte data )
-{
-    if (!m_enablePlugins) RET_SUCCESS();
-    for (auto plugin : m_plugins) {
-        if (plugin.ProcessorMemRead)
-            plugin.ProcessorMemRead(cpu, addr, nBytes, data);
-    }
-    RET_SUCCESS();
-}
-
-INLINE LxResult 
-PluginManager::OnProcessorMemWrite( const Processor *cpu, u32 addr, u32 nBytes, cpbyte data)
-{
-    if (!m_enablePlugins) RET_SUCCESS();
-    for (auto plugin : m_plugins) {
-        if (plugin.ProcessorMemWrite)
-            plugin.ProcessorMemWrite(cpu, addr, nBytes, data);
-    }
-    RET_SUCCESS();
-}
-
-INLINE LxResult 
-PluginManager::OnExit( void )
-{
-    if (!m_enablePlugins) RET_SUCCESS();
-    for (auto plugin : m_plugins) {
-        if (plugin.Cleanup)
-            plugin.Cleanup();
-    }
-    RET_SUCCESS();
-}
-
-INLINE LxResult 
-PluginManager::OnProcessPreRun( const Process *proc, Processor *cpu )
-{
-    if (!m_enablePlugins) RET_SUCCESS();
-    for (auto plugin : m_plugins) {
-        if (plugin.ProcessPreRun)
-            plugin.ProcessPreRun(proc, cpu);
-    }
-    RET_SUCCESS();
-}
-
-INLINE LxResult 
-PluginManager::OnProcessPostRun( const Process *proc )
-{
-    if (!m_enablePlugins) RET_SUCCESS();
-    for (auto plugin : m_plugins) {
-        if (plugin.ProcessPostRun)
-            plugin.ProcessPostRun(proc);
-    }
-    RET_SUCCESS();
-}
-
-INLINE LxResult 
-PluginManager::OnProcessPreLoad( PeLoader *loader )
-{
-    if (!m_enablePlugins) RET_SUCCESS();
-    for (auto plugin : m_plugins) {
-        if (plugin.ProcessPreLoad)
-            plugin.ProcessPreLoad(loader);
-    }
-    RET_SUCCESS();
-}
-
-
-INLINE LxResult 
-PluginManager::OnWinapiPreCall( Processor *cpu, uint apiIndex )
-{
-    if (!m_enablePlugins) RET_SUCCESS();
-    for (auto plugin : m_plugins) {
-        if (plugin.WinapiPreCall)
-            plugin.WinapiPreCall(cpu, apiIndex);
-    }
-    RET_SUCCESS();
-}
-
-INLINE LxResult 
-PluginManager::OnWinapiPostCall( Processor *cpu, uint apiIndex )
-{
-    if (!m_enablePlugins) RET_SUCCESS();
-    for (auto plugin : m_plugins) {
-        if (plugin.WinapiPostCall)
-            plugin.WinapiPostCall(cpu, apiIndex);
-    }
-    RET_SUCCESS();
-}
 
 END_NAMESPACE_LOCHSEMU()
 

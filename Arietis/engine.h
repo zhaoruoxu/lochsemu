@@ -19,7 +19,14 @@ struct InstContext {
     std::string         moduleName;
     u32                 moduleImageBase;
 
-    Disassembler::Inst  inst;
+    InstPtr             inst;
+
+    InstContext() {
+        ZeroMemory(regs, sizeof(regs));
+        ZeroMemory(flags, sizeof(flags));
+        moduleImageBase = 0;
+        inst            = NULL;
+    }
 };
 
 class AEngine {
@@ -35,26 +42,35 @@ public:
     void            OnPreExecute(Processor *cpu, const Instruction *inst);
     void            OnPostExecute(Processor *cpu, const Instruction *inst);
     void            OnProcessPreRun(const Process *proc, const Processor *cpu);
+    void            OnProcessPostLoad(const PeLoader *loader);
 
     ADebugger *     GetDebugger() { return &m_debugger; }
     ATracer *       GetTracer() { return &m_tracer; }
     Disassembler *  GetDisassembler() { return &m_disassembler; }
+    //AArchive &      GetArchive() { return m_archive; }
     InstContext     GetCurrentInstContext() const;
     void            EnableTracer(bool isEnabled) { m_tracerEnabled = isEnabled; }
+    //void            Persist();
 
     void            ReportBusy(bool isBusy);
     
+private:
+    void            Intro() const;
+
 private:
     ADebugger       m_debugger;
     ATracer         m_tracer;
     Disassembler    m_disassembler;
     ArietisFrame *  m_gui;
+    //AArchive        m_archive;
     u32             m_currEip;
     i64             m_totalExecuted;
 
     bool            m_tracerEnabled;
     bool            m_skipDllEntries;
     bool            m_mainEntryEntered;
+
+    //std::string     m_archiveFilePath;
 };
 
 #endif // __ARIETIS_ENGINE_H__
