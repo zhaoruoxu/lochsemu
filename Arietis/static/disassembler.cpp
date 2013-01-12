@@ -148,9 +148,9 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
     bool update = false;
     
     if (!instSec->Contains(eip)) {
-        LxDebug("Disassembling %08x...\n", eip);
-        RecursiveDisassemble(0, cpu, eip, instSec, eip);
-        LxDebug("Disassemble complete, count = %d\n", instSec->GetCount());
+        LxInfo("Disassembling %08x...\n", eip);
+        RecursiveDisassemble(cpu, eip, instSec, eip);
+        LxInfo("Disassemble complete, count = %d\n", instSec->GetCount());
         instSec->UpdateIndices();
         update = true;
     }
@@ -163,12 +163,10 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
     m_lastSec = sec;
 }
 
-void Disassembler::RecursiveDisassemble( int depth, const Processor *cpu, u32 eip, InstSection *sec, u32 entryEip )
+void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, InstSection *sec, u32 entryEip )
 {
     Assert(sec);
     Assert(entryEip != 0);
-
-    if (depth >= MaxRecursiveDepth) return;
 
     while (true) {
         Assert(sec->IsInRange(eip));
@@ -192,7 +190,7 @@ void Disassembler::RecursiveDisassemble( int depth, const Processor *cpu, u32 ei
                 if (s != NULL) {
                     u32 nextEntry = Instruction::IsCall(inst) ? addrValue : entryEip;
                     InstSection *jumpSec = m_instMem.CreateSection(s->Base(), s->Size());
-                    RecursiveDisassemble(depth + 1, cpu, addrValue, jumpSec, nextEntry);
+                    RecursiveDisassemble(cpu, addrValue, jumpSec, nextEntry);
                 }
             }
         }
@@ -223,7 +221,7 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *se
         Section *sect = cpu->Mem->GetSection(target);
         if (sect) {
             InstSection *callSec = m_instMem.CreateSection(sect->Base(), sect->Size());
-            RecursiveDisassemble(0, cpu, target, callSec, target);
+            RecursiveDisassemble(cpu, target, callSec, target);
 
             InstPtr instCalled = callSec->GetInst(target);
             Assert(instCalled != NULL);

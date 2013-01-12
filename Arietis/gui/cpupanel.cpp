@@ -30,7 +30,6 @@ CpuPanel::~CpuPanel()
 
 void CpuPanel::InitLogic()
 {
-    //std::make_heap(m_instVector.begin(), m_instVector.end(), InstCmp);
 }
 
 void CpuPanel::InitRender()
@@ -189,8 +188,9 @@ void CpuPanel::DrawJumpLines( wxBufferedPaintDC &dc, int istart, int iend )
     // draw current selected line jump
     if (m_currSelIndex != -1 && m_insts->GetInst(m_currSelEip)->Target != -1) {
         int rindex = -1; 
-        if (m_insts->Contains(m_currSelEip)) {
-            rindex = m_insts->GetInst(m_currSelEip)->Index;
+        u32 target = m_insts->GetInst(m_currSelEip)->Target;
+        if (m_insts->IsInRange(target)) {
+            rindex = m_insts->GetInst(target)->Index;
         }
         if (rindex != -1 && IntersectAbs(rindex, m_currSelIndex, istart, iend)) {
             int x0 = m_widthIp - 3, x1 = x0 - 4;
@@ -205,9 +205,9 @@ void CpuPanel::DrawJumpLines( wxBufferedPaintDC &dc, int istart, int iend )
 
     if (m_currIndex != -1 && m_insts->GetInst(m_currEip)->Target != -1) {
         int rindex = -1;
-        //auto iter = m_eipIndex.find(m_insts->GetInst(m_currEip)->Target);
-        if (m_insts->Contains(m_currEip)) {
-            rindex = m_insts->GetInst(m_currEip)->Index;
+        u32 target = m_insts->GetInst(m_currEip)->Target;
+        if (m_insts->IsInRange(target)) {
+            rindex = m_insts->GetInst(target)->Index;
         }
         if (rindex != -1 && IntersectAbs(rindex, m_currIndex, istart, iend)) {
             int x0 = m_widthIp - 3, x1 = x0 - 4;
@@ -250,7 +250,7 @@ void CpuPanel::OnDataUpdate( const InstSection *insts )
     m_currSelEip    = 0;
     m_height = m_lineHeight * insts->GetCount();
     SetVirtualSize(m_width, m_height);
-    //Refresh();
+    Refresh();
 }
 
 void CpuPanel::OnPtrChange( u32 addr )
