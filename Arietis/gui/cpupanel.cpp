@@ -229,15 +229,15 @@ void CpuPanel::OnDataUpdate( const InstSection *insts )
         m_insts->Lock();
 
         m_procEntryEnd.clear();
-        int index = -1;
         int prevIndex = -1, prevRindex = -1;
         for (InstPtr *inst = m_insts->Begin(); inst != m_insts->End(); inst = m_insts->Next(inst)) {
-            ++index;
+            int index = (*inst)->Index;
             u32 entry   = (*inst)->Entry;
             if (entry == -1) continue;
             if (entry >= (*inst)->Eip) continue;
             Assert(m_insts->GetInst(entry));
             int rindex  = m_insts->GetInst(entry)->Index;
+            rindex = max(prevIndex+1, rindex);
             m_procEntryEnd[rindex] = index;
             prevIndex   = index;
             prevRindex  = rindex;
@@ -250,7 +250,7 @@ void CpuPanel::OnDataUpdate( const InstSection *insts )
     m_currSelEip    = 0;
     m_height = m_lineHeight * insts->GetCount();
     SetVirtualSize(m_width, m_height);
-    Refresh();
+    //Refresh();
 }
 
 void CpuPanel::OnPtrChange( u32 addr )

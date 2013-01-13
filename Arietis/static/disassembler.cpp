@@ -110,6 +110,7 @@ InstSection * InstMem::AddSection( u32 base, u32 size )
 {
     InstSection *sec = new InstSection(m_pool, m_mutex, base, size);
     for (uint i = PAGE_NUM(base); i < PAGE_NUM(base + size); i++) {
+        Assert(m_pagetable[i] == NULL);
         m_pagetable[i] = sec;
     }
     return sec;

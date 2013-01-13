@@ -17,7 +17,7 @@
 ArietisFrame::ArietisFrame(AEngine *engine)
     : m_engine(engine), wxFrame(NULL, wxID_ANY, 
     wxString::Format("Arietis %x build %d", ArietisVersion, ARIETIS_BUILD_VERSION), 
-    wxDefaultPosition, wxSize(1000, 800), wxDEFAULT_FRAME_STYLE), 
+    wxDefaultPosition, wxSize(1000, 1000), wxDEFAULT_FRAME_STYLE), 
     m_statusTimer(this, ID_StatusTimer)
 {
     InitMisc();
@@ -114,7 +114,7 @@ void ArietisFrame::InitMenu()
 
 void ArietisFrame::InitStatusBar()
 {
-    static const int Widths[] = { -1, 40, 70, 80, 75 };
+    static const int Widths[] = { -1, 40, 70, 100, 75 };
     m_statusbar = CreateStatusBar(_countof(Widths));
     m_statusbar->SetStatusWidths(_countof(Widths), Widths);
 //     m_statusbar->SetStatusText("0", 0);
