@@ -162,6 +162,11 @@ struct  SectionDesc;
 class   PluginManager;
 class   Config;
 class   ExceptionManager;
+class   Mutex;
+class   MutexCS;
+class   MutexCSLock;
+class   Semaphore;
+
 
 enum LxResult : uint {
     LX_RESULT_SUCCESS = 0,

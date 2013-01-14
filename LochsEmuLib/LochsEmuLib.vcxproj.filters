@@ -345,6 +345,9 @@
     <ClCompile Include="core\instruction.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>
+    <ClCompile Include="common\parallel.cpp">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\callback.h">
@@ -447,6 +450,9 @@
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\targetver.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\parallel.h">
       <Filter>Header Files\common</Filter>
     </ClInclude>
   </ItemGroup>

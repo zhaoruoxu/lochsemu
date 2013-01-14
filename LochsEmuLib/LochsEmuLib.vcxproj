@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="common\parallel.cpp" />
     <ClCompile Include="core\instruction.cpp" />
     <ClCompile Include="cpu\cmpxchg.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -242,6 +243,7 @@
     <ClCompile Include="winapi\ws2_32.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common\parallel.h" />
     <ClInclude Include="core\callback.h" />
     <ClInclude Include="core\coprocessor.h" />
     <ClInclude Include="core\debug.h" />

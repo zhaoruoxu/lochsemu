@@ -105,9 +105,6 @@
     <ClInclude Include="utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="parallel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="debugger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -174,9 +171,6 @@
       <Filter>Source Files\gui</Filter>
     </ClCompile>
     <ClCompile Include="utilities.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="parallel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="debugger.cpp">

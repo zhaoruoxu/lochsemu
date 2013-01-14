@@ -28,10 +28,6 @@ ARIETIS_API void LochsEmu_Process_PostLoad           (PeLoader *loader);
 
 typedef Json::Value     AArchive;
 
-class Mutex;
-class Semaphore;
-class MutexCS;
-class MutexCSLock;
 class AEngine;
 class ADebugger;
 struct InstContext;

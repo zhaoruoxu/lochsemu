@@ -18,6 +18,7 @@ public:
     ContextPanel *          GetRegPanel() const { return m_contextPanel; }
     CompositeTracePanel *   GetTracePanel() const { return m_tracePanel; }
     void    ReportBusy(bool isBusy);
+    void    OnProcessLoaded(LPCSTR path);
 private:
     void    OnExit(wxCommandEvent &event);
     void    OnAbout(wxCommandEvent &event);
@@ -36,6 +37,8 @@ private:
     void    OnToggleBreakpoint(wxCommandEvent &event);
 
     void    OnStatusTimer(wxTimerEvent &event);
+
+    
 private:
     void    InitMisc();
     void    InitUI();

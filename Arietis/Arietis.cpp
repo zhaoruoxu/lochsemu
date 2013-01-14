@@ -32,7 +32,7 @@ ARIETIS_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, P
         LxInfo("Arietis is disabled\n");
         return false;
     }
-    g_engine.Initialize();
+    g_engine.Initialize(lochsemu->Emulator);
 
     RunGUI();
 

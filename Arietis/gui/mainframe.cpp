@@ -25,6 +25,7 @@ ArietisFrame::ArietisFrame(AEngine *engine)
 
     m_engine->SetGuiFrame(this);
     NotifyMainThread();
+
 }
 
 ArietisFrame::~ArietisFrame()
@@ -238,5 +239,10 @@ void ArietisFrame::PreExecSingleStepCallback( const Processor *cpu, const Instru
 void ArietisFrame::ReportBusy( bool isBusy )
 {
     m_statusbar->SetStatusText(isBusy ? "Busy" : "", 1);
+}
+
+void ArietisFrame::OnProcessLoaded( LPCSTR path )
+{
+    m_statusbar->SetStatusText(path, 0);
 }
 

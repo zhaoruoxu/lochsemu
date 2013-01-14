@@ -11,7 +11,7 @@
 
 AEngine::AEngine() : m_debugger(this), m_tracer(this)
 {
-
+    m_emulator  = NULL;
 }
 
 AEngine::~AEngine()
@@ -19,9 +19,10 @@ AEngine::~AEngine()
     //Persist();
 }
 
-void AEngine::Initialize()
+void AEngine::Initialize(Emulator *emu)
 {
     Intro();
+    m_emulator      = emu;
     m_debugger.Initialize();
     m_tracerEnabled = g_config.GetInt("Tracer", "EnableOnStart", 1) != 0;
     m_currEip       = 0;
@@ -66,6 +67,7 @@ void AEngine::OnProcessPostLoad( const PeLoader *loader )
 //             LxFatal("Error parsing archive file %s\n", m_archiveFilePath.c_str());
 //         }
 //     }
+    m_gui->OnProcessLoaded(m_emulator->Path());
 }
 
 // void AEngine::Persist()

@@ -149,9 +149,9 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
     bool update = false;
     
     if (!instSec->Contains(eip)) {
-        LxInfo("Disassembling %08x...\n", eip);
+        LxDebug("Disassembling %08x...\n", eip);
         RecursiveDisassemble(cpu, eip, instSec, eip);
-        LxInfo("Disassemble complete, count = %d\n", instSec->GetCount());
+        LxDebug("Disassemble complete, count = %d\n", instSec->GetCount());
         instSec->UpdateIndices();
         update = true;
     }

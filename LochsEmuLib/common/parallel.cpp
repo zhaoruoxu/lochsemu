@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "parallel.h"
 
+BEGIN_NAMESPACE_LOCHSEMU()
 
 Mutex::Mutex( bool initialOwner )
 {
@@ -86,3 +87,6 @@ MutexCSLock::~MutexCSLock()
 {
     LeaveCriticalSection(&m_mutex.m_criticalSection);
 }
+
+
+END_NAMESPACE_LOCHSEMU()

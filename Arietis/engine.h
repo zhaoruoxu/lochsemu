@@ -34,7 +34,7 @@ public:
     AEngine();
     ~AEngine();
 
-    void            Initialize();
+    void            Initialize(Emulator *emu);
 
     void            SetGuiFrame(ArietisFrame *frame);
     ArietisFrame *  GetGUI() const { Assert(m_gui); return m_gui; }
@@ -44,6 +44,7 @@ public:
     void            OnProcessPreRun(const Process *proc, const Processor *cpu);
     void            OnProcessPostLoad(const PeLoader *loader);
 
+    Emulator *      GetEmulator() { return m_emulator; }
     ADebugger *     GetDebugger() { return &m_debugger; }
     ATracer *       GetTracer() { return &m_tracer; }
     Disassembler *  GetDisassembler() { return &m_disassembler; }
@@ -58,6 +59,8 @@ private:
     void            Intro() const;
 
 private:
+    Emulator *      m_emulator;
+
     ADebugger       m_debugger;
     ATracer         m_tracer;
     Disassembler    m_disassembler;
