@@ -5,6 +5,7 @@
 #include "cpupanel.h"
 #include "tracepanel.h"
 #include "contextpanel.h"
+#include "mempanel.h"
 
 #include "utilities.h"
 #include "engine.h"
@@ -52,11 +53,12 @@ void ArietisFrame::InitUI()
     m_cpuPanel      = new CpuPanel(this);
     m_contextPanel  = new ContextPanel(this);
     m_tracePanel    = new CompositeTracePanel(this);
-
+    m_memInfoPanel  = new MemInfoPanel(this);
     
     m_auiManager.AddPane(m_cpuPanel, wxAuiPaneInfo().Name("CPU").Caption("CPU").CenterPane());
     m_auiManager.AddPane(m_tracePanel, wxAuiPaneInfo().Name("Trace").Caption("Trace").Top());
     m_auiManager.AddPane(m_contextPanel, wxAuiPaneInfo().Name("Context").Caption("Context").Right());
+    m_auiManager.AddPane(m_memInfoPanel, wxAuiPaneInfo().Name("Sections").Caption("Sections").Bottom());
     
     m_auiManager.Update();
     m_defaultPerspective = m_auiManager.SavePerspective();
@@ -229,6 +231,7 @@ void ArietisFrame::PreExecSingleStepCallback( const Processor *cpu, const Instru
     m_contextPanel->UpdateData(m_engine->GetCurrentInstContext(), "Dynamic Execution");
     m_cpuPanel->OnPtrChange(cpu->EIP);
     m_tracePanel->UpdateData();
+    m_memInfoPanel->UpdateData(cpu->Emu(), cpu->Mem);
 }
 
 // void ArietisFrame::PostExecSingleStepCallback( const Processor *cpu, const Instruction *inst )

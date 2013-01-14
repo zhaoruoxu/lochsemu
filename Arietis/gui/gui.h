@@ -13,6 +13,7 @@ class ArietisFrame;
 class CpuPanel;
 class ContextPanel;
 class CompositeTracePanel;
+class MemInfoPanel;
 
 enum {
     /* view */

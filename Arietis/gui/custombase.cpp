@@ -36,3 +36,49 @@ void CustomScrolledControl::UpdateFont( const wxFont &font )
     m_lineHeight = dc.GetFontMetrics().height;
     SetScrollRate(1, m_lineHeight);
 }
+
+SelectableScrolledControl::SelectableScrolledControl( wxWindow *parent, const wxSize &size )
+    : CustomScrolledControl(parent, size)
+{
+    Bind(wxEVT_LEFT_DOWN,   &SelectableScrolledControl::OnLeftDown,     this, wxID_ANY);
+    Bind(wxEVT_LEFT_UP,     &SelectableScrolledControl::OnLeftUp,       this, wxID_ANY);
+    Bind(wxEVT_MOTION,      &SelectableScrolledControl::OnMouseMove,    this, wxID_ANY);
+    Bind(wxEVT_LEAVE_WINDOW,&SelectableScrolledControl::OnMouseLeave,   this, wxID_ANY);
+
+    m_currSelIndex  = -1;
+    m_isLeftDown    = false;
+}
+
+void SelectableScrolledControl::OnLeftDown( wxMouseEvent &event )
+{
+    wxPoint p       = event.GetPosition();
+    wxPoint ps      = GetViewStart();
+    m_currSelIndex  = ps.y + p.y / m_lineHeight;
+    m_isLeftDown    = true;
+
+    Refresh();
+    OnSelectionChange();
+}
+
+void SelectableScrolledControl::OnLeftUp( wxMouseEvent &event )
+{
+    m_isLeftDown    = false;
+}
+
+void SelectableScrolledControl::OnMouseMove( wxMouseEvent &event )
+{
+    if (!m_isLeftDown) return;
+    wxPoint p       = event.GetPosition();
+    wxPoint ps      = GetViewStart();
+    int index       = ps.y + p.y / m_lineHeight;
+    if (index != m_currSelIndex) {
+        m_currSelIndex = index;
+        Refresh();
+        OnSelectionChange();
+    }
+}
+
+void SelectableScrolledControl::OnMouseLeave( wxMouseEvent &event )
+{
+    m_isLeftDown    = false;
+}

@@ -4,7 +4,7 @@
 #define __CORE_PAGE_H__
 
 #include "lochsemu.h"
-#include "section.h"
+//#include "section.h"
 
 BEGIN_NAMESPACE_LOCHSEMU()
 

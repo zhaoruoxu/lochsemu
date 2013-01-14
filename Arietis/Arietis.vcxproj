@@ -114,6 +114,7 @@
     <ClInclude Include="gui\logpanel.h" />
     <ClInclude Include="gui\mainframe.h" />
     <ClInclude Include="gui\contextpanel.h" />
+    <ClInclude Include="gui\mempanel.h" />
     <ClInclude Include="gui\tracepanel.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="static\disassembler.h" />
@@ -139,6 +140,7 @@
     </ClCompile>
     <ClCompile Include="Arietis.cpp" />
     <ClCompile Include="gui\custombase.cpp" />
+    <ClCompile Include="gui\mempanel.cpp" />
     <ClCompile Include="gui\tracepanel.cpp" />
     <ClCompile Include="tracer.cpp" />
     <ClCompile Include="debugger.cpp" />

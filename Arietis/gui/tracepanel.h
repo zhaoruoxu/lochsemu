@@ -52,18 +52,19 @@ private:
     int             m_lineHeight;
 };
 
-class TracePanel : public CustomScrolledControl {
+class TracePanel : public SelectableScrolledControl {
     friend class TraceInfoPanel;
 public:
     TracePanel(CompositeTracePanel *parent);
     ~TracePanel();
 
-    void        OnLeftDown(wxMouseEvent &event);
-    void        OnLeftUp(wxMouseEvent &event);
-    void        OnMouseMove(wxMouseEvent &event);
-    void        OnMouseLeave(wxMouseEvent &event);
+//     void        OnLeftDown(wxMouseEvent &event);
+//     void        OnLeftUp(wxMouseEvent &event);
+//     void        OnMouseMove(wxMouseEvent &event);
+//     void        OnMouseLeave(wxMouseEvent &event);
 
     void        UpdateData();
+    void        OnSelectionChange() override;
     const static int VertLineOffset = -2;
 private:
     void        InitRender();
@@ -77,8 +78,8 @@ private:
     int         m_widthIp;
     int         m_widthDisasm;
     int         m_width;
-    int         m_currIndex;
-    bool        m_isLeftDown;
+    //int         m_currIndex;
+    //bool        m_isLeftDown;
 };
 
 #endif // __ARIETIS_GUI_TRACEPANEL_H__

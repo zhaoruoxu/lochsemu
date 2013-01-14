@@ -17,6 +17,7 @@ public:
     CpuPanel *              GetCpuPanel() const { return m_cpuPanel; }
     ContextPanel *          GetRegPanel() const { return m_contextPanel; }
     CompositeTracePanel *   GetTracePanel() const { return m_tracePanel; }
+    MemInfoPanel *          GetMemInfoPanel() const { return m_memInfoPanel; }
     void    ReportBusy(bool isBusy);
     void    OnProcessLoaded(LPCSTR path);
 private:
@@ -51,6 +52,7 @@ private:
     CpuPanel *      m_cpuPanel;
     ContextPanel *  m_contextPanel;
     CompositeTracePanel *    m_tracePanel;
+    MemInfoPanel *  m_memInfoPanel;
 
     wxString        m_defaultPerspective;
     wxAuiManager    m_auiManager;

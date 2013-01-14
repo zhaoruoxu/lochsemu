@@ -21,4 +21,19 @@ protected:
     wxBrush     m_bgBrush;
 };
 
+class SelectableScrolledControl : public CustomScrolledControl {
+public:
+    SelectableScrolledControl(wxWindow *parent, const wxSize &size);
+
+    void        OnLeftDown(wxMouseEvent &event);
+    void        OnLeftUp(wxMouseEvent &event);
+    void        OnMouseMove(wxMouseEvent &event);
+    void        OnMouseLeave(wxMouseEvent &event);
+
+    virtual void    OnSelectionChange() {}
+protected:
+    int         m_currSelIndex;
+    bool        m_isLeftDown;
+};
+
 #endif // __ARIETIS_GUI_CUSTOMBASE_H__

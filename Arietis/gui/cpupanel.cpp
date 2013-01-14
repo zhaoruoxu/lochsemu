@@ -8,16 +8,16 @@ static INLINE bool InRangeIncl(T val, T t0, T t1) {
     return t0 <= val && val <= t1;
 }
 
-CpuPanel::CpuPanel( wxWindow *parent ) : CustomScrolledControl(parent, wxSize(400, 400))
+CpuPanel::CpuPanel( wxWindow *parent ) : SelectableScrolledControl(parent, wxSize(400, 400))
 {
     m_mutex = MutexCS::Create();
     InitLogic();
     InitRender();
 
-    Bind(wxEVT_LEFT_DOWN, &CpuPanel::OnLeftDown, this, wxID_ANY);
-    Bind(wxEVT_LEFT_UP, &CpuPanel::OnLeftUp, this, wxID_ANY);
-    Bind(wxEVT_MOTION, &CpuPanel::OnMouseMove, this, wxID_ANY);
-    Bind(wxEVT_LEAVE_WINDOW, &CpuPanel::OnMouseLeave, this, wxID_ANY);
+//     Bind(wxEVT_LEFT_DOWN, &CpuPanel::OnLeftDown, this, wxID_ANY);
+//     Bind(wxEVT_LEFT_UP, &CpuPanel::OnLeftUp, this, wxID_ANY);
+//     Bind(wxEVT_MOTION, &CpuPanel::OnMouseMove, this, wxID_ANY);
+//     Bind(wxEVT_LEAVE_WINDOW, &CpuPanel::OnMouseLeave, this, wxID_ANY);
     Bind(wxEVT_RIGHT_DOWN, &CpuPanel::OnRightDown, this, wxID_ANY);
 
     m_insts = NULL;
@@ -57,8 +57,8 @@ void CpuPanel::InitRender()
     m_jumpLineInstDistMax   = g_config.GetInt("CpuPanel", "JumpLineInstDistanceMax", 20);
 
     m_currIndex = -1;
-    m_currSelIndex = -1;
-    m_isLeftDown = false;
+    //m_currSelIndex = -1;
+    //m_isLeftDown = false;
 }
 
 wxPoint CpuPanel::GetCurrentScrolledPos() const
@@ -272,39 +272,44 @@ void CpuPanel::OnPtrChange( u32 addr )
     Update();
 }
 
-void CpuPanel::OnLeftDown( wxMouseEvent& event )
+void CpuPanel::OnSelectionChange()
 {
-    wxPoint p       = event.GetPosition();
-    wxPoint ps      = GetViewStart();
-    m_currSelIndex  = ps.y + p.y / m_lineHeight;
-    m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex); 
-    m_isLeftDown    = true;
-
-    Refresh();
+    m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex);
 }
 
-void CpuPanel::OnLeftUp( wxMouseEvent& event )
-{
-    m_isLeftDown    = false;
-}
-
-void CpuPanel::OnMouseMove( wxMouseEvent& event )
-{
-    if (!m_isLeftDown) return;
-    wxPoint p       = event.GetPosition();
-    wxPoint ps      = GetViewStart();
-    int selIndex    = ps.y + p.y / m_lineHeight;
-    if (selIndex != m_currSelIndex) {
-        m_currSelIndex  = selIndex;
-        m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex); 
-        Refresh();
-    }
-}
-
-void CpuPanel::OnMouseLeave( wxMouseEvent& event )
-{
-    m_isLeftDown = false;
-}
+// void CpuPanel::OnLeftDown( wxMouseEvent& event )
+// {
+//     wxPoint p       = event.GetPosition();
+//     wxPoint ps      = GetViewStart();
+//     m_currSelIndex  = ps.y + p.y / m_lineHeight;
+//     m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex); 
+//     m_isLeftDown    = true;
+// 
+//     Refresh();
+// }
+// 
+// void CpuPanel::OnLeftUp( wxMouseEvent& event )
+// {
+//     m_isLeftDown    = false;
+// }
+// 
+// void CpuPanel::OnMouseMove( wxMouseEvent& event )
+// {
+//     if (!m_isLeftDown) return;
+//     wxPoint p       = event.GetPosition();
+//     wxPoint ps      = GetViewStart();
+//     int selIndex    = ps.y + p.y / m_lineHeight;
+//     if (selIndex != m_currSelIndex) {
+//         m_currSelIndex  = selIndex;
+//         m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex); 
+//         Refresh();
+//     }
+// }
+// 
+// void CpuPanel::OnMouseLeave( wxMouseEvent& event )
+// {
+//     m_isLeftDown = false;
+// }
 
 int CpuPanel::CalcJumpLineWidth(int idx1, int idx2) const
 {

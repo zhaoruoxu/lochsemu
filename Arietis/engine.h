@@ -29,6 +29,13 @@ struct InstContext {
     }
 };
 
+// struct MemContext {
+//     u32             Base;
+//     u32             Size;
+//     std::string     Desc;
+//     std::string     ModuleName;
+// };
+
 class AEngine {
 public:
     AEngine();

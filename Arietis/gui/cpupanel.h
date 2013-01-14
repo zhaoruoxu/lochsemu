@@ -9,19 +9,20 @@
 #include "parallel.h"
 #include "custombase.h"
 
-class CpuPanel : public CustomScrolledControl {
+class CpuPanel : public SelectableScrolledControl {
 public:
     CpuPanel(wxWindow *parent);
     ~CpuPanel();
 
     void        OnPtrChange(u32 addr);
     void        OnDataUpdate(const InstSection *insts);
+    void        OnSelectionChange() override;
 
-    void        OnLeftDown(wxMouseEvent& event);
-    void        OnLeftUp(wxMouseEvent& event);
+//     void        OnLeftDown(wxMouseEvent& event);
+//     void        OnLeftUp(wxMouseEvent& event);
     void        OnRightDown(wxMouseEvent& event);
-    void        OnMouseLeave(wxMouseEvent& event);
-    void        OnMouseMove(wxMouseEvent& event);
+//     void        OnMouseLeave(wxMouseEvent& event);
+//     void        OnMouseMove(wxMouseEvent& event);
 private:
     void        InitLogic();
     void        InitRender();
@@ -41,10 +42,10 @@ private:
     int         m_height;
     int         m_currIndex;
     u32         m_currEip;
-    int         m_currSelIndex;
+    //int         m_currSelIndex;
     u32         m_currSelEip;
     int         m_minDistanceToBottom;
-    bool        m_isLeftDown;
+    //bool        m_isLeftDown;
     bool        m_showTargetNameInstead;
     int         m_jumpLineWidthMax;
     int         m_jumpLineWidthMin;
