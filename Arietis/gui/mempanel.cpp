@@ -99,6 +99,9 @@ void MemDataPanel::DrawLine( wxBufferedPaintDC &dc, int idx )
 
 void MemDataPanel::UpdateData( const Section *sec, const SectionContext &ctx )
 {
+    Assert(sec);
+    if (sec == m_section) return;
+
     {
         MutexCSLock lock(m_mutex);
 
@@ -106,10 +109,11 @@ void MemDataPanel::UpdateData( const Section *sec, const SectionContext &ctx )
         m_context = ctx;
         m_rawdata = sec->GetRawData(sec->Base());
         m_totalLines = sec->Size() / CharsPerLine;
+        Scroll(0, 0);
     }
-
     SetVirtualSize(m_width, m_totalLines * m_lineHeight);
     Refresh();
+
 }
 
 void MemDataPanel::InitRender()
@@ -120,8 +124,8 @@ void MemDataPanel::InitRender()
     UpdateFont(f);
 
     m_widthOffset   = g_config.GetInt("MemDataPanel", "WidthOffset", 70);
-    m_widthHex      = g_config.GetInt("MemDataPanel", "WidthHex", 12);
-    m_widthChar     = g_config.GetInt("MemDataPanel", "WidthChar", 6);
+    m_widthHex      = g_config.GetInt("MemDataPanel", "WidthHex", 18);
+    m_widthChar     = g_config.GetInt("MemDataPanel", "WidthChar", 7);
     m_width         = m_widthOffset + (m_widthHex + m_widthChar) * CharsPerLine;
 }
 
@@ -232,6 +236,13 @@ void MemInfoPanel::OnLeftDoubleClick( wxMouseEvent &event )
     if (m_currSelIndex >= (int) m_data.size() || m_currSelIndex < 0) return;
     const SectionContext &ctx = m_data[m_currSelIndex];
     const Section *sec = m_memory->GetSection(ctx.Base);
+
+    if (!sec->IsAllCommitted()) {
+        wxMessageBox("Cannot show data of this section:\n\nSection contains uncommitted pages",
+            "Error", wxOK | wxICON_ERROR);
+        return;
+    }
+    
     m_dataPanel->UpdateData(sec, ctx);
 }
 
