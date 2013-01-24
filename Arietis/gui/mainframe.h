@@ -53,6 +53,7 @@ private:
     ContextPanel *  m_contextPanel;
     CompositeTracePanel *    m_tracePanel;
     MemInfoPanel *  m_memInfoPanel;
+    MemDataPanel *  m_memDataPanel;
 
     wxString        m_defaultPerspective;
     wxAuiManager    m_auiManager;

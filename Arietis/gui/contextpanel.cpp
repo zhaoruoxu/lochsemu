@@ -5,7 +5,7 @@
 ContextPanel::ContextPanel( wxWindow *parent )
     : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(300, 600))
 {
-    m_mutex = MutexCS::Create();
+    //m_mutex = MutexCS::Create();
     InitRender();
 
     Bind(wxEVT_PAINT, &ContextPanel::OnPaint, this, wxID_ANY);
@@ -16,7 +16,7 @@ ContextPanel::ContextPanel( wxWindow *parent )
 
 ContextPanel::~ContextPanel()
 {
-    MutexCS::Destroy(m_mutex);
+    //MutexCS::Destroy(m_mutex);
 }
 
 const wxString ContextPanel::RegLabels[] = {
@@ -53,7 +53,7 @@ void ContextPanel::OnPaint( wxPaintEvent &event )
 
 void ContextPanel::Draw( wxBufferedPaintDC &dc )
 {
-    MutexCSLock lock(*m_mutex);
+    MutexCSLock lock(m_mutex);
     int h = 0;
 
     dc.DrawText(wxString::Format("----  %s  ----", m_dataDesc), 0, 0);
@@ -119,7 +119,7 @@ void ContextPanel::OnEraseBackground( wxEraseEvent& event )
 void ContextPanel::UpdateData( const InstContext &ctx, const char *dataDesc )
 {
     {
-        MutexCSLock lock(*m_mutex);
+        MutexCSLock lock(m_mutex);
         m_data = ctx;
         m_dataDesc = dataDesc;
     }

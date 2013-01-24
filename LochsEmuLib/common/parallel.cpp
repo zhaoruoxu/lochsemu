@@ -58,15 +58,15 @@ bool Semaphore::TryWait()
     return WaitForSingleObject(m_semaphore, 0) == WAIT_OBJECT_0;
 }
 
-MutexCS * MutexCS::Create()
-{
-    return new MutexCS;
-}
-
-void MutexCS::Destroy( MutexCS *m )
-{
-    delete m;
-}
+// MutexCS * MutexCS::Create()
+// {
+//     return new MutexCS;
+// }
+// 
+// void MutexCS::Destroy( MutexCS *m )
+// {
+//     delete m;
+// }
 
 MutexCS::MutexCS()
 {

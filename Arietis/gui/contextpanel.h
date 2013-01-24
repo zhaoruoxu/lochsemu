@@ -20,7 +20,7 @@ private:
     void        InitRender();
     void        Draw(wxBufferedPaintDC &dc);
 private:
-    MutexCS *   m_mutex;
+    MutexCS     m_mutex;
     InstContext m_data;
     wxString    m_dataDesc;
 

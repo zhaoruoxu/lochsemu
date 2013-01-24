@@ -53,12 +53,15 @@ void ArietisFrame::InitUI()
     m_cpuPanel      = new CpuPanel(this);
     m_contextPanel  = new ContextPanel(this);
     m_tracePanel    = new CompositeTracePanel(this);
-    m_memInfoPanel  = new MemInfoPanel(this);
+    m_memDataPanel  = new MemDataPanel(this);
+    m_memInfoPanel  = new MemInfoPanel(this, m_memDataPanel);
+    
     
     m_auiManager.AddPane(m_cpuPanel, wxAuiPaneInfo().Name("CPU").Caption("CPU").CenterPane());
     m_auiManager.AddPane(m_tracePanel, wxAuiPaneInfo().Name("Trace").Caption("Trace").Top());
     m_auiManager.AddPane(m_contextPanel, wxAuiPaneInfo().Name("Context").Caption("Context").Right());
-    m_auiManager.AddPane(m_memInfoPanel, wxAuiPaneInfo().Name("Sections").Caption("Sections").Bottom());
+    m_auiManager.AddPane(m_memInfoPanel, wxAuiPaneInfo().Name("Sections").Caption("Sections").Bottom().Position(0));
+    m_auiManager.AddPane(m_memDataPanel, wxAuiPaneInfo().Name("Memory").Caption("Memory").Bottom().Position(1));
     
     m_auiManager.Update();
     m_defaultPerspective = m_auiManager.SavePerspective();
@@ -232,6 +235,7 @@ void ArietisFrame::PreExecSingleStepCallback( const Processor *cpu, const Instru
     m_cpuPanel->OnPtrChange(cpu->EIP);
     m_tracePanel->UpdateData();
     m_memInfoPanel->UpdateData(cpu->Emu(), cpu->Mem);
+    m_memDataPanel->Refresh();
 }
 
 // void ArietisFrame::PostExecSingleStepCallback( const Processor *cpu, const Instruction *inst )

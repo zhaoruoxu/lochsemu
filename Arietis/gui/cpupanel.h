@@ -18,11 +18,7 @@ public:
     void        OnDataUpdate(const InstSection *insts);
     void        OnSelectionChange() override;
 
-//     void        OnLeftDown(wxMouseEvent& event);
-//     void        OnLeftUp(wxMouseEvent& event);
     void        OnRightDown(wxMouseEvent& event);
-//     void        OnMouseLeave(wxMouseEvent& event);
-//     void        OnMouseMove(wxMouseEvent& event);
 private:
     void        InitLogic();
     void        InitRender();
@@ -42,10 +38,8 @@ private:
     int         m_height;
     int         m_currIndex;
     u32         m_currEip;
-    //int         m_currSelIndex;
     u32         m_currSelEip;
     int         m_minDistanceToBottom;
-    //bool        m_isLeftDown;
     bool        m_showTargetNameInstead;
     int         m_jumpLineWidthMax;
     int         m_jumpLineWidthMin;
@@ -59,7 +53,7 @@ private:
 
     const InstSection *     m_insts;
     std::map<int, int>      m_procEntryEnd;
-    MutexCS *               m_mutex;
+    MutexCS                 m_mutex;
 };
  
 #endif // __ARIETIS_GUI_CPUPANEL_H__

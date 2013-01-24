@@ -21,11 +21,12 @@ private:
 
 class LX_API MutexCS {
 public:
-    static MutexCS *Create();
-    static void Destroy(MutexCS *m);
-private:
+//     static MutexCS *Create();
+//     static void Destroy(MutexCS *m);
     MutexCS();
     ~MutexCS();
+private:
+    
     friend class MutexCSLock;
     MutexCS(MutexCS &);
     MutexCS &operator=(const MutexCS &);

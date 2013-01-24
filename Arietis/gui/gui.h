@@ -14,6 +14,7 @@ class CpuPanel;
 class ContextPanel;
 class CompositeTracePanel;
 class MemInfoPanel;
+class MemDataPanel;
 
 enum {
     /* view */

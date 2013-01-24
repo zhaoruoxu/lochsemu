@@ -19,24 +19,131 @@ SectionContext::SectionContext( const SectionInfo &sec, const ModuleInfo *minfo 
     ModuleName      = minfo->Name;
 }
 
-MemInfoPanel::MemInfoPanel(wxWindow *parent)
-    : SelectableScrolledControl(parent, wxSize(400, 200))
+SectionContext::SectionContext()
 {
-    m_mutex = MutexCS::Create();
+    Base    = 0;
+    Size    = 0;
+    Desc    = "n/a";
+    ModuleImageBase = 0;
+    ModuleName      = "n/a";
+    
+}
+
+
+MemDataPanel::MemDataPanel( wxWindow *parent )
+    : CustomScrolledControl(parent, wxSize(400, 200))
+{
+    m_section = NULL;
     InitRender();
+}
+
+
+MemDataPanel::~MemDataPanel()
+{
+}
+
+void MemDataPanel::Draw( wxBufferedPaintDC &dc )
+{
+    static const int VertLineOffset = -2;
+    if (NULL == m_section) return;
+
+    MutexCSLock lock(m_mutex);
+
+    wxPoint viewStart   = GetViewStart();
+    wxSize clientsize   = GetClientSize();
+    const int istart    = viewStart.y;
+    const int iend      = istart + clientsize.GetHeight() / m_lineHeight;
+
+    for (int i = istart; i <= min(m_totalLines-1, iend); i++)
+        DrawLine(dc, i);
+
+    dc.SetPen(*wxBLUE_PEN);
+    int px, py;
+    GetScrollPixelsPerUnit(&px, &py);
+
+    int lineX = m_widthOffset + VertLineOffset;
+    int lineY0 = viewStart.y * py, lineY1 = lineY0 + clientsize.GetHeight();
+    dc.DrawLine(lineX, lineY0, lineX, lineY1);
+    lineX += m_widthHex * CharsPerLine/4;
+    dc.DrawLine(lineX, lineY0, lineX, lineY1);
+    lineX += m_widthHex * CharsPerLine/4;
+    dc.DrawLine(lineX, lineY0, lineX, lineY1);
+    lineX += m_widthHex * CharsPerLine/4;
+    dc.DrawLine(lineX, lineY0, lineX, lineY1);
+    lineX += m_widthHex * CharsPerLine/4;
+    dc.DrawLine(lineX, lineY0, lineX, lineY1);
+    lineX += m_widthChar * CharsPerLine + 3;
+    dc.DrawLine(lineX, lineY0, lineX, lineY1);
+}
+
+void MemDataPanel::DrawLine( wxBufferedPaintDC &dc, int idx )
+{
+    int h = m_lineHeight * idx;
+    u32 offset = CharsPerLine * idx;
+    dc.DrawText(wxString::Format("%08x", m_section->Base() + offset), 0, h);
+    int w = m_widthOffset;
+    for (int i = 0; i < CharsPerLine; i++) {
+        dc.DrawText(wxString::Format("%02x", m_rawdata[offset]), w, h);
+        offset++;
+        w += m_widthHex;
+    }
+    offset = CharsPerLine * idx;
+    for (int i = 0; i < CharsPerLine; i++) {
+        byte b = m_rawdata[offset];
+        char c = (b >= 0x20 && b <= 0x7e) ? (char) b : '.';
+        dc.DrawText(wxString::Format("%c", c), w, h);
+        offset++;
+        w += m_widthChar;
+    }
+}
+
+void MemDataPanel::UpdateData( const Section *sec, const SectionContext &ctx )
+{
+    {
+        MutexCSLock lock(m_mutex);
+
+        m_section = sec;
+        m_context = ctx;
+        m_rawdata = sec->GetRawData(sec->Base());
+        m_totalLines = sec->Size() / CharsPerLine;
+    }
+
+    SetVirtualSize(m_width, m_totalLines * m_lineHeight);
+    Refresh();
+}
+
+void MemDataPanel::InitRender()
+{
+    wxFont f = wxFont(g_config.GetInt("MemDataPanel", "FontSize", 8),
+        wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
+        g_config.GetString("MemInfoPanel", "FontName", "Lucida Console"));
+    UpdateFont(f);
+
+    m_widthOffset   = g_config.GetInt("MemDataPanel", "WidthOffset", 70);
+    m_widthHex      = g_config.GetInt("MemDataPanel", "WidthHex", 12);
+    m_widthChar     = g_config.GetInt("MemDataPanel", "WidthChar", 6);
+    m_width         = m_widthOffset + (m_widthHex + m_widthChar) * CharsPerLine;
+}
+
+
+MemInfoPanel::MemInfoPanel(wxWindow *parent, MemDataPanel *data)
+    : SelectableScrolledControl(parent, wxSize(400, 200)), m_dataPanel(data)
+{
+    InitRender();
+    m_memory = NULL;
 
     Bind(wxEVT_LEFT_DCLICK,     &MemInfoPanel::OnLeftDoubleClick, this, wxID_ANY);
 }
 
 MemInfoPanel::~MemInfoPanel()
 {
-    MutexCS::Destroy(m_mutex);
 }
 
 void MemInfoPanel::UpdateData( const Emulator *emu, const Memory *mem )
 {
     {
-        MutexCSLock lock(*m_mutex);
+        MutexCSLock lock(m_mutex);
+        m_memory = mem;
         std::vector<SectionInfo>    secInfo = mem->GetMemoryInfo();
         const Process *proc = emu->Proc();
 
@@ -69,7 +176,7 @@ void MemInfoPanel::InitRender()
 void MemInfoPanel::Draw( wxBufferedPaintDC &dc )
 {
     static const int VertLineOffset = -2;
-    MutexCSLock lock(*m_mutex);
+    MutexCSLock lock(m_mutex);
     
     wxPoint viewStart   = GetViewStart();
     wxSize clientSize   = GetClientSize();
@@ -121,6 +228,11 @@ void MemInfoPanel::DrawItem( wxBufferedPaintDC &dc, int index )
 void MemInfoPanel::OnLeftDoubleClick( wxMouseEvent &event )
 {
     //OnLeftDown(event);
-    wxMessageBox(wxString::Format("Selection = %d", m_currSelIndex));
+    //wxMessageBox(wxString::Format("Selection = %d", m_currSelIndex));
+    if (m_currSelIndex >= (int) m_data.size() || m_currSelIndex < 0) return;
+    const SectionContext &ctx = m_data[m_currSelIndex];
+    const Section *sec = m_memory->GetSection(ctx.Base);
+    m_dataPanel->UpdateData(sec, ctx);
 }
+
 

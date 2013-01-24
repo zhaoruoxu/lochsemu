@@ -207,6 +207,7 @@ public:
     Emulator *      Emu                 (void) const { Assert(m_emulator); return m_emulator; }
     Coprocessor *   FPU                 (void) const { Assert(m_fpu); return m_fpu; }
     const Instruction * CurrentInst     (void) const { return m_inst; }
+    Section *       CurrentSection      (void) const { return m_currSection; }
 
     /*
      * Get module number according to current EIP
@@ -349,6 +350,7 @@ protected:
     u32             m_callbackTable[LX_CALLBACKS];
     Hashtable<Instruction>  m_instCache;
     u32             m_execFlags;    // Used to represent status after execution of each instruciton 
+    Section *       m_currSection;
 }; // class CPU
 
 

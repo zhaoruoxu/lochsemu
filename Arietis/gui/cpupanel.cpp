@@ -10,7 +10,7 @@ static INLINE bool InRangeIncl(T val, T t0, T t1) {
 
 CpuPanel::CpuPanel( wxWindow *parent ) : SelectableScrolledControl(parent, wxSize(400, 400))
 {
-    m_mutex = MutexCS::Create();
+    //m_mutex = MutexCS::Create();
     InitLogic();
     InitRender();
 
@@ -25,7 +25,7 @@ CpuPanel::CpuPanel( wxWindow *parent ) : SelectableScrolledControl(parent, wxSiz
 
 CpuPanel::~CpuPanel()
 {
-    MutexCS::Destroy(m_mutex);
+    //MutexCS::Destroy(m_mutex);
 }
 
 void CpuPanel::InitLogic()
@@ -72,7 +72,7 @@ wxPoint CpuPanel::GetCurrentScrolledPos() const
 void CpuPanel::Draw( wxBufferedPaintDC &dc )
 {
     if (m_insts == NULL) return;
-    MutexCSLock lock(*m_mutex);
+    MutexCSLock lock(m_mutex);
 
     static const int VertLineOffset = -2;
     wxPoint pv  = GetViewStart();
@@ -224,7 +224,7 @@ void CpuPanel::DrawJumpLines( wxBufferedPaintDC &dc, int istart, int iend )
 void CpuPanel::OnDataUpdate( const InstSection *insts )
 {
     {
-        MutexCSLock lock(*m_mutex);
+        MutexCSLock lock(m_mutex);
         m_insts = insts;
         m_insts->Lock();
 
@@ -276,40 +276,6 @@ void CpuPanel::OnSelectionChange()
 {
     m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex);
 }
-
-// void CpuPanel::OnLeftDown( wxMouseEvent& event )
-// {
-//     wxPoint p       = event.GetPosition();
-//     wxPoint ps      = GetViewStart();
-//     m_currSelIndex  = ps.y + p.y / m_lineHeight;
-//     m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex); 
-//     m_isLeftDown    = true;
-// 
-//     Refresh();
-// }
-// 
-// void CpuPanel::OnLeftUp( wxMouseEvent& event )
-// {
-//     m_isLeftDown    = false;
-// }
-// 
-// void CpuPanel::OnMouseMove( wxMouseEvent& event )
-// {
-//     if (!m_isLeftDown) return;
-//     wxPoint p       = event.GetPosition();
-//     wxPoint ps      = GetViewStart();
-//     int selIndex    = ps.y + p.y / m_lineHeight;
-//     if (selIndex != m_currSelIndex) {
-//         m_currSelIndex  = selIndex;
-//         m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex); 
-//         Refresh();
-//     }
-// }
-// 
-// void CpuPanel::OnMouseLeave( wxMouseEvent& event )
-// {
-//     m_isLeftDown = false;
-// }
 
 int CpuPanel::CalcJumpLineWidth(int idx1, int idx2) const
 {

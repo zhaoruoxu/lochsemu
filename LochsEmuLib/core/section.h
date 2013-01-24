@@ -91,7 +91,9 @@ INLINE bool Section::IsCommitted(uint pageNum) const {
     return (m_pageDescTable[pageNum].Characristics & LX_CHR_COMMITTED) != 0;
 }
 INLINE pbyte Section::GetRawData(u32 addr) const { 
-    Assert(IsCommitted(PAGE_NUM(addr-m_base))); Assert(Contains(addr)); return m_dataPtr + (addr - m_base); 
+    //Assert(IsCommitted(PAGE_NUM(addr-m_base))); 
+    Assert(Contains(addr)); 
+    return m_dataPtr + (addr - m_base); 
 }
 INLINE void Section::Erase() {
     Assert(IsAllCommitted()); ZeroMemory(m_dataPtr, m_size); 

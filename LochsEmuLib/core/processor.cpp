@@ -71,6 +71,7 @@ void Processor::Reset()
     ZeroMemory(m_callbackTable, sizeof(u32) * LX_CALLBACKS);
     m_inst = NULL;
     m_fpu->Reset();
+    m_currSection = NULL;
 }
 
 LxResult Processor::Step()
@@ -88,6 +89,8 @@ LxResult Processor::Step()
         LxDecode(codePtr, m_inst, EIP);
         m_instCache.Insert(EIP, m_inst);
     }
+
+    m_currSection = Mem->GetSection(EIP);
 
     /*
      * let plugins do their work
@@ -360,15 +363,20 @@ void Processor::FromContext( const CONTEXT *context )
 
 uint Processor::GetCurrentModule( void ) const
 {
-    if (LX_IS_WINAPI(EIP)) {
+//     if (LX_IS_WINAPI(EIP)) {
+//         return LX_UNKNOWN_MODULE;
+//     }
+//     Section *section = Mem->GetSection(EIP);
+//     if (!section) {
+//         LxWarning("Current module is invalid\n");
+//         return LX_UNKNOWN_MODULE;
+//     }
+//     return section->Module();
+    if (CurrentSection() == NULL) {
+        LxError("Current section is NULL\n");
         return LX_UNKNOWN_MODULE;
     }
-    Section *section = Mem->GetSection(EIP);
-    if (!section) {
-        LxWarning("Current module is invalid\n");
-        return LX_UNKNOWN_MODULE;
-    }
-    return section->Module();
+    return CurrentSection()->Module();
 }
 
 u8 Processor::ReadOperand8( const Instruction *inst, const ARGTYPE &oper, u32 *offset ) const
