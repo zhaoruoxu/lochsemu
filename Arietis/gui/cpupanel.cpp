@@ -8,7 +8,7 @@ static INLINE bool InRangeIncl(T val, T t0, T t1) {
     return t0 <= val && val <= t1;
 }
 
-CpuPanel::CpuPanel( wxWindow *parent ) : SelectableScrolledControl(parent, wxSize(400, 400))
+CpuPanel::CpuPanel( wxWindow *parent ) : SelectableScrolledControl(parent, wxSize(400, 300))
 {
     //m_mutex = MutexCS::Create();
     InitLogic();

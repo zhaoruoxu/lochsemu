@@ -70,6 +70,8 @@ void ArietisFrame::InitUI()
     if (g_config.GetInt("General", "AutoLoadPerpective", 1) != 0) {
         OnLoadPerspective(wxCommandEvent());
     }
+
+    //SetSize(800, 800);
 }
 
 void ArietisFrame::InitMenu()
@@ -173,7 +175,8 @@ void ArietisFrame::OnClose( wxCloseEvent &event )
         OnSavePerspective(wxCommandEvent());
     }
     Destroy();
-    m_engine->GetDebugger()->OnTerminate();
+    m_engine->Terminate();
+    //m_engine->GetDebugger()->OnTerminate();
 }
 
 void ArietisFrame::OnSavePerspective( wxCommandEvent &event )

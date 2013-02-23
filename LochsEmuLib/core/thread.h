@@ -55,6 +55,8 @@ protected:
     Stack *         m_stack;
     u32             m_TebAddress;
     std::vector<uint>   m_moduleLoadOrder;  /* Record module load order for module unloading */
+
+    //LxResult        m_runResult;
 };
 
 END_NAMESPACE_LOCHSEMU()

@@ -41,6 +41,7 @@ public:
 
     LxResult        Initialize(Emulator *emu);
     LxResult        Run();
+    void            Terminate();
 
     HeapID          CreateHeap(u32 reserve, u32 commit, uint flags);
     bool            DestroyHeap(HeapID id);

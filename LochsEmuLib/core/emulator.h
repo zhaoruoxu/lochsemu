@@ -67,6 +67,7 @@ public:
         return m_loaded; 
     }
 
+    void            Terminate();
 public:
     u32             InquireStackBase(void);
 

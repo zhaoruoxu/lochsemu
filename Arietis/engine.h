@@ -61,11 +61,13 @@ public:
     //void            Persist();
 
     void            ReportBusy(bool isBusy);
+    void            Terminate();
     
 private:
     void            Intro() const;
 
 private:
+    bool            m_enabled;
     Emulator *      m_emulator;
 
     ADebugger       m_debugger;

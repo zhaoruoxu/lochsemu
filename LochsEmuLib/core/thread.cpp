@@ -19,7 +19,7 @@ Thread::Thread( ThreadID id, Process *proc )
     m_cpu           = NULL;
     m_stack         = NULL; 
     m_TebAddress    = 0;
-    
+    //m_runResult     = LX_RESULT_THREAD_FAILED;
 }
 
 Thread::~Thread()

@@ -29,10 +29,12 @@ void AEngine::Initialize(Emulator *emu)
     m_totalExecuted = 0;
     m_skipDllEntries    = g_config.GetInt("Engine", "SkipDllEntries", 1) != 0;
     m_mainEntryEntered  = false;
+    m_enabled       = true;
 }
 
 void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 {
+    if (!m_enabled) return;
     //m_archive[cpu->EIP] = Json::Value(inst->Main.CompleteInstr);
     m_currEip = cpu->EIP;
     
@@ -47,6 +49,7 @@ void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 
 void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 {
+    if (!m_enabled) return;
     ++m_totalExecuted;
     if (m_skipDllEntries && !m_mainEntryEntered) return;
     //m_debugger.OnPostExecute(cpu, inst);
@@ -67,6 +70,7 @@ void AEngine::OnProcessPostLoad( const PeLoader *loader )
 //             LxFatal("Error parsing archive file %s\n", m_archiveFilePath.c_str());
 //         }
 //     }
+    if (!m_enabled) return;
     m_gui->OnProcessLoaded(m_emulator->Path());
 }
 
@@ -94,6 +98,7 @@ void AEngine::SetGuiFrame( ArietisFrame *frame )
 
 void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
 {
+    if (!m_enabled) return;
     m_mainEntryEntered = true;
     m_debugger.OnProcPreRun(proc, cpu);
 
@@ -120,6 +125,13 @@ void AEngine::Intro() const
     LxWarning("        Arietis ver %x build %d\n", ArietisVersion, ARIETIS_BUILD_VERSION);
     LxWarning("\n");
     LxWarning("********************************************************\n");
+}
+
+void AEngine::Terminate()
+{
+    m_enabled = false;
+    //m_emulator->Terminate();
+    m_debugger.OnTerminate();
 }
 
 const std::string InstContext::FlagNames[] = {

@@ -141,6 +141,11 @@ void Emulator::ConstructCmdline( int argc, LPSTR argv[] )
     LxWarning("%s\n", m_cmdline);
 }
 
+void Emulator::Terminate()
+{
+    m_process->Terminate();
+}
+
 
 END_NAMESPACE_LOCHSEMU()
 
