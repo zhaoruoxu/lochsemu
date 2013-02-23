@@ -18,7 +18,7 @@
 ArietisFrame::ArietisFrame(AEngine *engine)
     : m_engine(engine), wxFrame(NULL, wxID_ANY, 
     wxString::Format("Arietis %x build %d", ArietisVersion, ARIETIS_BUILD_VERSION), 
-    wxDefaultPosition, wxSize(1000, 1000), wxDEFAULT_FRAME_STYLE), 
+    wxDefaultPosition, wxSize(850, 850), wxDEFAULT_FRAME_STYLE), 
     m_statusTimer(this, ID_StatusTimer)
 {
     InitMisc();

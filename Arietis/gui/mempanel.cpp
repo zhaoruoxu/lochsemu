@@ -31,7 +31,7 @@ SectionContext::SectionContext()
 
 
 MemDataPanel::MemDataPanel( wxWindow *parent )
-    : CustomScrolledControl(parent, wxSize(400, 200))
+    : CustomScrolledControl(parent, wxSize(400, 150))
 {
     m_section = NULL;
     InitRender();
@@ -131,7 +131,7 @@ void MemDataPanel::InitRender()
 
 
 MemInfoPanel::MemInfoPanel(wxWindow *parent, MemDataPanel *data)
-    : SelectableScrolledControl(parent, wxSize(400, 200)), m_dataPanel(data)
+    : SelectableScrolledControl(parent, wxSize(400, 150)), m_dataPanel(data)
 {
     InitRender();
     m_memory = NULL;

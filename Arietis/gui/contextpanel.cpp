@@ -3,7 +3,7 @@
 #include "processor.h"
 
 ContextPanel::ContextPanel( wxWindow *parent )
-    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(300, 600))
+    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(300, 200))
 {
     //m_mutex = MutexCS::Create();
     InitRender();
