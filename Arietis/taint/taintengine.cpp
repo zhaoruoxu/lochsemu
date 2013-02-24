@@ -27,17 +27,29 @@ static int RegMap[]  = {
      7
 };
 
-MemoryTaint::MemoryTaint( )
+MemoryTaint::MemoryTaint() 
+    : m_mutex(false)
 {
+    ZeroMemory(m_pagetable, sizeof(m_pagetable));
+}
 
+MemoryTaint::~MemoryTaint()
+{
+    for (int i = 0; i < LX_PAGE_COUNT; i++) {
+        if (m_pagetable[i]) {
+            SAFE_DELETE(m_pagetable[i]);
+        }
+    }
 }
 
 Taint MemoryTaint::Get( u32 addr )
 {
-    if (m_status.find(addr) == m_status.end()) {
-        m_status[addr] = Taint();
-    }
-    return m_status[addr];
+//     if (m_status.find(addr) == m_status.end()) {
+//         m_status[addr] = Taint();
+//     }
+//     return m_status[addr];
+    PageTaint *page = GetPage(addr);
+    return page->Get(PAGE_LOW(addr));
 }
 
 Taint MemoryTaint::Get( u32 addr, u32 len )
@@ -49,12 +61,45 @@ Taint MemoryTaint::Get( u32 addr, u32 len )
     return ret;
 }
 
-void MemoryTaint::Set( const Taint &t, u32 addr, u32 len /*= 1*/ )
+void MemoryTaint::Set( const Taint &t, u32 addr, u32 len )
 {
     Assert(len > 0);
     for (uint i = 0; i < len; i++) {
-        m_status[addr + i] = t;
+        //m_status[addr + i] = t;
+        PageTaint *page = GetPage(addr);
+        page->Set(PAGE_LOW(addr + i), t);
     }
+}
+
+MemoryTaint::PageTaint * MemoryTaint::GetPage( u32 addr )
+{
+    const u32 pageNum = PAGE_NUM(addr);
+    if (m_pagetable[pageNum] == NULL) {
+        m_pagetable[pageNum] = new PageTaint;
+    }
+    return m_pagetable[pageNum];
+}
+
+MemoryTaint::PageTaint::PageTaint()
+{
+    ZeroMemory(m_data, sizeof(m_data));
+}
+
+MemoryTaint::PageTaint::~PageTaint()
+{
+
+}
+
+Taint MemoryTaint::PageTaint::Get( u32 offset )
+{
+    Assert(offset < LX_PAGE_SIZE);
+    return m_data[offset];
+}
+
+void MemoryTaint::PageTaint::Set( u32 offset, const Taint &t )
+{
+    Assert(offset < LX_PAGE_SIZE);
+    m_data[offset] = t;
 }
 
 
@@ -112,7 +157,7 @@ Taint TaintEngine::GetTaint( const Processor *cpu, const ARGTYPE &oper )
 
 void TaintEngine::SetTaint( const Processor *cpu, const ARGTYPE &oper, const Taint &t )
 {
-    Assert(t.GetIndices() > 0);
+    //Assert(t.GetIndices() > 0);
     if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
         m_cpuTaint.GPRegs[RegMap[REG_NUM(oper.ArgType)]] = t;
     } else if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
@@ -134,3 +179,4 @@ void TaintEngine::DefaultTaintPropagate( Processor *cpu, const Instruction *inst
     Taint t = GetTaint(cpu, arg1) | GetTaint(cpu, arg2);
     SetTaint(cpu, arg1, t);
 }
+
