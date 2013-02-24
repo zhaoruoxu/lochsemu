@@ -89,3 +89,13 @@ std::string Taint::ToString() const
         r += ('0' + m_data[i]);
     return r;
 }
+
+Taint * TaintFactory::Create()
+{
+    return m_factory.Keep(new Taint);
+}
+
+Taint * TaintFactory::Create( int nIndices )
+{
+    return m_factory.Keep(new Taint(nIndices));
+}

@@ -8,12 +8,39 @@
 template <typename T>
 class AllocOnlyPool {
 public:
-    AllocOnlyPool(int initialSize);
-    ~AllocOnlyPool();
+    AllocOnlyPool(int initialSize)
+    {
+        m_currSize      = 0;
+        m_currMaxSize   = initialSize;
+        m_memory        = new T[m_currMaxSize];
+    }
 
-    T *     Alloc();
+    ~AllocOnlyPool()
+    {
+        SAFE_DELETE_ARRAY(m_memory);
+        for (auto &t : m_storage) {
+            SAFE_DELETE_ARRAY(t);
+        }
+        m_storage.clear();
+    }
+
+    T *     Alloc()
+    {
+        Assert(m_currSize < m_currMaxSize);
+        T *res = &m_memory[m_currSize++];
+        if (m_currSize == m_currMaxSize)
+            Expand();
+        return res;
+    }
+
 private:
-    void    Expand();
+    void    Expand()
+    {
+        m_storage.push_back(m_memory);
+        m_currMaxSize *= 2;
+        m_memory = new T[m_currMaxSize];
+        m_currSize = 0;
+    }
 private:
     std::vector<T *>    m_storage;
     T *     m_memory;
@@ -22,43 +49,32 @@ private:
 };
 
 
-
 template <typename T>
-AllocOnlyPool<T>::AllocOnlyPool( int initialSize )
-{
-    m_currSize      = 0;
-    m_currMaxSize   = initialSize;
-    m_memory        = new T[m_currMaxSize];
-}
-
-template <typename T>
-AllocOnlyPool<T>::~AllocOnlyPool()
-{
-    SAFE_DELETE_ARRAY(m_memory);
-    for (auto &t : m_storage) {
-        SAFE_DELETE_ARRAY(t);
+class FactoryImpl {
+public:
+    FactoryImpl() { m_storage.reserve(16); }
+    ~FactoryImpl() 
+    {
+        for (auto &t : m_storage) {
+            SAFE_DELETE(t);
+        }
+        m_storage.clear();
     }
-    m_storage.clear();
-}
 
-template <typename T>
-T * AllocOnlyPool<T>::Alloc()
-{
-    Assert(m_currSize < m_currMaxSize);
-    T *res = &m_memory[m_currSize++];
-    if (m_currSize == m_currMaxSize)
-        Expand();
-    return res;
-}
+    T* Keep(T *p)
+    {
+        m_storage.push_back(p);
+        return p;
+    }
 
-template <typename T>
-void AllocOnlyPool<T>::Expand()
-{
-    m_storage.push_back(m_memory);
-    m_currMaxSize *= 2;
-    m_memory = new T[m_currMaxSize];
-    m_currSize = 0;
-}
+    int Size() const { return m_storage.size(); }
+
+private:
+    std::vector<T *>    m_storage;
+
+    FactoryImpl(const FactoryImpl &);
+    FactoryImpl& operator=(const FactoryImpl &);
+};
 
 
 #endif // __ARIETIS_MEMORY_H__

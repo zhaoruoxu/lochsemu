@@ -4,7 +4,7 @@
 #define __TAINT_TAINT_H__
  
 #include "Arietis.h"
-
+#include "memory.h"
 
 // Per BYTE Taint structure
 class Taint {
@@ -36,6 +36,14 @@ public:
 private:
     int         m_nIndices;
     pbyte       m_data;
+};
+
+class TaintFactory {
+public:
+    Taint *     Create();
+    Taint *     Create(int nIndices);
+private:
+    FactoryImpl<Taint> m_factory;
 };
  
 #endif // __TAINT_TAINT_H__
