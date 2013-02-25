@@ -48,7 +48,7 @@ private:
     void    InitStatusBar();
     void    InitToolbars();
 private:
-    AEngine * m_engine;
+    AEngine *       m_engine;
 
     CpuPanel *      m_cpuPanel;
     ContextPanel *  m_contextPanel;

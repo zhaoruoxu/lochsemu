@@ -31,7 +31,7 @@ public:
     void        OnToggleBreakpoint();
     void        OnTerminate();
 
-    void        UpdateInstContext(InstContext &ctx) const;
+    void        UpdateInstContext(InstContext *ctx) const;
 private:
     void        DoPreExecSingleStep(const Processor *cpu, const Instruction *inst);
     void        CheckBreakpoints(const Processor *cpu, const Instruction *inst);

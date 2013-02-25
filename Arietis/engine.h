@@ -40,9 +40,9 @@ public:
     Disassembler *  GetDisassembler() { return &m_disassembler; }
     TaintEngine *   GetTaintEngine() { return &m_taint; }
     //AArchive &      GetArchive() { return m_archive; }
-    InstContext     GetCurrentInstContext() const;
-    void            EnableTracer(bool isEnabled) { m_tracerEnabled = isEnabled; }
-    bool            IsTracerEnabled() const { return m_tracerEnabled; }
+    void            GetCurrentInstContext(InstContext *ctx) const;
+    //void            EnableTracer(bool isEnabled) { m_tracerEnabled = isEnabled; }
+    //bool            IsTracerEnabled() const { return m_tracerEnabled; }
     //void            Persist();
 
     void            ReportBusy(bool isBusy);
@@ -61,10 +61,10 @@ private:
     TaintEngine     m_taint;
     ArietisFrame *  m_gui;
     //AArchive        m_archive;
-    u32             m_currEip;
-    i64             m_totalExecuted;
+    //u32             m_currEip;
+    //i64             m_totalExecuted;
 
-    bool            m_tracerEnabled;
+    //bool            m_tracerEnabled;
     bool            m_skipDllEntries;
     bool            m_mainEntryEntered;
 

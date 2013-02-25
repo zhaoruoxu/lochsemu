@@ -40,13 +40,13 @@ public:
 
     void        OnPaint(wxPaintEvent &event);
     void        OnEraseBackground(wxEraseEvent &event);
-    void        UpdateData(const ATracer::Trace &t);
+    void        UpdateData(const TraceContext &t);
     void        UpdateData();
 private:
     void        Init();
 private:
     CompositeTracePanel*    m_parent;
-    ATracer::Trace  m_trace;
+    TraceContext    m_trace;
     wxFont          m_font;
     wxBrush         m_bgBrush;        
     int             m_lineHeight;
@@ -58,18 +58,13 @@ public:
     TracePanel(CompositeTracePanel *parent);
     ~TracePanel();
 
-//     void        OnLeftDown(wxMouseEvent &event);
-//     void        OnLeftUp(wxMouseEvent &event);
-//     void        OnMouseMove(wxMouseEvent &event);
-//     void        OnMouseLeave(wxMouseEvent &event);
-
     void        UpdateData();
     void        OnSelectionChange() override;
     const static int VertLineOffset = -2;
 private:
     void        InitRender();
     void        Draw(wxBufferedPaintDC &dc) override;
-    void        DrawTrace(wxBufferedPaintDC &dc, const ATracer::Trace &trace, int index);
+    void        DrawTrace(wxBufferedPaintDC &dc, const TraceContext &trace, int index);
 private:
     CompositeTracePanel *   m_parent;
 
@@ -77,9 +72,8 @@ private:
     wxPen       m_currSelPen;
     int         m_widthIp;
     int         m_widthDisasm;
+    int         m_widthTaint;
     int         m_width;
-    //int         m_currIndex;
-    //bool        m_isLeftDown;
 };
 
 #endif // __ARIETIS_GUI_TRACEPANEL_H__

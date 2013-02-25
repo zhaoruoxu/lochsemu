@@ -64,7 +64,7 @@ public:
 
     void        Lock() const;
     void        Unlock() const;
-    void        UpdateInstContext(InstContext &ctx) const;
+    void        UpdateInstContext(InstContext *ctx) const;
 
     void        DefaultTaintPropagate   (Processor *cpu, const Instruction *inst);
 private:

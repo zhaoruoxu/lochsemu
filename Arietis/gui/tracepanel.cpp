@@ -1,18 +1,11 @@
 #include "stdafx.h"
 #include "tracepanel.h"
-
+#include "instcontext.h"
 
 TracePanel::TracePanel( CompositeTracePanel *parent )
     : SelectableScrolledControl(parent, wxSize(600, 200)), m_parent(parent)
 {
     InitRender();
-
-//     Bind(wxEVT_LEFT_DOWN,   &TracePanel::OnLeftDown,    this, wxID_ANY);
-//     Bind(wxEVT_LEFT_UP,     &TracePanel::OnLeftUp,      this, wxID_ANY);
-//     Bind(wxEVT_MOTION,      &TracePanel::OnMouseMove,   this, wxID_ANY);
-//     Bind(wxEVT_LEAVE_WINDOW,&TracePanel::OnMouseLeave,  this, wxID_ANY);
-//     m_currSelIndex     = -1;
-//     m_isLeftDown    = false;
 }
 
 TracePanel::~TracePanel()
@@ -31,6 +24,7 @@ void TracePanel::InitRender()
     m_currSelPen    = wxPen(wxColour(g_config.GetString("TracePanel", "CurrentSelectionColor", "#808080")));
     m_widthIp       = g_config.GetInt("TracePanel", "WidthIp", 70);
     m_widthDisasm   = g_config.GetInt("TracePanel", "WidthDisasm", 300);
+    m_widthTaint    = g_config.GetInt("TracePanel", "WidthTaint", 64);
     m_width         = m_widthIp + m_widthDisasm;
 }
 
@@ -69,7 +63,7 @@ void TracePanel::Draw( wxBufferedPaintDC &dc )
     m_parent->m_tracer->Unlock();
 }
 
-void TracePanel::DrawTrace( wxBufferedPaintDC &dc, const ATracer::Trace &trace, int index )
+void TracePanel::DrawTrace( wxBufferedPaintDC &dc, const TraceContext &trace, int index )
 {
     int h = m_lineHeight * index; // plus 1 for header
     wxRect rectToDraw(0, h, m_width, m_lineHeight);
@@ -87,6 +81,11 @@ void TracePanel::DrawTrace( wxBufferedPaintDC &dc, const ATracer::Trace &trace, 
     dc.DrawText(wxString::Format("%08X", trace.inst->Eip), w, h);
     w += m_widthIp;
     dc.DrawText(trace.inst->Main.CompleteInstr, w, h);
+    w += m_widthDisasm;
+
+    for (int i = 0; i < InstContext::RegCount; i++) {
+        //DrawTaint(dc, )
+    }
 }
 
 void TracePanel::UpdateData()
@@ -100,42 +99,6 @@ void TracePanel::OnSelectionChange()
 {
     m_parent->OnSelectionChange(m_currSelIndex);
 }
-
-// 
-// void TracePanel::OnLeftDown( wxMouseEvent &event )
-// {
-//     wxPoint p       = event.GetPosition();
-//     wxPoint ps      = GetViewStart();
-//     m_currIndex     = ps.y + p.y / m_lineHeight;
-//     m_isLeftDown    = true;
-// 
-//     Refresh();
-//     m_parent->OnSelectionChange(m_currIndex);
-// }
-// 
-// void TracePanel::OnLeftUp( wxMouseEvent &event )
-// {
-//     m_isLeftDown    = false;
-// }
-// 
-// void TracePanel::OnMouseMove( wxMouseEvent &event )
-// {
-//     if (!m_isLeftDown) return;
-//     wxPoint p = event.GetPosition();
-//     wxPoint ps = GetViewStart();
-//     int index = ps.y + p.y / m_lineHeight;
-//     if (index != m_currIndex) {
-//         m_currIndex = index;
-//         Refresh();
-//         m_parent->OnSelectionChange(m_currIndex);
-//     }
-// }
-// 
-// void TracePanel::OnMouseLeave( wxMouseEvent &event )
-// {
-//     m_isLeftDown    = false;
-// }
-
 
 TraceInfoPanel::TraceInfoPanel( CompositeTracePanel *parent )
     : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(-1, 35)), m_parent(parent)
@@ -195,7 +158,7 @@ void TraceInfoPanel::OnEraseBackground( wxEraseEvent &event )
 
 }
 
-void TraceInfoPanel::UpdateData(const ATracer::Trace &t)
+void TraceInfoPanel::UpdateData(const TraceContext &t)
 {
     m_trace = t;
     UpdateData();

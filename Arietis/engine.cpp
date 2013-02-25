@@ -25,9 +25,8 @@ void AEngine::Initialize(Emulator *emu)
     m_emulator      = emu;
     m_debugger.Initialize();
     m_taint.Initialize();
-    m_tracerEnabled = g_config.GetInt("Tracer", "Enabled", 1) != 0;
-    m_currEip       = 0;
-    m_totalExecuted = 0;
+    m_tracer.Enable(g_config.GetInt("Tracer", "Enabled", 1) != 0);
+    //m_currEip       = 0;
     m_skipDllEntries    = g_config.GetInt("Engine", "SkipDllEntries", 1) != 0;
     m_mainEntryEntered  = false;
     m_enabled       = true;
@@ -35,7 +34,7 @@ void AEngine::Initialize(Emulator *emu)
 
 void AEngine::SaveConfig()
 {
-    g_config.SetInt("Tracer", "Enabled", m_tracerEnabled);
+    g_config.SetInt("Tracer", "Enabled", m_tracer.IsEnabled());
     g_config.SetInt("Engine", "SkipDllEntries", m_skipDllEntries);
 }
 
@@ -43,27 +42,23 @@ void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 {
     if (!m_enabled) return;
     //m_archive[cpu->EIP] = Json::Value(inst->Main.CompleteInstr);
-    m_currEip = cpu->EIP;
+    //m_currEip = cpu->EIP;
+    m_tracer.OnPreExecute(cpu);
     
     m_disassembler.OnPreExecute(cpu, inst);
     if (m_skipDllEntries && !m_mainEntryEntered) return;
     
     //m_gui->GetCpuPanel()->OnPreExecute(cpu, inst);
     m_debugger.OnPreExecute(cpu, inst);
-
-    
 }
 
 void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 {
     if (!m_enabled) return;
-    ++m_totalExecuted;
     if (m_skipDllEntries && !m_mainEntryEntered) return;
     //m_debugger.OnPostExecute(cpu, inst);
     
-    if (m_tracerEnabled) {
-        m_tracer.TraceInst(cpu, m_currEip, m_totalExecuted);
-    }
+    m_tracer.OnPostExecute(cpu, inst);
 }
 
 void AEngine::OnProcessPostLoad( const PeLoader *loader )
@@ -112,13 +107,11 @@ void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
     //Persist();
 }
 
-InstContext AEngine::GetCurrentInstContext() const
+void AEngine::GetCurrentInstContext(InstContext *ctx) const
 {
-    InstContext context;
-    m_debugger.UpdateInstContext(context);
-    m_disassembler.UpdateInstContext(context);
-    m_taint.UpdateInstContext(context);
-    return context;
+    m_debugger.UpdateInstContext(ctx);
+    m_disassembler.UpdateInstContext(ctx);
+    m_taint.UpdateInstContext(ctx);
 }
 
 void AEngine::ReportBusy( bool isBusy )

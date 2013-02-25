@@ -190,12 +190,12 @@ void TaintEngine::Unlock() const
     m_mutex.Release();
 }
 
-void TaintEngine::UpdateInstContext( InstContext &ctx ) const
+void TaintEngine::UpdateInstContext( InstContext *ctx ) const
 {
     for (int i = InstContext::RegIndexGP; i < InstContext::RegIndexGP + InstContext::RegCount; i++)
-        ctx.regTaint[i]     = CpuTaint.GPRegs[i];
-    ctx.regTaint[InstContext::RegIndexEip]  = CpuTaint.Eip;
+        ctx->regTaint[i]    = CpuTaint.GPRegs[i];
+    ctx->regTaint[InstContext::RegIndexEip]  = CpuTaint.Eip;
     for (int i = 0; i < InstContext::FlagCount; i++)
-        ctx.flagTaint[i]    = CpuTaint.Flags[i];
+        ctx->flagTaint[i]   = CpuTaint.Flags[i];
 }
 

@@ -71,7 +71,7 @@ void ArietisFrame::InitUI()
         OnLoadPerspective(wxCommandEvent());
     }
 
-    OnToggleTrace(m_engine->IsTracerEnabled());
+    OnToggleTrace(m_engine->GetTracer()->IsEnabled());
     //SetSize(800, 800);
 }
 
@@ -255,7 +255,9 @@ void ArietisFrame::OnToggleBreakpoint( wxCommandEvent &event )
 
 void ArietisFrame::PreExecSingleStepCallback( const Processor *cpu, const Instruction *inst )
 {
-    m_contextPanel->UpdateData(m_engine->GetCurrentInstContext(), "Dynamic Execution");
+    InstContext ctx;
+    m_engine->GetCurrentInstContext(&ctx);
+    m_contextPanel->UpdateData(ctx, "Dynamic Execution");
     m_cpuPanel->OnPtrChange(cpu->EIP);
     m_tracePanel->UpdateData();
     m_memInfoPanel->UpdateData(cpu->Emu(), cpu->Mem);
@@ -279,7 +281,7 @@ void ArietisFrame::OnProcessLoaded( LPCSTR path )
 
 void ArietisFrame::OnToggleTrace( bool traceEnabled )
 {
-    m_engine->EnableTracer(traceEnabled);
+    m_engine->GetTracer()->Enable(traceEnabled);
     m_statusbar->SetStatusText(traceEnabled ? "Tracing" : "", Statusbar_Tracing);
     m_toggleTraceButton->SetLabel(traceEnabled ? "Stop Trace" : "Start Trace");
     m_toggleTraceButton->SetBackgroundColour(traceEnabled ? *wxRED : *wxCYAN);
@@ -287,6 +289,6 @@ void ArietisFrame::OnToggleTrace( bool traceEnabled )
 
 void ArietisFrame::OnToggleTraceClicked( wxCommandEvent &event )
 {
-    OnToggleTrace(!m_engine->IsTracerEnabled());
+    OnToggleTrace(!m_engine->GetTracer()->IsEnabled());
 }
 

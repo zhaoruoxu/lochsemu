@@ -248,10 +248,10 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *se
     }
 }
 
-void Disassembler::UpdateInstContext( InstContext &ctx ) const
+void Disassembler::UpdateInstContext( InstContext *ctx ) const
 {
     Assert(m_currProcessor);
 
     InstPtr inst    = m_instMem.GetInst(m_currProcessor->EIP);
-    ctx.inst        = inst;
+    ctx->inst       = inst;
 }
