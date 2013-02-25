@@ -110,7 +110,8 @@
     <ClInclude Include="3rdparty\src\json\json_tool.h" />
     <ClInclude Include="Arietis.h" />
     <ClInclude Include="buildver.h" />
-    <ClInclude Include="debugger.h" />
+    <ClInclude Include="debug\debugger.h" />
+    <ClInclude Include="debug\tracer.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="gui\cpupanel.h" />
     <ClInclude Include="gui\custombase.h" />
@@ -121,13 +122,13 @@
     <ClInclude Include="gui\mempanel.h" />
     <ClInclude Include="gui\tracepanel.h" />
     <ClInclude Include="instcontext.h" />
+    <ClInclude Include="io.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="static\disassembler.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="taint\taintengine.h" />
     <ClInclude Include="taint\taint.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="tracer.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>
   <ItemGroup>
@@ -144,11 +145,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Arietis.cpp" />
+    <ClCompile Include="debug\debugger.cpp" />
+    <ClCompile Include="debug\tracer.cpp" />
     <ClCompile Include="gui\custombase.cpp" />
     <ClCompile Include="gui\mempanel.cpp" />
     <ClCompile Include="gui\tracepanel.cpp" />
-    <ClCompile Include="tracer.cpp" />
-    <ClCompile Include="debugger.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

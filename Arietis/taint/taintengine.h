@@ -17,7 +17,7 @@ struct ProcessorTaint {
 
 class MemoryTaint {
 
-    class PageTaint {
+    class PageTaint { 
     public:
         PageTaint();
         ~PageTaint();

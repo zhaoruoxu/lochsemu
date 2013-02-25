@@ -134,9 +134,6 @@ void ArietisFrame::InitStatusBar()
     static const int Widths[] = { -1, 50, 40, 70, 100, 75 };
     m_statusbar = CreateStatusBar(_countof(Widths));
     m_statusbar->SetStatusWidths(_countof(Widths), Widths);
-//     m_statusbar->SetStatusText("0", 0);
-//     m_statusbar->SetStatusText("1", 1);
-//     m_statusbar->SetStatusText("2", 2);
 
     m_statusTimer.Start(g_config.GetInt("General", "StatusUpdateInterval", 1000));
     Bind(wxEVT_TIMER, &ArietisFrame::OnStatusTimer, this, ID_StatusTimer);
@@ -297,10 +294,6 @@ void ArietisFrame::PreExecSingleStepCallback( const Processor *cpu, const Instru
     m_memDataPanel->Refresh();
 }
 
-// void ArietisFrame::PostExecSingleStepCallback( const Processor *cpu, const Instruction *inst )
-// {
-//     //m_tracePanel->UpdateData();
-// }
 
 void ArietisFrame::ReportBusy( bool isBusy )
 {

@@ -43,6 +43,12 @@
     <Filter Include="Source Files\static">
       <UniqueIdentifier>{fd34186e-8ff1-461b-a298-9c560ac51ed0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\debug">
+      <UniqueIdentifier>{bfa60b81-3ef8-4132-b8db-e64d0755c532}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\debug">
+      <UniqueIdentifier>{576ea2be-db41-4d69-9bf7-c872ce27ae2b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -105,9 +111,6 @@
     <ClInclude Include="utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="debugger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -119,9 +122,6 @@
     </ClInclude>
     <ClInclude Include="gui\contextpanel.h">
       <Filter>Header Files\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="tracer.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\tracepanel.h">
       <Filter>Header Files\gui</Filter>
@@ -140,6 +140,15 @@
     </ClInclude>
     <ClInclude Include="instcontext.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="io.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="debug\debugger.h">
+      <Filter>Header Files\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="debug\tracer.h">
+      <Filter>Header Files\debug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -179,9 +188,6 @@
     <ClCompile Include="utilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="debugger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -194,9 +200,6 @@
     <ClCompile Include="gui\contextpanel.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
-    <ClCompile Include="tracer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\tracepanel.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
@@ -205,6 +208,12 @@
     </ClCompile>
     <ClCompile Include="gui\mempanel.cpp">
       <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="debug\debugger.cpp">
+      <Filter>Source Files\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="debug\tracer.cpp">
+      <Filter>Source Files\debug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

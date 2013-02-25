@@ -57,7 +57,8 @@ void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
     if (!m_enabled) return;
     if (m_skipDllEntries && !m_mainEntryEntered) return;
     //m_debugger.OnPostExecute(cpu, inst);
-    
+
+    m_taint.OnPostExecute(cpu, inst);
     m_tracer.OnPostExecute(cpu, inst);
 }
 

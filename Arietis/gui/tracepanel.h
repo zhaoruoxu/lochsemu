@@ -5,7 +5,7 @@
 
 #include "Arietis.h"
 #include "gui.h"
-#include "tracer.h"
+#include "debug/tracer.h"
 #include "custombase.h"
 
 class TraceInfoPanel;

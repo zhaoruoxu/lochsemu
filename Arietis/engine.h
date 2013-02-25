@@ -4,8 +4,8 @@
 #define __ARIETIS_ENGINE_H__
 
 #include "Arietis.h"
-#include "debugger.h"
-#include "tracer.h"
+#include "debug/debugger.h"
+#include "debug/tracer.h"
 #include "gui/gui.h"
 #include "static/disassembler.h"
 #include "taint/taintengine.h"
