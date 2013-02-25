@@ -140,7 +140,7 @@ void ADebugger::OnTerminate()
 
 void ADebugger::UpdateInstContext( InstContext *ctx ) const
 {
-    for (int i = InstContext::RegIndexGP; i < InstContext::RegIndexGP + InstContext::RegCount; i++) {
+    for (int i = InstContext::RegIndexGP; i < InstContext::RegIndexGP + InstContext::RegGPCount; i++) {
         ctx->regs[i]        = m_currProcessor->GP_Regs[i].X32;
     }
     ctx->regs[InstContext::RegIndexEip] = m_currProcessor->EIP;
@@ -158,6 +158,26 @@ void ADebugger::UpdateInstContext( InstContext *ctx ) const
 //     ctx->flags[10]           = m_currProcessor->RF;
 
     uint module             = m_currProcessor->GetCurrentModule();
+    const ModuleInfo *minfo = m_currProcessor->Proc()->GetModuleInfo(module);
+    ctx->moduleName         = minfo->Name;
+    ctx->moduleImageBase    = minfo->ImageBase;
+}
+
+void ADebugger::UpdateTraceContext( TraceContext *ctx, u32 eip ) const
+{
+    for (int i = InstContext::RegIndexGP; i < InstContext::RegIndexGP + InstContext::RegGPCount; i++) {
+        ctx->regs[i]        = m_currProcessor->GP_Regs[i].X32;
+    }
+    ctx->regs[InstContext::RegIndexEip] = eip;
+
+    ctx->flags[InstContext::OF]         = m_currProcessor->OF;
+    ctx->flags[InstContext::SF]         = m_currProcessor->SF;
+    ctx->flags[InstContext::ZF]         = m_currProcessor->ZF;
+    ctx->flags[InstContext::AF]         = m_currProcessor->AF;
+    ctx->flags[InstContext::PF]         = m_currProcessor->PF;
+    ctx->flags[InstContext::CF]         = m_currProcessor->CF;
+
+    uint module             = m_currProcessor->GetModule(eip);
     const ModuleInfo *minfo = m_currProcessor->Proc()->GetModuleInfo(module);
     ctx->moduleName         = minfo->Name;
     ctx->moduleImageBase    = minfo->ImageBase;

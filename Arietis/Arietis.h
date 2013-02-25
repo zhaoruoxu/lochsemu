@@ -31,6 +31,7 @@ typedef Json::Value     AArchive;
 class AEngine;
 class ADebugger;
 struct InstContext;
+struct TraceContext;
 class ATracer;
 class Taint;
 class TaintEngine;

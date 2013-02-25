@@ -31,8 +31,8 @@ void ATracer::OnPostExecute( const Processor *cpu, const Instruction *inst )
     TraceContext ctx;
 
     Lock();
-    m_engine->GetCurrentInstContext(&ctx);
-    ctx.regs[InstContext::RegIndexEip] = m_currEip;     // Fix eip error
+    m_engine->GetTraceContext(&ctx, m_currEip);
+    //ctx.regs[InstContext::RegIndexEip] = m_currEip;     // Fix eip error
     ctx.seq     = m_seq;
     m_traces.push_back(ctx);
     Unlock();

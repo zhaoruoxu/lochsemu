@@ -363,20 +363,16 @@ void Processor::FromContext( const CONTEXT *context )
 
 uint Processor::GetCurrentModule( void ) const
 {
-//     if (LX_IS_WINAPI(EIP)) {
-//         return LX_UNKNOWN_MODULE;
-//     }
-//     Section *section = Mem->GetSection(EIP);
-//     if (!section) {
-//         LxWarning("Current module is invalid\n");
-//         return LX_UNKNOWN_MODULE;
-//     }
-//     return section->Module();
     if (CurrentSection() == NULL) {
         LxError("Current section is NULL\n");
         return LX_UNKNOWN_MODULE;
     }
     return CurrentSection()->Module();
+}
+
+uint Processor::GetModule( u32 eip ) const
+{
+    return Mem->GetSection(eip)->Module();
 }
 
 u8 Processor::ReadOperand8( const Instruction *inst, const ARGTYPE &oper, u32 *offset ) const

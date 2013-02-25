@@ -32,6 +32,7 @@ public:
     void        OnTerminate();
 
     void        UpdateInstContext(InstContext *ctx) const;
+    void        UpdateTraceContext(TraceContext *ctx, u32 eip) const;
 private:
     void        DoPreExecSingleStep(const Processor *cpu, const Instruction *inst);
     void        CheckBreakpoints(const Processor *cpu, const Instruction *inst);

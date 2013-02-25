@@ -111,7 +111,7 @@ public:
     }
 
     void        OnPreExecute(const Processor *cpu, const Instruction *inst);
-    void        UpdateInstContext(InstContext *ctx) const;
+    void        UpdateInstContext(InstContext *ctx, u32 eip) const;
     InstPtr     GetInst(u32 eip) const { return m_instMem.GetInst(eip); }
 private:
     void        RecursiveDisassemble(const Processor *cpu, u32 eip, InstSection *sec, u32 entryEip);

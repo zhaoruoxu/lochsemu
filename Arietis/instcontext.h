@@ -24,6 +24,7 @@ struct InstContext {
     };
 
     static const int    RegCount    = 9;       // 0-7: GP, 8: Eip
+    static const int    RegGPCount  = 8;
     static const int    RegIndexGP  = 0;
     static const int    RegIndexEip = 8;
     static const int    FlagCount   = FLAG_COUNT;

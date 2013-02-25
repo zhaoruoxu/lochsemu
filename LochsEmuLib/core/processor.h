@@ -213,6 +213,7 @@ public:
      * Get module number according to current EIP
      */
     uint            GetCurrentModule    (void) const;
+    uint            GetModule           (u32 eip) const;
 
     LxResult        Initialize          (void);
     LxResult        Run                 (u32 entry);

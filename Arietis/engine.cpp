@@ -110,7 +110,14 @@ void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
 void AEngine::GetCurrentInstContext(InstContext *ctx) const
 {
     m_debugger.UpdateInstContext(ctx);
-    m_disassembler.UpdateInstContext(ctx);
+    m_disassembler.UpdateInstContext(ctx, ctx->regs[InstContext::RegIndexEip]);
+    m_taint.UpdateInstContext(ctx);
+}
+
+void AEngine::GetTraceContext( TraceContext *ctx, u32 eip ) const
+{
+    m_debugger.UpdateTraceContext(ctx, eip);
+    m_disassembler.UpdateInstContext(ctx, eip);
     m_taint.UpdateInstContext(ctx);
 }
 

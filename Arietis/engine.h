@@ -41,6 +41,7 @@ public:
     TaintEngine *   GetTaintEngine() { return &m_taint; }
     //AArchive &      GetArchive() { return m_archive; }
     void            GetCurrentInstContext(InstContext *ctx) const;
+    void            GetTraceContext(TraceContext *ctx, u32 eip) const;
     //void            EnableTracer(bool isEnabled) { m_tracerEnabled = isEnabled; }
     //bool            IsTracerEnabled() const { return m_tracerEnabled; }
     //void            Persist();
