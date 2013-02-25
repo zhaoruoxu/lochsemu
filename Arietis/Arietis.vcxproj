@@ -116,6 +116,7 @@
     <ClInclude Include="gui\contextpanel.h" />
     <ClInclude Include="gui\mempanel.h" />
     <ClInclude Include="gui\tracepanel.h" />
+    <ClInclude Include="instcontext.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="static\disassembler.h" />
     <ClInclude Include="stdafx.h" />

@@ -28,7 +28,6 @@ static int RegMap[]  = {
 };
 
 MemoryTaint::MemoryTaint() 
-    : m_mutex(false)
 {
     ZeroMemory(m_pagetable, sizeof(m_pagetable));
 }
@@ -104,6 +103,7 @@ void MemoryTaint::PageTaint::Set( u32 offset, const Taint &t )
 
 
 TaintEngine::TaintEngine()
+    : m_mutex(false)
 {
 
 }
@@ -146,10 +146,10 @@ Taint TaintEngine::GetTaint( const Processor *cpu, const ARGTYPE &oper )
 {
     if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
         int index = RegMap[REG_NUM(oper.ArgType)];
-        return m_cpuTaint.GPRegs[index];
+        return CpuTaint.GPRegs[index];
     } else if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
         u32 o = cpu->Offset32(oper);
-        return m_memTaint.Get(o, oper.ArgSize / 8);
+        return MemTaint.Get(o, oper.ArgSize / 8);
     } else {
         return Taint();
     }
@@ -159,10 +159,10 @@ void TaintEngine::SetTaint( const Processor *cpu, const ARGTYPE &oper, const Tai
 {
     //Assert(t.GetIndices() > 0);
     if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
-        m_cpuTaint.GPRegs[RegMap[REG_NUM(oper.ArgType)]] = t;
+        CpuTaint.GPRegs[RegMap[REG_NUM(oper.ArgType)]] = t;
     } else if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
         u32 o = cpu->Offset32(oper);
-        return m_memTaint.Set(t, o, oper.ArgSize / 8);
+        return MemTaint.Set(t, o, oper.ArgSize / 8);
     } else {
 
     }
@@ -178,5 +178,24 @@ void TaintEngine::DefaultTaintPropagate( Processor *cpu, const Instruction *inst
     if (OPERAND_TYPE(arg2.ArgType) == CONSTANT_TYPE) return;
     Taint t = GetTaint(cpu, arg1) | GetTaint(cpu, arg2);
     SetTaint(cpu, arg1, t);
+}
+
+void TaintEngine::Lock() const
+{
+    m_mutex.Wait();
+}
+
+void TaintEngine::Unlock() const
+{
+    m_mutex.Release();
+}
+
+void TaintEngine::UpdateInstContext( InstContext &ctx ) const
+{
+    for (int i = InstContext::RegIndexGP; i < InstContext::RegIndexGP + InstContext::RegCount; i++)
+        ctx.regTaint[i]     = CpuTaint.GPRegs[i];
+    ctx.regTaint[InstContext::RegIndexEip]  = CpuTaint.Eip;
+    for (int i = 0; i < InstContext::FlagCount; i++)
+        ctx.flagTaint[i]    = CpuTaint.Flags[i];
 }
 

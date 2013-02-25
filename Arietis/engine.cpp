@@ -24,6 +24,7 @@ void AEngine::Initialize(Emulator *emu)
     Intro();
     m_emulator      = emu;
     m_debugger.Initialize();
+    m_taint.Initialize();
     m_tracerEnabled = g_config.GetInt("Tracer", "EnableOnStart", 1) != 0;
     m_currEip       = 0;
     m_totalExecuted = 0;
@@ -110,6 +111,7 @@ InstContext AEngine::GetCurrentInstContext() const
     InstContext context;
     m_debugger.UpdateInstContext(context);
     m_disassembler.UpdateInstContext(context);
+    m_taint.UpdateInstContext(context);
     return context;
 }
 
@@ -135,5 +137,9 @@ void AEngine::Terminate()
 }
 
 const std::string InstContext::FlagNames[] = {
-    "OF", "SF", "ZF", "AF", "PF", "CF", "TF", "IF", "DF", "NT", "RF"
+    "OF", "SF", "ZF", "AF", "PF", "CF", /* "TF", "IF", "DF", "NT", "RF" */
+};
+
+const std::string InstContext::RegNames[] = {
+    "Eax", "Ecx", "Edx", "Ebx", "Esp", "Ebp", "Esi", "Edi", "Eip",
 };

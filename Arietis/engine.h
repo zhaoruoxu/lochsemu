@@ -8,26 +8,8 @@
 #include "tracer.h"
 #include "gui/gui.h"
 #include "static/disassembler.h"
+#include "taint/taintengine.h"
 
-struct InstContext {
-    static const int    RegCount = 8;
-    static const int    FlagCount = 11;
-    static const std::string FlagNames[];
-
-    u32                 regs[RegCount];
-    u32                 flags[FlagCount];
-    std::string         moduleName;
-    u32                 moduleImageBase;
-
-    InstPtr             inst;
-
-    InstContext() {
-        ZeroMemory(regs, sizeof(regs));
-        ZeroMemory(flags, sizeof(flags));
-        moduleImageBase = 0;
-        inst            = NULL;
-    }
-};
 
 // struct MemContext {
 //     u32             Base;
@@ -55,6 +37,7 @@ public:
     ADebugger *     GetDebugger() { return &m_debugger; }
     ATracer *       GetTracer() { return &m_tracer; }
     Disassembler *  GetDisassembler() { return &m_disassembler; }
+    TaintEngine *   GetTaintEngine() { return &m_taint; }
     //AArchive &      GetArchive() { return m_archive; }
     InstContext     GetCurrentInstContext() const;
     void            EnableTracer(bool isEnabled) { m_tracerEnabled = isEnabled; }
@@ -73,6 +56,7 @@ private:
     ADebugger       m_debugger;
     ATracer         m_tracer;
     Disassembler    m_disassembler;
+    TaintEngine     m_taint;
     ArietisFrame *  m_gui;
     //AArchive        m_archive;
     u32             m_currEip;

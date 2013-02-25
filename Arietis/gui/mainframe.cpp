@@ -50,7 +50,7 @@ void ArietisFrame::InitUI()
 
     m_auiManager.SetManagedWindow(this);
 
-    m_cpuPanel      = new CpuPanel(this);
+    m_cpuPanel      = new CpuPanel(this, m_engine);
     m_contextPanel  = new ContextPanel(this);
     m_tracePanel    = new CompositeTracePanel(this);
     m_memDataPanel  = new MemDataPanel(this);

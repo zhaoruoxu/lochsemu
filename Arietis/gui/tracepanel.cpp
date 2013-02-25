@@ -26,6 +26,7 @@ void TracePanel::InitRender()
         wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, 
         g_config.GetString("TracePanel", "FontName", "Lucida Console"));
     UpdateFont(f);
+    m_bgBrush       = wxBrush(wxColour(g_config.GetString("TracePanel", "BgColor", "#e0e0e0")));
     m_currPen       = wxPen(wxColour(g_config.GetString("TracePanel", "CurrentColor", "#0080ff")));
     m_currSelPen    = wxPen(wxColour(g_config.GetString("TracePanel", "CurrentSelectionColor", "#808080")));
     m_widthIp       = g_config.GetInt("TracePanel", "WidthIp", 70);

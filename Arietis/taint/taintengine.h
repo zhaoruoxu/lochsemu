@@ -7,25 +7,12 @@
 #include "taint.h"
 #include "instruction.h"
 #include "parallel.h"
+#include "instcontext.h"
 
 struct ProcessorTaint {
-
     Taint GPRegs[8];
-    
-    Taint OF;
-    Taint SF;
-    Taint ZF;
-    Taint AF;
-    Taint PF;
-    Taint CF;
-    Taint TF;
-    Taint IF;
-    Taint DF;
-    Taint NT;
-    Taint RF;
-
+    Taint Flags[InstContext::FLAG_COUNT];
     Taint Eip;
-
 };
 
 class MemoryTaint {
@@ -58,7 +45,6 @@ private:
     //std::unordered_map<u32, Taint> m_status;
     PageTaint *  m_pagetable[LX_PAGE_COUNT];
     //TaintFactory &  m_factory;
-    Mutex           m_mutex;
 };
 
 class TaintEngine {
@@ -67,16 +53,22 @@ public:
     TaintEngine();
     ~TaintEngine();
 
+    ProcessorTaint  CpuTaint;
+    MemoryTaint     MemTaint;
+
     void        Initialize();
     void        OnPreExecute       (Processor *cpu, const Instruction *inst);
     void        OnPostExecute      (Processor *cpu, const Instruction *inst);
     void        OnWinapiPreCall    (Processor *cpu, uint apiIndex);
     void        OnWinapiPostCall   (Processor *cpu, uint apiIndex);
 
+    void        Lock() const;
+    void        Unlock() const;
+    void        UpdateInstContext(InstContext &ctx) const;
+
     void        DefaultTaintPropagate   (Processor *cpu, const Instruction *inst);
 private:
-    ProcessorTaint  m_cpuTaint;
-    MemoryTaint     m_memTaint;
+    Mutex           m_mutex;
     //TaintFactory    m_factory;
 
 private:

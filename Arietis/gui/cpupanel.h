@@ -11,7 +11,7 @@
 
 class CpuPanel : public SelectableScrolledControl {
 public:
-    CpuPanel(wxWindow *parent);
+    CpuPanel(wxWindow *parent, AEngine *engine);
     ~CpuPanel();
 
     void        OnPtrChange(u32 addr);
@@ -19,9 +19,11 @@ public:
     void        OnSelectionChange() override;
 
     void        OnRightDown(wxMouseEvent& event);
+    void        OnPopupShowCurrInst(wxCommandEvent &event);
+    void        OnPopupTaintReg(wxCommandEvent &event);
 private:
-    void        InitLogic();
     void        InitRender();
+    void        InitMenu();
     void        Draw(wxBufferedPaintDC &dc) override;
     void        DrawInst(wxBufferedPaintDC &dc, const InstPtr inst, int index);
     void        DrawJumpIcon(wxBufferedPaintDC &dc, const InstPtr inst, int index);
@@ -29,6 +31,8 @@ private:
     wxPoint     GetCurrentScrolledPos() const;
     int         CalcJumpLineWidth(int idx1, int idx2) const;
 private:
+    wxMenu *    m_popup;
+    AEngine *   m_engine;
     
     /* render */
     int         m_widthIp;

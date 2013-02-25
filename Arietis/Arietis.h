@@ -32,6 +32,8 @@ class AEngine;
 class ADebugger;
 struct InstContext;
 class ATracer;
+class Taint;
+class TaintEngine;
 
 extern HMODULE          g_module;
 extern Config           g_config;

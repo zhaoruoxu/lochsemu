@@ -36,9 +36,10 @@ public:
     Taint&      operator^=(const Taint &rhs);
 
     std::string ToString() const;
+    static Taint    FromBinString(const std::string &s);
 private:
     //int         m_nIndices;
-    static const int    Width = 32;
+    static const int    Width = 8;
     byte        m_data[Width];
 };
 
@@ -50,7 +51,7 @@ private:
 //     FactoryImpl<Taint> m_factory;
 // };
  
-typedef Taint *     TaintPtr;
+// typedef Taint *     TaintPtr;
 // 不应该使用AllocOnlyPool, Taint所使用内存会动态调整
 
 #endif // __TAINT_TAINT_H__

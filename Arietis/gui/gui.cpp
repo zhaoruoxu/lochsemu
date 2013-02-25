@@ -3,6 +3,7 @@
 #include "mainframe.h"
 #include "Arietis.h"
 #include "parallel.h"
+#include "taint/taint.h"
 
 HANDLE      g_guiThread;
 
@@ -46,4 +47,22 @@ bool ArietisApp::OnInit()
     frame->Show(true);
     //SetTopWindow(frame);
     return true;
+}
+
+
+void DrawTaint( wxBufferedPaintDC &dc, const Taint &t, const wxRect &rect )
+{
+    //dc.SetBrush(*wxWHITE_BRUSH);
+    //dc.DrawRectangle(rect);
+    const int TaintWidth = t.GetWidth();
+    int w = rect.width / TaintWidth;
+    if (w <= 2) {
+        LxWarning("Drawing width for each taint value might be too small\n");
+    }
+    dc.SetPen(*wxTRANSPARENT_PEN);
+    for (int i = 0; i < TaintWidth; i++) {
+        int xOffset = rect.width * i / TaintWidth;
+        dc.SetBrush(t.IsTainted(i) ? *wxRED_BRUSH : *wxWHITE_BRUSH);
+        dc.DrawRectangle(rect.x + xOffset, rect.y, w - 1, rect.height - 1);
+    }
 }

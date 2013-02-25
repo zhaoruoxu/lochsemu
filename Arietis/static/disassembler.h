@@ -51,7 +51,7 @@ public:
 
     InstPtr         Alloc(u32 addr);
     void            Lock() const;
-    void            Release() const;
+    void            Unlock() const;
 
     InstPtr *       Begin() const;
     InstPtr *       Next(InstPtr *curr) const;

@@ -24,11 +24,12 @@ private:
     InstContext m_data;
     wxString    m_dataDesc;
 
-    static const wxString  RegLabels[];
     wxFont      m_font;
     int         m_lineHeight;
     int         m_widthRegName;
     int         m_widthRegValue;
+    int         m_widthTaint;
+    int         m_widthFlagValue;
 
     wxBrush     m_bgBrush;
 };

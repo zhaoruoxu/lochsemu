@@ -2,16 +2,18 @@
 #include "cpupanel.h"
 #include "instruction.h"
 #include "processor.h"
+#include "engine.h"
 
 template <typename T>
 static INLINE bool InRangeIncl(T val, T t0, T t1) {
     return t0 <= val && val <= t1;
 }
 
-CpuPanel::CpuPanel( wxWindow *parent ) : SelectableScrolledControl(parent, wxSize(400, 200))
+CpuPanel::CpuPanel( wxWindow *parent, AEngine *engine ) : 
+    SelectableScrolledControl(parent, wxSize(400, 200)), m_engine(engine)
 {
     //m_mutex = MutexCS::Create();
-    InitLogic();
+    InitMenu();
     InitRender();
 
 //     Bind(wxEVT_LEFT_DOWN, &CpuPanel::OnLeftDown, this, wxID_ANY);
@@ -26,10 +28,6 @@ CpuPanel::CpuPanel( wxWindow *parent ) : SelectableScrolledControl(parent, wxSiz
 CpuPanel::~CpuPanel()
 {
     //MutexCS::Destroy(m_mutex);
-}
-
-void CpuPanel::InitLogic()
-{
 }
 
 void CpuPanel::InitRender()
@@ -60,6 +58,20 @@ void CpuPanel::InitRender()
     //m_currSelIndex = -1;
     //m_isLeftDown = false;
 }
+
+void CpuPanel::InitMenu()
+{
+    m_popup = new wxMenu;
+    m_popup->Append(ID_PopupShowCurrInst, "&Show current instruction");
+    m_popup->AppendSeparator();
+    wxMenu *taintMenu = new wxMenu;
+    taintMenu->Append(ID_PopupTaintReg, "Taint &register...");
+    m_popup->AppendSubMenu(taintMenu, "Taint");
+
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupShowCurrInst, this, ID_PopupShowCurrInst);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupTaintReg, this, ID_PopupTaintReg); 
+}
+
 
 wxPoint CpuPanel::GetCurrentScrolledPos() const
 {
@@ -243,7 +255,7 @@ void CpuPanel::OnDataUpdate( const InstSection *insts )
             prevRindex  = rindex;
         }
 
-        m_insts->Release();
+        m_insts->Unlock();
     }
 
     m_currSelIndex  = -1;
@@ -286,5 +298,34 @@ int CpuPanel::CalcJumpLineWidth(int idx1, int idx2) const
 
 void CpuPanel::OnRightDown( wxMouseEvent& event )
 {
+    PopupMenu(m_popup);
+}
+
+void CpuPanel::OnPopupShowCurrInst( wxCommandEvent &event )
+{
     Scroll(0, m_currIndex);
+}
+
+void CpuPanel::OnPopupTaintReg( wxCommandEvent &event )
+{
+    static const wxString Regs[] = { 
+        "EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI", "EIP" 
+    };
+
+    int reg = wxGetSingleChoiceIndex("Select a register", "Taint", _countof(Regs), Regs);
+    if (reg == -1) return;  // Cancelled
+
+    wxString val = wxGetTextFromUser("Set Taint value (binary) for " + Regs[reg], "Taint");
+    if (val.IsEmpty()) return; // Cancelled
+    
+    TaintEngine *te = m_engine->GetTaintEngine();
+    te->Lock();
+    if (reg < 8) {
+        te->CpuTaint.GPRegs[reg] = Taint::FromBinString(val.ToStdString());
+    } else if (reg == 8) {
+        te->CpuTaint.Eip = Taint::FromBinString(val.ToStdString());
+    } else {
+        Assert(0);
+    }
+    te->Unlock();
 }

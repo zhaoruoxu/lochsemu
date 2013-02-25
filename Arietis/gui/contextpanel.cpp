@@ -19,10 +19,6 @@ ContextPanel::~ContextPanel()
     //MutexCS::Destroy(m_mutex);
 }
 
-const wxString ContextPanel::RegLabels[] = {
-    "Eax", "Ecx", "Edx", "Ebx", "Esp", "Ebp", "Esi", "Edi"
-};
-
 void ContextPanel::InitRender()
 {
     m_font = wxFont(g_config.GetInt("ContextPanel", "FontSize", 9), 
@@ -36,8 +32,10 @@ void ContextPanel::InitRender()
 
     m_bgBrush = wxBrush(wxColour(g_config.GetString("ContextPanel", "BgColor", "#e0e0e0")));
 
-    m_widthRegName = g_config.GetInt("ContextPanel", "WidthRegName", 40);
+    m_widthRegName  = g_config.GetInt("ContextPanel", "WidthRegName", 40);
     m_widthRegValue = g_config.GetInt("ContextPanel", "WidthRegValue", 80);
+    m_widthTaint    = g_config.GetInt("ContextPanel", "WidthTaint", 80);
+    m_widthFlagValue    = g_config.GetInt("ContextPanel", "WidthFlagValue", 110);
 
     SetBackgroundStyle(wxBG_STYLE_PAINT);
 }
@@ -82,16 +80,18 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
     h += m_lineHeight * 2;
 
     for (int i = 0; i < InstContext::RegCount; i++) {
-        dc.DrawText(RegLabels[i], 0, h);
+        dc.DrawText(InstContext::RegNames[i], 0, h);
         dc.DrawText(wxString::Format("%08X", m_data.regs[i]), m_widthRegName, h);
+        DrawTaint(dc, m_data.regTaint[i], 
+            wxRect(m_widthRegName + m_widthRegValue, h, m_widthTaint, m_lineHeight));
         h += m_lineHeight;
     }
 
 
     h += m_lineHeight;
-    dc.DrawText("Eip", 0, h);
-    dc.DrawText(wxString::Format("%08X", m_data.inst->Eip), m_widthRegName, h);
-    h += m_lineHeight * 2;
+    //dc.DrawText("Eip", 0, h);
+    //dc.DrawText(wxString::Format("%08X", m_data.inst->Eip), m_widthRegName, h);
+    //h += m_lineHeight * 2;
 
     dc.DrawText("  TE MO RE SE", m_widthRegName, h);
     h += m_lineHeight;
@@ -104,6 +104,8 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
                 (*pFlag & TE_) != 0, (*pFlag & MO_) != 0, (*pFlag & RE_) != 0, (*pFlag & SE_) != 0);
             pFlag++;
             dc.DrawText(flag, m_widthRegName, h);
+            DrawTaint(dc, m_data.flagTaint[i],
+                wxRect(m_widthRegName + m_widthFlagValue, h, m_widthTaint, m_lineHeight));
             h += m_lineHeight;
         }
         h += m_lineHeight * 2;

@@ -91,6 +91,21 @@ std::string Taint::ToString() const
     return r;
 }
 
+Taint Taint::FromBinString( const std::string &s )
+{
+    Taint r;
+    if (s.size() > Width) {
+        LxFatal("Size of string exceeded width of Taint\n");
+    }
+    for (uint i = 0; i < s.size(); i++) {
+        int val = s[i] - '0';
+        if (val != 0 && val != 1)
+            LxFatal("Invalid character %c in string %s\n", s[i], s);
+        if (val != 0) r.Set(i);
+    }
+    return r;
+}
+
 // Taint * TaintFactory::Create()
 // {
 //     return m_factory.Keep(new Taint);

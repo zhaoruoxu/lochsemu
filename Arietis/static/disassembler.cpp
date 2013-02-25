@@ -32,7 +32,7 @@ InstPtr InstSection::Alloc( u32 addr )
     pinst->Eip              = addr;
     m_data[addr - m_base]   = pinst;
     m_count++;
-    Release();
+    Unlock();
     return pinst;
 }
 
@@ -41,7 +41,7 @@ void InstSection::Lock() const
     m_mutex.Wait();
 }
 
-void InstSection::Release() const
+void InstSection::Unlock() const
 {
     m_mutex.Release();
 }

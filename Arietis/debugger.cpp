@@ -140,21 +140,22 @@ void ADebugger::OnTerminate()
 
 void ADebugger::UpdateInstContext( InstContext &ctx ) const
 {
-    for (int i = 0; i < InstContext::RegCount; i++) {
+    for (int i = InstContext::RegIndexGP; i < InstContext::RegIndexGP + InstContext::RegCount; i++) {
         ctx.regs[i]         = m_currProcessor->GP_Regs[i].X32;
     }
+    ctx.regs[InstContext::RegIndexEip]  = m_currProcessor->EIP;
 
-    ctx.flags[0]            = m_currProcessor->OF;
-    ctx.flags[1]            = m_currProcessor->SF;
-    ctx.flags[2]            = m_currProcessor->ZF;
-    ctx.flags[3]            = m_currProcessor->AF;
-    ctx.flags[4]            = m_currProcessor->PF;
-    ctx.flags[5]            = m_currProcessor->CF;
-    ctx.flags[6]            = m_currProcessor->TF;
-    ctx.flags[7]            = m_currProcessor->IF;
-    ctx.flags[8]            = m_currProcessor->DF;
-    ctx.flags[9]            = m_currProcessor->NT;
-    ctx.flags[10]           = m_currProcessor->RF;
+    ctx.flags[InstContext::OF]          = m_currProcessor->OF;
+    ctx.flags[InstContext::SF]          = m_currProcessor->SF;
+    ctx.flags[InstContext::ZF]          = m_currProcessor->ZF;
+    ctx.flags[InstContext::AF]          = m_currProcessor->AF;
+    ctx.flags[InstContext::PF]          = m_currProcessor->PF;
+    ctx.flags[InstContext::CF]          = m_currProcessor->CF;
+//     ctx.flags[6]            = m_currProcessor->TF;
+//     ctx.flags[7]            = m_currProcessor->IF;
+//     ctx.flags[8]            = m_currProcessor->DF;
+//     ctx.flags[9]            = m_currProcessor->NT;
+//     ctx.flags[10]           = m_currProcessor->RF;
 
     uint module             = m_currProcessor->GetCurrentModule();
     const ModuleInfo *minfo = m_currProcessor->Proc()->GetModuleInfo(module);

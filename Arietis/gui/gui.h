@@ -36,6 +36,8 @@ enum {
 
     /* cpu panel */
     ID_CpuInstList,
+    ID_PopupShowCurrInst,
+    ID_PopupTaintReg,
 };
 
 class ArietisApp : public wxApp {
@@ -52,5 +54,7 @@ template <typename T>
 bool    Intersect(T ilow, T ihigh, T istart, T iend) {
     return ilow <= iend && ihigh >= istart;
 }
+
+void DrawTaint(wxBufferedPaintDC &dc, const Taint &t, const wxRect &rect);
 
 #endif // __ARIETIS_GUI_GUI_H__
