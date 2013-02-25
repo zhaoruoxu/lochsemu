@@ -50,4 +50,7 @@ private:
 //     FactoryImpl<Taint> m_factory;
 // };
  
+typedef Taint *     TaintPtr;
+// 不应该使用AllocOnlyPool, Taint所使用内存会动态调整
+
 #endif // __TAINT_TAINT_H__
