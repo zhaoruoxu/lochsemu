@@ -15,7 +15,7 @@ public:
 
     void        OnPaint(wxPaintEvent &event);
     void        OnEraseBackground(wxEraseEvent& event);
-    void        UpdateData(const InstContext &ctx, const char *dataDesc);
+    void        UpdateData(const InstContext *ctx, const char *dataDesc);
 private:
     void        InitRender();
     void        Draw(wxBufferedPaintDC &dc);

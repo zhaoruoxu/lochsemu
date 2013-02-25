@@ -16,7 +16,7 @@ class CompositeTracePanel : public wxPanel {
     friend class TraceInfoPanel;
     friend class TracePanel;
 public:
-    CompositeTracePanel(wxWindow *parent);
+    CompositeTracePanel(wxWindow *parent, ContextPanel *ctxPanel);
     ~CompositeTracePanel();
 
     const wxFont *GetFont() const { return &m_font; }
@@ -29,6 +29,7 @@ private:
     const ATracer * m_tracer;
     TracePanel *    m_tracePanel;
     TraceInfoPanel *m_infoPanel;
+    ContextPanel *  m_contextPanel;
     int             m_total;
 };
 
@@ -60,6 +61,7 @@ public:
 
     void        UpdateData();
     void        OnSelectionChange() override;
+    void        OnLeftDoubleClick(wxMouseEvent &event);
     const static int VertLineOffset = -2;
 private:
     void        InitRender();

@@ -14,7 +14,7 @@
 #include "pluginapi.h"
 #include "json/json.h"
 
-static const uint ArietisVersion = 0x20130109;
+static const uint ArietisVersion = 0x20130225;
 
 using namespace LochsEmu;
 

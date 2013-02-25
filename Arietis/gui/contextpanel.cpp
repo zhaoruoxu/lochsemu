@@ -118,11 +118,11 @@ void ContextPanel::OnEraseBackground( wxEraseEvent& event )
 
 }
 
-void ContextPanel::UpdateData( const InstContext &ctx, const char *dataDesc )
+void ContextPanel::UpdateData( const InstContext *ctx, const char *dataDesc )
 {
     {
         MutexCSLock lock(m_mutex);
-        m_data = ctx;
+        m_data = *ctx;
         m_dataDesc = dataDesc;
     }
     Refresh();

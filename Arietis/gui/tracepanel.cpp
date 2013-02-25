@@ -1,11 +1,14 @@
 #include "stdafx.h"
 #include "tracepanel.h"
 #include "instcontext.h"
+#include "contextpanel.h"
 
 TracePanel::TracePanel( CompositeTracePanel *parent )
     : SelectableScrolledControl(parent, wxSize(600, 200)), m_parent(parent)
 {
     InitRender();
+
+    Bind(wxEVT_LEFT_DCLICK, &TracePanel::OnLeftDoubleClick, this, wxID_ANY);
 }
 
 TracePanel::~TracePanel()
@@ -109,6 +112,17 @@ void TracePanel::OnSelectionChange()
     m_parent->OnSelectionChange(m_currSelIndex);
 }
 
+void TracePanel::OnLeftDoubleClick( wxMouseEvent &event )
+{
+    const ATracer::TraceVec &vec = m_parent->m_tracer->GetData();
+
+    if (m_currSelIndex >= (int) vec.size() || m_currSelIndex < 0) return;
+    const TraceContext &ctx = vec[m_currSelIndex];
+
+    wxString desc = wxString::Format("Traced #%I64d", ctx.seq);
+    m_parent->m_contextPanel->UpdateData(&ctx, desc.ToAscii());
+}
+
 TraceInfoPanel::TraceInfoPanel( CompositeTracePanel *parent )
     : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(-1, 35)), m_parent(parent)
 {
@@ -193,8 +207,8 @@ void TraceInfoPanel::UpdateData()
 }
 
 
-CompositeTracePanel::CompositeTracePanel( wxWindow *parent )
-    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(600, 600))
+CompositeTracePanel::CompositeTracePanel( wxWindow *parent, ContextPanel *ctxPanel )
+    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(600, 600)), m_contextPanel(ctxPanel)
 {
     Init();
     m_tracer = NULL;
