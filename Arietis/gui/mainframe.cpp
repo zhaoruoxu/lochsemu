@@ -64,8 +64,9 @@ void ArietisFrame::InitUI()
     m_auiManager.AddPane(m_memDataPanel, wxAuiPaneInfo().Name("Memory").Caption("Memory").Bottom().Position(1));
     
     m_auiManager.Update();
-    m_defaultPerspective = m_auiManager.SavePerspective();
     Centre();
+
+    m_defaultPerspective = m_auiManager.SavePerspective();
 
     if (g_config.GetInt("General", "AutoLoadPerpective", 1) != 0) {
         OnLoadPerspective(wxCommandEvent());
@@ -204,6 +205,15 @@ void ArietisFrame::OnSavePerspective( wxCommandEvent &event )
 {
     wxString p = m_auiManager.SavePerspective();
     g_config.SetString("View", "Perspective", p.c_str().AsChar());
+
+    wxSize s = GetSize();
+    wxPoint pt = GetPosition();
+
+    g_config.SetInt("View", "Width", s.GetWidth());
+    g_config.SetInt("View", "Height", s.GetHeight());
+    g_config.SetInt("View", "PosX", pt.x);
+    g_config.SetInt("View", "PosY", pt.y);
+    g_config.SetInt("View", "Maximized", IsMaximized());
 }
 
 void ArietisFrame::OnLoadPerspective( wxCommandEvent &event )
@@ -213,12 +223,34 @@ void ArietisFrame::OnLoadPerspective( wxCommandEvent &event )
     if (p.Length() > 0) {
         m_auiManager.LoadPerspective(p);
     }
+
+    wxSize s(g_config.GetInt("View", "Width", 800), 
+        g_config.GetInt("View", "Height", 800));
+    wxPoint pt(g_config.GetInt("View", "PosX", 0),
+        g_config.GetInt("View", "PosY", 0));
+    bool maximized = g_config.GetInt("View", "Maximized", false) != 0;
+
+    SetSize(s);
+    SetPosition(pt);
+    Maximize(maximized);
 }
 
 void ArietisFrame::OnResetPerspective( wxCommandEvent &event )
 {
     m_auiManager.LoadPerspective(m_defaultPerspective);
     g_config.SetString("View", "Perspective", m_defaultPerspective.c_str().AsChar());
+
+    wxSize defSize(800, 800);
+    SetSize(defSize);
+    Center();
+    wxPoint defPos = GetPosition();
+    Maximize(false);
+
+    g_config.SetInt("View", "Width", defSize.GetWidth());
+    g_config.SetInt("View", "Height", defSize.GetHeight());
+    g_config.SetInt("View", "PosX", defPos.x);
+    g_config.SetInt("View", "PosY", defPos.y);
+    g_config.SetInt("View", "Maximized", false);
 }
 
 void ArietisFrame::OnStatusTimer( wxTimerEvent &event )
