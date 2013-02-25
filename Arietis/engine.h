@@ -24,6 +24,7 @@ public:
     ~AEngine();
 
     void            Initialize(Emulator *emu);
+    void            SaveConfig();
 
     void            SetGuiFrame(ArietisFrame *frame);
     ArietisFrame *  GetGUI() const { Assert(m_gui); return m_gui; }
@@ -41,6 +42,7 @@ public:
     //AArchive &      GetArchive() { return m_archive; }
     InstContext     GetCurrentInstContext() const;
     void            EnableTracer(bool isEnabled) { m_tracerEnabled = isEnabled; }
+    bool            IsTracerEnabled() const { return m_tracerEnabled; }
     //void            Persist();
 
     void            ReportBusy(bool isBusy);

@@ -44,7 +44,7 @@ void ArietisFrame::InitUI()
 {
     InitMenu();
     InitStatusBar();
-    //InitToolbars();
+    InitToolbars();
 
     Bind(wxEVT_CLOSE_WINDOW, &ArietisFrame::OnClose, this, wxID_ANY);
 
@@ -71,6 +71,7 @@ void ArietisFrame::InitUI()
         OnLoadPerspective(wxCommandEvent());
     }
 
+    OnToggleTrace(m_engine->IsTracerEnabled());
     //SetSize(800, 800);
 }
 
@@ -118,11 +119,18 @@ void ArietisFrame::InitMenu()
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnToggleBreakpoint, this, ID_ToggleBreakpoint);
 }
 
-
+enum StatusbarText {
+    Statusbar_Path = 0,
+    Statusbar_Tracing,
+    Statusbar_Busy,
+    Statusbar_Cpu,
+    Statusbar_Mem,
+    Statusbar_Threads,
+};
 
 void ArietisFrame::InitStatusBar()
 {
-    static const int Widths[] = { -1, 40, 70, 100, 75 };
+    static const int Widths[] = { -1, 50, 40, 70, 100, 75 };
     m_statusbar = CreateStatusBar(_countof(Widths));
     m_statusbar->SetStatusWidths(_countof(Widths), Widths);
 //     m_statusbar->SetStatusText("0", 0);
@@ -140,13 +148,26 @@ void ArietisFrame::InitToolbars()
 
     wxBitmap bitmap(16, 15);
 
-    //tbDebug->AddTool(ID_StepInto, "StepInto", bitmap);
-    tbDebug->AddControl(new wxButton(tbDebug, ID_StepInto, "Step Into", 
-        wxDefaultPosition, wxSize(60, -1)));
+    tbDebug->AddControl(new wxButton(tbDebug, ID_StepInto, "Step Into", wxDefaultPosition, 
+        wxSize(60, -1), wxBORDER_NONE));
+    tbDebug->AddControl(new wxButton(tbDebug, ID_StepOver, "Step Over", wxDefaultPosition,
+        wxSize(60, -1), wxBORDER_NONE));
+    tbDebug->AddControl(new wxButton(tbDebug, ID_StepOut, "Step Out", wxDefaultPosition,
+        wxSize(60, -1), wxBORDER_NONE));
+    tbDebug->AddControl(new wxButton(tbDebug, ID_Run, "Run", wxDefaultPosition,
+        wxSize(60, -1), wxBORDER_NONE));
+    tbDebug->AddSeparator();
+    m_toggleTraceButton = new wxButton(tbDebug, ID_ToolbarToggleTrace, "Invalid", wxDefaultPosition, 
+        wxSize(80, -1), wxBORDER_NONE);
+    tbDebug->AddControl(m_toggleTraceButton);
 
     tbDebug->Realize();
 
-    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnStepInto, this, ID_StepInto);
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnStepInto,   this, ID_StepInto);
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnStepOver,   this, ID_StepOver);
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnStepOut,    this, ID_StepOut);
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnRun,        this, ID_Run);
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnToggleTraceClicked, this, ID_ToolbarToggleTrace);
 }
 
 
@@ -202,9 +223,9 @@ void ArietisFrame::OnResetPerspective( wxCommandEvent &event )
 
 void ArietisFrame::OnStatusTimer( wxTimerEvent &event )
 {
-    m_statusbar->SetStatusText(wxString::Format("CPU: %d%%", GetCpuUsage()), 2);
-    m_statusbar->SetStatusText(wxString::Format("MEM: %d MB", GetMemUsage()), 3);
-    m_statusbar->SetStatusText(wxString::Format("Threads: %d", GetThreadCount()), 4);
+    m_statusbar->SetStatusText(wxString::Format("CPU: %d%%", GetCpuUsage()), Statusbar_Cpu);
+    m_statusbar->SetStatusText(wxString::Format("MEM: %d MB", GetMemUsage()), Statusbar_Mem);
+    m_statusbar->SetStatusText(wxString::Format("Threads: %d", GetThreadCount()), Statusbar_Threads);
 }
 
 void ArietisFrame::OnStepInto( wxCommandEvent &event )
@@ -248,11 +269,24 @@ void ArietisFrame::PreExecSingleStepCallback( const Processor *cpu, const Instru
 
 void ArietisFrame::ReportBusy( bool isBusy )
 {
-    m_statusbar->SetStatusText(isBusy ? "Busy" : "", 1);
+    m_statusbar->SetStatusText(isBusy ? "Busy" : "", Statusbar_Busy);
 }
 
 void ArietisFrame::OnProcessLoaded( LPCSTR path )
 {
-    m_statusbar->SetStatusText(path, 0);
+    m_statusbar->SetStatusText(path, Statusbar_Path);
+}
+
+void ArietisFrame::OnToggleTrace( bool traceEnabled )
+{
+    m_engine->EnableTracer(traceEnabled);
+    m_statusbar->SetStatusText(traceEnabled ? "Tracing" : "", Statusbar_Tracing);
+    m_toggleTraceButton->SetLabel(traceEnabled ? "Stop Trace" : "Start Trace");
+    m_toggleTraceButton->SetBackgroundColour(traceEnabled ? *wxRED : *wxCYAN);
+}
+
+void ArietisFrame::OnToggleTraceClicked( wxCommandEvent &event )
+{
+    OnToggleTrace(!m_engine->IsTracerEnabled());
 }
 

@@ -36,10 +36,11 @@ private:
     void    OnStepInto(wxCommandEvent &event);
     void    OnStepOut(wxCommandEvent &event);
     void    OnToggleBreakpoint(wxCommandEvent &event);
+    void    OnToggleTraceClicked(wxCommandEvent &event);
 
     void    OnStatusTimer(wxTimerEvent &event);
-
     
+    void    OnToggleTrace(bool traceEnabled);
 private:
     void    InitMisc();
     void    InitUI();
@@ -60,6 +61,8 @@ private:
 
     wxTimer         m_statusTimer;
     wxStatusBar *   m_statusbar;
+
+    wxButton *      m_toggleTraceButton;
 };
  
 #endif // __ARIETIS_GUI_MAINFRAME_H__

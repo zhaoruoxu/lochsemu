@@ -33,6 +33,7 @@ enum {
 
     /* toolbar */
     ID_ToolbarDebug,
+    ID_ToolbarToggleTrace,
 
     /* cpu panel */
     ID_CpuInstList,

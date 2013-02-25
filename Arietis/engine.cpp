@@ -25,12 +25,18 @@ void AEngine::Initialize(Emulator *emu)
     m_emulator      = emu;
     m_debugger.Initialize();
     m_taint.Initialize();
-    m_tracerEnabled = g_config.GetInt("Tracer", "EnableOnStart", 1) != 0;
+    m_tracerEnabled = g_config.GetInt("Tracer", "Enabled", 1) != 0;
     m_currEip       = 0;
     m_totalExecuted = 0;
     m_skipDllEntries    = g_config.GetInt("Engine", "SkipDllEntries", 1) != 0;
     m_mainEntryEntered  = false;
     m_enabled       = true;
+}
+
+void AEngine::SaveConfig()
+{
+    g_config.SetInt("Tracer", "Enabled", m_tracerEnabled);
+    g_config.SetInt("Engine", "SkipDllEntries", m_skipDllEntries);
 }
 
 void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
@@ -131,6 +137,7 @@ void AEngine::Intro() const
 
 void AEngine::Terminate()
 {
+    SaveConfig();
     m_enabled = false;
     //m_emulator->Terminate();
     m_debugger.OnTerminate();
