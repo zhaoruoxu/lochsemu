@@ -29,11 +29,10 @@ void ATracer::OnPostExecute( const Processor *cpu, const Instruction *inst )
     if (!m_enabled) return;
 
     TraceContext ctx;
+    m_engine->GetTraceContext(&ctx, m_currEip);
+    ctx.seq     = m_seq;
 
     Lock();
-    m_engine->GetTraceContext(&ctx, m_currEip);
-    //ctx.regs[InstContext::RegIndexEip] = m_currEip;     // Fix eip error
-    ctx.seq     = m_seq;
     m_traces.push_back(ctx);
     Unlock();
 }

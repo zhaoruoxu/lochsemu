@@ -20,12 +20,12 @@ void TracePanel::InitRender()
         g_config.GetString("TracePanel", "FontName", "Lucida Console"));
     UpdateFont(f);
     m_bgBrush       = wxBrush(wxColour(g_config.GetString("TracePanel", "BgColor", "#e0e0e0")));
-    m_currPen       = wxPen(wxColour(g_config.GetString("TracePanel", "CurrentColor", "#0080ff")));
+    m_currPen       = wxPen(wxColour(g_config.GetString("TracePanel", "CurrentColor", "#0080ff")), 1);
     m_currSelPen    = wxPen(wxColour(g_config.GetString("TracePanel", "CurrentSelectionColor", "#808080")));
     m_widthIp       = g_config.GetInt("TracePanel", "WidthIp", 70);
     m_widthDisasm   = g_config.GetInt("TracePanel", "WidthDisasm", 300);
     m_widthTaint    = g_config.GetInt("TracePanel", "WidthTaint", 64);
-    m_width         = m_widthIp + m_widthDisasm;
+    m_width         = m_widthIp + m_widthDisasm + m_widthTaint * TraceContext::RegCount;
 }
 
 void TracePanel::Draw( wxBufferedPaintDC &dc )
@@ -59,6 +59,12 @@ void TracePanel::Draw( wxBufferedPaintDC &dc )
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
     lineX += m_widthDisasm;
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
+    
+    
+    for (int i = 0; i < TraceContext::RegCount; i++) {
+        lineX += m_widthTaint;
+        dc.DrawLine(lineX, lineY0, lineX, lineY1);
+    }
 
     m_parent->m_tracer->Unlock();
 }
@@ -68,6 +74,7 @@ void TracePanel::DrawTrace( wxBufferedPaintDC &dc, const TraceContext &trace, in
     int h = m_lineHeight * index; // plus 1 for header
     wxRect rectToDraw(0, h, m_width, m_lineHeight);
 
+    dc.SetBrush(*wxTRANSPARENT_BRUSH);
     if (index == m_parent->m_total - 1) {
         dc.SetPen(m_currPen);
         dc.DrawRectangle(rectToDraw);
@@ -83,8 +90,10 @@ void TracePanel::DrawTrace( wxBufferedPaintDC &dc, const TraceContext &trace, in
     dc.DrawText(trace.inst->Main.CompleteInstr, w, h);
     w += m_widthDisasm;
 
+    // draw Taint
     for (int i = 0; i < InstContext::RegCount; i++) {
-        //DrawTaint(dc, )
+        DrawTaint(dc, trace.regTaint[i], wxRect(w, h+1, m_widthTaint, m_lineHeight-1));
+        w += m_widthTaint;
     }
 }
 
@@ -135,15 +144,28 @@ void TraceInfoPanel::OnPaint( wxPaintEvent &event )
 
     int h = 0, w = 0;
 
-    // draw header
+    // draw header, Ip
     const int v = m_parent->m_tracePanel->VertLineOffset;
     int u = w + m_parent->m_tracePanel->m_widthIp + v;
     dc.DrawText(Header[0], w, h);
     dc.DrawLine(u, 0, u, m_lineHeight);
+
+    // draw header Disassembly
     w += m_parent->m_tracePanel->m_widthIp;
     u += m_parent->m_tracePanel->m_widthDisasm;
     dc.DrawText(Header[1], w, h);
     dc.DrawLine(u, 0, u, m_lineHeight);
+
+    // draw Taint value
+    w += m_parent->m_tracePanel->m_widthDisasm;
+    u += m_parent->m_tracePanel->m_widthTaint;
+    for (int i = 0; i < TraceContext::RegCount; i++) {
+        dc.DrawText("T(" + TraceContext::RegNames[i] + ")", w, h);
+        dc.DrawLine(u, 0, u, m_lineHeight);
+        w += m_parent->m_tracePanel->m_widthTaint;
+        u += m_parent->m_tracePanel->m_widthTaint;
+    }
+
     h += m_lineHeight;
     dc.DrawLine(v, h, v + m_parent->m_tracePanel->m_width, h);
 
