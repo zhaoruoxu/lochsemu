@@ -143,7 +143,7 @@ void AEngine::LoadArchive(const char *moduleName)
     LPCSTR path     = m_emulator->Path();
     uint hash       = StringHash(path);
     char buf[MAX_PATH];
-    sprintf(buf, "%08x", hash);
+    sprintf(buf, "%08x_", hash);
     strcat(buf, moduleName);
     strcat(buf, ".json");
     m_archivePath   = m_archivePath + buf;

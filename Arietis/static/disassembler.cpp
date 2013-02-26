@@ -7,8 +7,8 @@
 #include "memory.h"
 
 
-InstSection::InstSection( InstPool &pool, Mutex &mutex, u32 base, u32 size )
-    : m_pool(pool), m_mutex(mutex), m_base(base), m_size(size), m_count(0)
+InstSection::InstSection( InstMem *mem, InstPool &pool, u32 base, u32 size )
+    : m_mem(mem), m_pool(pool), m_base(base), m_size(size), m_count(0)
 {
     m_data      = new InstPtr[m_size];
     m_indices   = new u32[m_size];
@@ -25,25 +25,17 @@ InstSection::~InstSection()
 
 InstPtr InstSection::Alloc( u32 addr )
 {
-    Lock();
+    //Lock();
+    SyncObjectLock lock(*this);
+
     AssertInRanage(addr);
     Assert(m_data[addr - m_base] == NULL);
     InstPtr pinst           = m_pool.Alloc();
     pinst->Eip              = addr;
     m_data[addr - m_base]   = pinst;
     m_count++;
-    Unlock();
+    //Unlock();
     return pinst;
-}
-
-void InstSection::Lock() const
-{
-    m_mutex.Wait();
-}
-
-void InstSection::Unlock() const
-{
-    m_mutex.Release();
 }
 
 InstPtr * InstSection::Next( InstPtr *curr ) const
@@ -76,7 +68,17 @@ void InstSection::UpdateIndices() const
     }
 }
 
-InstMem::InstMem() : m_pool(16384), m_mutex(false)
+void InstSection::Lock() const
+{
+    m_mem->Lock();
+}
+
+void InstSection::Unlock() const
+{
+    m_mem->Unlock();
+}
+
+InstMem::InstMem() : m_pool(16384) //, m_mutex(false)
 {
     ZeroMemory(m_pagetable, sizeof(m_pagetable));
 }
@@ -108,7 +110,7 @@ InstSection * InstMem::CreateSection( u32 base, u32 size )
 
 InstSection * InstMem::AddSection( u32 base, u32 size )
 {
-    InstSection *sec = new InstSection(m_pool, m_mutex, base, size);
+    InstSection *sec = new InstSection(this, m_pool, base, size);
     for (uint i = PAGE_NUM(base); i < PAGE_NUM(base + size); i++) {
         Assert(m_pagetable[i] == NULL);
         m_pagetable[i] = sec;
@@ -142,21 +144,25 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
     u32 eip = cpu->EIP;
     Section *sec = cpu->Mem->GetSection(eip);
     
-    m_instMem.Lock();
-
-    InstSection *instSec = m_instMem.CreateSection(sec->Base(), sec->Size());
+    //m_instMem.Lock();
 
     bool update = false;
-    
-    if (!instSec->Contains(eip)) {
-        LxDebug("Disassembling %08x...\n", eip);
-        RecursiveDisassemble(cpu, eip, instSec, eip);
-        LxDebug("Disassemble complete, count = %d\n", instSec->GetCount());
-        instSec->UpdateIndices();
-        update = true;
+    InstSection *instSec = m_instMem.CreateSection(sec->Base(), sec->Size());
+
+    {
+        SyncObjectLock lock(m_instMem);
+
+        if (!instSec->Contains(eip)) {
+            LxDebug("Disassembling %08x...\n", eip);
+            RecursiveDisassemble(cpu, eip, instSec, eip);
+            LxDebug("Disassemble complete, count = %d\n", instSec->GetCount());
+            instSec->UpdateIndices();
+            update = true;
+        }
     }
 
-    m_instMem.Release();
+
+    //m_instMem.Unlock();
 
     if (m_lastSec != sec || update) {
         if (m_dataUpdateHandler) m_dataUpdateHandler(instSec);

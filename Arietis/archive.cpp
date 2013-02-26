@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "archive.h"
 
-Archive::Archive() : m_mutex(false)
+Archive::Archive()
 {
     //Breakpoints.emplace_back(10, 20, "test", false);
 }

@@ -26,9 +26,11 @@ struct Inst : public Instruction {
 typedef Inst *  InstPtr;
 typedef AllocOnlyPool<Inst>  InstPool;
 
-class InstSection {
+class InstMem;
+
+class InstSection : public ISyncObject {
 public:
-    InstSection(InstPool &pool, Mutex &mutex, u32 base, u32 size);
+    InstSection(InstMem *mem, InstPool &pool, u32 base, u32 size);
     ~InstSection();
 
     u32             GetBase() const { return m_base; }
@@ -69,16 +71,16 @@ private:
     InstSection &operator=(const InstSection &);
     void            AssertInRanage(u32 addr) const { Assert(IsInRange(addr)); }
 private:
+    InstMem *       m_mem;
     u32             m_base;
     u32             m_size;
     InstPtr *       m_data;
     u32 *           m_indices;
     int             m_count;
     InstPool &      m_pool;
-    Mutex &         m_mutex;
 };
 
-class InstMem {
+class InstMem : public MutexSyncObject {
 public:
     InstMem();
     ~InstMem();
@@ -87,15 +89,15 @@ public:
     InstSection *   CreateSection(u32 base, u32 size);
 
     InstPtr         GetInst(u32 addr) const;
-    void            Lock() const { m_mutex.Wait(); }
-    void            Release() const { m_mutex.Release(); }
+    //void            Lock() const { m_mutex.Wait(); }
+    //void            Release() const { m_mutex.Release(); }
 private:
     InstSection *   AddSection(u32 base, u32 size);
 
 private:
     InstSection *   m_pagetable[LX_PAGE_COUNT];
     InstPool        m_pool;
-    Mutex           m_mutex;
+    //Mutex           m_mutex;
 };
 
 class Disassembler {

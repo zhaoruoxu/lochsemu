@@ -94,15 +94,40 @@ MutexLock::MutexLock( Mutex &m )
     m_mutex.Wait();
 }
 
-MutexLock::MutexLock( MutexSyncObject &obj )
-    : m_mutex(obj.m_mutex)
-{
-    m_mutex.Wait();
-}
+// MutexLock::MutexLock( MutexSyncObject &obj )
+//     : m_mutex(obj.m_mutex)
+// {
+//     m_mutex.Wait();
+// }
 
 MutexLock::~MutexLock()
 {
     m_mutex.Release();
+}
+
+
+MutexSyncObject::MutexSyncObject()
+    : m_mutex(false)
+{
+
+}
+
+
+SyncObjectLock::SyncObjectLock( const ISyncObject &obj )
+    : m_obj(obj)
+{
+    m_obj.Lock();
+}
+
+SyncObjectLock::SyncObjectLock( ISyncObject &obj )
+    : m_obj(obj)
+{
+    m_obj.Lock();
+}
+
+SyncObjectLock::~SyncObjectLock()
+{
+    m_obj.Unlock();
 }
 
 END_NAMESPACE_LOCHSEMU()

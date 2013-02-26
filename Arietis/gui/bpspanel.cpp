@@ -48,10 +48,11 @@ void BreakpointsPanel::Draw( wxBufferedPaintDC &dc )
     const int iend      = istart + clientSize.GetHeight() / m_lineHeight;
 
     if (m_archive != NULL && m_engine != NULL) {
-        m_archive->Lock();
+        //m_archive->Lock();
+        SyncObjectLock lock(*m_archive);
         for (int i = istart; i <= min((int) m_archive->Breakpoints.size()-1, iend); i++)
             DrawItem(dc, i);
-        m_archive->Unlock();
+        //m_archive->Unlock();
     }
 
     dc.SetPen(*wxBLUE_PEN);

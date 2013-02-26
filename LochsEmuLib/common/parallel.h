@@ -19,20 +19,45 @@ private:
     HANDLE m_hMutex;
 };
 
-class LX_API MutexSyncObject {
+class LX_API ISyncObject {
+public:
+    virtual void    Lock() const = 0;
+    virtual void    Unlock() const = 0;
+};
+
+class LX_API MutexSyncObject : public ISyncObject {
     friend class MutexLock;
 public:
-    void    Lock() const { m_mutex.Wait(); }
-    void    Unlock() const { m_mutex.Release(); }
+    MutexSyncObject();
+
+    void    Lock() const override 
+    { 
+        m_mutex.Wait(); 
+    }
+    
+    void    Unlock() const override 
+    { 
+        m_mutex.Release(); 
+    }
 private:
     Mutex   m_mutex;
 };
 
+class LX_API SyncObjectLock {
+public:
+    SyncObjectLock(ISyncObject &obj);
+    SyncObjectLock(const ISyncObject &obj);
+    ~SyncObjectLock();
+private:
+    const ISyncObject &m_obj;
+    SyncObjectLock(const SyncObjectLock &);
+    SyncObjectLock &operator=(const SyncObjectLock &);
+};
 
 class LX_API MutexLock {
 public:
     MutexLock(Mutex &m);
-    MutexLock(MutexSyncObject &obj);
+    //MutexLock(MutexSyncObject &obj);
     ~MutexLock();
 private:
     Mutex &m_mutex;

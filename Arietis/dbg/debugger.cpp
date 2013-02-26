@@ -110,14 +110,16 @@ void ADebugger::OnStepOut()
 
 void ADebugger::OnToggleBreakpoint()
 {
-    m_archive->Lock();
+    //m_archive->Lock();
+    SyncObjectLock lock(*m_archive);
+
     auto &bps       = m_archive->Breakpoints;
     const u32 eip   = m_currProcessor->EIP;
 
     for (auto &bp : bps) {
         if (bp.Address == eip) {
             bp.Enabled = !bp.Enabled;       // toggle existing breakpoint
-            m_archive->Unlock();
+            //m_archive->Unlock();
             return;
         }
     }
@@ -129,7 +131,7 @@ void ADebugger::OnToggleBreakpoint()
     bp.Address      = eip;
     bp.ModuleName   = minfo->Name;
     bps.push_back(bp);
-    m_archive->Unlock();
+    //m_archive->Unlock();
 }
 
 void ADebugger::CheckBreakpoints( const Processor *cpu, const Instruction *inst )
@@ -147,13 +149,18 @@ void ADebugger::DoPreExecSingleStep( const Processor *cpu, const Instruction *in
 void ADebugger::OnProcPreRun( const Process *proc, const Processor *cpu )
 {
     // update all breakpoints' runtime info
-    m_archive->Lock();
-    for (auto &bp : m_archive->Breakpoints) {
-        const ModuleInfo *minfo = proc->GetModuleInfo(bp.Module);
-        bp.ModuleName = minfo->Name;
-        bp.Address = minfo->ImageBase + bp.Offset;
+    //m_archive->Lock();
+
+    {
+        SyncObjectLock lock(*m_archive);
+        for (auto &bp : m_archive->Breakpoints) {
+            const ModuleInfo *minfo = proc->GetModuleInfo(bp.Module);
+            bp.ModuleName = minfo->Name;
+            bp.Address = minfo->ImageBase + bp.Offset;
+        }
     }
-    m_archive->Unlock();
+
+    //m_archive->Unlock();
 
     if (g_config.GetInt("Debugger", "BreakOnMainModuleEntry", 1) != 0) {
         m_state = STATE_SINGLESTEP;
