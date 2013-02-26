@@ -3,7 +3,9 @@
 
 Archive::Archive()
 {
-    //Breakpoints.emplace_back(10, 20, "test", false);
+    IsTracerEnabled     = false;
+    SkipDllEntries      = true;
+    BreakOnCRTEntry     = true;
 }
 
 Archive::~Archive()

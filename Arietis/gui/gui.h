@@ -16,6 +16,7 @@ class CompositeTracePanel;
 class MemInfoPanel;
 class MemDataPanel;
 class BreakpointsPanel;
+class MySwitch;
 
 enum {
     /* view */
@@ -36,6 +37,8 @@ enum {
     /* toolbar */
     ID_ToolbarDebug,
     ID_ToolbarToggleTrace,
+    ID_ToolbarToggleCRTEntry,
+    ID_ToolbarToggleSkipDllEntry,
 
     /* cpu panel */
     ID_CpuInstList,

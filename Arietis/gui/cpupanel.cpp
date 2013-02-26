@@ -61,8 +61,8 @@ void CpuPanel::InitMenu()
     taintMenu->Append(ID_PopupTaintReg, "Taint &register...");
     m_popup->AppendSubMenu(taintMenu, "Taint");
 
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupShowCurrInst, this, ID_PopupShowCurrInst);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupTaintReg, this, ID_PopupTaintReg); 
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupShowCurrInst,   this, ID_PopupShowCurrInst);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupTaintReg,       this, ID_PopupTaintReg); 
 }
 
 
@@ -138,7 +138,7 @@ void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const InstPtr inst, int index )
         wxRect rectBp(0, h, m_widthIp, m_lineHeight);
         if (bp->Enabled) {
             if (bp->Desc == "crt_entry") {
-                dc.SetBrush(*wxBLUE_BRUSH);
+                dc.SetBrush(wxBrush(wxColour("#8080ff")));
             } else {
                 dc.SetBrush(*wxGREEN_BRUSH);
             }

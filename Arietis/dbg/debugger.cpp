@@ -27,12 +27,19 @@ void ADebugger::Initialize()
     m_stepOverEip   = 0;
     m_currInst      = NULL;
     m_currProcessor = NULL;
+    m_crtEntryFound = false;
+    m_mainEntry     = 0;
 }
 
 void ADebugger::OnPreExecute( Processor *cpu, const Instruction *inst )
 {
     m_currProcessor = cpu;
     m_currInst      = inst;
+
+    if (!m_crtEntryFound && m_archive->BreakOnCRTEntry) {
+        AnalyzeCRTEntry(cpu, inst);
+    }
+
     CheckBreakpoints(cpu, inst);
 
     switch (m_state) {
@@ -188,6 +195,13 @@ void ADebugger::OnProcPreRun( const Process *proc, const Processor *cpu )
         m_state = STATE_SINGLESTEP;
         LxInfo("Main module entry encountered\n");
     }
+
+    //m_mainEntry = cpu->EIP;
+}
+
+void ADebugger::OnProcessPostLoad( const PeLoader *loader )
+{
+    m_mainEntry = loader->GetModuleInfo(0)->EntryPoint;
 }
 
 void ADebugger::OnTerminate()
@@ -239,4 +253,24 @@ void ADebugger::UpdateTraceContext( TraceContext *ctx, u32 eip ) const
     const ModuleInfo *minfo = m_currProcessor->Proc()->GetModuleInfo(module);
     ctx->moduleName         = minfo->Name;
     ctx->moduleImageBase    = minfo->ImageBase;
+}
+
+void ADebugger::AnalyzeCRTEntry( const Processor *cpu, const Instruction *inst )
+{
+    if (cpu->GetCurrentModule() != 0) return;
+
+    static const int EipDistMax = 2048;
+    int dist = abs((int) (cpu->EIP - m_mainEntry));
+    if (dist > EipDistMax) return;
+    if (inst->Main.Inst.Opcode != 0xe8) return;
+    if (PAGE_LOW(inst->Main.Inst.AddrValue) != 0) return;
+    if (cpu->GetModule(inst->Main.Inst.AddrValue) != 0) return;
+
+
+    LxInfo("CRT entry found at %08x, entry = %08x\n", cpu->EIP, 
+        inst->Main.Inst.AddrValue);
+    m_crtEntryFound = true;
+    if (GetBreakpoint(cpu->EIP) == NULL)
+        AddBreakpoint(cpu->EIP, "crt_entry");
+    m_engine->SaveArchive();
 }

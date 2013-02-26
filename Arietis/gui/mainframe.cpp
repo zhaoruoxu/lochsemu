@@ -7,6 +7,7 @@
 #include "contextpanel.h"
 #include "mempanel.h"
 #include "bpspanel.h"
+#include "myswitch.h"
 
 #include "utilities.h"
 #include "engine.h"
@@ -166,9 +167,14 @@ void ArietisFrame::InitToolbars()
     tbDebug->AddControl(new wxButton(tbDebug, ID_Run, "Run", wxDefaultPosition,
         wxSize(60, -1), wxBORDER_NONE));
     tbDebug->AddSeparator();
-    m_toggleTraceButton = new wxButton(tbDebug, ID_ToolbarToggleTrace, "Invalid", wxDefaultPosition, 
-        wxSize(80, -1), wxBORDER_NONE);
-    tbDebug->AddControl(m_toggleTraceButton);
+    m_toggleTrace = new MySwitch(tbDebug, ID_ToolbarToggleTrace, "Trace", wxSize(60, -1));
+    m_toggleCRTEntry = new MySwitch(tbDebug, ID_ToolbarToggleCRTEntry, "CRT_Entry", wxSize(60, -1));
+    m_toggleSkipDllEntry = new MySwitch(tbDebug, ID_ToolbarToggleSkipDllEntry, "Skip_DLL", wxSize(60, -1));
+    tbDebug->AddControl(m_toggleTrace);
+    tbDebug->AddSeparator();
+    tbDebug->AddControl(m_toggleCRTEntry);
+    tbDebug->AddSeparator();
+    tbDebug->AddControl(m_toggleSkipDllEntry);
 
     tbDebug->Realize();
 
@@ -176,7 +182,12 @@ void ArietisFrame::InitToolbars()
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnStepOver,   this, ID_StepOver);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnStepOut,    this, ID_StepOut);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnRun,        this, ID_Run);
-    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnToggleTraceClicked, this, ID_ToolbarToggleTrace);
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnToggleTraceClicked, 
+        this, ID_ToolbarToggleTrace);
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnToggleCRTEntryClicked, 
+        this, ID_ToolbarToggleCRTEntry);
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnToggleSkipDllEntryClicked, 
+        this, ID_ToolbarToggleSkipDllEntry);
 }
 
 
@@ -332,23 +343,34 @@ void ArietisFrame::OnProcessLoaded( LPCSTR path )
     m_statusbar->SetStatusText(path, Statusbar_Path);
 }
 
-void ArietisFrame::OnToggleTrace( bool traceEnabled )
-{
-    m_engine->GetTracer()->Enable(traceEnabled);
-    m_statusbar->SetStatusText(traceEnabled ? "Tracing" : "", Statusbar_Tracing);
-    m_toggleTraceButton->SetLabel(traceEnabled ? "Stop Trace" : "Start Trace");
-    m_toggleTraceButton->SetBackgroundColour(traceEnabled ? *wxRED : *wxCYAN);
-}
-
 void ArietisFrame::OnToggleTraceClicked( wxCommandEvent &event )
 {
-    OnToggleTrace(!m_engine->GetTracer()->IsEnabled());
+    bool beingEnabled = !m_engine->GetTracer()->IsEnabled();
+    m_engine->GetTracer()->Enable(beingEnabled);
+    m_statusbar->SetStatusText(beingEnabled ? "Tracing" : "", Statusbar_Tracing);
+    m_toggleTrace->SetOn(beingEnabled);
+    m_engine->SaveArchive();
+}
+
+void ArietisFrame::OnToggleCRTEntryClicked( wxCommandEvent &event )
+{
+    m_archive->BreakOnCRTEntry = !m_archive->BreakOnCRTEntry;
+    m_toggleCRTEntry->SetOn(m_archive->BreakOnCRTEntry);
+    m_engine->SaveArchive();
+}
+
+void ArietisFrame::OnToggleSkipDllEntryClicked( wxCommandEvent &event )
+{
+    m_archive->SkipDllEntries = !m_archive->SkipDllEntries;
+    m_toggleSkipDllEntry->SetOn(m_archive->SkipDllEntries);
     m_engine->SaveArchive();
 }
 
 void ArietisFrame::OnArchiveLoaded( Archive *arc )
 {
     m_archive = arc;
-    OnToggleTrace(m_engine->GetTracer()->IsEnabled());
+    m_statusbar->SetStatusText(m_archive->IsTracerEnabled ? "Tracing" : "", Statusbar_Tracing);
+    m_toggleTrace->SetOn(m_archive->IsTracerEnabled);
+    m_toggleCRTEntry->SetOn(m_archive->BreakOnCRTEntry);
+    m_toggleSkipDllEntry->SetOn(m_archive->SkipDllEntries);
 }
-

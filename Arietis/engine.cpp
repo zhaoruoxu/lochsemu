@@ -64,6 +64,7 @@ void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 void AEngine::OnProcessPostLoad( const PeLoader *loader )
 {
     if (!m_enabled) return;
+    m_debugger.OnProcessPostLoad(loader);
     m_gui->OnProcessLoaded(m_emulator->Path());
     
     LoadArchive(loader->GetModuleInfo(0)->Name);
@@ -149,16 +150,16 @@ void AEngine::LoadArchive(const char *moduleName)
 
     m_isArchiveLoaded = true;
 
-    if (!LxFileExists(m_archivePath.c_str())) 
-        return;
-    std::ifstream fin(m_archivePath);
-    std::stringstream ss;
-    ss << fin.rdbuf();
-    std::string s(ss.str());
-    fin.close();
-    
-    if (!Serializer::Deserialzie(&m_archive, s)) {
-        LxFatal("Error deserializing archive file\n");
+    if (LxFileExists(m_archivePath.c_str())) {
+        std::ifstream fin(m_archivePath);
+        std::stringstream ss;
+        ss << fin.rdbuf();
+        std::string s(ss.str());
+        fin.close();
+
+        if (!Serializer::Deserialzie(&m_archive, s)) {
+            LxFatal("Error deserializing archive file\n");
+        }
     }
 
     m_gui->OnArchiveLoaded(&m_archive);

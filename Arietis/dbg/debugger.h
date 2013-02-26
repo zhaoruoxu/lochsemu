@@ -23,6 +23,7 @@ public:
     void        OnPreExecute(Processor *cpu, const Instruction *inst);
     //void        OnPostExecute(Processor *cpu, const Instruction *inst);
     void        OnProcPreRun(const Process *proc, const Processor *cpu);
+    void        OnProcessPostLoad(const PeLoader *loader);
     void        OnStepInto();
     void        OnStepOver();
     void        OnStepOut();
@@ -38,6 +39,7 @@ public:
 private:
     void        DoPreExecSingleStep(const Processor *cpu, const Instruction *inst);
     void        CheckBreakpoints(const Processor *cpu, const Instruction *inst);
+    void        AnalyzeCRTEntry(const Processor *cpu, const Instruction *inst);
 private:
     State               m_state;
     u32                 m_stepOverEip;
@@ -49,6 +51,8 @@ private:
 
     const Processor *   m_currProcessor;
     const Instruction * m_currInst;
+    bool                m_crtEntryFound;
+    u32                 m_mainEntry;
 };
 
 #endif // __ARIETIS_DEBUGGER_H__

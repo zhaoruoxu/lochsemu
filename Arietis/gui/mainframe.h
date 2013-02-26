@@ -39,10 +39,10 @@ private:
     void    OnToggleBreakpoint(wxCommandEvent &event);
     void    OnRemoveBreakpoint(wxCommandEvent &event);
     void    OnToggleTraceClicked(wxCommandEvent &event);
+    void    OnToggleCRTEntryClicked(wxCommandEvent &event);
+    void    OnToggleSkipDllEntryClicked(wxCommandEvent &event);
 
     void    OnStatusTimer(wxTimerEvent &event);
-    
-    void    OnToggleTrace(bool traceEnabled);
     
 private:
     void    InitMisc();
@@ -67,7 +67,9 @@ private:
     wxTimer         m_statusTimer;
     wxStatusBar *   m_statusbar;
 
-    wxButton *      m_toggleTraceButton;
+    MySwitch *      m_toggleTrace;
+    MySwitch *      m_toggleCRTEntry;
+    MySwitch *      m_toggleSkipDllEntry;
 };
  
 #endif // __ARIETIS_GUI_MAINFRAME_H__
