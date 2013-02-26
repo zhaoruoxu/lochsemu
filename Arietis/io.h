@@ -8,7 +8,7 @@
 class ISerializable {
 public:
     virtual ~ISerializable() {}
-    virtual void    Serialize(Json::Value &root) = 0;
+    virtual void    Serialize(Json::Value &root) const = 0;
     virtual void    Deserialize(Json::Value &root) = 0;
 };
  

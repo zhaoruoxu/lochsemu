@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "engine.h"
+#include "utilities.h"
 
 #include "gui/mainframe.h"
 #include "gui/cpupanel.h"
@@ -26,10 +27,12 @@ void AEngine::Initialize(Emulator *emu)
     m_debugger.Initialize();
     m_taint.Initialize();
     m_tracer.Enable(g_config.GetInt("Tracer", "Enabled", 1) != 0);
-    //m_currEip       = 0;
     m_skipDllEntries    = g_config.GetInt("Engine", "SkipDllEntries", 1) != 0;
     m_mainEntryEntered  = false;
-    m_enabled       = true;
+    m_enabled           = true;
+    m_isArchiveLoaded   = false;
+
+    CreateArchiveDirectory();
 }
 
 void AEngine::SaveConfig()
@@ -41,14 +44,11 @@ void AEngine::SaveConfig()
 void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 {
     if (!m_enabled) return;
-    //m_archive[cpu->EIP] = Json::Value(inst->Main.CompleteInstr);
-    //m_currEip = cpu->EIP;
     m_tracer.OnPreExecute(cpu);
     
     m_disassembler.OnPreExecute(cpu, inst);
     if (m_skipDllEntries && !m_mainEntryEntered) return;
     
-    //m_gui->GetCpuPanel()->OnPreExecute(cpu, inst);
     m_debugger.OnPreExecute(cpu, inst);
 }
 
@@ -56,7 +56,6 @@ void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 {
     if (!m_enabled) return;
     if (m_skipDllEntries && !m_mainEntryEntered) return;
-    //m_debugger.OnPostExecute(cpu, inst);
 
     m_taint.OnPostExecute(cpu, inst);
     m_tracer.OnPostExecute(cpu, inst);
@@ -64,24 +63,11 @@ void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 
 void AEngine::OnProcessPostLoad( const PeLoader *loader )
 {
-//     std::string dir = LxGetModuleDirectory(g_module);
-//     m_archiveFilePath = dir + loader->GetModuleInfo(0)->Name + ".json";
-//     if (LxFileExists(m_archiveFilePath.c_str())) {
-//         Json::Reader reader;
-//         std::ifstream fin(m_archiveFilePath.c_str());
-//         if (!reader.parse(fin, m_archive)) {
-//             LxFatal("Error parsing archive file %s\n", m_archiveFilePath.c_str());
-//         }
-//     }
     if (!m_enabled) return;
     m_gui->OnProcessLoaded(m_emulator->Path());
+    
+    LoadArchive(loader->GetModuleInfo(0)->Name);
 }
-
-// void AEngine::Persist()
-// {
-//     std::ofstream fout(m_archiveFilePath, std::ios_base::out | std::ios_base::trunc);
-//     fout << m_archive;
-// }
 
 void AEngine::SetGuiFrame( ArietisFrame *frame )
 {
@@ -90,13 +76,6 @@ void AEngine::SetGuiFrame( ArietisFrame *frame )
         this->m_gui->GetCpuPanel()->OnDataUpdate(insts);
     });
     m_gui->GetTracePanel()->SetTracer(&m_tracer);
-
-//     m_disassembler.RegisterInstDisasmHandler([this](const Disassembler::InstVector &insts) {
-//         this->m_gui->GetCpuPanel()->OnInstDisasm(insts);
-//     });
-//     m_disassembler.RegisterPtrChangeHandler([this](u32 addr) {
-//         this->m_gui->GetCpuPanel()->OnPtrChange(addr);
-//     });
 }
 
 void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
@@ -108,7 +87,7 @@ void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
     //Persist();
 }
 
-void AEngine::GetCurrentInstContext(InstContext *ctx) const
+void AEngine::GetInstContext(InstContext *ctx) const
 {
     m_debugger.UpdateInstContext(ctx);
     m_disassembler.UpdateInstContext(ctx, ctx->regs[InstContext::RegIndexEip]);
@@ -139,15 +118,62 @@ void AEngine::Intro() const
 void AEngine::Terminate()
 {
     SaveConfig();
+    SaveArchive();
     m_enabled = false;
     //m_emulator->Terminate();
     m_debugger.OnTerminate();
 }
 
-const std::string InstContext::FlagNames[] = {
-    "OF", "SF", "ZF", "AF", "PF", "CF", /* "TF", "IF", "DF", "NT", "RF" */
-};
+void AEngine::CreateArchiveDirectory()
+{
+    std::string dir     = LxGetModuleDirectory(g_module);
+    std::string arcDir  = g_config.GetString("General", "ArchiveDir", "archive");
+    m_archivePath       = dir + arcDir + "\\";
+    if (!LxFileExists(m_archivePath.c_str())) {
+        if (CreateDirectoryA(m_archivePath.c_str(), NULL)) {
+            LxInfo("Arietis archive directory created\n");
+        } else {
+            LxFatal("Error creating Arietis archive directory\n");
+        }
+    }
+}
 
-const std::string InstContext::RegNames[] = {
-    "Eax", "Ecx", "Edx", "Ebx", "Esp", "Ebp", "Esi", "Edi", "Eip",
-};
+void AEngine::LoadArchive(const char *moduleName)
+{
+    LPCSTR path     = m_emulator->Path();
+    uint hash       = StringHash(path);
+    char buf[MAX_PATH];
+    sprintf(buf, "%08x", hash);
+    strcat(buf, moduleName);
+    strcat(buf, ".json");
+    m_archivePath   = m_archivePath + buf;
+
+    m_isArchiveLoaded = true;
+
+    if (!LxFileExists(m_archivePath.c_str())) 
+        return;
+    std::ifstream fin(m_archivePath);
+    std::stringstream ss;
+    ss << fin.rdbuf();
+    std::string s(ss.str());
+    fin.close();
+    
+    if (!Serializer::Deserialzie(&m_archive, s)) {
+        LxFatal("Error deserializing archive file\n");
+    }
+}
+
+void AEngine::SaveArchive()
+{
+    Assert(m_isArchiveLoaded);
+
+    std::string str;
+    if (!Serializer::Serialize(&m_archive, str)) {
+        LxFatal("Error serializing archive file\n");
+    }
+
+    std::ofstream fout(m_archivePath);
+    fout << str;
+    fout.close();
+}
+

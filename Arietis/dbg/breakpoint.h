@@ -8,10 +8,11 @@
 
 class Breakpoint : public ISerializable {
 public:
+    Breakpoint();
     Breakpoint(u32 module, u32 offset, const std::string &desc);
     ~Breakpoint() {}
 
-    void        Serialize(Json::Value &root) override;
+    void        Serialize(Json::Value &root) const override;
     void        Deserialize(Json::Value &root) override;
 
 private:

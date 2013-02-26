@@ -286,7 +286,7 @@ void ArietisFrame::OnToggleBreakpoint( wxCommandEvent &event )
 void ArietisFrame::PreExecSingleStepCallback( const Processor *cpu, const Instruction *inst )
 {
     InstContext ctx;
-    m_engine->GetCurrentInstContext(&ctx);
+    m_engine->GetInstContext(&ctx);
     m_contextPanel->UpdateData(&ctx, "Dynamic Execution");
     m_cpuPanel->OnPtrChange(cpu->EIP);
     m_tracePanel->UpdateData();

@@ -1,14 +1,17 @@
 #include "stdafx.h"
 #include "breakpoint.h"
 
+Breakpoint::Breakpoint() 
+    : m_module(0), m_offset(0), m_desc("invalid")
+{
+}
 
 Breakpoint::Breakpoint( u32 module, u32 offset, const std::string &desc )
     : m_module(module), m_offset(offset), m_desc(desc)
 {
-
 }
 
-void Breakpoint::Serialize( Json::Value &root )
+void Breakpoint::Serialize( Json::Value &root ) const
 {
     root["module"]  = m_module;
     root["offset"]  = m_offset;

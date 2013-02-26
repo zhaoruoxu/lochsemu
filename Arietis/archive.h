@@ -12,7 +12,7 @@ public:
     Archive();
     ~Archive();
 
-    void        Serialize(Json::Value &root) override;
+    void        Serialize(Json::Value &root) const override;
     void        Deserialize(Json::Value &root) override;
 
 private:

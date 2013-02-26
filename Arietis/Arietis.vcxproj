@@ -168,6 +168,7 @@
     <ClCompile Include="gui\logpanel.cpp" />
     <ClCompile Include="gui\mainframe.cpp" />
     <ClCompile Include="gui\contextpanel.cpp" />
+    <ClCompile Include="instcontext.cpp" />
     <ClCompile Include="io.cpp" />
     <ClCompile Include="static\disassembler.cpp" />
     <ClCompile Include="stdafx.cpp">

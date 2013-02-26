@@ -26,8 +26,6 @@ ARIETIS_API void LochsEmu_Processor_PostExecute(Processor *cpu, const Instructio
 ARIETIS_API void LochsEmu_Process_PreRun            (const Process *proc, Processor *cpu);
 ARIETIS_API void LochsEmu_Process_PostLoad           (PeLoader *loader);
 
-typedef Json::Value     AArchive;
-
 // dbg
 class ADebugger;
 struct TraceContext;
@@ -54,7 +52,6 @@ extern HMODULE          g_module;
 extern Config           g_config;
 extern AEngine          g_engine;
 extern Semaphore        g_guiSem;
-extern AArchive         g_archive;
 
 #endif // __ARIETIS_ARIETIS_H__
 

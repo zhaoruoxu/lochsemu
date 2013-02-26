@@ -4,6 +4,7 @@
 #define __ARIETIS_ENGINE_H__
 
 #include "Arietis.h"
+#include "archive.h"
 #include "dbg/debugger.h"
 #include "dbg/tracer.h"
 #include "gui/gui.h"
@@ -25,6 +26,7 @@ public:
 
     void            Initialize(Emulator *emu);
     void            SaveConfig();
+    void            SaveArchive();
 
     void            SetGuiFrame(ArietisFrame *frame);
     ArietisFrame *  GetGUI() const { Assert(m_gui); return m_gui; }
@@ -39,18 +41,18 @@ public:
     ATracer *       GetTracer() { return &m_tracer; }
     Disassembler *  GetDisassembler() { return &m_disassembler; }
     TaintEngine *   GetTaintEngine() { return &m_taint; }
-    //AArchive &      GetArchive() { return m_archive; }
-    void            GetCurrentInstContext(InstContext *ctx) const;
+    Archive *       GetArchive() { return &m_archive; }
+
+    void            GetInstContext(InstContext *ctx) const;
     void            GetTraceContext(TraceContext *ctx, u32 eip) const;
-    //void            EnableTracer(bool isEnabled) { m_tracerEnabled = isEnabled; }
-    //bool            IsTracerEnabled() const { return m_tracerEnabled; }
-    //void            Persist();
 
     void            ReportBusy(bool isBusy);
     void            Terminate();
     
 private:
     void            Intro() const;
+    void            CreateArchiveDirectory();
+    void            LoadArchive(const char *moduleName);
 
 private:
     bool            m_enabled;
@@ -61,15 +63,13 @@ private:
     Disassembler    m_disassembler;
     TaintEngine     m_taint;
     ArietisFrame *  m_gui;
-    //AArchive        m_archive;
-    //u32             m_currEip;
-    //i64             m_totalExecuted;
+    Archive         m_archive;
 
-    //bool            m_tracerEnabled;
     bool            m_skipDllEntries;
     bool            m_mainEntryEntered;
 
-    //std::string     m_archiveFilePath;
+    std::string     m_archivePath;
+    bool            m_isArchiveLoaded;
 };
 
 #endif // __ARIETIS_ENGINE_H__
