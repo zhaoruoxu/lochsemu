@@ -43,10 +43,10 @@
     <Filter Include="Source Files\static">
       <UniqueIdentifier>{fd34186e-8ff1-461b-a298-9c560ac51ed0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\debug">
+    <Filter Include="Header Files\dbg">
       <UniqueIdentifier>{bfa60b81-3ef8-4132-b8db-e64d0755c532}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\debug">
+    <Filter Include="Source Files\dbg">
       <UniqueIdentifier>{576ea2be-db41-4d69-9bf7-c872ce27ae2b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -144,11 +144,11 @@
     <ClInclude Include="io.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="debug\debugger.h">
-      <Filter>Header Files\debug</Filter>
+    <ClInclude Include="dbg\debugger.h">
+      <Filter>Header Files\dbg</Filter>
     </ClInclude>
-    <ClInclude Include="debug\tracer.h">
-      <Filter>Header Files\debug</Filter>
+    <ClInclude Include="dbg\tracer.h">
+      <Filter>Header Files\dbg</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -209,11 +209,11 @@
     <ClCompile Include="gui\mempanel.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
-    <ClCompile Include="debug\debugger.cpp">
-      <Filter>Source Files\debug</Filter>
+    <ClCompile Include="dbg\debugger.cpp">
+      <Filter>Source Files\dbg</Filter>
     </ClCompile>
-    <ClCompile Include="debug\tracer.cpp">
-      <Filter>Source Files\debug</Filter>
+    <ClCompile Include="dbg\tracer.cpp">
+      <Filter>Source Files\dbg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

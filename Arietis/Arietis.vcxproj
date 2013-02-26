@@ -110,8 +110,8 @@
     <ClInclude Include="3rdparty\src\json\json_tool.h" />
     <ClInclude Include="Arietis.h" />
     <ClInclude Include="buildver.h" />
-    <ClInclude Include="debug\debugger.h" />
-    <ClInclude Include="debug\tracer.h" />
+    <ClInclude Include="dbg\debugger.h" />
+    <ClInclude Include="dbg\tracer.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="gui\cpupanel.h" />
     <ClInclude Include="gui\custombase.h" />
@@ -145,8 +145,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Arietis.cpp" />
-    <ClCompile Include="debug\debugger.cpp" />
-    <ClCompile Include="debug\tracer.cpp" />
+    <ClCompile Include="dbg\debugger.cpp" />
+    <ClCompile Include="dbg\tracer.cpp" />
     <ClCompile Include="gui\custombase.cpp" />
     <ClCompile Include="gui\mempanel.cpp" />
     <ClCompile Include="gui\tracepanel.cpp" />
