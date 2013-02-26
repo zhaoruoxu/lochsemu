@@ -229,8 +229,6 @@ void MemInfoPanel::DrawItem( wxBufferedPaintDC &dc, int index )
 
 void MemInfoPanel::OnLeftDoubleClick( wxMouseEvent &event )
 {
-    //OnLeftDown(event);
-    //wxMessageBox(wxString::Format("Selection = %d", m_currSelIndex));
     if (m_currSelIndex >= (int) m_data.size() || m_currSelIndex < 0) return;
     const SectionContext &ctx = m_data[m_currSelIndex];
     const Section *sec = m_memory->GetSection(ctx.Base);

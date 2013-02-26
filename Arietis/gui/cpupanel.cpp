@@ -272,9 +272,10 @@ void CpuPanel::OnDataUpdate( const InstSection *insts )
     SetVirtualSize(m_width, m_height);
 }
 
-void CpuPanel::OnPtrChange( u32 addr )
+void CpuPanel::OnCurrentEipChange( u32 addr )
 {
     Assert(m_insts->GetInst(addr));
+
     m_currIndex = m_insts->GetInst(addr)->Index;
     m_currEip   = addr;
 
@@ -289,6 +290,18 @@ void CpuPanel::OnPtrChange( u32 addr )
 
     Refresh();
     Update();
+}
+
+void CpuPanel::ShowCode( u32 addr )
+{
+    if (!m_insts->GetInst(addr)) {
+        wxMessageBox(wxString::Format("Address %08x not in current Code Section", addr), "Arietis");
+        return;
+    }
+    m_currSelIndex = m_insts->GetInst(addr)->Index;
+    OnSelectionChange();
+    Refresh();
+    Scroll(0, m_insts->GetInst(addr)->Index);
 }
 
 void CpuPanel::OnSelectionChange()

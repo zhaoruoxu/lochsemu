@@ -2,20 +2,26 @@
 #include "bpspanel.h"
 #include "archive.h"
 #include "engine.h"
+#include "mainframe.h"
+#include "cpupanel.h"
 
 BreakpointsPanel::BreakpointsPanel( wxWindow *parent )
     : SelectableScrolledControl(parent, wxSize(500, 100))
 {
     InitRender();
+    InitMenu();
     m_engine    = NULL;
     m_archive   = NULL;
+
+    Bind(wxEVT_LEFT_DCLICK,     &BreakpointsPanel::OnLeftDoubleClick,   this, wxID_ANY);
+    Bind(wxEVT_RIGHT_DOWN,      &BreakpointsPanel::OnRightDown,         this, wxID_ANY);
 }
 
 BreakpointsPanel::~BreakpointsPanel()
 {
 }
 
-void BreakpointsPanel::UpdateData( const AEngine *eng )
+void BreakpointsPanel::UpdateData( AEngine *eng )
 {
     m_engine    = eng;
     m_archive   = eng->GetArchive();
@@ -38,6 +44,18 @@ void BreakpointsPanel::InitRender()
     m_width             = m_widthAddress + m_widthModuleName + m_widthDisasm + m_widthDesc;
 
     m_currSelBrush      = wxBrush(wxColour(g_config.GetString("BpsPanel", "CurrSelBrush", "#e0e0e0")));
+}
+
+void BreakpointsPanel::InitMenu()
+{
+    m_popup = new wxMenu;
+    m_popup->Append(ID_PopupShowCode, "&Show code");
+    m_popup->Append(ID_PopupDelete, "&Delete");
+    m_popup->Append(ID_PopupToggle, "&Toggle");
+
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &BreakpointsPanel::OnPopupShowCode,   this, ID_PopupShowCode);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &BreakpointsPanel::OnPopupDelete,     this, ID_PopupDelete);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &BreakpointsPanel::OnPopupToggle,     this, ID_PopupToggle);
 }
 
 void BreakpointsPanel::Draw( wxBufferedPaintDC &dc )
@@ -91,4 +109,42 @@ void BreakpointsPanel::DrawItem( wxBufferedPaintDC &dc, int index )
     w += m_widthDisasm;
     dc.DrawText(wxString::Format("%s", bp.Desc), w, h);
     w += m_widthDesc;
+}
+
+void BreakpointsPanel::OnLeftDoubleClick( wxMouseEvent &event )
+{
+    if (!IsSelectedValid()) return;
+    u32 eip = m_archive->Breakpoints[m_currSelIndex].Address;
+    ((ArietisFrame *) m_parent)->GetCpuPanel()->ShowCode(eip);
+}
+
+void BreakpointsPanel::OnPopupShowCode( wxCommandEvent &event )
+{
+    OnLeftDoubleClick(wxMouseEvent());
+}
+
+void BreakpointsPanel::OnPopupDelete( wxCommandEvent &event )
+{
+    u32 eip = m_archive->Breakpoints[m_currSelIndex].Address;
+    m_engine->GetDebugger()->RemoveBreakpoint(eip);
+    ((ArietisFrame *) m_parent)->GetCpuPanel()->Refresh();
+    Refresh();
+}
+
+void BreakpointsPanel::OnPopupToggle( wxCommandEvent &event )
+{
+    u32 eip = m_archive->Breakpoints[m_currSelIndex].Address;
+    m_engine->GetDebugger()->OnToggleBreakpoint(eip);
+    ((ArietisFrame *) m_parent)->GetCpuPanel()->Refresh();
+    Refresh();
+}
+
+bool BreakpointsPanel::IsSelectedValid() const
+{
+    return m_currSelIndex >= 0 && m_currSelIndex < (int) m_archive->Breakpoints.size();
+}
+
+void BreakpointsPanel::OnRightDown( wxMouseEvent &event )
+{
+    PopupMenu(m_popup);
 }

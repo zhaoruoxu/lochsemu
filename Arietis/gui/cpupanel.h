@@ -14,7 +14,8 @@ public:
     CpuPanel(wxWindow *parent, AEngine *engine);
     ~CpuPanel();
 
-    void        OnPtrChange(u32 addr);
+    void        ShowCode(u32 addr);
+    void        OnCurrentEipChange(u32 addr);
     void        OnDataUpdate(const InstSection *insts);
     void        OnSelectionChange() override;
 

@@ -314,7 +314,7 @@ void ArietisFrame::PreExecSingleStepCallback( const Processor *cpu, const Instru
     InstContext ctx;
     m_engine->GetInstContext(&ctx);
     m_contextPanel->UpdateData(&ctx, "Dynamic Execution");
-    m_cpuPanel->OnPtrChange(cpu->EIP);
+    m_cpuPanel->OnCurrentEipChange(cpu->EIP);
     m_tracePanel->UpdateData();
     m_memInfoPanel->UpdateData(cpu->Emu(), cpu->Mem);
     m_memDataPanel->Refresh();

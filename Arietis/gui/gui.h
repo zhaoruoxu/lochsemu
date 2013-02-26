@@ -41,6 +41,11 @@ enum {
     ID_CpuInstList,
     ID_PopupShowCurrInst,
     ID_PopupTaintReg,
+
+    /* Bps panel */
+    ID_PopupShowCode,
+    ID_PopupDelete,
+    ID_PopupToggle,
 };
 
 class ArietisApp : public wxApp {
