@@ -6,19 +6,24 @@
 #include "Arietis.h"
 #include "io.h"
 
-class Breakpoint : public ISerializable {
-public:
+struct Breakpoint : public ISerializable {
+
     Breakpoint();
-    Breakpoint(u32 module, u32 offset, const std::string &desc);
+    Breakpoint(u32 module, u32 offset, const std::string &desc, bool enabled);
     ~Breakpoint() {}
 
     void        Serialize(Json::Value &root) const override;
     void        Deserialize(Json::Value &root) override;
 
-private:
-    u32         m_module;
-    u32         m_offset;
-    std::string m_desc;
+    // serialize
+    u32         Module;
+    u32         Offset;
+    std::string Desc;
+    bool        Enabled;
+
+    // non-serialize
+    u32         Address;
+    std::string ModuleName;
 };
 
 

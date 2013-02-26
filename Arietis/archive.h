@@ -5,18 +5,23 @@
  
 #include "Arietis.h"
 #include "io.h"
+#include "parallel.h"
 #include "dbg/breakpoint.h"
 
-class Archive : public ISerializable {
-public:
+struct Archive : public ISerializable {
+
     Archive();
     ~Archive();
 
     void        Serialize(Json::Value &root) const override;
     void        Deserialize(Json::Value &root) override;
+    void        Lock() const { m_mutex.Wait(); }
+    void        Unlock() const { m_mutex.Release(); }
+
+    std::vector<Breakpoint>     Breakpoints;
 
 private:
-    std::vector<Breakpoint>     m_breakpoints;
+    Mutex       m_mutex;
 };
  
 #endif // __ARIETIS_ARCHIVE_H__

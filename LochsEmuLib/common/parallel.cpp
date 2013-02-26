@@ -88,5 +88,21 @@ MutexCSLock::~MutexCSLock()
     LeaveCriticalSection(&m_mutex.m_criticalSection);
 }
 
+MutexLock::MutexLock( Mutex &m )
+    : m_mutex(m)
+{
+    m_mutex.Wait();
+}
+
+MutexLock::MutexLock( MutexSyncObject &obj )
+    : m_mutex(obj.m_mutex)
+{
+    m_mutex.Wait();
+}
+
+MutexLock::~MutexLock()
+{
+    m_mutex.Release();
+}
 
 END_NAMESPACE_LOCHSEMU()

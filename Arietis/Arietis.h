@@ -30,7 +30,7 @@ ARIETIS_API void LochsEmu_Process_PostLoad           (PeLoader *loader);
 class ADebugger;
 struct TraceContext;
 class ATracer;
-class Breakpoint;
+struct Breakpoint;
 
 // gui
 
@@ -45,7 +45,7 @@ class TaintEngine;
 // core
 class AEngine;
 struct InstContext;
-class Archive;
+struct Archive;
 
 
 extern HMODULE          g_module;

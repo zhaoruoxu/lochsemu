@@ -115,6 +115,7 @@
     <ClInclude Include="dbg\debugger.h" />
     <ClInclude Include="dbg\tracer.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="gui\bpspanel.h" />
     <ClInclude Include="gui\cpupanel.h" />
     <ClInclude Include="gui\custombase.h" />
     <ClInclude Include="gui\gui.h" />
@@ -151,6 +152,7 @@
     <ClCompile Include="dbg\breakpoint.cpp" />
     <ClCompile Include="dbg\debugger.cpp" />
     <ClCompile Include="dbg\tracer.cpp" />
+    <ClCompile Include="gui\bpspanel.cpp" />
     <ClCompile Include="gui\custombase.cpp" />
     <ClCompile Include="gui\mempanel.cpp" />
     <ClCompile Include="gui\tracepanel.cpp" />

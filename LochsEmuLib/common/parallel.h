@@ -19,6 +19,28 @@ private:
     HANDLE m_hMutex;
 };
 
+class LX_API MutexSyncObject {
+    friend class MutexLock;
+public:
+    void    Lock() const { m_mutex.Wait(); }
+    void    Unlock() const { m_mutex.Release(); }
+private:
+    Mutex   m_mutex;
+};
+
+
+class LX_API MutexLock {
+public:
+    MutexLock(Mutex &m);
+    MutexLock(MutexSyncObject &obj);
+    ~MutexLock();
+private:
+    Mutex &m_mutex;
+    MutexLock(const MutexLock &);
+    MutexLock &operator=(const MutexLock &);
+};
+
+
 class LX_API MutexCS {
 public:
 //     static MutexCS *Create();

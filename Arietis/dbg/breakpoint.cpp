@@ -2,25 +2,29 @@
 #include "breakpoint.h"
 
 Breakpoint::Breakpoint() 
-    : m_module(0), m_offset(0), m_desc("invalid")
+    : Module(0), Offset(0), Desc("invalid"), 
+    Address(0), ModuleName("invalid")
 {
 }
 
-Breakpoint::Breakpoint( u32 module, u32 offset, const std::string &desc )
-    : m_module(module), m_offset(offset), m_desc(desc)
+Breakpoint::Breakpoint( u32 module, u32 offset, const std::string &desc, bool enabled )
+    : Module(module), Offset(offset), Desc(desc), Enabled(enabled),
+    Address(0), ModuleName("invalid")
 {
 }
 
 void Breakpoint::Serialize( Json::Value &root ) const
 {
-    root["module"]  = m_module;
-    root["offset"]  = m_offset;
-    root["desc"]    = m_desc;
+    root["module"]  = Module;
+    root["offset"]  = Offset;
+    root["desc"]    = Desc;
+    root["enabled"] = Enabled;
 }
 
 void Breakpoint::Deserialize( Json::Value &root )
 {
-    m_module        = root.get("module", 0).asUInt();
-    m_offset        = root.get("offset", 0).asUInt();
-    m_desc          = root.get("desc", "invalid").asString();
+    Module        = root.get("module", 0).asUInt();
+    Offset        = root.get("offset", 0).asUInt();
+    Desc          = root.get("desc", "invalid").asString();
+    Enabled       = root.get("enabled", true).asBool();
 }

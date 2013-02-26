@@ -15,6 +15,8 @@ public:
     virtual void    UpdateFont(const wxFont &font);
     virtual void    Draw(wxBufferedPaintDC &dc) = 0;
 
+    static const int VertLineOffset = -2;
+
 protected:
     wxFont      m_font;
     int         m_lineHeight;

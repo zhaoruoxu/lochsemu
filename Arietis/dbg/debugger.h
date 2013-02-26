@@ -39,7 +39,9 @@ private:
     State               m_state;
     u32                 m_stepOverEip;
 
-    AEngine *     m_engine;
+    AEngine *           m_engine;
+    Archive *           m_archive;
+
     Semaphore           m_semaphore;
 
     const Processor *   m_currProcessor;

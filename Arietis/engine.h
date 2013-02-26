@@ -12,13 +12,6 @@
 #include "taint/taintengine.h"
 
 
-// struct MemContext {
-//     u32             Base;
-//     u32             Size;
-//     std::string     Desc;
-//     std::string     ModuleName;
-// };
-
 class AEngine {
 public:
     AEngine();
@@ -42,6 +35,13 @@ public:
     Disassembler *  GetDisassembler() { return &m_disassembler; }
     TaintEngine *   GetTaintEngine() { return &m_taint; }
     Archive *       GetArchive() { return &m_archive; }
+
+    const Emulator *    GetEmulator() const { return m_emulator; }
+    const ADebugger *   GetDebugger() const { return &m_debugger; }
+    const ATracer *     GetTracer() const { return &m_tracer; }
+    const Disassembler *GetDisassembler() const { return &m_disassembler; }
+    const TaintEngine * GetTaintEngine() const { return &m_taint; }
+    const Archive *     GetArchive() const { return &m_archive; }
 
     void            GetInstContext(InstContext *ctx) const;
     void            GetTraceContext(TraceContext *ctx, u32 eip) const;

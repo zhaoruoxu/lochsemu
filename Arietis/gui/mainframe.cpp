@@ -6,6 +6,7 @@
 #include "tracepanel.h"
 #include "contextpanel.h"
 #include "mempanel.h"
+#include "bpspanel.h"
 
 #include "utilities.h"
 #include "engine.h"
@@ -55,13 +56,21 @@ void ArietisFrame::InitUI()
     m_tracePanel    = new CompositeTracePanel(this, m_contextPanel);
     m_memDataPanel  = new MemDataPanel(this);
     m_memInfoPanel  = new MemInfoPanel(this, m_memDataPanel);
+    m_bpsPanel      = new BreakpointsPanel(this);
     
     
-    m_auiManager.AddPane(m_cpuPanel, wxAuiPaneInfo().Name("CPU").Caption("CPU").CenterPane());
-    m_auiManager.AddPane(m_tracePanel, wxAuiPaneInfo().Name("Trace").Caption("Trace").Top());
-    m_auiManager.AddPane(m_contextPanel, wxAuiPaneInfo().Name("Context").Caption("Context").Right());
-    m_auiManager.AddPane(m_memInfoPanel, wxAuiPaneInfo().Name("Sections").Caption("Sections").Bottom().Position(0));
-    m_auiManager.AddPane(m_memDataPanel, wxAuiPaneInfo().Name("Memory").Caption("Memory").Bottom().Position(1));
+    m_auiManager.AddPane(m_cpuPanel, 
+        wxAuiPaneInfo().Name("CPU").Caption("CPU").CenterPane());
+    m_auiManager.AddPane(m_tracePanel, 
+        wxAuiPaneInfo().Name("Trace").Caption("Trace").Top());
+    m_auiManager.AddPane(m_contextPanel, 
+        wxAuiPaneInfo().Name("Context").Caption("Context").Right());
+    m_auiManager.AddPane(m_memInfoPanel, 
+        wxAuiPaneInfo().Name("Sections").Caption("Sections").Bottom().Position(0).Row(1));
+    m_auiManager.AddPane(m_memDataPanel, 
+        wxAuiPaneInfo().Name("Memory").Caption("Memory").Bottom().Position(1).Row(1));
+    m_auiManager.AddPane(m_bpsPanel, 
+        wxAuiPaneInfo().Name("Breakpoints").Caption("Breakpoints").Bottom().Row(0));
     
     m_auiManager.Update();
     Centre();
@@ -281,6 +290,7 @@ void ArietisFrame::OnStepOut( wxCommandEvent &event )
 void ArietisFrame::OnToggleBreakpoint( wxCommandEvent &event )
 {
     m_engine->GetDebugger()->OnToggleBreakpoint();
+    m_bpsPanel->UpdateData(m_engine);
 }
 
 void ArietisFrame::PreExecSingleStepCallback( const Processor *cpu, const Instruction *inst )
@@ -292,6 +302,7 @@ void ArietisFrame::PreExecSingleStepCallback( const Processor *cpu, const Instru
     m_tracePanel->UpdateData();
     m_memInfoPanel->UpdateData(cpu->Emu(), cpu->Mem);
     m_memDataPanel->Refresh();
+    m_bpsPanel->UpdateData(m_engine);
 }
 
 

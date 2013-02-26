@@ -52,9 +52,10 @@ private:
 
     CpuPanel *      m_cpuPanel;
     ContextPanel *  m_contextPanel;
-    CompositeTracePanel *    m_tracePanel;
+    CompositeTracePanel *   m_tracePanel;
     MemInfoPanel *  m_memInfoPanel;
     MemDataPanel *  m_memDataPanel;
+    BreakpointsPanel    *   m_bpsPanel;
 
     wxString        m_defaultPerspective;
     wxAuiManager    m_auiManager;

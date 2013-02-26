@@ -86,7 +86,6 @@ void CpuPanel::Draw( wxBufferedPaintDC &dc )
     if (m_insts == NULL) return;
     MutexCSLock lock(m_mutex);
 
-    static const int VertLineOffset = -2;
     wxPoint pv  = GetViewStart();
     wxPoint p   = GetCurrentScrolledPos();
     wxSize cs   = GetClientSize();

@@ -62,7 +62,6 @@ public:
     void        UpdateData();
     void        OnSelectionChange() override;
     void        OnLeftDoubleClick(wxMouseEvent &event);
-    const static int VertLineOffset = -2;
 private:
     void        InitRender();
     void        Draw(wxBufferedPaintDC &dc) override;

@@ -44,7 +44,6 @@ MemDataPanel::~MemDataPanel()
 
 void MemDataPanel::Draw( wxBufferedPaintDC &dc )
 {
-    static const int VertLineOffset = -2;
     if (NULL == m_section) return;
 
     MutexCSLock lock(m_mutex);
@@ -179,7 +178,6 @@ void MemInfoPanel::InitRender()
 
 void MemInfoPanel::Draw( wxBufferedPaintDC &dc )
 {
-    static const int VertLineOffset = -2;
     MutexCSLock lock(m_mutex);
     
     wxPoint viewStart   = GetViewStart();
