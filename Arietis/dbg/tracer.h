@@ -15,7 +15,7 @@ struct TraceContext : public InstContext {
     }
 };
 
-class ATracer {
+class ATracer : public MutexSyncObject {
 public:
     typedef std::vector<TraceContext>      TraceVec;
 public:
@@ -26,8 +26,6 @@ public:
     void            OnPostExecute(const Processor *cpu, const Instruction *inst);
 
     //void            TraceInst(const Processor *cpu, u32 eip, i64 seq);
-    void            Lock() const { m_mutex.Wait(); }
-    void            Unlock() const { m_mutex.Release(); }
     void            Enable(bool isEnabled) { m_enabled = isEnabled; }
     bool            IsEnabled() const { return m_enabled; }
     const TraceVec& GetData() const { return m_traces; }
@@ -37,7 +35,6 @@ private:
     i64             m_seq;
     bool            m_enabled;
     AEngine *       m_engine;
-    Mutex           m_mutex;
     TraceVec        m_traces;
 };
 

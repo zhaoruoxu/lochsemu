@@ -47,7 +47,7 @@ private:
     //TaintFactory &  m_factory;
 };
 
-class TaintEngine {
+class TaintEngine : public MutexSyncObject {
 public:
 
     TaintEngine();
@@ -62,14 +62,9 @@ public:
     void        OnWinapiPreCall    (Processor *cpu, uint apiIndex);
     void        OnWinapiPostCall   (Processor *cpu, uint apiIndex);
 
-    void        Lock() const;
-    void        Unlock() const;
     void        UpdateInstContext(InstContext *ctx) const;
 
     void        DefaultTaintPropagate   (Processor *cpu, const Instruction *inst);
-private:
-    Mutex           m_mutex;
-    //TaintFactory    m_factory;
 
 private:
     Taint       GetTaint(const Processor *cpu, const ARGTYPE &oper);

@@ -27,7 +27,7 @@ public:
     void        OnStepOver();
     void        OnStepOut();
     void        OnRun();
-    void        OnToggleBreakpoint();
+    void        OnToggleBreakpoint(u32 eip);
     void        OnTerminate();
 
     void        UpdateInstContext(InstContext *ctx) const;

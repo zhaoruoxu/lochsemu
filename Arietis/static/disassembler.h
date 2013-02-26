@@ -89,15 +89,12 @@ public:
     InstSection *   CreateSection(u32 base, u32 size);
 
     InstPtr         GetInst(u32 addr) const;
-    //void            Lock() const { m_mutex.Wait(); }
-    //void            Release() const { m_mutex.Release(); }
 private:
     InstSection *   AddSection(u32 base, u32 size);
 
 private:
     InstSection *   m_pagetable[LX_PAGE_COUNT];
     InstPool        m_pool;
-    //Mutex           m_mutex;
 };
 
 class Disassembler {

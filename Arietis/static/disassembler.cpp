@@ -25,7 +25,6 @@ InstSection::~InstSection()
 
 InstPtr InstSection::Alloc( u32 addr )
 {
-    //Lock();
     SyncObjectLock lock(*this);
 
     AssertInRanage(addr);
@@ -34,7 +33,6 @@ InstPtr InstSection::Alloc( u32 addr )
     pinst->Eip              = addr;
     m_data[addr - m_base]   = pinst;
     m_count++;
-    //Unlock();
     return pinst;
 }
 
@@ -144,8 +142,6 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
     u32 eip = cpu->EIP;
     Section *sec = cpu->Mem->GetSection(eip);
     
-    //m_instMem.Lock();
-
     bool update = false;
     InstSection *instSec = m_instMem.CreateSection(sec->Base(), sec->Size());
 
@@ -160,9 +156,6 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
             update = true;
         }
     }
-
-
-    //m_instMem.Unlock();
 
     if (m_lastSec != sec || update) {
         if (m_dataUpdateHandler) m_dataUpdateHandler(instSec);

@@ -34,7 +34,8 @@ void TracePanel::InitRender()
 void TracePanel::Draw( wxBufferedPaintDC &dc )
 {
     if (m_parent->m_tracer == NULL) return;
-    m_parent->m_tracer->Lock();
+
+    SyncObjectLock lock(*m_parent->m_tracer);
 
     const ATracer::TraceVec &vec = m_parent->m_tracer->GetData();
     const int N = vec.size();
@@ -69,7 +70,7 @@ void TracePanel::Draw( wxBufferedPaintDC &dc )
         dc.DrawLine(lineX, lineY0, lineX, lineY1);
     }
 
-    m_parent->m_tracer->Unlock();
+    //m_parent->m_tracer->Unlock();
 }
 
 void TracePanel::DrawTrace( wxBufferedPaintDC &dc, const TraceContext &trace, int index )

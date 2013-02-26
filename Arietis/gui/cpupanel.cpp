@@ -12,22 +12,19 @@ static INLINE bool InRangeIncl(T val, T t0, T t1) {
 CpuPanel::CpuPanel( wxWindow *parent, AEngine *engine ) : 
     SelectableScrolledControl(parent, wxSize(400, 200)), m_engine(engine)
 {
-    //m_mutex = MutexCS::Create();
     InitMenu();
     InitRender();
 
-//     Bind(wxEVT_LEFT_DOWN, &CpuPanel::OnLeftDown, this, wxID_ANY);
-//     Bind(wxEVT_LEFT_UP, &CpuPanel::OnLeftUp, this, wxID_ANY);
-//     Bind(wxEVT_MOTION, &CpuPanel::OnMouseMove, this, wxID_ANY);
-//     Bind(wxEVT_LEAVE_WINDOW, &CpuPanel::OnMouseLeave, this, wxID_ANY);
     Bind(wxEVT_RIGHT_DOWN, &CpuPanel::OnRightDown, this, wxID_ANY);
 
     m_insts = NULL;
+    m_currSelEip    = 0;
+    m_currEip       = 0;
+    m_currIndex     = -1;
 }
 
 CpuPanel::~CpuPanel()
 {
-    //MutexCS::Destroy(m_mutex);
 }
 
 void CpuPanel::InitRender()
@@ -53,10 +50,6 @@ void CpuPanel::InitRender()
     m_jumpLineWidthMax      = g_config.GetInt("CpuPanel", "JumpLineWidthMax", 15);
     m_jumpLineWidthMin      = g_config.GetInt("CpuPanel", "JumpLineWidthMin", 3);
     m_jumpLineInstDistMax   = g_config.GetInt("CpuPanel", "JumpLineInstDistanceMax", 20);
-
-    m_currIndex = -1;
-    //m_currSelIndex = -1;
-    //m_isLeftDown = false;
 }
 
 void CpuPanel::InitMenu()
@@ -84,7 +77,8 @@ wxPoint CpuPanel::GetCurrentScrolledPos() const
 void CpuPanel::Draw( wxBufferedPaintDC &dc )
 {
     if (m_insts == NULL) return;
-    MutexCSLock lock(m_mutex);
+    //MutexCSLock lock(m_mutex);
+    SyncObjectLock lock(*m_insts);
 
     wxPoint pv  = GetViewStart();
     wxPoint p   = GetCurrentScrolledPos();
@@ -234,11 +228,12 @@ void CpuPanel::DrawJumpLines( wxBufferedPaintDC &dc, int istart, int iend )
 
 void CpuPanel::OnDataUpdate( const InstSection *insts )
 {
-    {
-        MutexCSLock lock(m_mutex);
-        m_insts = insts;
-        m_insts->Lock();
+    m_insts = insts;
+    if (insts == NULL) return;
 
+    {
+        SyncObjectLock lockx(*m_insts);
+        
         m_procEntryEnd.clear();
         int prevIndex = -1, prevRindex = -1;
         for (InstPtr *inst = m_insts->Begin(); inst != m_insts->End(); inst = m_insts->Next(inst)) {
@@ -253,15 +248,12 @@ void CpuPanel::OnDataUpdate( const InstSection *insts )
             prevIndex   = index;
             prevRindex  = rindex;
         }
-
-        m_insts->Unlock();
     }
 
     m_currSelIndex  = -1;
     m_currSelEip    = 0;
     m_height = m_lineHeight * insts->GetCount();
     SetVirtualSize(m_width, m_height);
-    //Refresh();
 }
 
 void CpuPanel::OnPtrChange( u32 addr )
@@ -318,13 +310,15 @@ void CpuPanel::OnPopupTaintReg( wxCommandEvent &event )
     if (val.IsEmpty()) return; // Cancelled
     
     TaintEngine *te = m_engine->GetTaintEngine();
-    te->Lock();
-    if (reg < 8) {
-        te->CpuTaint.GPRegs[reg] = Taint::FromBinString(val.ToStdString());
-    } else if (reg == 8) {
-        te->CpuTaint.Eip = Taint::FromBinString(val.ToStdString());
-    } else {
-        Assert(0);
+    {
+        SyncObjectLock lock(*te);
+        if (reg < 8) {
+            te->CpuTaint.GPRegs[reg] = Taint::FromBinString(val.ToStdString());
+        } else if (reg == 8) {
+            te->CpuTaint.Eip = Taint::FromBinString(val.ToStdString());
+        } else {
+            Assert(0);
+        }
     }
-    te->Unlock();
+
 }

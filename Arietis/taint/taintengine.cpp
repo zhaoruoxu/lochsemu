@@ -103,7 +103,6 @@ void MemoryTaint::PageTaint::Set( u32 offset, const Taint &t )
 
 
 TaintEngine::TaintEngine()
-    : m_mutex(false)
 {
 
 }
@@ -178,16 +177,6 @@ void TaintEngine::DefaultTaintPropagate( Processor *cpu, const Instruction *inst
     if (OPERAND_TYPE(arg2.ArgType) == CONSTANT_TYPE) return;
     Taint t = GetTaint(cpu, arg1) | GetTaint(cpu, arg2);
     SetTaint(cpu, arg1, t);
-}
-
-void TaintEngine::Lock() const
-{
-    m_mutex.Wait();
-}
-
-void TaintEngine::Unlock() const
-{
-    m_mutex.Release();
 }
 
 void TaintEngine::UpdateInstContext( InstContext *ctx ) const

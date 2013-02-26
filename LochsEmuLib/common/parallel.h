@@ -57,7 +57,6 @@ private:
 class LX_API MutexLock {
 public:
     MutexLock(Mutex &m);
-    //MutexLock(MutexSyncObject &obj);
     ~MutexLock();
 private:
     Mutex &m_mutex;
@@ -68,8 +67,6 @@ private:
 
 class LX_API MutexCS {
 public:
-//     static MutexCS *Create();
-//     static void Destroy(MutexCS *m);
     MutexCS();
     ~MutexCS();
 private:

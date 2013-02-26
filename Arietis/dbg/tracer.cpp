@@ -5,7 +5,7 @@
 #include "engine.h"
 
 ATracer::ATracer( AEngine *engine )
-    : m_engine(engine), m_mutex(false), m_seq(-1)
+    : m_engine(engine),  m_seq(-1)
 {
     
 }
@@ -32,8 +32,9 @@ void ATracer::OnPostExecute( const Processor *cpu, const Instruction *inst )
     m_engine->GetTraceContext(&ctx, m_currEip);
     ctx.seq     = m_seq;
 
-    Lock();
-    m_traces.push_back(ctx);
-    Unlock();
+    {
+        SyncObjectLock lock(*this);
+        m_traces.push_back(ctx);
+    }
 }
 

@@ -148,16 +148,8 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LochsDbg\LochsDbg.vcxproj">
-      <Project>{cd930a39-ff2f-49cd-938d-799d5661cd83}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="..\LochsEmuLib\LochsEmuLib.vcxproj">
       <Project>{f9360164-655e-4557-9355-83994282858b}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\StatusDisplay\StatusDisplay.vcxproj">
-      <Project>{502b54ed-f880-4be7-ad46-20a49ca0088e}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>

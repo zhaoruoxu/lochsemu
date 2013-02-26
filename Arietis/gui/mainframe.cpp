@@ -289,7 +289,10 @@ void ArietisFrame::OnStepOut( wxCommandEvent &event )
 
 void ArietisFrame::OnToggleBreakpoint( wxCommandEvent &event )
 {
-    m_engine->GetDebugger()->OnToggleBreakpoint();
+    u32 eip = m_cpuPanel->GetSelectedEip();
+    if (eip == 0) eip = m_cpuPanel->GetCurrentEip();
+    Assert(eip != 0);
+    m_engine->GetDebugger()->OnToggleBreakpoint(eip);
     m_bpsPanel->UpdateData(m_engine);
 }
 

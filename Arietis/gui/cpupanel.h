@@ -21,6 +21,10 @@ public:
     void        OnRightDown(wxMouseEvent& event);
     void        OnPopupShowCurrInst(wxCommandEvent &event);
     void        OnPopupTaintReg(wxCommandEvent &event);
+
+    u32         GetCurrentEip() const { return m_currEip; }
+    u32         GetSelectedEip() const { return m_currSelEip; }
+
 private:
     void        InitRender();
     void        InitMenu();
@@ -57,7 +61,6 @@ private:
 
     const InstSection *     m_insts;
     std::map<int, int>      m_procEntryEnd;
-    MutexCS                 m_mutex;
 };
  
 #endif // __ARIETIS_GUI_CPUPANEL_H__
