@@ -28,13 +28,27 @@ ARIETIS_API void LochsEmu_Process_PostLoad           (PeLoader *loader);
 
 typedef Json::Value     AArchive;
 
-class AEngine;
+// dbg
 class ADebugger;
-struct InstContext;
 struct TraceContext;
 class ATracer;
+class Breakpoint;
+
+// gui
+
+// static
+struct Inst;
+class Disassembler;
+
+// taint
 class Taint;
 class TaintEngine;
+
+// core
+class AEngine;
+struct InstContext;
+class Archive;
+
 
 extern HMODULE          g_module;
 extern Config           g_config;

@@ -150,6 +150,12 @@
     <ClInclude Include="dbg\tracer.h">
       <Filter>Header Files\dbg</Filter>
     </ClInclude>
+    <ClInclude Include="dbg\breakpoint.h">
+      <Filter>Header Files\dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="archive.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -214,6 +220,15 @@
     </ClCompile>
     <ClCompile Include="dbg\tracer.cpp">
       <Filter>Source Files\dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="dbg\breakpoint.cpp">
+      <Filter>Source Files\dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="archive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="io.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
