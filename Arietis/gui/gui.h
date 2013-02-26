@@ -29,6 +29,7 @@ enum {
     ID_StepOut,
     ID_Run,
     ID_ToggleBreakpoint,
+    ID_RemoveBreakpoint,
 
     ID_StatusTimer,
 

@@ -36,6 +36,7 @@ private:
     void    OnStepInto(wxCommandEvent &event);
     void    OnStepOut(wxCommandEvent &event);
     void    OnToggleBreakpoint(wxCommandEvent &event);
+    void    OnRemoveBreakpoint(wxCommandEvent &event);
     void    OnToggleTraceClicked(wxCommandEvent &event);
 
     void    OnStatusTimer(wxTimerEvent &event);

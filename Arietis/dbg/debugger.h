@@ -28,6 +28,8 @@ public:
     void        OnStepOut();
     void        OnRun();
     void        OnToggleBreakpoint(u32 eip);
+    void        RemoveBreakpoint(u32 eip);
+    const Breakpoint * GetBreakpoint(u32 eip) const;
     void        OnTerminate();
 
     void        UpdateInstContext(InstContext *ctx) const;

@@ -104,6 +104,7 @@ void ArietisFrame::InitMenu()
     menuDebug->Append(ID_StepOut, "Step Out\tShift-F10");
     menuDebug->AppendSeparator();
     menuDebug->Append(ID_ToggleBreakpoint, "Toggle Breakpoint\tF2");
+    menuDebug->Append(ID_RemoveBreakpoint, "Remove Breakpoint\tF3");
 
     wxMenu *menuHelp = new wxMenu;
     menuHelp->Append(wxID_ABORT, "&About");
@@ -127,6 +128,7 @@ void ArietisFrame::InitMenu()
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnStepOut, this, ID_StepOut);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnRun, this, ID_Run);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnToggleBreakpoint, this, ID_ToggleBreakpoint);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnRemoveBreakpoint, this, ID_RemoveBreakpoint);
 }
 
 enum StatusbarText {
@@ -294,6 +296,17 @@ void ArietisFrame::OnToggleBreakpoint( wxCommandEvent &event )
     Assert(eip != 0);
     m_engine->GetDebugger()->OnToggleBreakpoint(eip);
     m_bpsPanel->UpdateData(m_engine);
+    m_cpuPanel->Refresh();
+}
+
+void ArietisFrame::OnRemoveBreakpoint( wxCommandEvent &event )
+{
+    u32 eip = m_cpuPanel->GetSelectedEip();
+    if (eip == 0) eip = m_cpuPanel->GetCurrentEip();
+    Assert(eip != 0);
+    m_engine->GetDebugger()->RemoveBreakpoint(eip);
+    m_bpsPanel->UpdateData(m_engine);
+    m_cpuPanel->Refresh();
 }
 
 void ArietisFrame::PreExecSingleStepCallback( const Processor *cpu, const Instruction *inst )

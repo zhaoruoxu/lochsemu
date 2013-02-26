@@ -132,6 +132,22 @@ void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const InstPtr inst, int index )
     int h = m_lineHeight * index + 1;
     dc.SetBrush(*wxWHITE_BRUSH);
 
+    // draw breakpoint
+    const Breakpoint *bp = m_engine->GetDebugger()->GetBreakpoint(inst->Eip);
+    if (bp != NULL) {
+        wxRect rectBp(0, h, m_widthIp, m_lineHeight);
+        if (bp->Enabled) {
+            if (bp->Desc == "crt_entry") {
+                dc.SetBrush(*wxBLUE_BRUSH);
+            } else {
+                dc.SetBrush(*wxGREEN_BRUSH);
+            }
+        } else {
+            dc.SetBrush(*wxRED_BRUSH);
+        }
+        dc.DrawRectangle(rectBp);
+    }
+
     // draw ip address
     dc.DrawText(wxString::Format("%08X", inst->Eip), 0,h );
     
