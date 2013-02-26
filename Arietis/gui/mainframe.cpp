@@ -27,7 +27,7 @@ ArietisFrame::ArietisFrame(AEngine *engine)
 
     m_engine->SetGuiFrame(this);
     NotifyMainThread();
-
+    m_archive = NULL;
 }
 
 ArietisFrame::~ArietisFrame()
@@ -81,7 +81,7 @@ void ArietisFrame::InitUI()
         OnLoadPerspective(wxCommandEvent());
     }
 
-    OnToggleTrace(m_engine->GetTracer()->IsEnabled());
+    
     //SetSize(800, 800);
 }
 
@@ -294,7 +294,7 @@ void ArietisFrame::OnToggleBreakpoint( wxCommandEvent &event )
     u32 eip = m_cpuPanel->GetSelectedEip();
     if (eip == 0) eip = m_cpuPanel->GetCurrentEip();
     Assert(eip != 0);
-    m_engine->GetDebugger()->OnToggleBreakpoint(eip);
+    m_engine->GetDebugger()->ToggleBreakpoint(eip);
     m_bpsPanel->UpdateData(m_engine);
     m_cpuPanel->Refresh();
 }
@@ -338,12 +338,17 @@ void ArietisFrame::OnToggleTrace( bool traceEnabled )
     m_statusbar->SetStatusText(traceEnabled ? "Tracing" : "", Statusbar_Tracing);
     m_toggleTraceButton->SetLabel(traceEnabled ? "Stop Trace" : "Start Trace");
     m_toggleTraceButton->SetBackgroundColour(traceEnabled ? *wxRED : *wxCYAN);
-
-    m_engine->SaveConfig();
 }
 
 void ArietisFrame::OnToggleTraceClicked( wxCommandEvent &event )
 {
     OnToggleTrace(!m_engine->GetTracer()->IsEnabled());
+    m_engine->SaveArchive();
+}
+
+void ArietisFrame::OnArchiveLoaded( Archive *arc )
+{
+    m_archive = arc;
+    OnToggleTrace(m_engine->GetTracer()->IsEnabled());
 }
 

@@ -18,7 +18,7 @@ public:
     ~AEngine();
 
     void            Initialize(Emulator *emu);
-    void            SaveConfig();
+    //void            SaveConfig();
     void            SaveArchive();
 
     void            SetGuiFrame(ArietisFrame *frame);
@@ -65,7 +65,7 @@ private:
     ArietisFrame *  m_gui;
     Archive         m_archive;
 
-    bool            m_skipDllEntries;
+    //bool            m_skipDllEntries;
     bool            m_mainEntryEntered;
 
     std::string     m_archivePath;

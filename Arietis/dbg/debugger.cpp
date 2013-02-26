@@ -108,7 +108,17 @@ void ADebugger::OnStepOut()
     LxError("StepOut not implemented\n");
 }
 
-void ADebugger::OnToggleBreakpoint(u32 eip)
+void ADebugger::AddBreakpoint( u32 eip, const std::string &desc )
+{
+    uint module     = m_currProcessor->GetModule(eip);
+    const ModuleInfo *minfo = m_currProcessor->Proc()->GetModuleInfo(module);
+    Breakpoint bp(module, eip - minfo->ImageBase, desc, true);
+    bp.Address      = eip;
+    bp.ModuleName   = minfo->Name;
+    m_archive->Breakpoints.push_back(bp);
+}
+
+void ADebugger::ToggleBreakpoint(u32 eip)
 {
     SyncObjectLock lock(*m_archive);
 
@@ -120,13 +130,7 @@ void ADebugger::OnToggleBreakpoint(u32 eip)
         }
     }
 
-    // add a new breakpoint
-    uint module     = m_currProcessor->GetModule(eip);
-    const ModuleInfo *minfo = m_currProcessor->Proc()->GetModuleInfo(module);
-    Breakpoint bp(module, eip - minfo->ImageBase, "user", true);
-    bp.Address      = eip;
-    bp.ModuleName   = minfo->Name;
-    m_archive->Breakpoints.push_back(bp);
+    AddBreakpoint(eip, "user");
 }
 
 void ADebugger::RemoveBreakpoint(u32 eip)

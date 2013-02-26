@@ -20,6 +20,7 @@ public:
     MemInfoPanel *          GetMemInfoPanel() const { return m_memInfoPanel; }
     void    ReportBusy(bool isBusy);
     void    OnProcessLoaded(LPCSTR path);
+    void    OnArchiveLoaded(Archive *arc);
 private:
     void    OnExit(wxCommandEvent &event);
     void    OnAbout(wxCommandEvent &event);
@@ -42,6 +43,7 @@ private:
     void    OnStatusTimer(wxTimerEvent &event);
     
     void    OnToggleTrace(bool traceEnabled);
+    
 private:
     void    InitMisc();
     void    InitUI();
@@ -50,6 +52,7 @@ private:
     void    InitToolbars();
 private:
     AEngine *       m_engine;
+    Archive *       m_archive;
 
     CpuPanel *      m_cpuPanel;
     ContextPanel *  m_contextPanel;

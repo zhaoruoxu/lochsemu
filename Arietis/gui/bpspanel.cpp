@@ -134,7 +134,7 @@ void BreakpointsPanel::OnPopupDelete( wxCommandEvent &event )
 void BreakpointsPanel::OnPopupToggle( wxCommandEvent &event )
 {
     u32 eip = m_archive->Breakpoints[m_currSelIndex].Address;
-    m_engine->GetDebugger()->OnToggleBreakpoint(eip);
+    m_engine->GetDebugger()->ToggleBreakpoint(eip);
     ((ArietisFrame *) m_parent)->GetCpuPanel()->Refresh();
     Refresh();
 }

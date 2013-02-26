@@ -27,7 +27,8 @@ public:
     void        OnStepOver();
     void        OnStepOut();
     void        OnRun();
-    void        OnToggleBreakpoint(u32 eip);
+    void        AddBreakpoint(u32 eip, const std::string &desc);
+    void        ToggleBreakpoint(u32 eip);
     void        RemoveBreakpoint(u32 eip);
     const Breakpoint * GetBreakpoint(u32 eip) const;
     void        OnTerminate();

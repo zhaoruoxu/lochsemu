@@ -27,7 +27,7 @@ void AEngine::Initialize(Emulator *emu)
     m_debugger.Initialize();
     m_taint.Initialize();
     m_tracer.Enable(g_config.GetInt("Tracer", "Enabled", 1) != 0);
-    m_skipDllEntries    = g_config.GetInt("Engine", "SkipDllEntries", 1) != 0;
+    //m_skipDllEntries    = g_config.GetInt("Engine", "SkipDllEntries", 1) != 0;
     m_mainEntryEntered  = false;
     m_enabled           = true;
     m_isArchiveLoaded   = false;
@@ -35,11 +35,11 @@ void AEngine::Initialize(Emulator *emu)
     CreateArchiveDirectory();
 }
 
-void AEngine::SaveConfig()
-{
-    g_config.SetInt("Tracer", "Enabled", m_tracer.IsEnabled());
-    g_config.SetInt("Engine", "SkipDllEntries", m_skipDllEntries);
-}
+// void AEngine::SaveConfig()
+// {
+//     g_config.SetInt("Tracer", "Enabled", m_tracer.IsEnabled());
+//     g_config.SetInt("Engine", "SkipDllEntries", m_skipDllEntries);
+// }
 
 void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 {
@@ -47,7 +47,7 @@ void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
     m_tracer.OnPreExecute(cpu);
     
     m_disassembler.OnPreExecute(cpu, inst);
-    if (m_skipDllEntries && !m_mainEntryEntered) return;
+    if (m_archive.SkipDllEntries && !m_mainEntryEntered) return;
     
     m_debugger.OnPreExecute(cpu, inst);
 }
@@ -55,7 +55,7 @@ void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 {
     if (!m_enabled) return;
-    if (m_skipDllEntries && !m_mainEntryEntered) return;
+    if (m_archive.SkipDllEntries && !m_mainEntryEntered) return;
 
     m_taint.OnPostExecute(cpu, inst);
     m_tracer.OnPostExecute(cpu, inst);
@@ -117,7 +117,6 @@ void AEngine::Intro() const
 
 void AEngine::Terminate()
 {
-    SaveConfig();
     SaveArchive();
     m_enabled = false;
     //m_emulator->Terminate();
@@ -161,6 +160,8 @@ void AEngine::LoadArchive(const char *moduleName)
     if (!Serializer::Deserialzie(&m_archive, s)) {
         LxFatal("Error deserializing archive file\n");
     }
+
+    m_gui->OnArchiveLoaded(&m_archive);
 }
 
 void AEngine::SaveArchive()

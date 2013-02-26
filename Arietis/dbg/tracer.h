@@ -26,15 +26,16 @@ public:
     void            OnPostExecute(const Processor *cpu, const Instruction *inst);
 
     //void            TraceInst(const Processor *cpu, u32 eip, i64 seq);
-    void            Enable(bool isEnabled) { m_enabled = isEnabled; }
-    bool            IsEnabled() const { return m_enabled; }
+    void            Enable(bool isEnabled);
+    bool            IsEnabled() const;
     const TraceVec& GetData() const { return m_traces; }
 private:
     TraceContext    m_currTrace;
     u32             m_currEip;
     i64             m_seq;
-    bool            m_enabled;
+    //bool            m_enabled;
     AEngine *       m_engine;
+    Archive *       m_archive;
     TraceVec        m_traces;
 };
 

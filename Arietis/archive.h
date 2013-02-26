@@ -16,6 +16,9 @@ struct Archive : public ISerializable, public MutexSyncObject {
     void        Deserialize(Json::Value &root) override;
 
     std::vector<Breakpoint>     Breakpoints;
+    bool        IsTracerEnabled;
+    bool        SkipDllEntries;
+    bool        BreakOnCRTEntry;
 };
  
 #endif // __ARIETIS_ARCHIVE_H__
