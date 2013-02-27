@@ -100,7 +100,14 @@ typedef Taint           Taint8;
 typedef TaintBlock<4>   Taint32;
 typedef TaintBlock<2>   Taint16;
 
+//  Retrieve from Taint32
 Taint16     ToTaint16(const Taint32 &t, int offset = 0);
+
+//  Set part of Taint32 from Taint16
+void        FromTaint16(Taint32 &dest, const Taint16 &src, int offset = 0);
+
+Taint16     PackTaint(const Taint &t0, const Taint &t1);
+Taint32     PackTaint(const Taint &t0, const Taint &t1, const Taint &t2, const Taint &t3);
 
 // struct Taint4 {
 //     static const int    Count = 4;

@@ -28,80 +28,6 @@ static int RegMap[]  = {
      7
 };
 
-MemoryTaint::MemoryTaint() 
-{
-    ZeroMemory(m_pagetable, sizeof(m_pagetable));
-}
-
-MemoryTaint::~MemoryTaint()
-{
-    for (int i = 0; i < LX_PAGE_COUNT; i++) {
-        if (m_pagetable[i]) {
-            SAFE_DELETE(m_pagetable[i]);
-        }
-    }
-}
-
-Taint MemoryTaint::Get( u32 addr )
-{
-//     if (m_status.find(addr) == m_status.end()) {
-//         m_status[addr] = Taint();
-//     }
-//     return m_status[addr];
-    PageTaint *page = GetPage(addr);
-    return page->Get(PAGE_LOW(addr));
-}
-
-Taint MemoryTaint::Get( u32 addr, u32 len )
-{
-    Taint ret = Get(addr);
-    for (uint i = 1; i < len; i++) {
-        ret |= Get(addr + i);
-    }
-    return ret;
-}
-
-void MemoryTaint::Set( const Taint &t, u32 addr, u32 len )
-{
-    Assert(len > 0);
-    for (uint i = 0; i < len; i++) {
-        //m_status[addr + i] = t;
-        PageTaint *page = GetPage(addr);
-        page->Set(PAGE_LOW(addr + i), t);
-    }
-}
-
-MemoryTaint::PageTaint * MemoryTaint::GetPage( u32 addr )
-{
-    const u32 pageNum = PAGE_NUM(addr);
-    if (m_pagetable[pageNum] == NULL) {
-        m_pagetable[pageNum] = new PageTaint;
-    }
-    return m_pagetable[pageNum];
-}
-
-MemoryTaint::PageTaint::PageTaint()
-{
-    ZeroMemory(m_data, sizeof(m_data));
-}
-
-MemoryTaint::PageTaint::~PageTaint()
-{
-
-}
-
-Taint MemoryTaint::PageTaint::Get( u32 offset )
-{
-    Assert(offset < LX_PAGE_SIZE);
-    return m_data[offset];
-}
-
-void MemoryTaint::PageTaint::Set( u32 offset, const Taint &t )
-{
-    Assert(offset < LX_PAGE_SIZE);
-    m_data[offset] = t;
-}
-
 
 TaintEngine::TaintEngine(AEngine *engine)
     : m_engine(engine)
@@ -212,7 +138,9 @@ Taint TaintEngine::GetTaint8( const Processor *cpu, const ARGTYPE &oper )
         int index = TranslateReg(oper);
         return CpuTaint.GPRegs[index].T[oper.ArgPosition / 8];
     } else if (IsMemoryArg(oper)) {
-        // todo
+        // TODO: 需要考虑寻址寄存器的Taint和内存值的Taint
+        u32 o = cpu->Offset32(oper);
+        return MemTaint.Get8(o);
     }
     Assert(0);
     return Taint();
@@ -226,7 +154,9 @@ Taint16 TaintEngine::GetTaint16( const Processor *cpu, const ARGTYPE &oper )
         int index = TranslateReg(oper);
         return ToTaint16(CpuTaint.GPRegs[index], oper.ArgPosition / 8);
     } else if (IsMemoryArg(oper)) {
-        // todo
+        // TODO: 需要考虑寻址寄存器的Taint和内存值的Taint
+        u32 o = cpu->Offset32(oper);
+        return MemTaint.Get16(o);
     } 
     Assert(0);
     return Taint16();
@@ -240,7 +170,9 @@ Taint32 TaintEngine::GetTaint32( const Processor *cpu, const ARGTYPE &oper )
         int index = TranslateReg(oper);
         return CpuTaint.GPRegs[index];
     } else if (IsMemoryArg(oper)) {
-        // todo
+        // TODO: 需要考虑寻址寄存器的Taint和内存值的Taint
+        u32 o = cpu->Offset32(oper);
+        return MemTaint.Get32(o);
     }
     
     Assert(0);
@@ -249,17 +181,39 @@ Taint32 TaintEngine::GetTaint32( const Processor *cpu, const ARGTYPE &oper )
 
 void TaintEngine::SetTaint8( const Processor *cpu, const ARGTYPE &oper, const Taint &t )
 {
+    Assert(oper.ArgSize == 8);
 
+    if (IsRegArg(oper)) {
+        int index = TranslateReg(oper);
+        CpuTaint.GPRegs[index].T[oper.ArgPosition / 8] = t;
+    } else if (IsMemoryArg(oper)) {
+        // todo
+    }
+    Assert(0);
 }
 
 void TaintEngine::SetTaint16( const Processor *cpu, const ARGTYPE &oper, const Taint16 &t )
 {
-
+    Assert(oper.ArgSize == 16);
+    if (IsRegArg(oper)) {
+        int index = TranslateReg(oper);
+        FromTaint16(CpuTaint.GPRegs[index], t, oper.ArgPosition / 8);
+    } else if (IsMemoryArg(oper)) {
+        // todo
+    }
+    Assert(0);
 }
 
 void TaintEngine::SetTaint32( const Processor *cpu, const ARGTYPE &oper, const Taint32 &t )
 {
-
+    Assert(oper.ArgSize == 32);
+    if (IsRegArg(oper)) {
+        int index = TranslateReg(oper);
+        CpuTaint.GPRegs[index] = t;
+    } else if (IsMemoryArg(oper)) {
+        // todo
+    }
+    Assert(0);
 }
 
 void TaintEngine::UpdateInstContext( InstContext *ctx ) const

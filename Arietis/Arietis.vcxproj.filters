@@ -159,6 +159,9 @@
     <ClInclude Include="gui\myswitch.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
+    <ClInclude Include="taint\comptaint.h">
+      <Filter>Header Files\taint</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -238,6 +241,9 @@
     </ClCompile>
     <ClCompile Include="gui\myswitch.cpp">
       <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="taint\comptaint.cpp">
+      <Filter>Source Files\taint</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

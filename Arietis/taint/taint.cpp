@@ -168,9 +168,34 @@ Taint Taint::FromBinString( const std::string &s )
 
 Taint16 ToTaint16( const Taint32 &t, int offset /*= 0*/ )
 {
-    Assert(offset == 0 || offset == 2);
+    Assert(offset == 0 || offset == 2); // why
     Taint16 res;
-    res.T[0] = t.T[offset];
+    res.T[0] = t.T[offset  ];
     res.T[1] = t.T[offset+1];
+    return res;
+}
+
+void FromTaint16( Taint32 &dest, const Taint16 &src, int offset /*= 0*/ )
+{
+    Assert(offset == 0 || offset == 2); // why
+    dest.T[offset  ] = src.T[0];
+    dest.T[offset+1] = src.T[1];
+}
+
+Taint16 PackTaint( const Taint &t0, const Taint &t1 )
+{
+    Taint16 res;
+    res.T[0] = t0;
+    res.T[1] = t1;
+    return res;
+}
+
+Taint32 PackTaint( const Taint &t0, const Taint &t1, const Taint &t2, const Taint &t3 )
+{
+    Taint32 res;
+    res.T[0] = t0;
+    res.T[1] = t1;
+    res.T[2] = t2;
+    res.T[3] = t3;
     return res;
 }
