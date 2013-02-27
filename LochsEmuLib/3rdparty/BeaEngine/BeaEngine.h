@@ -247,6 +247,7 @@ enum BRANCH_TYPE
 #define INST_TWOBYTE(opcode)    (((opcode) & 0xffff0000) == 0)
 #define INST_ONEBYTE(opcode)    (((opcode) & 0xffffff00) == 0)
 
+
 enum ARGUMENTS_TYPE
 {
   NO_ARGUMENT = 0x10000000,
@@ -308,6 +309,27 @@ enum ARGUMENTS_TYPE
   MXCSR = 0x2
    */
 };
+
+
+INLINE bool IsNoArg(const ARGTYPE &arg)
+{
+    return OPERAND_TYPE(arg.ArgType) == NO_ARGUMENT;
+}
+
+INLINE bool IsRegArg(const ARGTYPE &arg)
+{
+    return OPERAND_TYPE(arg.ArgType) == REGISTER_TYPE;
+}
+
+INLINE bool IsMemoryArg(const ARGTYPE &arg)
+{
+    return OPERAND_TYPE(arg.ArgType) == MEMORY_TYPE;
+}
+
+INLINE bool IsConstantArg(const ARGTYPE &arg)
+{
+    return OPERAND_TYPE(arg.ArgType) == CONSTANT_TYPE;
+}
 
 enum SPECIAL_INFO
 {

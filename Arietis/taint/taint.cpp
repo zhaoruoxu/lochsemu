@@ -165,3 +165,12 @@ Taint Taint::FromBinString( const std::string &s )
 //     return m_factory.Keep(new Taint(nIndices));
 // }
 
+
+Taint16 ToTaint16( const Taint32 &t, int offset /*= 0*/ )
+{
+    Assert(offset == 0 || offset == 2);
+    Taint16 res;
+    res.T[0] = t.T[offset];
+    res.T[1] = t.T[offset+1];
+    return res;
+}

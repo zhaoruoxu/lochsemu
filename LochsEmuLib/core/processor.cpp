@@ -377,14 +377,14 @@ uint Processor::GetModule( u32 eip ) const
 
 u8 Processor::ReadOperand8( const Instruction *inst, const ARGTYPE &oper, u32 *offset ) const
 {
-    if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
+    if (IsRegArg(oper)) {
         return GP_Reg8(REG_NUM(oper.ArgType), oper.ArgPosition);
-    } else if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
+    } else if (IsMemoryArg(oper)) {
         RegSeg seg = inst->Main.Prefix.FSPrefix ? LX_REG_FS : LX_REG_DS;
         u32 o = Offset32(oper);
         if (offset) *offset = o;
         return MemRead8(o, seg);
-    } else if (OPERAND_TYPE(oper.ArgType) == CONSTANT_TYPE) {
+    } else if (IsConstantArg(oper)) {
         return (u8) inst->Main.Inst.Immediat;
     } else {
         LxFatal("ReadOperand8() called with no operand\n");
@@ -394,14 +394,14 @@ u8 Processor::ReadOperand8( const Instruction *inst, const ARGTYPE &oper, u32 *o
 
 u16 Processor::ReadOperand16( const Instruction *inst, const ARGTYPE &oper, u32 *offset ) const
 {
-    if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
+    if (IsRegArg(oper)) {
         return GP_Reg16(REG_NUM(oper.ArgType));
-    } else if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
+    } else if (IsMemoryArg(oper)) {
         RegSeg seg = inst->Main.Prefix.FSPrefix ? LX_REG_FS : LX_REG_DS;
         u32 o = Offset32(oper);
         if (offset) *offset = o;
         return MemRead16(o, seg);
-    } else if (OPERAND_TYPE(oper.ArgType) == CONSTANT_TYPE) {
+    } else if (IsConstantArg(oper)) {
         return (u16) inst->Main.Inst.Immediat;
     } else {
         LxFatal("ReadOperand16() called with no operand\n");
@@ -411,14 +411,14 @@ u16 Processor::ReadOperand16( const Instruction *inst, const ARGTYPE &oper, u32 
 
 u32 Processor::ReadOperand32( const Instruction *inst, const ARGTYPE &oper, u32 *offset ) const
 {
-    if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
+    if (IsRegArg(oper)) {
         return GP_Reg32(REG_NUM(oper.ArgType));
-    } else if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
+    } else if (IsMemoryArg(oper)) {
         RegSeg seg = inst->Main.Prefix.FSPrefix ? LX_REG_FS : LX_REG_DS;
         u32 o = Offset32(oper);
         if (offset) *offset = o;
         return MemRead32(o, seg);
-    } else if (OPERAND_TYPE(oper.ArgType) == CONSTANT_TYPE) {
+    } else if (IsConstantArg(oper)) {
         return (u32) inst->Main.Inst.Immediat;
     } else {
         LxFatal("ReadOperand32() called with no operand\n");
@@ -428,14 +428,12 @@ u32 Processor::ReadOperand32( const Instruction *inst, const ARGTYPE &oper, u32 
 
 u64 Processor::ReadOperand64(const Instruction *inst, const ARGTYPE &oper, u32 *offset) const
 {
-    if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
+    if (IsMemoryArg(oper)) {
         RegSeg seg = inst->Main.Prefix.FSPrefix ? LX_REG_FS : LX_REG_DS;
         u32 o = Offset32(oper);
         if (offset) *offset = o;
         return MemRead64(o, seg);
-    } else if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE &&
-        (REG_TYPE(oper.ArgType) & MMX_REG) )
-    {
+    } else if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & MMX_REG)) {
         return SIMD.MMReg(REG_NUM(oper.ArgType));
     } else {
         LxFatal("Processor::ReadOperand64() called with non-memory operand\n");
@@ -445,14 +443,12 @@ u64 Processor::ReadOperand64(const Instruction *inst, const ARGTYPE &oper, u32 *
 
 u128 Processor::ReadOperand128(const Instruction *inst, const ARGTYPE &oper, u32 *offset) const
 {
-    if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
+    if (IsMemoryArg(oper)) {
         RegSeg seg = inst->Main.Prefix.FSPrefix ? LX_REG_FS : LX_REG_DS;
         u32 o = Offset32(oper);
         if (offset) *offset = o;
         return MemRead128(o, seg);
-    } else if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE && 
-        (REG_TYPE(oper.ArgType) & SSE_REG) ) 
-    {
+    } else if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & SSE_REG)) {
         return SIMD.XMMReg(REG_NUM(oper.ArgType));
     } else {
         LxFatal("Processor::ReadOperand128() invalid operand\n");
@@ -462,12 +458,12 @@ u128 Processor::ReadOperand128(const Instruction *inst, const ARGTYPE &oper, u32
 
 void Processor::WriteOperand8( const Instruction *inst, const ARGTYPE &oper, u32 offset, u8 val )
 {
-    if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
+    if (IsMemoryArg(oper)) {
         RegSeg seg = inst->Main.Prefix.FSPrefix ? LX_REG_FS : LX_REG_DS;
         MemWrite8(offset, val, seg);
-    } else if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
+    } else if (IsRegArg(oper)) {
         GP_Reg8(REG_NUM(oper.ArgType), oper.ArgPosition) = val;
-    } else if (OPERAND_TYPE(oper.ArgType) == CONSTANT_TYPE) {
+    } else if (IsConstantArg(oper)) {
         LxFatal("WriteOperand8() called with immediate operand\n");
     } else {
         LxFatal("WriteOperand8() called with no operand\n");
@@ -476,12 +472,12 @@ void Processor::WriteOperand8( const Instruction *inst, const ARGTYPE &oper, u32
 
 void Processor::WriteOperand16( const Instruction *inst, const ARGTYPE &oper, u32 offset, u16 val )
 {
-    if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
+    if (IsMemoryArg(oper)) {
         RegSeg seg = inst->Main.Prefix.FSPrefix ? LX_REG_FS : LX_REG_DS;
         MemWrite16(offset, val, seg);
-    } else if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
+    } else if (IsRegArg(oper)) {
         GP_Reg16(REG_NUM(oper.ArgType)) = val;
-    } else if (OPERAND_TYPE(oper.ArgType) == CONSTANT_TYPE) {
+    } else if (IsConstantArg(oper)) {
         LxFatal("WriteOperand16() called with immediate operand\n");
     } else {
         LxFatal("WriteOperand16() called with no operand\n");
@@ -490,12 +486,12 @@ void Processor::WriteOperand16( const Instruction *inst, const ARGTYPE &oper, u3
 
 void Processor::WriteOperand32( const Instruction *inst, const ARGTYPE &oper, u32 offset, u32 val )
 {
-    if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
+    if (IsMemoryArg(oper)) {
         RegSeg seg = inst->Main.Prefix.FSPrefix ? LX_REG_FS : LX_REG_DS;
         MemWrite32(offset, val, seg);
-    } else if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
+    } else if (IsRegArg(oper)) {
         GP_Reg32(REG_NUM(oper.ArgType)) = val;
-    } else if (OPERAND_TYPE(oper.ArgType) == CONSTANT_TYPE) {
+    } else if (IsConstantArg(oper)) {
         LxFatal("WriteOperand32() called with immediate operand\n");
     } else {
         LxFatal("WriteOperand32() called with no operand\n");
@@ -504,12 +500,10 @@ void Processor::WriteOperand32( const Instruction *inst, const ARGTYPE &oper, u3
 
 void Processor::WriteOperand64(const Instruction *inst, const ARGTYPE &oper, u32 offset, const u64 &val)
 {
-    if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
+    if (IsMemoryArg(oper)) {
         RegSeg seg = inst->Main.Prefix.FSPrefix ? LX_REG_FS : LX_REG_DS;
         MemWrite64(offset, val, seg);
-    } else if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE &&
-        (REG_TYPE(oper.ArgType) & SSE_REG) ) 
-    {
+    } else if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & SSE_REG)) {
         SIMD.MMReg(REG_NUM(oper.ArgType)) = val;
     } else {
         LxFatal("Processor::WriteOperand64() called with non-memory operand\n");
@@ -518,12 +512,10 @@ void Processor::WriteOperand64(const Instruction *inst, const ARGTYPE &oper, u32
 
 void Processor::WriteOperand128(const Instruction *inst, const ARGTYPE &oper, u32 offset, const u128 &val)
 {
-    if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
+    if (IsMemoryArg(oper)) {
         RegSeg seg = inst->Main.Prefix.FSPrefix ? LX_REG_FS : LX_REG_DS;
         MemWrite128(offset, val, seg);
-    } else if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE &&
-        (REG_TYPE(oper.ArgType) & SSE_REG) )
-    {
+    } else if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & SSE_REG)){
         SIMD.XMMReg(REG_NUM(oper.ArgType)) = val;
     } else {
         LxFatal("Processor::WriteOperand128() invalid operand\n");

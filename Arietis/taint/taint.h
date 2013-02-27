@@ -96,8 +96,11 @@ struct TaintBlock {
     }
 };
 
-typedef TaintBlock<4>   Taint4;
-typedef TaintBlock<2>   Taint2;
+typedef Taint           Taint8;
+typedef TaintBlock<4>   Taint32;
+typedef TaintBlock<2>   Taint16;
+
+Taint16     ToTaint16(const Taint32 &t, int offset = 0);
 
 // struct Taint4 {
 //     static const int    Count = 4;

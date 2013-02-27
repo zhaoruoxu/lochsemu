@@ -198,6 +198,70 @@ void TaintEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 //     SetTaint(cpu, arg1, t);
 // }
 
+static int TranslateReg(const ARGTYPE &oper)
+{
+    int index = RegMap[REG_NUM(oper.ArgType)];
+    Assert(index != -1);
+    return index;
+}
+
+Taint TaintEngine::GetTaint8( const Processor *cpu, const ARGTYPE &oper )
+{
+    Assert(oper.ArgSize == 8);
+    if (IsRegArg(oper)) {
+        int index = TranslateReg(oper);
+        return CpuTaint.GPRegs[index].T[oper.ArgPosition / 8];
+    } else if (IsMemoryArg(oper)) {
+        // todo
+    }
+    Assert(0);
+    return Taint();
+}
+
+Taint16 TaintEngine::GetTaint16( const Processor *cpu, const ARGTYPE &oper )
+{
+    Assert(oper.ArgSize == 16);
+
+    if (IsRegArg(oper)) {
+        int index = TranslateReg(oper);
+        return ToTaint16(CpuTaint.GPRegs[index], oper.ArgPosition / 8);
+    } else if (IsMemoryArg(oper)) {
+        // todo
+    } 
+    Assert(0);
+    return Taint16();
+}
+
+Taint32 TaintEngine::GetTaint32( const Processor *cpu, const ARGTYPE &oper )
+{
+    Assert(oper.ArgSize == 32);
+
+    if (IsRegArg(oper)) {
+        int index = TranslateReg(oper);
+        return CpuTaint.GPRegs[index];
+    } else if (IsMemoryArg(oper)) {
+        // todo
+    }
+    
+    Assert(0);
+    return Taint32();
+}
+
+void TaintEngine::SetTaint8( const Processor *cpu, const ARGTYPE &oper, const Taint &t )
+{
+
+}
+
+void TaintEngine::SetTaint16( const Processor *cpu, const ARGTYPE &oper, const Taint16 &t )
+{
+
+}
+
+void TaintEngine::SetTaint32( const Processor *cpu, const ARGTYPE &oper, const Taint32 &t )
+{
+
+}
+
 void TaintEngine::UpdateInstContext( InstContext *ctx ) const
 {
     for (int i = 0; i < InstContext::RegCount; i++)
@@ -230,8 +294,19 @@ void TaintEngine::DefaultBinaryInst(const Processor *cpu, const Instruction *ins
     const ARGTYPE &arg1 = inst->Main.Argument1;
     const ARGTYPE &arg2 = inst->Main.Argument2;
 
-    if (OPERAND_TYPE(arg2.ArgType) == CONSTANT_TYPE) return;
-    // TODO
+    if (IsConstantArg(arg2)) return;
+    Assert(IsNoArg(inst->Main.Argument3));
+    Assert(inst->Main.Argument1.ArgSize == inst->Main.Argument2.ArgSize);
+
+    if (inst->Main.Argument1.ArgSize == 32) {
+        // todo
+    } else if (inst->Main.Argument1.ArgSize == 8) {
+        // todo
+    } else if (inst->Main.Argument1.ArgSize == 16) {
+        // todo
+    } else {
+        LxFatal("Invalid ArgSize\n");
+    }
 }
 
 

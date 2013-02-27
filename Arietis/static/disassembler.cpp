@@ -185,7 +185,7 @@ void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, InstSect
 
         u32 addrValue = (u32) inst->Main.Inst.AddrValue;
         if (addrValue != 0) {
-            if (OPERAND_TYPE(inst->Main.Argument1.ArgType) == CONSTANT_TYPE) {
+            if (IsConstantArg(inst->Main.Argument1)) {
                 Section *s = cpu->Mem->GetSection(addrValue);
                 if (s != NULL) {
                     u32 nextEntry = Instruction::IsCall(inst) ? addrValue : entryEip;
@@ -209,7 +209,7 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *se
     if (opcode == 0xff) {
         // CALL or JMP r/m32
         if (strstr(mnemonic, "jmp") == mnemonic || Instruction::IsCall(inst)) {
-            if (OPERAND_TYPE(inst->Main.Argument1.ArgType) == MEMORY_TYPE &&
+            if (IsMemoryArg(inst->Main.Argument1) &&
                 inst->Main.Argument1.Memory.BaseRegister == 0 &&
                 inst->Main.Argument1.Memory.IndexRegister == 0) {
                 target = cpu->ReadOperand32(inst, inst->Main.Argument1, NULL);

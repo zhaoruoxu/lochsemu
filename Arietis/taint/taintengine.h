@@ -10,7 +10,7 @@
 #include "instcontext.h"
 
 struct ProcessorTaint {
-    Taint4    GPRegs[8];
+    Taint32    GPRegs[8];
     Taint       Flags[InstContext::FLAG_COUNT];
     Taint       Eip;
 };
@@ -70,8 +70,12 @@ public:
     bool        IsEnabled() const;
 
 private:
-    //Taint       GetTaint(const Processor *cpu, const ARGTYPE &oper);
-    //void        SetTaint(const Processor *cpu, const ARGTYPE &oper, const Taint &t);
+    Taint       GetTaint8(const Processor *cpu, const ARGTYPE &oper);
+    Taint16     GetTaint16(const Processor *cpu, const ARGTYPE &oper);
+    Taint32     GetTaint32(const Processor *cpu, const ARGTYPE &oper);
+    void        SetTaint8(const Processor *cpu, const ARGTYPE &oper, const Taint &t);
+    void        SetTaint16(const Processor *cpu, const ARGTYPE &oper, const Taint16 &t);
+    void        SetTaint32(const Processor *cpu, const ARGTYPE &oper, const Taint32 &t);
 
     void        TaintIntroduce();
     void        TaintPropagate();   // !!! special handlers for instructions

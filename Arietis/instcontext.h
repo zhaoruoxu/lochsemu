@@ -30,7 +30,7 @@ struct InstContext {
     static const std::string FlagNames[];
 
     u32                 regs[RegCount];
-    Taint4              regTaint[RegCount];
+    Taint32              regTaint[RegCount];
 
     u32                 Eip;
     Taint               EipTaint;

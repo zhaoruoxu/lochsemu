@@ -102,7 +102,7 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
     dc.DrawText("Eip", 0, h);
     dc.DrawText(wxString::Format("%08X", m_data.inst->Eip), m_widthRegName, h);
     DrawTaint(dc, m_data.EipTaint, wxRect(m_widthRegName + m_widthRegValue,
-        h, m_widthTaint * Taint4::Count, m_lineHeight));
+        h, m_widthTaint * Taint32::Count, m_lineHeight));
     h += m_lineHeight * 2;
 
     dc.DrawText("  TE MO RE SE", m_widthRegName, h);
