@@ -212,10 +212,10 @@ void ADebugger::OnTerminate()
 
 void ADebugger::UpdateInstContext( InstContext *ctx ) const
 {
-    for (int i = InstContext::RegIndexGP; i < InstContext::RegIndexGP + InstContext::RegGPCount; i++) {
+    for (int i = 0; i < InstContext::RegCount; i++) {
         ctx->regs[i]        = m_currProcessor->GP_Regs[i].X32;
     }
-    ctx->regs[InstContext::RegIndexEip] = m_currProcessor->EIP;
+    ctx->Eip                = m_currProcessor->EIP;
 
     ctx->flags[InstContext::OF]         = m_currProcessor->OF;
     ctx->flags[InstContext::SF]         = m_currProcessor->SF;
@@ -237,10 +237,10 @@ void ADebugger::UpdateInstContext( InstContext *ctx ) const
 
 void ADebugger::UpdateTraceContext( TraceContext *ctx, u32 eip ) const
 {
-    for (int i = InstContext::RegIndexGP; i < InstContext::RegIndexGP + InstContext::RegGPCount; i++) {
+    for (int i = 0; i < InstContext::RegCount; i++) {
         ctx->regs[i]        = m_currProcessor->GP_Regs[i].X32;
     }
-    ctx->regs[InstContext::RegIndexEip] = eip;
+    ctx->Eip                = eip;
 
     ctx->flags[InstContext::OF]         = m_currProcessor->OF;
     ctx->flags[InstContext::SF]         = m_currProcessor->SF;

@@ -106,6 +106,55 @@ Taint Taint::FromBinString( const std::string &s )
     return r;
 }
 
+// 
+// Taint4 Taint4::operator&( const Taint4 &rhs ) const
+// {
+//     Taint4 res = *this;
+//     res &= rhs;
+//     return res;
+// }
+// 
+// Taint4 Taint4::operator|( const Taint4 &rhs ) const
+// {
+//     Taint4 res = *this;
+//     res |= rhs;
+//     return res;
+// }
+// 
+// Taint4 Taint4::operator^( const Taint4 &rhs ) const
+// {
+//     Taint4 res = *this;
+//     res ^= rhs;
+//     return res;
+// }
+// 
+// Taint4& Taint4::operator&=( const Taint4 &rhs )
+// {
+//     T[0] &= rhs.T[0];
+//     T[1] &= rhs.T[1];
+//     T[2] &= rhs.T[2];
+//     T[3] &= rhs.T[3];
+//     return *this;
+// }
+// 
+// Taint4& Taint4::operator|=( const Taint4 &rhs )
+// {
+//     T[0] |= rhs.T[0];
+//     T[1] |= rhs.T[1];
+//     T[2] |= rhs.T[2];
+//     T[3] |= rhs.T[3];
+//     return *this;
+// }
+// 
+// Taint4& Taint4::operator^=( const Taint4 &rhs )
+// {
+//     T[0] ^= rhs.T[0];
+//     T[1] ^= rhs.T[1];
+//     T[2] ^= rhs.T[2];
+//     T[3] ^= rhs.T[3];
+//     return *this;
+// }
+
 // Taint * TaintFactory::Create()
 // {
 //     return m_factory.Keep(new Taint);
@@ -115,3 +164,4 @@ Taint Taint::FromBinString( const std::string &s )
 // {
 //     return m_factory.Keep(new Taint(nIndices));
 // }
+

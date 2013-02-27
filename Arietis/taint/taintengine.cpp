@@ -151,7 +151,7 @@ void TaintEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
         (this->*h)(cpu, inst);
     }
 
-    DefaultTaintPropagate(cpu, inst);
+    //DefaultTaintPropagate(cpu, inst);
 //     if (strstr(inst->Main.Inst.Mnemonic, "add")) {
 //         Taint t;
 //         t.Set(DEBUG_TAINT);
@@ -160,49 +160,49 @@ void TaintEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 }
 
 
-Taint TaintEngine::GetTaint( const Processor *cpu, const ARGTYPE &oper )
-{
-    if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
-        int index = RegMap[REG_NUM(oper.ArgType)];
-        return CpuTaint.GPRegs[index];
-    } else if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
-        u32 o = cpu->Offset32(oper);
-        return MemTaint.Get(o, oper.ArgSize / 8);
-    } else {
-        return Taint();
-    }
-}
-
-void TaintEngine::SetTaint( const Processor *cpu, const ARGTYPE &oper, const Taint &t )
-{
-    //Assert(t.GetIndices() > 0);
-    if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
-        CpuTaint.GPRegs[RegMap[REG_NUM(oper.ArgType)]] = t;
-    } else if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
-        u32 o = cpu->Offset32(oper);
-        return MemTaint.Set(t, o, oper.ArgSize / 8);
-    } else {
-
-    }
-}
-
-
-void TaintEngine::DefaultTaintPropagate( Processor *cpu, const Instruction *inst )
-{
-    // op1 = op1 op op2
-    const ARGTYPE &arg1 = inst->Main.Argument1;
-    const ARGTYPE &arg2 = inst->Main.Argument2;
-
-    if (OPERAND_TYPE(arg2.ArgType) == CONSTANT_TYPE) return;
-    Taint t = GetTaint(cpu, arg1) | GetTaint(cpu, arg2);
-    SetTaint(cpu, arg1, t);
-}
+// Taint TaintEngine::GetTaint( const Processor *cpu, const ARGTYPE &oper )
+// {
+//     if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
+//         int index = RegMap[REG_NUM(oper.ArgType)];
+//         return CpuTaint.GPRegs[index];
+//     } else if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
+//         u32 o = cpu->Offset32(oper);
+//         return MemTaint.Get(o, oper.ArgSize / 8);
+//     } else {
+//         return Taint();
+//     }
+// }
+// 
+// void TaintEngine::SetTaint( const Processor *cpu, const ARGTYPE &oper, const Taint &t )
+// {
+//     //Assert(t.GetIndices() > 0);
+//     if (OPERAND_TYPE(oper.ArgType) == REGISTER_TYPE) {
+//         CpuTaint.GPRegs[RegMap[REG_NUM(oper.ArgType)]] = t;
+//     } else if (OPERAND_TYPE(oper.ArgType) == MEMORY_TYPE) {
+//         u32 o = cpu->Offset32(oper);
+//         return MemTaint.Set(t, o, oper.ArgSize / 8);
+//     } else {
+// 
+//     }
+// }
+// 
+// 
+// void TaintEngine::DefaultTaintPropagate( Processor *cpu, const Instruction *inst )
+// {
+//     // op1 = op1 op op2
+//     const ARGTYPE &arg1 = inst->Main.Argument1;
+//     const ARGTYPE &arg2 = inst->Main.Argument2;
+// 
+//     if (OPERAND_TYPE(arg2.ArgType) == CONSTANT_TYPE) return;
+//     Taint t = GetTaint(cpu, arg1) | GetTaint(cpu, arg2);
+//     SetTaint(cpu, arg1, t);
+// }
 
 void TaintEngine::UpdateInstContext( InstContext *ctx ) const
 {
-    for (int i = InstContext::RegIndexGP; i < InstContext::RegIndexGP + InstContext::RegCount; i++)
+    for (int i = 0; i < InstContext::RegCount; i++)
         ctx->regTaint[i]    = CpuTaint.GPRegs[i];
-    ctx->regTaint[InstContext::RegIndexEip]  = CpuTaint.Eip;
+    ctx->EipTaint           = CpuTaint.Eip;
     for (int i = 0; i < InstContext::FlagCount; i++)
         ctx->flagTaint[i]   = CpuTaint.Flags[i];
 }
@@ -216,6 +216,24 @@ void TaintEngine::Enable( bool isEnabled )
 {
     m_archive->IsTaintEnabled = isEnabled;
 }
+
+
+void TaintEngine::DebugTaintIntroduce(const Processor *cpu, const Instruction *inst)
+{
+    Taint t;
+    t.SetAll();
+    //SetTaint(cpu, inst->Main.Argument1, t);
+}
+
+void TaintEngine::DefaultBinaryInst(const Processor *cpu, const Instruction *inst)
+{
+    const ARGTYPE &arg1 = inst->Main.Argument1;
+    const ARGTYPE &arg2 = inst->Main.Argument2;
+
+    if (OPERAND_TYPE(arg2.ArgType) == CONSTANT_TYPE) return;
+    // TODO
+}
+
 
 TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0x00*/ NULL,
@@ -734,12 +752,3 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0xfe*/ NULL,
     /*0xff*/ NULL,
 };
-
-void TaintEngine::DebugTaintIntroduce(const Processor *cpu, const Instruction *inst)
-{
-    Taint t;
-    t.SetAll();
-    SetTaint(cpu, inst->Main.Argument1, t);
-}
-
-

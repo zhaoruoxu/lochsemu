@@ -27,8 +27,8 @@ void TracePanel::InitRender()
     m_currSelPen    = wxPen(wxColour(g_config.GetString("TracePanel", "CurrentSelectionColor", "#808080")));
     m_widthIp       = g_config.GetInt("TracePanel", "WidthIp", 70);
     m_widthDisasm   = g_config.GetInt("TracePanel", "WidthDisasm", 300);
-    m_widthTaint    = g_config.GetInt("TracePanel", "WidthTaint", 64);
-    m_width         = m_widthIp + m_widthDisasm + m_widthTaint * TraceContext::RegCount;
+    m_widthTaint    = g_config.GetInt("TracePanel", "WidthTaint", 16);
+    m_width         = m_widthIp + m_widthDisasm + m_widthTaint * TraceContext::RegCount * Taint4::Count;
 }
 
 void TracePanel::Draw( wxBufferedPaintDC &dc )
@@ -66,7 +66,7 @@ void TracePanel::Draw( wxBufferedPaintDC &dc )
     
     
     for (int i = 0; i < TraceContext::RegCount; i++) {
-        lineX += m_widthTaint;
+        lineX += m_widthTaint * Taint4::Count;
         dc.DrawLine(lineX, lineY0, lineX, lineY1);
     }
 
@@ -96,8 +96,10 @@ void TracePanel::DrawTrace( wxBufferedPaintDC &dc, const TraceContext &trace, in
 
     // draw Taint
     for (int i = 0; i < InstContext::RegCount; i++) {
-        DrawTaint(dc, trace.regTaint[i], wxRect(w, h+1, m_widthTaint, m_lineHeight-1));
-        w += m_widthTaint;
+        for (auto &t : trace.regTaint[i].T) {
+            DrawTaint(dc, t, wxRect(w, h+1, m_widthTaint, m_lineHeight-1));
+            w += m_widthTaint;
+        }
     }
 }
 
@@ -173,12 +175,12 @@ void TraceInfoPanel::OnPaint( wxPaintEvent &event )
 
     // draw Taint value
     w += m_parent->m_tracePanel->m_widthDisasm;
-    u += m_parent->m_tracePanel->m_widthTaint;
+    u += m_parent->m_tracePanel->m_widthTaint * Taint4::Count;
     for (int i = 0; i < TraceContext::RegCount; i++) {
         dc.DrawText("T(" + TraceContext::RegNames[i] + ")", w, h);
         dc.DrawLine(u, 0, u, m_lineHeight);
-        w += m_parent->m_tracePanel->m_widthTaint;
-        u += m_parent->m_tracePanel->m_widthTaint;
+        w += m_parent->m_tracePanel->m_widthTaint * Taint4::Count;
+        u += m_parent->m_tracePanel->m_widthTaint * Taint4::Count;
     }
 
     h += m_lineHeight;

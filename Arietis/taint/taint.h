@@ -44,9 +44,74 @@ public:
     static Taint    FromBinString(const std::string &s);
 private:
     //int         m_nIndices;
-    static const int    Width = 16;
+    static const int    Width = 1;
     byte        m_data[Width];
 };
+
+template <int N>
+struct TaintBlock {
+    static const int    Count = N;
+    Taint       T[N];
+
+    TaintBlock<N>   operator&(const TaintBlock<N> &rhs) const
+    {
+        TaintBlock<N>   res = *this;
+        res &= rhs;
+        return res;
+    }
+
+    TaintBlock<N>   operator|(const TaintBlock<N> &rhs) const
+    {
+        TaintBlock<N>   res = *this;
+        res |= rhs;
+        return res;
+    }
+
+    TaintBlock<N>   operator^(const TaintBlock<N> &rhs) const
+    {
+        TaintBlock<N>   res = *this;
+        res ^= rhs;
+        return res;
+    }
+
+    TaintBlock<N>&  operator&=(const TaintBlock<N> &rhs)
+    {
+        for (int i = 0; i < N; i++)
+            T[i]    &= rhs.T[i];
+        return *this;
+    }
+
+    TaintBlock<N>&  operator|=(const TaintBlock<N> &rhs)
+    {
+        for (int i = 0; i < N; i++)
+            T[i]    &= rhs.T[i];
+        return *this;
+    }
+
+    TaintBlock<N>&  operator^=(const TaintBlock<N> &rhs)
+    {
+        for (int i = 0; i < N; i++)
+            T[i]    &= rhs.T[i];
+        return *this;
+    }
+};
+
+typedef TaintBlock<4>   Taint4;
+typedef TaintBlock<2>   Taint2;
+
+// struct Taint4 {
+//     static const int    Count = 4;
+//     Taint       T[Count];
+// 
+//     Taint4    operator&(const Taint4 &rhs) const;
+//     Taint4    operator|(const Taint4 &rhs) const;
+//     Taint4    operator^(const Taint4 &rhs) const;
+//     Taint4&   operator&=(const Taint4 &rhs);
+//     Taint4&   operator|=(const Taint4 &rhs);
+//     Taint4&   operator^=(const Taint4 &rhs);
+// 
+// 
+// };
 
 // class TaintFactory {
 // public:

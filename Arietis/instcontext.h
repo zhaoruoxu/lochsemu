@@ -7,6 +7,7 @@
 #include "taint/taint.h"
 #include "static/disassembler.h"
 
+
 struct InstContext {
     enum Flag {
         OF = 0,
@@ -23,16 +24,16 @@ struct InstContext {
         FLAG_COUNT
     };
 
-    static const int    RegCount    = 9;       // 0-7: GP, 8: Eip
-    static const int    RegGPCount  = 8;
-    static const int    RegIndexGP  = 0;
-    static const int    RegIndexEip = 8;
+    static const int    RegCount    = 8;
     static const int    FlagCount   = FLAG_COUNT;
     static const std::string RegNames[];
     static const std::string FlagNames[];
 
     u32                 regs[RegCount];
-    Taint               regTaint[RegCount];
+    Taint4              regTaint[RegCount];
+
+    u32                 Eip;
+    Taint               EipTaint;
 
     u32                 flags[FlagCount];
     Taint               flagTaint[FlagCount];

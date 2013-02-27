@@ -91,7 +91,7 @@ void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
 void AEngine::GetInstContext(InstContext *ctx) const
 {
     m_debugger.UpdateInstContext(ctx);
-    m_disassembler.UpdateInstContext(ctx, ctx->regs[InstContext::RegIndexEip]);
+    m_disassembler.UpdateInstContext(ctx, ctx->Eip);
     m_taint.UpdateInstContext(ctx);
 }
 

@@ -34,7 +34,7 @@ void ContextPanel::InitRender()
 
     m_widthRegName  = g_config.GetInt("ContextPanel", "WidthRegName", 40);
     m_widthRegValue = g_config.GetInt("ContextPanel", "WidthRegValue", 80);
-    m_widthTaint    = g_config.GetInt("ContextPanel", "WidthTaint", 80);
+    m_widthTaint    = g_config.GetInt("ContextPanel", "WidthTaint", 32);
     m_widthFlagValue    = g_config.GetInt("ContextPanel", "WidthFlagValue", 110);
 
     SetBackgroundStyle(wxBG_STYLE_PAINT);
@@ -79,19 +79,31 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
     dc.DrawText(mod, 0, h);
     h += m_lineHeight * 2;
 
+//     dc.DrawText("Eip", 0, h);
+//     dc.DrawText(wxString::Format("%08X", m_data.Eip), m_widthRegName, h);
+//     DrawTaint(dc, m_data.EipTaint, wxRect(m_widthRegName + m_widthRegValue, 
+//         h, m_widthTaint * Taint4::Count, m_lineHeight));
+//     h += m_lineHeight;
+
     for (int i = 0; i < InstContext::RegCount; i++) {
         dc.DrawText(InstContext::RegNames[i], 0, h);
         dc.DrawText(wxString::Format("%08X", m_data.regs[i]), m_widthRegName, h);
-        DrawTaint(dc, m_data.regTaint[i], 
-            wxRect(m_widthRegName + m_widthRegValue, h, m_widthTaint, m_lineHeight));
+        int w = m_widthRegName + m_widthRegValue;
+        for (auto &t : m_data.regTaint[i].T) {
+            DrawTaint(dc, t, wxRect(w, h, m_widthTaint, m_lineHeight));
+            w += m_widthTaint;
+        }
+
         h += m_lineHeight;
     }
 
 
     h += m_lineHeight;
-    //dc.DrawText("Eip", 0, h);
-    //dc.DrawText(wxString::Format("%08X", m_data.inst->Eip), m_widthRegName, h);
-    //h += m_lineHeight * 2;
+    dc.DrawText("Eip", 0, h);
+    dc.DrawText(wxString::Format("%08X", m_data.inst->Eip), m_widthRegName, h);
+    DrawTaint(dc, m_data.EipTaint, wxRect(m_widthRegName + m_widthRegValue,
+        h, m_widthTaint * Taint4::Count, m_lineHeight));
+    h += m_lineHeight * 2;
 
     dc.DrawText("  TE MO RE SE", m_widthRegName, h);
     h += m_lineHeight;

@@ -10,9 +10,9 @@
 #include "instcontext.h"
 
 struct ProcessorTaint {
-    Taint GPRegs[8];
-    Taint Flags[InstContext::FLAG_COUNT];
-    Taint Eip;
+    Taint4    GPRegs[8];
+    Taint       Flags[InstContext::FLAG_COUNT];
+    Taint       Eip;
 };
 
 class MemoryTaint {
@@ -64,14 +64,14 @@ public:
 
     void        UpdateInstContext(InstContext *ctx) const;
 
-    void        DefaultTaintPropagate   (Processor *cpu, const Instruction *inst);
+    //void        DefaultTaintPropagate   (Processor *cpu, const Instruction *inst);
 
     void        Enable(bool isEnabled);
     bool        IsEnabled() const;
 
 private:
-    Taint       GetTaint(const Processor *cpu, const ARGTYPE &oper);
-    void        SetTaint(const Processor *cpu, const ARGTYPE &oper, const Taint &t);
+    //Taint       GetTaint(const Processor *cpu, const ARGTYPE &oper);
+    //void        SetTaint(const Processor *cpu, const ARGTYPE &oper, const Taint &t);
 
     void        TaintIntroduce();
     void        TaintPropagate();   // !!! special handlers for instructions
@@ -85,6 +85,7 @@ private:
 #define DECLARE_HANDLER(x)  void    x(const Processor *cpu, const Instruction *inst);
 
     DECLARE_HANDLER(DebugTaintIntroduce);
+    DECLARE_HANDLER(DefaultBinaryInst);
 
 private:
     AEngine *   m_engine;
