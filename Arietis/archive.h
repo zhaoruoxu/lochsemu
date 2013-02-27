@@ -4,7 +4,7 @@
 #define __ARIETIS_ARCHIVE_H__
  
 #include "Arietis.h"
-#include "io.h"
+#include "utilities.h"
 #include "parallel.h"
 #include "dbg/breakpoint.h"
 

@@ -4,7 +4,7 @@
 #define __ARIETIS_DBG_BREAKPOINT_H__
  
 #include "Arietis.h"
-#include "io.h"
+#include "utilities.h"
 
 struct Breakpoint : public ISerializable {
 

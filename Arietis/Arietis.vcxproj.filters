@@ -141,9 +141,6 @@
     <ClInclude Include="instcontext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="io.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dbg\debugger.h">
       <Filter>Header Files\dbg</Filter>
     </ClInclude>
@@ -231,9 +228,6 @@
       <Filter>Source Files\dbg</Filter>
     </ClCompile>
     <ClCompile Include="archive.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="io.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="instcontext.cpp">

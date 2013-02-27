@@ -126,7 +126,6 @@
     <ClInclude Include="gui\myswitch.h" />
     <ClInclude Include="gui\tracepanel.h" />
     <ClInclude Include="instcontext.h" />
-    <ClInclude Include="io.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="static\disassembler.h" />
     <ClInclude Include="stdafx.h" />
@@ -173,7 +172,6 @@
     <ClCompile Include="gui\mainframe.cpp" />
     <ClCompile Include="gui\contextpanel.cpp" />
     <ClCompile Include="instcontext.cpp" />
-    <ClCompile Include="io.cpp" />
     <ClCompile Include="static\disassembler.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
