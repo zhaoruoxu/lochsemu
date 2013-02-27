@@ -89,8 +89,7 @@ void ArietisFrame::InitUI()
 void ArietisFrame::InitMenu()
 {
     wxMenu *menuFile = new wxMenu;
-    menuFile->AppendSeparator();
-    menuFile->Append(wxID_EXIT, "E&xit");
+    menuFile->Append(wxID_EXIT, "Exit\tCtrl-Q");
 
     wxMenu *menuView = new wxMenu;
     menuView->Append(ID_LoadPerspective, "Load perspective");
@@ -154,9 +153,10 @@ void ArietisFrame::InitStatusBar()
 
 void ArietisFrame::InitToolbars()
 {
-    wxToolBar *tbDebug = CreateToolBar(wxTB_DOCKABLE | wxTB_HORZ_TEXT | wxTB_NOICONS, ID_ToolbarDebug, "Debug");
+    wxToolBar *tbDebug = CreateToolBar(wxTB_FLAT | wxTB_TEXT | wxTB_NOICONS, ID_ToolbarDebug, "Debug");
 
-    wxBitmap bitmap(16, 15);
+    //wxBitmap bitmap(16, 15);
+    //tbDebug->SetMargins(5, 0);
 
     tbDebug->AddControl(new wxButton(tbDebug, ID_StepInto, "Step Into", wxDefaultPosition, 
         wxSize(60, -1), wxBORDER_NONE));
@@ -167,14 +167,18 @@ void ArietisFrame::InitToolbars()
     tbDebug->AddControl(new wxButton(tbDebug, ID_Run, "Run", wxDefaultPosition,
         wxSize(60, -1), wxBORDER_NONE));
     tbDebug->AddSeparator();
-    m_toggleTrace = new MySwitch(tbDebug, ID_ToolbarToggleTrace, "Trace", wxSize(60, -1));
-    m_toggleCRTEntry = new MySwitch(tbDebug, ID_ToolbarToggleCRTEntry, "CRT_Entry", wxSize(60, -1));
-    m_toggleSkipDllEntry = new MySwitch(tbDebug, ID_ToolbarToggleSkipDllEntry, "Skip_DLL", wxSize(60, -1));
+    //tbDebug->AddStretchableSpace();
+    m_toggleTrace = new MySwitch(tbDebug, ID_ToolbarToggleTrace, "Trace", wxSize(50, -1));
+    m_toggleCRTEntry = new MySwitch(tbDebug, ID_ToolbarToggleCRTEntry, "crt_ent", wxSize(50, -1));
+    m_toggleSkipDllEntry = new MySwitch(tbDebug, ID_ToolbarToggleSkipDllEntry, "No_DLL", wxSize(50, -1));
+    m_toggleTaint = new MySwitch(tbDebug, ID_ToolbarToggleTaint, "Taint", wxSize(50, -1));
     tbDebug->AddControl(m_toggleTrace);
     tbDebug->AddSeparator();
     tbDebug->AddControl(m_toggleCRTEntry);
     tbDebug->AddSeparator();
     tbDebug->AddControl(m_toggleSkipDllEntry);
+    tbDebug->AddSeparator();
+    tbDebug->AddControl(m_toggleTaint);
 
     tbDebug->Realize();
 
@@ -188,6 +192,8 @@ void ArietisFrame::InitToolbars()
         this, ID_ToolbarToggleCRTEntry);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnToggleSkipDllEntryClicked, 
         this, ID_ToolbarToggleSkipDllEntry);
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnToggleTaintClicked,
+        this, ID_ToolbarToggleTaint);
 }
 
 
@@ -373,4 +379,13 @@ void ArietisFrame::OnArchiveLoaded( Archive *arc )
     m_toggleTrace->SetOn(m_archive->IsTracerEnabled);
     m_toggleCRTEntry->SetOn(m_archive->BreakOnCRTEntry);
     m_toggleSkipDllEntry->SetOn(m_archive->SkipDllEntries);
+    m_toggleTaint->SetOn(m_archive->IsTaintEnabled);
+}
+
+void ArietisFrame::OnToggleTaintClicked( wxCommandEvent &event )
+{
+    bool beingEnabled = !m_engine->GetTaintEngine()->IsEnabled();
+    m_engine->GetTaintEngine()->Enable(beingEnabled);
+    m_toggleTaint->SetOn(beingEnabled);
+    m_engine->SaveArchive();
 }

@@ -9,6 +9,7 @@ CustomScrolledControl::CustomScrolledControl( wxWindow *parent, const wxSize &si
 
     Bind(wxEVT_PAINT, &CustomScrolledControl::OnPaint, this ,wxID_ANY);
     Bind(wxEVT_ERASE_BACKGROUND, &CustomScrolledControl::OnEraseBackground, this, wxID_ANY);
+    Bind(wxEVT_ENTER_WINDOW, &CustomScrolledControl::OnMouseEnter, this, wxID_ANY);
     m_bgBrush = *wxWHITE_BRUSH;
 }
 
@@ -35,6 +36,11 @@ void CustomScrolledControl::UpdateFont( const wxFont &font )
     dc.SetFont(m_font);
     m_lineHeight = dc.GetFontMetrics().height;
     SetScrollRate(1, m_lineHeight);
+}
+
+void CustomScrolledControl::OnMouseEnter( wxMouseEvent &event )
+{
+    SetFocus();
 }
 
 SelectableScrolledControl::SelectableScrolledControl( wxWindow *parent, const wxSize &size )

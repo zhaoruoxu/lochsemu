@@ -12,6 +12,7 @@ public:
     
     void        OnPaint(wxPaintEvent &event);
     void        OnEraseBackground(wxEraseEvent &event);
+    void        OnMouseEnter(wxMouseEvent &event);
     virtual void    UpdateFont(const wxFont &font);
     virtual void    Draw(wxBufferedPaintDC &dc) = 0;
 

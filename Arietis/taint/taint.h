@@ -25,6 +25,11 @@ public:
     void        Set(int index) { 
         Assert(index < Width); m_data[index] = 1; 
     }
+
+    void        SetAll() {
+        memset(m_data, 1, sizeof(m_data));
+    }
+
     void        Reset(int index) { 
         Assert(index < Width); m_data[index] = 0; 
     }
@@ -39,7 +44,7 @@ public:
     static Taint    FromBinString(const std::string &s);
 private:
     //int         m_nIndices;
-    static const int    Width = 8;
+    static const int    Width = 16;
     byte        m_data[Width];
 };
 

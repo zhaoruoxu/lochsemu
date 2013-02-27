@@ -41,6 +41,7 @@ private:
     void    OnToggleTraceClicked(wxCommandEvent &event);
     void    OnToggleCRTEntryClicked(wxCommandEvent &event);
     void    OnToggleSkipDllEntryClicked(wxCommandEvent &event);
+    void    OnToggleTaintClicked(wxCommandEvent &event);
 
     void    OnStatusTimer(wxTimerEvent &event);
     
@@ -70,6 +71,7 @@ private:
     MySwitch *      m_toggleTrace;
     MySwitch *      m_toggleCRTEntry;
     MySwitch *      m_toggleSkipDllEntry;
+    MySwitch *      m_toggleTaint;
 };
  
 #endif // __ARIETIS_GUI_MAINFRAME_H__

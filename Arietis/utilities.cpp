@@ -111,6 +111,24 @@ uint StringHash( const char *str )
     return BKDR_hash(str);
 }
 
+uint FileTimeHash( const char *path )
+{
+    HANDLE hFile;
+    FILETIME creation, lastWrite;
+
+    hFile = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    if (INVALID_HANDLE_VALUE == hFile) {
+        LxFatal("Cannot open file: %s\n", path);
+    }
+
+    GetFileTime(hFile, &creation, NULL, &lastWrite);
+    CloseHandle(hFile);
+
+    return creation.dwHighDateTime ^ creation.dwLowDateTime ^ lastWrite.dwHighDateTime ^
+        lastWrite.dwLowDateTime;
+}
+
 
 
 bool Serializer::Serialize( ISerializable *obj, std::string &output )

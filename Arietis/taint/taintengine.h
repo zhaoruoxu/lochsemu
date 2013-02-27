@@ -50,7 +50,7 @@ private:
 class TaintEngine : public MutexSyncObject {
 public:
 
-    TaintEngine();
+    TaintEngine(AEngine *engine);
     ~TaintEngine();
 
     ProcessorTaint  CpuTaint;
@@ -66,6 +66,9 @@ public:
 
     void        DefaultTaintPropagate   (Processor *cpu, const Instruction *inst);
 
+    void        Enable(bool isEnabled);
+    bool        IsEnabled() const;
+
 private:
     Taint       GetTaint(const Processor *cpu, const ARGTYPE &oper);
     void        SetTaint(const Processor *cpu, const ARGTYPE &oper, const Taint &t);
@@ -74,6 +77,18 @@ private:
     void        TaintPropagate();   // !!! special handlers for instructions
     void        TaintSanitize();
 
+private:
+    typedef     void (TaintEngine::*TaintInstHandler)(const Processor *cpu, const Instruction *inst);
+    static      TaintInstHandler HandlerOneByte[];
+    static      TaintInstHandler HandlerTwoBytes[];
+
+#define DECLARE_HANDLER(x)  void    x(const Processor *cpu, const Instruction *inst);
+
+    DECLARE_HANDLER(DebugTaintIntroduce);
+
+private:
+    AEngine *   m_engine;
+    Archive *   m_archive;
 };
  
 #endif // __TAINT_ENGINE_H__

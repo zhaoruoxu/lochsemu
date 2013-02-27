@@ -6,6 +6,7 @@ Archive::Archive()
     IsTracerEnabled     = false;
     SkipDllEntries      = true;
     BreakOnCRTEntry     = true;
+    IsTaintEnabled      = false;
 }
 
 Archive::~Archive()
@@ -26,6 +27,7 @@ void Archive::Serialize( Json::Value &root ) const
     root["is_tracer_enabled"]   = IsTracerEnabled;
     root["skip_dll_entries"]    = SkipDllEntries;
     root["break_on_crt_entry"]  = BreakOnCRTEntry;
+    root["is_taint_enabled"]    = IsTaintEnabled;
 }
 
 void Archive::Deserialize( Json::Value &root )
@@ -42,5 +44,6 @@ void Archive::Deserialize( Json::Value &root )
     IsTracerEnabled     = root.get("is_tracer_enabled", false).asBool();
     SkipDllEntries      = root.get("skip_dll_entries", true).asBool();
     BreakOnCRTEntry     = root.get("break_on_crt_entry", true).asBool();
+    IsTaintEnabled      = root.get("is_taint_enabled", false).asBool();
 }
 

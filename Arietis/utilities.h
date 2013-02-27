@@ -9,6 +9,7 @@ int     GetMemUsage();
 int     GetThreadCount();
 
 uint    StringHash(const char *str);
+uint    FileTimeHash(const char *path);
  
 
 class ISerializable {

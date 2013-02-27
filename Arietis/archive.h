@@ -19,6 +19,7 @@ struct Archive : public ISerializable, public MutexSyncObject {
     bool        IsTracerEnabled;
     bool        SkipDllEntries;
     bool        BreakOnCRTEntry;
+    bool        IsTaintEnabled;
 };
  
 #endif // __ARIETIS_ARCHIVE_H__

@@ -10,7 +10,7 @@
 #include "processor.h"
 #include "buildver.h"
 
-AEngine::AEngine() : m_debugger(this), m_tracer(this)
+AEngine::AEngine() : m_debugger(this), m_tracer(this), m_taint(this)
 {
     m_emulator  = NULL;
 }
@@ -142,6 +142,8 @@ void AEngine::LoadArchive(const char *moduleName)
 {
     LPCSTR path     = m_emulator->Path();
     uint hash       = StringHash(path);
+    hash            ^= FileTimeHash(path);
+
     char buf[MAX_PATH];
     sprintf(buf, "%08x_", hash);
     strcat(buf, moduleName);

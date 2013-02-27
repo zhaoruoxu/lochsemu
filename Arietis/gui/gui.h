@@ -39,6 +39,7 @@ enum {
     ID_ToolbarToggleTrace,
     ID_ToolbarToggleCRTEntry,
     ID_ToolbarToggleSkipDllEntry,
+    ID_ToolbarToggleTaint,
 
     /* cpu panel */
     ID_CpuInstList,
