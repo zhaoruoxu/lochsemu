@@ -53,67 +53,109 @@ private:
 };
 
 template <int N>
-struct TB {
+struct Tb {
     static const int    Count = N;
     Taint       T[N];
 
-    TB<N>   operator&(const TB<N> &rhs) const
+    Tb<N>   operator&(const Tb<N> &rhs) const
     {
-        TB<N>   res = *this;
+        Tb<N>   res = *this;
         res &= rhs;
         return res;
     }
 
-    TB<N>   operator|(const TB<N> &rhs) const
+    Tb<N>   operator|(const Tb<N> &rhs) const
     {
-        TB<N>   res = *this;
+        Tb<N>   res = *this;
         res |= rhs;
         return res;
     }
 
-    TB<N>   operator^(const TB<N> &rhs) const
+    Tb<N>   operator^(const Tb<N> &rhs) const
     {
-        TB<N>   res = *this;
+        Tb<N>   res = *this;
         res ^= rhs;
         return res;
     }
 
-    TB<N>&  operator&=(const TB<N> &rhs)
+    Tb<N>&  operator&=(const Tb<N> &rhs)
     {
         for (int i = 0; i < N; i++)
             T[i]    &= rhs.T[i];
         return *this;
     }
 
-    TB<N>&  operator|=(const TB<N> &rhs)
+    Tb<N>&  operator|=(const Tb<N> &rhs)
     {
         for (int i = 0; i < N; i++)
-            T[i]    &= rhs.T[i];
+            T[i]    |= rhs.T[i];
         return *this;
     }
 
-    TB<N>&  operator^=(const TB<N> &rhs)
+    Tb<N>&  operator^=(const Tb<N> &rhs)
     {
         for (int i = 0; i < N; i++)
-            T[i]    &= rhs.T[i];
+            T[i]    ^= rhs.T[i];
         return *this;
+    }
+
+    void        ResetAll() 
+    {
+        for (int i = 0; i < N; i++)
+            T[i].ResetAll();
+    }
+
+    void        SetAll()
+    {
+        for (int i = 0; i < N; i++)
+            T[i].SetAll();
     }
 };
 
-typedef Taint   Taint1;
-typedef TB<4>   Taint4;
-typedef TB<2>   Taint2;
+typedef Tb<1>   Taint1;
+typedef Tb<4>   Taint4;
+typedef Tb<2>   Taint2;
+
+template <int Nsrc, int Ndest>
+Tb<Ndest>   FromTaint(const Tb<Nsrc> &src, int offset = 0)
+{
+    Assert(Ndest + offset <= Nsrc);
+
+    Tb<Ndest> res;
+    for (int i = 0; i < Ndest; i++)
+        res.T[i] = src.T[i+offset];
+    return res;
+}
+
+template <int Nsrc, int Ndest>
+void        ToTaint(Tb<Ndest> &dest, const Tb<Nsrc> &src, int offset = 0)
+{
+    Assert(Nsrc + offset <= Ndest);
+    for (int i = 0; i < Nsrc; i++)
+        dest.T[i+offset] = src.T[i];
+}
+
+template <int N>
+Taint1      Shrink(const Tb<N> &t)
+{
+    Taint1 res;
+    res.T[0] = t.T[0];
+    for (int i = 1; i < N; i++)
+        res.T[0] |= t.T[i];
+    return res;
+}
+
 
 //  Retrieve from Taint32
-Taint2     ToTaint2(const Taint4 &t, int offset = 0);
-
+// Taint2     ToTaint2(const Taint4 &t, int offset = 0);
+// 
 //  Set part of Taint32 from Taint16
-void        FromTaint2(Taint4 &dest, const Taint2 &src, int offset = 0);
-
-Taint2      PackTaint(const Taint &t0, const Taint &t1);
-Taint4      PackTaint(const Taint &t0, const Taint &t1, const Taint &t2, const Taint &t3);
-Taint       Shrink(const Taint4 &t);
-Taint       Shrink(const Taint2 &t);
+// void        FromTaint2(Taint4 &dest, const Taint2 &src, int offset = 0);
+// 
+// Taint2      PackTaint(const Taint &t0, const Taint &t1);
+// Taint4      PackTaint(const Taint &t0, const Taint &t1, const Taint &t2, const Taint &t3);
+// Taint       Shrink(const Taint4 &t);
+// Taint       Shrink(const Taint2 &t);
 
 // struct Taint4 {
 //     static const int    Count = 4;

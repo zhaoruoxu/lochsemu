@@ -96,10 +96,10 @@ void TracePanel::DrawTrace( wxBufferedPaintDC &dc, const TraceContext &trace, in
 
     // draw Taint
     for (int i = 0; i < InstContext::RegCount; i++) {
-        for (auto &t : trace.regTaint[i].T) {
-            DrawTaint(dc, t, wxRect(w, h+1, m_widthTaint, m_lineHeight-1));
-            w += m_widthTaint;
-        }
+        //for (auto &t : trace.regTaint[i].T) {
+            DrawTaint(dc, trace.regTaint[i], wxRect(w, h+1, m_widthTaint, m_lineHeight-1));
+            w += m_widthTaint * trace.regTaint[i].Count;
+        //}
     }
 }
 

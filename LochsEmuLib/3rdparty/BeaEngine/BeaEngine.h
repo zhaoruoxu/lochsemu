@@ -331,6 +331,24 @@ INLINE bool IsConstantArg(const ARGTYPE &arg)
     return OPERAND_TYPE(arg.ArgType) == CONSTANT_TYPE;
 }
 
+INLINE int TranslateReg(const ARGTYPE &oper)
+{
+    static int RegMap[]  = {
+        -1,  0,  1, -1,  2,  0, -1, -1,  3, -1, -1, -1, -1, -1, -1, -1,
+         4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+         5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+         6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        7
+    };
+    int index = RegMap[REG_NUM(oper.ArgType)];
+    Assert(index != -1);
+    return index;
+}
+
 enum SPECIAL_INFO
 {
   UNKNOWN_OPCODE = -1,

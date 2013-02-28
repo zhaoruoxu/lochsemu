@@ -16,17 +16,17 @@
  REG0 | REG2    -> 0        // TODO
  */
 
-static int RegMap[]  = {
-    -1,  0,  1, -1,  2,  0, -1, -1,  3, -1, -1, -1, -1, -1, -1, -1,
-     4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-     5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-     6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-     7
-};
+// static int RegMap[]  = {
+//     -1,  0,  1, -1,  2,  0, -1, -1,  3, -1, -1, -1, -1, -1, -1, -1,
+//      4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+//      5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+//     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+//      6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+//     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+//     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+//     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+//      7
+// };
 
 
 TaintEngine::TaintEngine(AEngine *engine)
@@ -124,113 +124,113 @@ void TaintEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 //     SetTaint(cpu, arg1, t);
 // }
 
-static int TranslateReg(const ARGTYPE &oper)
-{
-    int index = RegMap[REG_NUM(oper.ArgType)];
-    Assert(index != -1);
-    return index;
-}
-
-Taint TaintEngine::GetTaint1( const Processor *cpu, const ARGTYPE &oper )
-{
-    Assert(oper.ArgSize == 8);
-    if (IsRegArg(oper)) {
-        int index = TranslateReg(oper);
-        return CpuTaint.GPRegs[index].T[oper.ArgPosition / 8];
-    } else if (IsMemoryArg(oper)) {
-        // TODO: 需要考虑寻址寄存器的Taint和内存值的Taint
-        u32 o = cpu->Offset32(oper);
-        return MemTaint.Get1(o);
-    } else if (IsConstantArg(oper)) {
-        return Taint();
-    } else {
-        // no argument
-        Assert(0);
-        return Taint();
-    }
-}
-
-
-Taint2 TaintEngine::GetTaint2( const Processor *cpu, const ARGTYPE &oper )
-{
-    Assert(oper.ArgSize == 16);
-
-    if (IsRegArg(oper)) {
-        int index = TranslateReg(oper);
-        return ToTaint2(CpuTaint.GPRegs[index], oper.ArgPosition / 8);
-    } else if (IsMemoryArg(oper)) {
-        // TODO: 需要考虑寻址寄存器的Taint和内存值的Taint
-        u32 o = cpu->Offset32(oper);
-        return MemTaint.Get2(o);
-    } else if (IsConstantArg(oper)) {
-        return Taint2();
-    } else {
-        Assert(0);
-        return Taint2();
-    }
-}
-
-Taint4 TaintEngine::GetTaint4( const Processor *cpu, const ARGTYPE &oper )
-{
-    Assert(oper.ArgSize == 32);
-
-    if (IsRegArg(oper)) {
-        int index = TranslateReg(oper);
-        return CpuTaint.GPRegs[index];
-    } else if (IsMemoryArg(oper)) {
-        // TODO: 需要考虑寻址寄存器的Taint和内存值的Taint
-        u32 o = cpu->Offset32(oper);
-        return MemTaint.Get4(o);
-    } else if (IsConstantArg(oper)) {
-        return Taint4();
-    } else {
-        Assert(0);
-        return Taint4();
-    }
-}
-
-void TaintEngine::SetTaint1( const Processor *cpu, const ARGTYPE &oper, const Taint &t )
-{
-    Assert(oper.ArgSize == 8);
-
-    if (IsRegArg(oper)) {
-        int index = TranslateReg(oper);
-        CpuTaint.GPRegs[index].T[oper.ArgPosition / 8] = t;
-    } else if (IsMemoryArg(oper)) {
-        // TODO: Save_rule
-        u32 o = cpu->Offset32(oper);
-        MemTaint.Set1(o, t);
-    }
-    Assert(0);
-}
-
-void TaintEngine::SetTaint2( const Processor *cpu, const ARGTYPE &oper, const Taint2 &t )
-{
-    Assert(oper.ArgSize == 16);
-    if (IsRegArg(oper)) {
-        int index = TranslateReg(oper);
-        FromTaint2(CpuTaint.GPRegs[index], t, oper.ArgPosition / 8);
-    } else if (IsMemoryArg(oper)) {
-        // TODO: Save_rule
-        u32 o = cpu->Offset32(oper);
-        MemTaint.Set2(o, t);
-    }
-    Assert(0);
-}
-
-void TaintEngine::SetTaint4( const Processor *cpu, const ARGTYPE &oper, const Taint4 &t )
-{
-    Assert(oper.ArgSize == 32);
-    if (IsRegArg(oper)) {
-        int index = TranslateReg(oper);
-        CpuTaint.GPRegs[index] = t;
-    } else if (IsMemoryArg(oper)) {
-        // TODO: Save_rule
-        u32 o = cpu->Offset32(oper);
-        MemTaint.Set4(o, t);
-    }
-    Assert(0);
-}
+// static int TranslateReg(const ARGTYPE &oper)
+// {
+//     int index = RegMap[REG_NUM(oper.ArgType)];
+//     Assert(index != -1);
+//     return index;
+// }
+// 
+// Taint TaintEngine::GetTaint1( const Processor *cpu, const ARGTYPE &oper )
+// {
+//     Assert(oper.ArgSize == 8);
+//     if (IsRegArg(oper)) {
+//         int index = TranslateReg(oper);
+//         return CpuTaint.GPRegs[index].T[oper.ArgPosition / 8];
+//     } else if (IsMemoryArg(oper)) {
+//         // TODO: 需要考虑寻址寄存器的Taint和内存值的Taint
+//         u32 o = cpu->Offset32(oper);
+//         return MemTaint.Get1(o);
+//     } else if (IsConstantArg(oper)) {
+//         return Taint();
+//     } else {
+//         // no argument
+//         Assert(0);
+//         return Taint();
+//     }
+// }
+// 
+// 
+// Taint2 TaintEngine::GetTaint2( const Processor *cpu, const ARGTYPE &oper )
+// {
+//     Assert(oper.ArgSize == 16);
+// 
+//     if (IsRegArg(oper)) {
+//         int index = TranslateReg(oper);
+//         return ToTaint2(CpuTaint.GPRegs[index], oper.ArgPosition / 8);
+//     } else if (IsMemoryArg(oper)) {
+//         // TODO: 需要考虑寻址寄存器的Taint和内存值的Taint
+//         u32 o = cpu->Offset32(oper);
+//         return MemTaint.Get2(o);
+//     } else if (IsConstantArg(oper)) {
+//         return Taint2();
+//     } else {
+//         Assert(0);
+//         return Taint2();
+//     }
+// }
+// 
+// Taint4 TaintEngine::GetTaint4( const Processor *cpu, const ARGTYPE &oper )
+// {
+//     Assert(oper.ArgSize == 32);
+// 
+//     if (IsRegArg(oper)) {
+//         int index = TranslateReg(oper);
+//         return CpuTaint.GPRegs[index];
+//     } else if (IsMemoryArg(oper)) {
+//         // TODO: 需要考虑寻址寄存器的Taint和内存值的Taint
+//         u32 o = cpu->Offset32(oper);
+//         return MemTaint.Get4(o);
+//     } else if (IsConstantArg(oper)) {
+//         return Taint4();
+//     } else {
+//         Assert(0);
+//         return Taint4();
+//     }
+// }
+// 
+// void TaintEngine::SetTaint1( const Processor *cpu, const ARGTYPE &oper, const Taint &t )
+// {
+//     Assert(oper.ArgSize == 8);
+// 
+//     if (IsRegArg(oper)) {
+//         int index = TranslateReg(oper);
+//         CpuTaint.GPRegs[index].T[oper.ArgPosition / 8] = t;
+//     } else if (IsMemoryArg(oper)) {
+//         // TODO: Save_rule
+//         u32 o = cpu->Offset32(oper);
+//         MemTaint.Set1(o, t);
+//     }
+//     Assert(0);
+// }
+// 
+// void TaintEngine::SetTaint2( const Processor *cpu, const ARGTYPE &oper, const Taint2 &t )
+// {
+//     Assert(oper.ArgSize == 16);
+//     if (IsRegArg(oper)) {
+//         int index = TranslateReg(oper);
+//         FromTaint2(CpuTaint.GPRegs[index], t, oper.ArgPosition / 8);
+//     } else if (IsMemoryArg(oper)) {
+//         // TODO: Save_rule
+//         u32 o = cpu->Offset32(oper);
+//         MemTaint.Set2(o, t);
+//     }
+//     Assert(0);
+// }
+// 
+// void TaintEngine::SetTaint4( const Processor *cpu, const ARGTYPE &oper, const Taint4 &t )
+// {
+//     Assert(oper.ArgSize == 32);
+//     if (IsRegArg(oper)) {
+//         int index = TranslateReg(oper);
+//         CpuTaint.GPRegs[index] = t;
+//     } else if (IsMemoryArg(oper)) {
+//         // TODO: Save_rule
+//         u32 o = cpu->Offset32(oper);
+//         MemTaint.Set4(o, t);
+//     }
+//     Assert(0);
+// }
 
 void TaintEngine::UpdateInstContext( InstContext *ctx ) const
 {
@@ -254,63 +254,65 @@ void TaintEngine::Enable( bool isEnabled )
 
 void TaintEngine::DebugTaintIntroduce(const Processor *cpu, const Instruction *inst)
 {
-    Taint t;
-    t.SetAll();
     //SetTaint(cpu, inst->Main.Argument1, t);
+    Taint4 t;
+    t.SetAll();
+    TaintPropagate(cpu, inst, t);
 }
 
-
-void TaintEngine::SetFlagTaint1( const Instruction *inst, const Taint &t )
-{
-    u8p pFlag = (u8p) &inst->Main.Inst.Flags;
-    for (int i = 0; i < InstContext::FlagCount; i++) {
-        if (IsFlagModified(inst, i)) {
-            // Set flag's Taint to 't'
-            CpuTaint.Flags[i] = t;
-        } else if (IsFlagSet(inst, i) || IsFlagReset(inst, i)) {
-            // flag's Taint is sanitized, set to all '0'
-            CpuTaint.Flags[i].ResetAll();
-        }
-    }
-}
-
-void TaintEngine::SetFlagTaint2( const Instruction *inst, const Taint2 &t )
-{
-    SetFlagTaint1(inst, Shrink(t));
-}
-
-void TaintEngine::SetFlagTaint4( const Instruction *inst, const Taint4 &t )
-{
-    SetFlagTaint1(inst, Shrink(t));
-}
-
-#define ARG1    (inst->Main.Argument1)
-#define ARG2    (inst->Main.Argument2)
-#define ARG3    (inst->Main.Argument3)
+// 
+// void TaintEngine::SetFlagTaint1( const Instruction *inst, const Taint &t )
+// {
+//     u8p pFlag = (u8p) &inst->Main.Inst.Flags;
+//     for (int i = 0; i < InstContext::FlagCount; i++) {
+//         if (IsFlagModified(inst, i)) {
+//             // Set flag's Taint to 't'
+//             CpuTaint.Flags[i] = t;
+//         } else if (IsFlagSet(inst, i) || IsFlagReset(inst, i)) {
+//             // flag's Taint is sanitized, set to all '0'
+//             CpuTaint.Flags[i].ResetAll();
+//         }
+//     }
+// }
+// 
+// void TaintEngine::SetFlagTaint2( const Instruction *inst, const Taint2 &t )
+// {
+//     SetFlagTaint1(inst, Shrink(t));
+// }
+// 
+// void TaintEngine::SetFlagTaint4( const Instruction *inst, const Taint4 &t )
+// {
+//     SetFlagTaint1(inst, Shrink(t));
+// }
 
 void TaintEngine::DefaultBinopHandler(const Processor *cpu, const Instruction *inst)
 {
     Assert(ARG1.ArgSize == ARG2.ArgSize);
 
     if (ARG1.ArgSize == 32) {
-        Taint4 t = TaintRule_Binop4(GetTaint4(cpu, ARG1), GetTaint4(cpu, ARG2));
-        SetTaint4(cpu, ARG1, t);
-        SetFlagTaint4(inst, t);
+        TaintPropagate_Binop<4>(cpu, inst);
     } else if (ARG1.ArgSize == 8) {
-        Taint  t = TaintRule_Binop1(GetTaint1(cpu, ARG1), GetTaint1(cpu, ARG2));
-        SetTaint1(cpu, ARG1, t);
-        SetFlagTaint1(inst, t);
+        TaintPropagate_Binop<1>(cpu, inst);
     } else if (ARG1.ArgSize == 16) {
-        Taint2 t = TaintRule_Binop2(GetTaint2(cpu, ARG1), GetTaint2(cpu, ARG2));
-        SetTaint2(cpu, ARG1, t);
-        SetFlagTaint2(inst, t);
-    } 
+        TaintPropagate_Binop<2>(cpu, inst);
+    }
+
+
+//     if (ARG1.ArgSize == 32) {
+//         Taint4 t = TaintRule_Binop4(GetTaint4(cpu, ARG1), GetTaint4(cpu, ARG2));
+//         SetTaint4(cpu, ARG1, t);
+//         SetFlagTaint4(inst, t);
+//     } else if (ARG1.ArgSize == 8) {
+//         Taint  t = TaintRule_Binop1(GetTaint1(cpu, ARG1), GetTaint1(cpu, ARG2));
+//         SetTaint1(cpu, ARG1, t);
+//         SetFlagTaint1(inst, t);
+//     } else if (ARG1.ArgSize == 16) {
+//         Taint2 t = TaintRule_Binop2(GetTaint2(cpu, ARG1), GetTaint2(cpu, ARG2));
+//         SetTaint2(cpu, ARG1, t);
+//         SetFlagTaint2(inst, t);
+//     } 
 }
 
-void TaintEngine::OverrideBinaryInst(const Processor *cpu, const Instruction *inst)
-{
-
-}
 
 void TaintEngine::Add(const Processor *cpu, const Instruction *inst)
 {
@@ -322,7 +324,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0x00*/ NULL,
     /*0x01*/ NULL,
     /*0x02*/ NULL,
-    /*0x03*/ NULL,
+    /*0x03*/ &TaintEngine::DefaultBinopHandler,
     /*0x04*/ NULL,
     /*0x05*/ NULL,
     /*0x06*/ NULL,

@@ -33,10 +33,10 @@ struct InstContext {
     Taint4              regTaint[RegCount];
 
     u32                 Eip;
-    Taint               EipTaint;
+    Taint1              EipTaint;
 
     u32                 flags[FlagCount];
-    Taint               flagTaint[FlagCount];
+    Taint1              flagTaint[FlagCount];
 
     std::string         moduleName;
     u32                 moduleImageBase;

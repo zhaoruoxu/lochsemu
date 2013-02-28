@@ -89,10 +89,10 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
         dc.DrawText(InstContext::RegNames[i], 0, h);
         dc.DrawText(wxString::Format("%08X", m_data.regs[i]), m_widthRegName, h);
         int w = m_widthRegName + m_widthRegValue;
-        for (auto &t : m_data.regTaint[i].T) {
-            DrawTaint(dc, t, wxRect(w, h, m_widthTaint, m_lineHeight));
-            w += m_widthTaint;
-        }
+        //for (auto &t : m_data.regTaint[i].T) {
+            DrawTaint(dc, m_data.regTaint[i], wxRect(w, h, m_widthTaint, m_lineHeight));
+            //w += m_widthTaint;
+        //}
 
         h += m_lineHeight;
     }

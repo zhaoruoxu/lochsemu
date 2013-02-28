@@ -4,6 +4,7 @@
 #define __ARIETIS_GUI_GUI_H__
  
 #include "Arietis.h"
+#include "taint/taint.h"
 
 void RunGUI();
 void NotifyMainThread();
@@ -67,6 +68,23 @@ bool    Intersect(T ilow, T ihigh, T istart, T iend) {
     return ilow <= iend && ihigh >= istart;
 }
 
-void DrawTaint(wxBufferedPaintDC &dc, const Taint &t, const wxRect &rect);
+template <int N>
+void DrawTaint(wxBufferedPaintDC &dc, const Tb<N> &t, const wxRect &rect)
+{
+    const int TaintWidth = t.T[0].GetWidth();
+    int w = rect.width / TaintWidth;
+    if (w <= 2) {
+        LxWarning("Drawing width for each taint value might be too small\n");
+    }
+    dc.SetPen(*wxTRANSPARENT_PEN);
+    for (int n = 0; n < N; n++) {
+        for (int i = 0; i < TaintWidth; i++) {
+            int xOffset = n * rect.width + rect.width * i / TaintWidth;
+            dc.SetBrush(t.T[n].IsTainted(i) ? *wxRED_BRUSH : *wxWHITE_BRUSH);
+            dc.DrawRectangle(rect.x + xOffset, rect.y, w - 1, rect.height - 1);
+        }
+    }
+
+}
 
 #endif // __ARIETIS_GUI_GUI_H__
