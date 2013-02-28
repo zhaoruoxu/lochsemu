@@ -142,30 +142,30 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0x35*/ &TaintEngine::Xor_Handler,
     /*0x36*/ NULL,
     /*0x37*/ NULL,
-    /*0x38*/ NULL,
-    /*0x39*/ NULL,
-    /*0x3a*/ NULL,
-    /*0x3b*/ NULL,
-    /*0x3c*/ NULL,
-    /*0x3d*/ NULL,
+    /*0x38*/ &TaintEngine::Cmp_Handler,
+    /*0x39*/ &TaintEngine::Cmp_Handler,
+    /*0x3a*/ &TaintEngine::Cmp_Handler,
+    /*0x3b*/ &TaintEngine::Cmp_Handler,
+    /*0x3c*/ &TaintEngine::Cmp_Handler,
+    /*0x3d*/ &TaintEngine::Cmp_Handler,
     /*0x3e*/ NULL,
     /*0x3f*/ NULL,
-    /*0x40*/ NULL,
-    /*0x41*/ NULL,
-    /*0x42*/ NULL,
-    /*0x43*/ NULL,
-    /*0x44*/ NULL,
-    /*0x45*/ NULL,
-    /*0x46*/ NULL,
-    /*0x47*/ NULL,
-    /*0x48*/ NULL,
-    /*0x49*/ NULL,
-    /*0x4a*/ NULL,
-    /*0x4b*/ NULL,
-    /*0x4c*/ NULL,
-    /*0x4d*/ NULL,
-    /*0x4e*/ NULL,
-    /*0x4f*/ NULL,
+    /*0x40*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x41*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x42*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x43*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x44*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x45*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x46*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x47*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x48*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x49*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x4a*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x4b*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x4c*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x4d*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x4e*/ &TaintEngine::Inc_Dec_Handler,
+    /*0x4f*/ &TaintEngine::Inc_Dec_Handler,
     /*0x50*/ NULL,
     /*0x51*/ NULL,
     /*0x52*/ NULL,
@@ -229,7 +229,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0x8c*/ NULL,
     /*0x8d*/ NULL,
     /*0x8e*/ NULL,
-    /*0x8f*/ NULL,
+    /*0x8f*/ &TaintEngine::Ext8F_Handler,
     /*0x90*/ NULL,
     /*0x91*/ NULL,
     /*0x92*/ NULL,
@@ -278,14 +278,14 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0xbd*/ &TaintEngine::DebugTaintIntroduce,
     /*0xbe*/ &TaintEngine::DebugTaintIntroduce,
     /*0xbf*/ &TaintEngine::DebugTaintIntroduce,
-    /*0xc0*/ NULL,
-    /*0xc1*/ NULL,
+    /*0xc0*/ &TaintEngine::ExtC0_Handler,
+    /*0xc1*/ &TaintEngine::ExtC1_Handler,
     /*0xc2*/ NULL,
     /*0xc3*/ NULL,
     /*0xc4*/ NULL,
     /*0xc5*/ NULL,
-    /*0xc6*/ NULL,
-    /*0xc7*/ NULL,
+    /*0xc6*/ &TaintEngine::ExtC6_Handler,
+    /*0xc7*/ &TaintEngine::ExtC7_Handler,
     /*0xc8*/ NULL,
     /*0xc9*/ NULL,
     /*0xca*/ NULL,
@@ -294,10 +294,10 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0xcd*/ NULL,
     /*0xce*/ NULL,
     /*0xcf*/ NULL,
-    /*0xd0*/ NULL,
-    /*0xd1*/ NULL,
-    /*0xd2*/ NULL,
-    /*0xd3*/ NULL,
+    /*0xd0*/ &TaintEngine::ExtD0_Handler,
+    /*0xd1*/ &TaintEngine::ExtD1_Handler,
+    /*0xd2*/ &TaintEngine::ExtD2_Handler,
+    /*0xd3*/ &TaintEngine::ExtD3_Handler,
     /*0xd4*/ NULL,
     /*0xd5*/ NULL,
     /*0xd6*/ NULL,
@@ -332,16 +332,16 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0xf3*/ NULL,
     /*0xf4*/ NULL,
     /*0xf5*/ NULL,
-    /*0xf6*/ NULL,
-    /*0xf7*/ NULL,
+    /*0xf6*/ &TaintEngine::ExtF6_Handler,
+    /*0xf7*/ &TaintEngine::ExtF7_Handler,
     /*0xf8*/ NULL,
     /*0xf9*/ NULL,
     /*0xfa*/ NULL,
     /*0xfb*/ NULL,
     /*0xfc*/ NULL,
     /*0xfd*/ NULL,
-    /*0xfe*/ NULL,
-    /*0xff*/ NULL,
+    /*0xfe*/ &TaintEngine::ExtFE_Handler,
+    /*0xff*/ &TaintEngine::ExtFF_Handler,
 };
 
 TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
@@ -376,7 +376,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0x1c*/ NULL,
     /*0x1d*/ NULL,
     /*0x1e*/ NULL,
-    /*0x1f*/ NULL,
+    /*0x1f*/ &TaintEngine::Ext0F1F_Handler,
     /*0x20*/ NULL,
     /*0x21*/ NULL,
     /*0x22*/ NULL,
@@ -519,7 +519,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0xab*/ NULL,
     /*0xac*/ NULL,
     /*0xad*/ NULL,
-    /*0xae*/ NULL,
+    /*0xae*/ &TaintEngine::Ext0FAE_Handler,
     /*0xaf*/ NULL,
     /*0xb0*/ NULL,
     /*0xb1*/ NULL,
@@ -531,7 +531,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0xb7*/ NULL,
     /*0xb8*/ NULL,
     /*0xb9*/ NULL,
-    /*0xba*/ NULL,
+    /*0xba*/ &TaintEngine::Ext0FBA_Handler,
     /*0xbb*/ NULL,
     /*0xbc*/ NULL,
     /*0xbd*/ NULL,
@@ -627,7 +627,7 @@ void TaintEngine::Ext80_Handler(const Processor *cpu, const Instruction *inst)
         /* 4 */ &TaintEngine::And_Handler,
         /* 5 */ &TaintEngine::DefaultBinopHandler,
         /* 6 */ &TaintEngine::Xor_Handler,
-        /* 7 */ NULL,
+        /* 7 */ &TaintEngine::Cmp_Handler,
     };
     TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
     if (h) {
@@ -645,7 +645,7 @@ void TaintEngine::Ext81_Handler(const Processor *cpu, const Instruction *inst)
         /* 4 */ &TaintEngine::And_Handler,
         /* 5 */ &TaintEngine::DefaultBinopHandler,
         /* 6 */ &TaintEngine::Xor_Handler,
-        /* 7 */ NULL,
+        /* 7 */ &TaintEngine::Cmp_Handler,
     };
     TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
     if (h) {
@@ -663,6 +663,24 @@ void TaintEngine::Ext83_Handler(const Processor *cpu, const Instruction *inst)
         /* 4 */ &TaintEngine::And_Handler,
         /* 5 */ &TaintEngine::DefaultBinopHandler,
         /* 6 */ &TaintEngine::Xor_Handler,
+        /* 7 */ &TaintEngine::Cmp_Handler,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::Ext8F_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ NULL,
+        /* 1 */ NULL,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
         /* 7 */ NULL,
     };
     TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
@@ -671,7 +689,278 @@ void TaintEngine::Ext83_Handler(const Processor *cpu, const Instruction *inst)
     }
 }
 
-#define DefineCustomBinopHandler(HandlerName, PropagateTmpl)                    \
+void TaintEngine::ExtC0_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ NULL,
+        /* 1 */ NULL,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::ExtC1_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ NULL,
+        /* 1 */ NULL,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::ExtC6_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ NULL,
+        /* 1 */ NULL,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::ExtC7_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ NULL,
+        /* 1 */ NULL,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::ExtD0_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ NULL,
+        /* 1 */ NULL,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::ExtD1_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ NULL,
+        /* 1 */ NULL,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::ExtD2_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ NULL,
+        /* 1 */ NULL,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::ExtD3_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ NULL,
+        /* 1 */ NULL,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::ExtF6_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ NULL,
+        /* 1 */ NULL,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::ExtF7_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ NULL,
+        /* 1 */ NULL,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::ExtFE_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ &TaintEngine::Inc_Dec_Handler,
+        /* 1 */ &TaintEngine::Inc_Dec_Handler,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::ExtFF_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ &TaintEngine::Inc_Dec_Handler,
+        /* 1 */ &TaintEngine::Inc_Dec_Handler,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::Ext0F1F_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ NULL,
+        /* 1 */ NULL,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::Ext0FAE_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ NULL,
+        /* 1 */ NULL,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+void TaintEngine::Ext0FBA_Handler(const Processor *cpu, const Instruction *inst)
+{
+    static TaintInstHandler handlers[] = {
+        /* 0 */ NULL,
+        /* 1 */ NULL,
+        /* 2 */ NULL,
+        /* 3 */ NULL,
+        /* 4 */ NULL,
+        /* 5 */ NULL,
+        /* 6 */ NULL,
+        /* 7 */ NULL,
+    };
+    TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
+    if (h) {
+        (this->*h)(cpu, inst);
+    }
+}
+
+
+#define DEFINE_CUSTOM_BINOP_HANDLER(HandlerName, PropagateTmpl)                    \
 void TaintEngine::HandlerName(const Processor *cpu, const Instruction *inst)    \
 {                                                                               \
     /*Assert(ARG1.ArgSize == ARG2.ArgSize); */                                  \
@@ -687,29 +976,9 @@ void TaintEngine::HandlerName(const Processor *cpu, const Instruction *inst)    
 }                                                                               \
 
 
-DefineCustomBinopHandler(Or_Handler,        TaintPropagate_Or)
-DefineCustomBinopHandler(Adc_Sbb_Handler,   TaintPropagate_Adc_Sbb)
-DefineCustomBinopHandler(And_Handler,       TaintPropagate_And)
-DefineCustomBinopHandler(Xor_Handler,       TaintPropagate_Xor)
-
-//void TaintEngine::Or_Handler(const Processor *cpu, const Instruction *inst)
-//{
-//    Assert(ARG1.ArgSize == ARG2.ArgSize);
-//    if (ARG1.ArgSize == 32) {
-//        TaintPropagate_Or<4>(cpu, inst);
-//    } else if (ARG1.ArgSize == 8) {
-//        TaintPropagate_Or<1>(cpu, inst);
-//    } else if (ARG1.ArgSize == 16) {
-//        TaintPropagate_Or<2>(cpu, inst);
-//    } else {
-//        Assert(0);
-//    }
-//}
-//
-//void TaintEngine::Adc_Handler(const Processor *cpu, const Instruction *inst)
-//{
-//    Assert(ARG1.ArgSize == ARG2.ArgSize);
-//    if (ARG1.ArgSize == 32) {
-//        TaintPropagate_Adc<4>(cpu, inst);
-//    }
-//}
+DEFINE_CUSTOM_BINOP_HANDLER(Or_Handler,         TaintPropagate_Or)
+DEFINE_CUSTOM_BINOP_HANDLER(Adc_Sbb_Handler,    TaintPropagate_Adc_Sbb)
+DEFINE_CUSTOM_BINOP_HANDLER(And_Handler,        TaintPropagate_And)
+DEFINE_CUSTOM_BINOP_HANDLER(Xor_Handler,        TaintPropagate_Xor)
+DEFINE_CUSTOM_BINOP_HANDLER(Cmp_Handler,        TaintPropagate_Cmp)
+DEFINE_CUSTOM_BINOP_HANDLER(Inc_Dec_Handler,    TaintPropagate_Inc_Dec)

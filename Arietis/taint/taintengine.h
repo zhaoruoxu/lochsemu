@@ -189,6 +189,19 @@ private:
         TaintPropagate(cpu, inst, t1);
     }
 
+    template <int N>
+    void        TaintPropagate_Cmp(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t     = TaintRule_Binop(GetTaint<N>(cpu, ARG1), GetTaint<N>(cpu, ARG2));
+        SetFlagTaint(inst, t);
+    }
+
+    template <int N>
+    void        TaintPropagate_Inc_Dec(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t     = GetTaint<N>(cpu, ARG1);
+        SetFlagTaint(inst, t);
+    }
 
 private:
     typedef     void (TaintEngine::*TaintInstHandler)(const Processor *cpu, const Instruction *inst);
@@ -203,11 +216,30 @@ private:
     DECLARE_HANDLER(Ext80_Handler);
     DECLARE_HANDLER(Ext81_Handler);
     DECLARE_HANDLER(Ext83_Handler);
+    DECLARE_HANDLER(Ext8F_Handler);
+    DECLARE_HANDLER(ExtC0_Handler);
+    DECLARE_HANDLER(ExtC1_Handler);
+    DECLARE_HANDLER(ExtC6_Handler);
+    DECLARE_HANDLER(ExtC7_Handler);
+    DECLARE_HANDLER(ExtD0_Handler);
+    DECLARE_HANDLER(ExtD1_Handler);
+    DECLARE_HANDLER(ExtD2_Handler);
+    DECLARE_HANDLER(ExtD3_Handler);
+    DECLARE_HANDLER(ExtF6_Handler);
+    DECLARE_HANDLER(ExtF7_Handler);
+    DECLARE_HANDLER(ExtFE_Handler);
+    DECLARE_HANDLER(ExtFF_Handler);
+    DECLARE_HANDLER(Ext0F1F_Handler);
+    DECLARE_HANDLER(Ext0FAE_Handler);
+    DECLARE_HANDLER(Ext0FBA_Handler);
+
 
     DECLARE_HANDLER(Or_Handler);
     DECLARE_HANDLER(Adc_Sbb_Handler);
     DECLARE_HANDLER(And_Handler);
     DECLARE_HANDLER(Xor_Handler);
+    DECLARE_HANDLER(Cmp_Handler);
+    DECLARE_HANDLER(Inc_Dec_Handler);
 
 private:
     AEngine *   m_engine;
