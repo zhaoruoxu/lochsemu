@@ -88,9 +88,20 @@ void DrawTaint(wxBufferedPaintDC &dc, const Tb<N> &t, const wxRect &rect)
     }
     dc.SetPen(*wxTRANSPARENT_PEN);
     for (int n = 0; n < N; n++) {
+        if (t.T[n].IsAllTainted()) {
+            dc.SetBrush(*wxBLUE_BRUSH);
+            dc.DrawRectangle(rect);
+            continue;
+        } 
+        if (t.T[n].IsAllUntainted()) {
+            dc.SetBrush(*wxWHITE_BRUSH);
+            dc.DrawRectangle(rect);
+            continue;
+        }
         for (int i = 0; i < TaintWidth; i++) {
             int xOffset = n * rect.width + rect.width * i / TaintWidth;
             
+
             if (t.T[n].IsTainted(i)) {
                 //dc.SetBrush(TaintBrushes[i * TaintBrushCount / TaintWidth]);
                 dc.SetBrush(*wxBLUE_BRUSH);

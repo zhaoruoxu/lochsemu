@@ -24,6 +24,18 @@ public:
         return ((m_data[i] >> s) & 1) != 0;
     }
 
+    bool        IsAllTainted() const {
+        for (int i = 0; i < Count; i++)
+            if (m_data[i] != 0xffffffff) return false;
+        return true;
+    }
+
+    bool        IsAllUntainted() const {
+        for (int i = 0; i < Count; i++)
+            if (m_data[i] != 0) return false;
+        return true;
+    }
+
     void        Set(int index) { 
         Assert(index < Width); 
         int i = index / 32;
