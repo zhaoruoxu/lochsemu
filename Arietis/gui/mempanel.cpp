@@ -34,9 +34,17 @@ SectionContext::SectionContext()
 MemDataPanel::MemDataPanel( wxWindow *parent, AEngine *engine )
     : CustomScrolledControl(parent, wxSize(400, 150)), m_engine(engine)
 {
+    Bind(wxEVT_LEFT_DOWN,   &MemDataPanel::OnLeftDown,      this, wxID_ANY);
+    Bind(wxEVT_LEFT_UP,     &MemDataPanel::OnLeftUp,        this, wxID_ANY);
+    Bind(wxEVT_MOTION,      &MemDataPanel::OnMouseMove,     this, wxID_ANY);
+    Bind(wxEVT_LEAVE_WINDOW,&MemDataPanel::OnMouseLeave,    this, wxID_ANY);
+
+    InitRender();
     m_section   = NULL;
     m_taint     = m_engine->GetTaintEngine();
-    InitRender();
+
+    m_isLeftDown = false;
+    m_selDown = m_selUp = -1;
 }
 
 
@@ -51,6 +59,7 @@ void MemDataPanel::InitRender()
         g_config.GetString("MemInfoPanel", "FontName", "Lucida Console"));
     UpdateFont(f);
 
+    m_bgBrush       = wxBrush(wxColour(g_config.GetString("MemDataPanel", "SelBgColor", "#C0C0C0")));
     m_widthOffset   = g_config.GetInt("MemDataPanel", "WidthOffset", 70);
     m_widthHex      = g_config.GetInt("MemDataPanel", "WidthHex", 18);
     m_widthChar     = g_config.GetInt("MemDataPanel", "WidthChar", 7);
@@ -69,6 +78,7 @@ void MemDataPanel::Draw( wxBufferedPaintDC &dc )
     const int istart    = viewStart.y;
     const int iend      = istart + clientsize.GetHeight() / m_lineHeight;
 
+    dc.SetPen(*wxTRANSPARENT_PEN);
     for (int i = istart; i <= min(m_totalLines-1, iend); i++)
         DrawLine(dc, i);
 
@@ -91,6 +101,11 @@ void MemDataPanel::Draw( wxBufferedPaintDC &dc )
     }
 }
 
+static bool InSelRange(int o, int sel1, int sel2)
+{
+    return o >= min(sel1, sel2) && o <= max(sel1, sel2);
+}
+
 void MemDataPanel::DrawLine( wxBufferedPaintDC &dc, int idx )
 {
     int h = m_lineHeight * idx;
@@ -98,12 +113,21 @@ void MemDataPanel::DrawLine( wxBufferedPaintDC &dc, int idx )
     dc.DrawText(wxString::Format("%08x", m_section->Base() + offset), 0, h);
     int w = m_widthOffset;
     for (int i = 0; i < CharsPerLine; i++) {
+
+        if (InSelRange((int) offset, m_selDown, m_selUp)) {
+            dc.SetBrush(m_bgBrush);
+            dc.DrawRectangle(w, h, m_widthHex, m_lineHeight);
+        }
         dc.DrawText(wxString::Format("%02x", m_rawdata[offset]), w, h);
         offset++;
         w += m_widthHex;
     }
     offset = CharsPerLine * idx;
     for (int i = 0; i < CharsPerLine; i++) {
+        if (InSelRange((int) offset, m_selDown, m_selUp)) {
+            dc.SetBrush(m_bgBrush);
+            dc.DrawRectangle(w, h, m_widthChar, m_lineHeight);
+        }
         byte b = m_rawdata[offset];
         char c = (b >= 0x20 && b <= 0x7e) ? (char) b : '.';
         dc.DrawText(wxString::Format("%c", c), w, h);
@@ -138,10 +162,75 @@ void MemDataPanel::UpdateData( const Section *sec, const SectionContext &ctx )
 
 }
 
-void MemDataPanel::SelectAddress( u32 addr )
+void MemDataPanel::SelectAddress( u32 addr, u32 len )
 {
     // todo 
+    m_selDown   = (int) addr - m_context.Base;
+    m_selUp     = m_selDown + len - 1;
     Scroll(0, (addr - m_context.Base) / CharsPerLine);
+}
+
+void MemDataPanel::OnLeftDown( wxMouseEvent &event )
+{
+    wxPoint p   = event.GetPosition();
+    int px, py;
+    GetScrollPixelsPerUnit(&px, &py);
+    wxPoint viewStart = GetViewStart();
+
+    p.x += px * viewStart.x;
+    p.y += py * viewStart.y;
+
+    if (!InRange(p.x, m_widthOffset, m_widthHex * CharsPerLine)) {
+        m_selDown = m_selUp = -1;
+        Refresh();
+        return;
+    }
+
+    m_selDown       = GetIndex(p);
+    m_selUp         = m_selDown;
+    m_isLeftDown    = true;
+    Refresh();
+    //wxMessageBox(wxString::Format("%x", m_selStart));
+}
+
+void MemDataPanel::OnLeftUp( wxMouseEvent &event )
+{
+    m_isLeftDown    = false;
+}
+
+void MemDataPanel::OnMouseMove( wxMouseEvent &event )
+{
+    static int prevSelUp = m_selUp;
+    if (!m_isLeftDown) return;
+    wxPoint p = event.GetPosition();
+    int px, py;
+    GetScrollPixelsPerUnit(&px, &py);
+    wxPoint vs = GetViewStart();
+
+    p.x += px * vs.x;
+    p.y += py * vs.y;
+
+    m_selUp = GetIndex(p);
+    if (m_selUp != prevSelUp)
+        Refresh();
+}
+
+void MemDataPanel::OnMouseLeave( wxMouseEvent &event )
+{
+    //m_isLeftDown    = false;
+}
+
+int MemDataPanel::GetIndex( const wxPoint &mouse )
+{
+    wxPoint p = mouse;
+
+    p.x -= m_widthOffset;
+    if (p.x < 0)
+        p.x = 0;
+    if (p.x >= m_widthHex * CharsPerLine)
+        p.x = m_widthHex * CharsPerLine - 1;
+    
+    return p.y / m_lineHeight * CharsPerLine + p.x / m_widthHex;
 }
 
 MemInfoPanel::MemInfoPanel(wxWindow *parent, MemDataPanel *data)

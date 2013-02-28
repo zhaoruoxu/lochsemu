@@ -28,12 +28,18 @@ public:
     ~MemDataPanel();
     
     void        Draw(wxBufferedPaintDC &dc) override;
+    void        OnLeftDown(wxMouseEvent &event);
+    void        OnLeftUp(wxMouseEvent &event);
+    void        OnMouseMove(wxMouseEvent &event);
+    void        OnMouseLeave(wxMouseEvent &event);
+
     void        UpdateData(const Section *sec, const SectionContext &ctx);
-    void        SelectAddress(u32 addr);
+    void        SelectAddress(u32 addr, u32 len);
 
 private:
     void        InitRender();
     void        DrawLine(wxBufferedPaintDC &dc, int idx);
+    int         GetIndex(const wxPoint &mouse);
 private:
     static const int    CharsPerLine = 8;
     const Section *     m_section;
@@ -41,6 +47,7 @@ private:
     SectionContext      m_context;
     AEngine *           m_engine;
     TaintEngine *       m_taint;
+    wxBrush             m_bgBrush;
 
     int         m_widthOffset;
     int         m_widthHex;
@@ -48,6 +55,10 @@ private:
     int         m_widthTaint;
     int         m_width;
     int         m_totalLines;
+
+    bool        m_isLeftDown;
+    int         m_selDown;
+    int         m_selUp;
 
     MutexCS     m_mutex;
 };

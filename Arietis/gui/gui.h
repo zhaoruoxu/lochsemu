@@ -34,8 +34,6 @@ enum {
     ID_RemoveBreakpoint,
     ID_ShowMemory,
 
-    ID_StatusTimer,
-
     /* toolbar */
     ID_ToolbarDebug,
     ID_ToolbarToggleTrace,
@@ -52,6 +50,9 @@ enum {
     ID_PopupShowCode,
     ID_PopupDelete,
     ID_PopupToggle,
+
+
+    ID_StatusTimer,
 };
 
 class ArietisApp : public wxApp {
@@ -67,6 +68,11 @@ bool    IntersectAbs(T i0, T i1, T istart, T iend) {
 template <typename T>
 bool    Intersect(T ilow, T ihigh, T istart, T iend) {
     return ilow <= iend && ihigh >= istart;
+}
+
+template <typename T>
+bool    InRange(T val, T start, T len) {
+    return start <= val && val < start + len;
 }
 
 const int   TaintBrushCount = 256;

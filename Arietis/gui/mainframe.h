@@ -71,6 +71,7 @@ private:
 
     wxTimer         m_statusTimer;
     wxStatusBar *   m_statusbar;
+    wxString        m_pathText;
 
     MySwitch *      m_toggleTrace;
     MySwitch *      m_toggleCRTEntry;

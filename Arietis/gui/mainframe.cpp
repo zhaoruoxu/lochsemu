@@ -20,7 +20,7 @@
 ArietisFrame::ArietisFrame(AEngine *engine, Emulator *emu)
     : m_engine(engine), m_emulator(emu), wxFrame(NULL, wxID_ANY, 
     wxString::Format("Arietis %x build %d", ArietisVersion, ARIETIS_BUILD_VERSION), 
-    wxDefaultPosition, wxSize(850, 850), wxDEFAULT_FRAME_STYLE), 
+    wxDefaultPosition, wxSize(850, 850), wxDEFAULT_FRAME_STYLE),
     m_statusTimer(this, ID_StatusTimer)
 {
     InitMisc();
@@ -38,8 +38,6 @@ ArietisFrame::~ArietisFrame()
 
 void ArietisFrame::InitMisc()
 {
-    //std::string cfgFile = LxGetModuleDirectory(g_module) + "arietisapp.ini";
-    //g_config.Initialize(cfgFile.c_str());
 }
 
 void ArietisFrame::InitUI()
@@ -81,9 +79,7 @@ void ArietisFrame::InitUI()
     if (g_config.GetInt("General", "AutoLoadPerpective", 1) != 0) {
         OnLoadPerspective(wxCommandEvent());
     }
-
     
-    //SetSize(800, 800);
 }
 
 void ArietisFrame::InitMenu()
@@ -158,8 +154,6 @@ void ArietisFrame::InitToolbars()
 {
     wxToolBar *tbDebug = CreateToolBar(wxTB_FLAT | wxTB_TEXT | wxTB_NOICONS, ID_ToolbarDebug, "Debug");
 
-    //wxBitmap bitmap(16, 15);
-    //tbDebug->SetMargins(5, 0);
 
     tbDebug->AddControl(new wxButton(tbDebug, ID_StepInto, "Step Into", wxDefaultPosition, 
         wxSize(60, -1), wxBORDER_NONE));
@@ -170,7 +164,6 @@ void ArietisFrame::InitToolbars()
     tbDebug->AddControl(new wxButton(tbDebug, ID_Run, "Run", wxDefaultPosition,
         wxSize(60, -1), wxBORDER_NONE));
     tbDebug->AddSeparator();
-    //tbDebug->AddStretchableSpace();
     m_toggleTrace = new MySwitch(tbDebug, ID_ToolbarToggleTrace, "Trace", wxSize(50, -1));
     m_toggleCRTEntry = new MySwitch(tbDebug, ID_ToolbarToggleCRTEntry, "crt_ent", wxSize(50, -1));
     m_toggleSkipDllEntry = new MySwitch(tbDebug, ID_ToolbarToggleSkipDllEntry, "No_DLL", wxSize(50, -1));
@@ -226,7 +219,6 @@ void ArietisFrame::OnClose( wxCloseEvent &event )
     }
     Destroy();
     m_engine->Terminate();
-    //m_engine->GetDebugger()->OnTerminate();
 }
 
 void ArietisFrame::OnSavePerspective( wxCommandEvent &event )
@@ -283,6 +275,7 @@ void ArietisFrame::OnResetPerspective( wxCommandEvent &event )
 
 void ArietisFrame::OnStatusTimer( wxTimerEvent &event )
 {
+    m_statusbar->SetStatusText(m_pathText, Statusbar_Path);
     m_statusbar->SetStatusText(wxString::Format("CPU: %d%%", GetCpuUsage()), Statusbar_Cpu);
     m_statusbar->SetStatusText(wxString::Format("MEM: %d MB", GetMemUsage()), Statusbar_Mem);
     m_statusbar->SetStatusText(wxString::Format("Threads: %d", GetThreadCount()), Statusbar_Threads);
@@ -355,7 +348,7 @@ void ArietisFrame::ShowInMemory( u32 addr )
 
         SectionContext ctx(sec, m_emulator->Proc()->GetModuleInfo(sec.Module));
         m_memDataPanel->UpdateData(section, ctx);
-        m_memDataPanel->SelectAddress(addr);
+        m_memDataPanel->SelectAddress(addr, 4);
 
         found = true;
         break;
@@ -368,12 +361,12 @@ void ArietisFrame::ShowInMemory( u32 addr )
 
 void ArietisFrame::ReportBusy( bool isBusy )
 {
-    m_statusbar->SetStatusText(isBusy ? "Busy" : "", Statusbar_Busy);
+    m_statusbar->SetStatusText(isBusy ? "Busy" : "Idle", Statusbar_Busy);
 }
 
 void ArietisFrame::OnProcessLoaded( LPCSTR path )
 {
-    m_statusbar->SetStatusText(path, Statusbar_Path);
+    m_pathText = path;
 }
 
 void ArietisFrame::OnToggleTraceClicked( wxCommandEvent &event )
@@ -420,9 +413,11 @@ void ArietisFrame::OnToggleTaintClicked( wxCommandEvent &event )
 void ArietisFrame::OnShowMemory( wxCommandEvent &event )
 {
     wxString str = wxGetTextFromUser("Input address");
+    if (str.IsEmpty()) return;
+
     unsigned long addr = 0;
     if (!str.ToULong(&addr, 16)) {
-        wxMessageBox("Invalid address input %s", str);
+        wxMessageBox("Invalid address input " + str);
         return;
     }
 
