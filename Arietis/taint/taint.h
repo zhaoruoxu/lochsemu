@@ -136,6 +136,15 @@ void        ToTaint(Tb<Ndest> &dest, const Tb<Nsrc> &src, int offset = 0)
 }
 
 template <int N>
+Tb<N>       Extend(const Taint1 &t)
+{
+    Tb<N> res;
+    for (int i = 0; i < N; i++)
+        res.T[i] = t.T[i];
+    return res;
+}
+
+template <int N>
 Taint1      Shrink(const Tb<N> &t)
 {
     Taint1 res;

@@ -330,11 +330,22 @@ INLINE bool IsConstantArg(const ARGTYPE &arg)
 {
     return OPERAND_TYPE(arg.ArgType) == CONSTANT_TYPE;
 }
+/*
+ REG0 = 0x1,    -> 0
+ REG1 = 0x2,    -> 1
+ REG2 = 0x4,    -> 2
+ REG3 = 0x8,    -> 3
+ REG4 = 0x10,   -> 4
+ REG5 = 0x20,   -> 5
+ REG6 = 0x40,   -> 6
+ REG7 = 0x80,   -> 7
 
+ REG0 | REG2    -> 0        // TODO
+ */
 INLINE int TranslateReg(const ARGTYPE &oper)
 {
     static int RegMap[]  = {
-        -1,  0,  1, -1,  2,  0, -1, -1,  3, -1, -1, -1, -1, -1, -1, -1,
+        -1,  0,  1, -1,  2, -1, -1, -1,  3, -1, -1, -1, -1, -1, -1, -1,
          4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
          5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,

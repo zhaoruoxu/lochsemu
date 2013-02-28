@@ -10,6 +10,8 @@
 #include "instcontext.h"
 #include "comptaint.h"
 
+#include "processor.h"
+
 #define ARG1    (inst->Main.Argument1)
 #define ARG2    (inst->Main.Argument2)
 #define ARG3    (inst->Main.Argument3)
@@ -37,16 +39,7 @@ public:
     bool        IsEnabled() const;
 
 private:
-//     Taint       GetTaint1(const Processor *cpu, const ARGTYPE &oper);
-//     Taint2      GetTaint2(const Processor *cpu, const ARGTYPE &oper);
-//     Taint4      GetTaint4(const Processor *cpu, const ARGTYPE &oper);
-//     void        SetTaint1(const Processor *cpu, const ARGTYPE &oper, const Taint &t);
-//     void        SetTaint2(const Processor *cpu, const ARGTYPE &oper, const Taint2 &t);
-//     void        SetTaint4(const Processor *cpu, const ARGTYPE &oper, const Taint4 &t);
-// 
-//     void        SetFlagTaint1(const Instruction *inst, const Taint &t);
-//     void        SetFlagTaint2(const Instruction *inst, const Taint2 &t);
-//     void        SetFlagTaint4(const Instruction *inst, const Taint4 &t);
+
 
     template <int N>
     Tb<N>       TaintRule_Binop(const Tb<N> &t1, const Tb<N> &t2)
@@ -71,20 +64,21 @@ private:
     template <int N>
     Tb<N>       GetTaint(const Processor *cpu, const ARGTYPE &oper)
     {
+        if (IsConstantArg(oper)) {
+            return Tb<N>();
+        }
+
         Assert(oper.ArgSize == N * 8);
         if (IsRegArg(oper)) {
             int index = TranslateReg(oper);
             return FromTaint<4, N>(CpuTaint.GPRegs[index], oper.ArgPosition / 8);
         } else if (IsMemoryArg(oper)) {
             return TaintRule_Load<N>(cpu, oper);
-        } else if (IsConstantArg(oper)) {
-            return Tb<N>();
         } else {
             Assert(0);
             return Tb<N>();
         }
     }
-
 
     template <int N>
     void        SetTaint(const Processor *cpu, const ARGTYPE &oper, const Tb<N> &t)
@@ -116,9 +110,7 @@ private:
     template <int N>
     void        TaintPropagate_Binop(const Processor *cpu, const Instruction *inst)
     {
-        Tb<N> t1 = GetTaint<N>(cpu, ARG1);
-        Tb<N> t2 = GetTaint<N>(cpu, ARG2);
-        Tb<N> t = TaintRule_Binop(t1, t2);
+        Tb<N> t     = TaintRule_Binop(GetTaint<N>(cpu, ARG1), GetTaint<N>(cpu, ARG2));
         TaintPropagate(cpu, inst, t);
     }
 
@@ -128,17 +120,74 @@ private:
         SetTaint(cpu, ARG1, t);
         SetFlagTaint(inst, t);
     }
-// 
-//     void        TaintIntroduce();
-//     void        TaintPropagate();   // !!! special handlers for instructions
-//     void        TaintSanitize();
 
-    // rule guided tainting
-//     Taint       TaintRule_Binop1(const Taint  &t1, const Taint  &t2);
-//     Taint2      TaintRule_Binop2(const Taint2 &t1, const Taint2 &t2);
-//     Taint4      TaintRule_Binop4(const Taint4 &t1, const Taint4 &t2);
+    template <int N>
+    void        TaintPropagate_Or(const Processor *cpu, const Instruction *inst)
+    {
+        if (!IsConstantArg(ARG2)) {
+            TaintPropagate_Binop<N>(cpu, inst);
+            return;
+        }
 
+        Tb<N> t     = GetTaint<N>(cpu, ARG1);
+        u64 val     = inst->Main.Inst.Immediat;
+        if (ARG2.ArgSize == 8) 
+            val     = SIGN_EXTEND(8, 64, val);
+        u8p pimm    = (u8p) &val;
+        for (int i = 0; i < N; i++) {
+            if (pimm[i] == 0xff) {   // x OR 0xff is always 0xff : Taint is sanitized
+                t.T[i].ResetAll();
+            } else {
+                // binop rule?
+            }
+        }
+        TaintPropagate(cpu, inst, t);
+    }
 
+    template <int N>
+    void        TaintPropagate_And(const Processor *cpu, const Instruction *inst)
+    {
+        if (!IsConstantArg(ARG2)) {
+            TaintPropagate_Binop<N>(cpu, inst);
+            return;
+        }
+
+        Tb<N> t     = GetTaint<N>(cpu, ARG1);
+        u64 val     = inst->Main.Inst.Immediat;
+        if (ARG2.ArgSize == 8)
+            val     = SIGN_EXTEND(8, 64, val);
+        u8p pimm    = (u8p) &val;
+        for (int i = 0; i < N; i++) {
+            if (pimm[i] == 0x00) {   // x AND 0x00 is always 0 : Taint is sanitized
+                t.T[i].ResetAll();
+            } else {
+                // binop rule?
+            }
+        }
+        TaintPropagate(cpu, inst, t);
+    }
+
+    template <int N>
+    void        TaintPropagate_Xor(const Processor *cpu, const Instruction *inst)
+    {
+        if (ARG1.ArgType == ARG2.ArgType) {
+            // xor r0, r0
+            Tb<N> t;
+            t.ResetAll();
+            TaintPropagate(cpu, inst, t);
+        } else {
+            TaintPropagate_Binop<N>(cpu, inst);
+        }
+    }
+
+    template <int N>
+    void        TaintPropagate_Adc_Sbb(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t0    = TaintRule_Binop(GetTaint<N>(cpu, ARG1), GetTaint<N>(cpu, ARG2));
+        Taint1 cf   = CpuTaint.Flags[InstContext::CF];
+        Tb<N> t1    = TaintRule_Binop(t0, Extend<N>(cf));
+        TaintPropagate(cpu, inst, t1);
+    }
 
 
 private:
@@ -151,7 +200,14 @@ private:
     DECLARE_HANDLER(DebugTaintIntroduce);
     DECLARE_HANDLER(DefaultBinopHandler);
 
-    DECLARE_HANDLER(Add);
+    DECLARE_HANDLER(Ext80_Handler);
+    DECLARE_HANDLER(Ext81_Handler);
+    DECLARE_HANDLER(Ext83_Handler);
+
+    DECLARE_HANDLER(Or_Handler);
+    DECLARE_HANDLER(Adc_Sbb_Handler);
+    DECLARE_HANDLER(And_Handler);
+    DECLARE_HANDLER(Xor_Handler);
 
 private:
     AEngine *   m_engine;
