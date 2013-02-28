@@ -69,9 +69,9 @@ void ArietisFrame::InitUI()
     m_auiManager.AddPane(m_memInfoPanel, 
         wxAuiPaneInfo().Name("Sections").Caption("Sections").Bottom().Position(0).Row(1));
     m_auiManager.AddPane(m_memDataPanel, 
-        wxAuiPaneInfo().Name("Memory").Caption("Memory").Bottom().Position(1).Row(1));
+        wxAuiPaneInfo().Name("Memory").Caption("Memory").Bottom().Row(0));
     m_auiManager.AddPane(m_bpsPanel, 
-        wxAuiPaneInfo().Name("Breakpoints").Caption("Breakpoints").Bottom().Row(0));
+        wxAuiPaneInfo().Name("Breakpoints").Caption("Breakpoints").Bottom().Position(1).Row(1));
     
     m_auiManager.Update();
     Centre();

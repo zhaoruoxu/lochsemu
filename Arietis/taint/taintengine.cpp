@@ -31,7 +31,7 @@ void TaintEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
     if (INST_ONEBYTE(inst->Main.Inst.Opcode)) {
         h = HandlerOneByte[inst->Main.Inst.Opcode];
     } else if (INST_TWOBYTE(inst->Main.Inst.Opcode)) {
-        h = HandlerTwoBytes[inst->Main.Inst.Opcode];
+        h = HandlerTwoBytes[inst->Main.Inst.Opcode & 0xff];
     } else {
         Assert(0);
     }

@@ -12,31 +12,40 @@ public:
     
     Taint();
     Taint(const Taint &t);
-    //Taint(Taint &&t);
     Taint &operator=(Taint rhs);
     virtual ~Taint();
 
     int         GetWidth() const { return Width; }
 
-    //int         GetIndices() const { return m_nIndices; }
     bool        IsTainted(int index) const { 
-        Assert(index < Width); return m_data[index] != 0; 
+        Assert(index < Width);
+        int i = index / 32;
+        int s = index % 32;
+        return ((m_data[i] >> s) & 1) != 0;
     }
+
     void        Set(int index) { 
-        Assert(index < Width); m_data[index] = 1; 
+        Assert(index < Width); 
+        int i = index / 32;
+        int s = index % 32;
+        m_data[i] |= (1 << s);
+    }
+
+    void        Reset(int index) { 
+        Assert(index < Width); 
+        int i = index / 32;
+        int s = index % 32;
+        m_data[i] &= ~(1 << s);
     }
 
     void        SetAll() {
-        memset(m_data, 1, sizeof(m_data));
+        memset(m_data, 0xff, sizeof(m_data));
     }
 
     void        ResetAll() {
         memset(m_data, 0, sizeof(m_data));
     }
 
-    void        Reset(int index) { 
-        Assert(index < Width); m_data[index] = 0; 
-    }
     Taint       operator&(const Taint &rhs) const;
     Taint       operator|(const Taint &rhs) const;
     Taint       operator^(const Taint &rhs) const;
@@ -47,9 +56,9 @@ public:
     std::string ToString() const;
     static Taint    FromBinString(const std::string &s);
 private:
-    //int         m_nIndices;
-    static const int    Width = 1;
-    byte        m_data[Width];
+    static const int    Count = 2;
+    static const int    Width = 32 * Count;
+    u32         m_data[Count];
 };
 
 template <int N>
