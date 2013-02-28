@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "mempanel.h"
+#include "engine.h"
 #include "common/parallel.h"
 #include "core/memory.h"
 #include "core/emulator.h"
@@ -12,34 +13,49 @@ static bool SecCmp(const SectionContext &l, const SectionContext &r)
 
 SectionContext::SectionContext( const SectionInfo &sec, const ModuleInfo *minfo )
 {
-    Base    = sec.base;
-    Size    = sec.size;
-    Desc    = sec.Desc;
+    Base        = sec.base;
+    Size        = sec.size;
+    Desc        = sec.Desc;
     ModuleImageBase = minfo->ImageBase;
-    ModuleName      = minfo->Name;
+    ModuleName  = minfo->Name;
 }
 
 SectionContext::SectionContext()
 {
-    Base    = 0;
-    Size    = 0;
-    Desc    = "n/a";
+    Base        = 0;
+    Size        = 0;
+    Desc        = "n/a";
     ModuleImageBase = 0;
-    ModuleName      = "n/a";
+    ModuleName  = "n/a";
     
 }
 
 
-MemDataPanel::MemDataPanel( wxWindow *parent )
-    : CustomScrolledControl(parent, wxSize(400, 150))
+MemDataPanel::MemDataPanel( wxWindow *parent, AEngine *engine )
+    : CustomScrolledControl(parent, wxSize(400, 150)), m_engine(engine)
 {
-    m_section = NULL;
+    m_section   = NULL;
+    m_taint     = m_engine->GetTaintEngine();
     InitRender();
 }
 
 
 MemDataPanel::~MemDataPanel()
 {
+}
+
+void MemDataPanel::InitRender()
+{
+    wxFont f = wxFont(g_config.GetInt("MemDataPanel", "FontSize", 8),
+        wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
+        g_config.GetString("MemInfoPanel", "FontName", "Lucida Console"));
+    UpdateFont(f);
+
+    m_widthOffset   = g_config.GetInt("MemDataPanel", "WidthOffset", 70);
+    m_widthHex      = g_config.GetInt("MemDataPanel", "WidthHex", 18);
+    m_widthChar     = g_config.GetInt("MemDataPanel", "WidthChar", 7);
+    m_widthTaint    = g_config.GetInt("MemDataPanel", "WidthTaint", 64);
+    m_width         = m_widthOffset + (m_widthHex + m_widthChar + m_widthTaint) * CharsPerLine;
 }
 
 void MemDataPanel::Draw( wxBufferedPaintDC &dc )
@@ -56,23 +72,23 @@ void MemDataPanel::Draw( wxBufferedPaintDC &dc )
     for (int i = istart; i <= min(m_totalLines-1, iend); i++)
         DrawLine(dc, i);
 
-    dc.SetPen(*wxBLUE_PEN);
+    dc.SetPen(*wxGREY_PEN);
     int px, py;
     GetScrollPixelsPerUnit(&px, &py);
 
-    int lineX = m_widthOffset + VertLineOffset;
+    int lineX = m_widthOffset;
     int lineY0 = viewStart.y * py, lineY1 = lineY0 + clientsize.GetHeight();
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
-    lineX += m_widthHex * CharsPerLine/4;
+    lineX += m_widthHex * CharsPerLine/2;
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
-    lineX += m_widthHex * CharsPerLine/4;
+    lineX += m_widthHex * CharsPerLine/2;
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
-    lineX += m_widthHex * CharsPerLine/4;
+    lineX += m_widthChar * CharsPerLine;
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
-    lineX += m_widthHex * CharsPerLine/4;
-    dc.DrawLine(lineX, lineY0, lineX, lineY1);
-    lineX += m_widthChar * CharsPerLine + 3;
-    dc.DrawLine(lineX, lineY0, lineX, lineY1);
+    for (int i = 0; i < CharsPerLine; i++) {
+        lineX += m_widthTaint;
+        dc.DrawLine(lineX, lineY0, lineX, lineY1);
+    }
 }
 
 void MemDataPanel::DrawLine( wxBufferedPaintDC &dc, int idx )
@@ -94,6 +110,13 @@ void MemDataPanel::DrawLine( wxBufferedPaintDC &dc, int idx )
         offset++;
         w += m_widthChar;
     }
+    offset = m_context.Base + CharsPerLine * idx;
+    for (int i = 0; i < CharsPerLine; i++) {
+        DrawTaint(dc, m_taint->MemTaint.Get<1>(offset), 
+            wxRect(w, h, m_widthTaint, m_lineHeight));
+        offset++;
+        w += m_widthTaint;
+    }
 }
 
 void MemDataPanel::UpdateData( const Section *sec, const SectionContext &ctx )
@@ -104,9 +127,9 @@ void MemDataPanel::UpdateData( const Section *sec, const SectionContext &ctx )
     {
         MutexCSLock lock(m_mutex);
 
-        m_section = sec;
-        m_context = ctx;
-        m_rawdata = sec->GetRawData(sec->Base());
+        m_section   = sec;
+        m_context   = ctx;
+        m_rawdata   = sec->GetRawData(sec->Base());
         m_totalLines = sec->Size() / CharsPerLine;
         Scroll(0, 0);
     }
@@ -115,19 +138,11 @@ void MemDataPanel::UpdateData( const Section *sec, const SectionContext &ctx )
 
 }
 
-void MemDataPanel::InitRender()
+void MemDataPanel::SelectAddress( u32 addr )
 {
-    wxFont f = wxFont(g_config.GetInt("MemDataPanel", "FontSize", 8),
-        wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
-        g_config.GetString("MemInfoPanel", "FontName", "Lucida Console"));
-    UpdateFont(f);
-
-    m_widthOffset   = g_config.GetInt("MemDataPanel", "WidthOffset", 70);
-    m_widthHex      = g_config.GetInt("MemDataPanel", "WidthHex", 18);
-    m_widthChar     = g_config.GetInt("MemDataPanel", "WidthChar", 7);
-    m_width         = m_widthOffset + (m_widthHex + m_widthChar) * CharsPerLine;
+    // todo 
+    Scroll(0, (addr - m_context.Base) / CharsPerLine);
 }
-
 
 MemInfoPanel::MemInfoPanel(wxWindow *parent, MemDataPanel *data)
     : SelectableScrolledControl(parent, wxSize(400, 150)), m_dataPanel(data)
@@ -189,7 +204,7 @@ void MemInfoPanel::Draw( wxBufferedPaintDC &dc )
         DrawItem(dc, i);
     }
 
-    dc.SetPen(*wxBLUE_PEN);
+    dc.SetPen(*wxGREY_PEN);
     int px, py;
     GetScrollPixelsPerUnit(&px, &py);
 

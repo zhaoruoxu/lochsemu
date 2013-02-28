@@ -32,6 +32,7 @@ enum {
     ID_Run,
     ID_ToggleBreakpoint,
     ID_RemoveBreakpoint,
+    ID_ShowMemory,
 
     ID_StatusTimer,
 
@@ -85,7 +86,8 @@ void DrawTaint(wxBufferedPaintDC &dc, const Tb<N> &t, const wxRect &rect)
             int xOffset = n * rect.width + rect.width * i / TaintWidth;
             
             if (t.T[n].IsTainted(i)) {
-                dc.SetBrush(TaintBrushes[i * TaintBrushCount / TaintWidth]);
+                //dc.SetBrush(TaintBrushes[i * TaintBrushCount / TaintWidth]);
+                dc.SetBrush(*wxBLUE_BRUSH);
             } else {
                 dc.SetBrush(*wxWHITE_BRUSH);
             }

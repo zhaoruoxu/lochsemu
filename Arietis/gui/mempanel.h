@@ -24,24 +24,28 @@ struct SectionContext {
 
 class MemDataPanel : public CustomScrolledControl {
 public:
-    MemDataPanel(wxWindow *parent);
+    MemDataPanel(wxWindow *parent, AEngine *engine);
     ~MemDataPanel();
     
     void        Draw(wxBufferedPaintDC &dc) override;
     void        UpdateData(const Section *sec, const SectionContext &ctx);
+    void        SelectAddress(u32 addr);
 
 private:
     void        InitRender();
     void        DrawLine(wxBufferedPaintDC &dc, int idx);
 private:
-    static const int    CharsPerLine = 16;
+    static const int    CharsPerLine = 8;
     const Section *     m_section;
     pbyte               m_rawdata;
     SectionContext      m_context;
+    AEngine *           m_engine;
+    TaintEngine *       m_taint;
 
     int         m_widthOffset;
     int         m_widthHex;
     int         m_widthChar;
+    int         m_widthTaint;
     int         m_width;
     int         m_totalLines;
 

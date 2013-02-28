@@ -47,7 +47,7 @@ class AEngine;
 struct InstContext;
 struct Archive;
 
-
+extern Emulator *       g_emulator;
 extern HMODULE          g_module;
 extern Config           g_config;
 extern AEngine          g_engine;

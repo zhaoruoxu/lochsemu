@@ -43,7 +43,7 @@ wxAppInitializer wxTheAppInitializer((wxAppInitializerFunction) wxCreateApp);
 
 bool ArietisApp::OnInit()
 {
-    ArietisFrame *frame = new ArietisFrame(&g_engine);
+    ArietisFrame *frame = new ArietisFrame(&g_engine, g_emulator);
     frame->Show(true);
     //SetTopWindow(frame);
     return true;

@@ -73,7 +73,7 @@ private:
     wxPen       m_currSelPen;
     int         m_widthIp;
     int         m_widthDisasm;
-    int         m_widthTaint;
+    //int         m_widthTaint;
     int         m_width;
 };
 

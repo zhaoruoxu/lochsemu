@@ -16,12 +16,14 @@
 PluginHandle    g_handle;
 Config          g_config;
 
+Emulator *      g_emulator;
 AEngine         g_engine;
 Semaphore       g_guiSem;
 
 ARIETIS_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, PluginInfo *info)
 {
-    g_handle = lochsemu->Handle;
+    g_handle    = lochsemu->Handle;
+    g_emulator  = lochsemu->Emulator;
     strcpy_s(info->Name, sizeof(info->Name), "Arietis");
 
     std::string dir = LxGetModuleDirectory(g_module);

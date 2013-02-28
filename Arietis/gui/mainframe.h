@@ -8,7 +8,7 @@
 
 class ArietisFrame : public wxFrame {
 public:
-    ArietisFrame(AEngine *engine);
+    ArietisFrame(AEngine *engine, Emulator *emu);
     ~ArietisFrame();
 
 
@@ -21,6 +21,8 @@ public:
     void    ReportBusy(bool isBusy);
     void    OnProcessLoaded(LPCSTR path);
     void    OnArchiveLoaded(Archive *arc);
+
+    void    ShowInMemory(u32 addr);
 private:
     void    OnExit(wxCommandEvent &event);
     void    OnAbout(wxCommandEvent &event);
@@ -42,6 +44,7 @@ private:
     void    OnToggleCRTEntryClicked(wxCommandEvent &event);
     void    OnToggleSkipDllEntryClicked(wxCommandEvent &event);
     void    OnToggleTaintClicked(wxCommandEvent &event);
+    void    OnShowMemory(wxCommandEvent &event);
 
     void    OnStatusTimer(wxTimerEvent &event);
     
@@ -52,6 +55,7 @@ private:
     void    InitStatusBar();
     void    InitToolbars();
 private:
+    Emulator *      m_emulator;
     AEngine *       m_engine;
     Archive *       m_archive;
 

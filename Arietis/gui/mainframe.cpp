@@ -17,8 +17,8 @@
 
 #include "buildver.h"
 
-ArietisFrame::ArietisFrame(AEngine *engine)
-    : m_engine(engine), wxFrame(NULL, wxID_ANY, 
+ArietisFrame::ArietisFrame(AEngine *engine, Emulator *emu)
+    : m_engine(engine), m_emulator(emu), wxFrame(NULL, wxID_ANY, 
     wxString::Format("Arietis %x build %d", ArietisVersion, ARIETIS_BUILD_VERSION), 
     wxDefaultPosition, wxSize(850, 850), wxDEFAULT_FRAME_STYLE), 
     m_statusTimer(this, ID_StatusTimer)
@@ -55,7 +55,7 @@ void ArietisFrame::InitUI()
     m_cpuPanel      = new CpuPanel(this, m_engine);
     m_contextPanel  = new ContextPanel(this);
     m_tracePanel    = new CompositeTracePanel(this, m_contextPanel);
-    m_memDataPanel  = new MemDataPanel(this);
+    m_memDataPanel  = new MemDataPanel(this, m_engine);
     m_memInfoPanel  = new MemInfoPanel(this, m_memDataPanel);
     m_bpsPanel      = new BreakpointsPanel(this);
     
@@ -105,6 +105,8 @@ void ArietisFrame::InitMenu()
     menuDebug->AppendSeparator();
     menuDebug->Append(ID_ToggleBreakpoint, "Toggle Breakpoint\tF2");
     menuDebug->Append(ID_RemoveBreakpoint, "Remove Breakpoint\tF3");
+    menuDebug->AppendSeparator();
+    menuDebug->Append(ID_ShowMemory, "Show memory by address\tCtrl-M");
 
     wxMenu *menuHelp = new wxMenu;
     menuHelp->Append(wxID_ABORT, "&About");
@@ -118,17 +120,18 @@ void ArietisFrame::InitMenu()
     menu->Append(menuHelp, "&Help");
     SetMenuBar(menu);
 
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnExit, this, wxID_EXIT);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnAbout, this, wxID_ABORT);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnLoadPerspective, this, ID_LoadPerspective);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnSavePerspective, this, ID_SavePerspective);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnResetPerspective, this, ID_ResetPerspective);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnStepInto, this, ID_StepInto);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnStepOver, this, ID_StepOver);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnStepOut, this, ID_StepOut);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnRun, this, ID_Run);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnToggleBreakpoint, this, ID_ToggleBreakpoint);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnRemoveBreakpoint, this, ID_RemoveBreakpoint);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnExit,            this,   wxID_EXIT);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnAbout,           this,   wxID_ABORT);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnLoadPerspective, this,   ID_LoadPerspective);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnSavePerspective, this,   ID_SavePerspective);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnResetPerspective, this,  ID_ResetPerspective);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnStepInto,        this,   ID_StepInto);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnStepOver,        this,   ID_StepOver);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnStepOut,         this,   ID_StepOut);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnRun,             this,   ID_Run);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnToggleBreakpoint, this,  ID_ToggleBreakpoint);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnRemoveBreakpoint, this,  ID_RemoveBreakpoint);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ArietisFrame::OnShowMemory,      this,   ID_ShowMemory);
 }
 
 enum StatusbarText {
@@ -339,6 +342,30 @@ void ArietisFrame::PreExecSingleStepCallback( const Processor *cpu, const Instru
 }
 
 
+void ArietisFrame::ShowInMemory( u32 addr )
+{
+    Memory *mem = m_emulator->Proc()->Mem();
+    std::vector<SectionInfo>    secInfo = mem->GetMemoryInfo();
+    bool found = false;
+    for (auto &sec : secInfo) {
+        if (addr < sec.base || addr >= sec.base + sec.size) 
+            continue;
+        const Section *section = mem->GetSection(sec.base);
+        Assert(section->Contains(addr));
+
+        SectionContext ctx(sec, m_emulator->Proc()->GetModuleInfo(sec.Module));
+        m_memDataPanel->UpdateData(section, ctx);
+        m_memDataPanel->SelectAddress(addr);
+
+        found = true;
+        break;
+    }
+    if (!found) {
+        wxMessageBox(wxString::Format("Invalid address %08x", addr));
+    }
+}
+
+
 void ArietisFrame::ReportBusy( bool isBusy )
 {
     m_statusbar->SetStatusText(isBusy ? "Busy" : "", Statusbar_Busy);
@@ -388,4 +415,16 @@ void ArietisFrame::OnToggleTaintClicked( wxCommandEvent &event )
     m_engine->GetTaintEngine()->Enable(beingEnabled);
     m_toggleTaint->SetOn(beingEnabled);
     m_engine->SaveArchive();
+}
+
+void ArietisFrame::OnShowMemory( wxCommandEvent &event )
+{
+    wxString str = wxGetTextFromUser("Input address");
+    unsigned long addr = 0;
+    if (!str.ToULong(&addr, 16)) {
+        wxMessageBox("Invalid address input %s", str);
+        return;
+    }
+
+    ShowInMemory((u32) addr);
 }

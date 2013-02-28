@@ -70,8 +70,8 @@ void BreakpointsPanel::Draw( wxBufferedPaintDC &dc )
         for (int i = istart; i <= min((int) m_archive->Breakpoints.size()-1, iend); i++)
             DrawItem(dc, i);
     }
-
-    dc.SetPen(*wxBLUE_PEN);
+    
+    dc.SetPen(*wxGREY_PEN);
     int px, py;
     GetScrollPixelsPerUnit(&px, &py);
 

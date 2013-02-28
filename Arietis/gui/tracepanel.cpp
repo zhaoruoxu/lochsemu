@@ -27,8 +27,8 @@ void TracePanel::InitRender()
     m_currSelPen    = wxPen(wxColour(g_config.GetString("TracePanel", "CurrentSelectionColor", "#808080")));
     m_widthIp       = g_config.GetInt("TracePanel", "WidthIp", 70);
     m_widthDisasm   = g_config.GetInt("TracePanel", "WidthDisasm", 300);
-    m_widthTaint    = g_config.GetInt("TracePanel", "WidthTaint", 16);
-    m_width         = m_widthIp + m_widthDisasm + m_widthTaint * TraceContext::RegCount * Taint4::Count;
+    //m_widthTaint    = g_config.GetInt("TracePanel", "WidthTaint", 64);
+    m_width         = m_widthIp + m_widthDisasm/* + m_widthTaint * TraceContext::RegCount * Taint4::Count*/;
 }
 
 void TracePanel::Draw( wxBufferedPaintDC &dc )
@@ -65,10 +65,10 @@ void TracePanel::Draw( wxBufferedPaintDC &dc )
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
     
     
-    for (int i = 0; i < TraceContext::RegCount; i++) {
-        lineX += m_widthTaint * Taint4::Count;
-        dc.DrawLine(lineX, lineY0, lineX, lineY1);
-    }
+//     for (int i = 0; i < TraceContext::RegCount; i++) {
+//         lineX += m_widthTaint * Taint4::Count;
+//         dc.DrawLine(lineX, lineY0, lineX, lineY1);
+//     }
 
     //m_parent->m_tracer->Unlock();
 }
@@ -95,12 +95,12 @@ void TracePanel::DrawTrace( wxBufferedPaintDC &dc, const TraceContext &trace, in
     w += m_widthDisasm;
 
     // draw Taint
-    for (int i = 0; i < InstContext::RegCount; i++) {
-        //for (auto &t : trace.regTaint[i].T) {
-            DrawTaint(dc, trace.regTaint[i], wxRect(w, h+1, m_widthTaint, m_lineHeight-1));
-            w += m_widthTaint * trace.regTaint[i].Count;
-        //}
-    }
+//     for (int i = 0; i < InstContext::RegCount; i++) {
+//         //for (auto &t : trace.regTaint[i].T) {
+//             DrawTaint(dc, trace.regTaint[i], wxRect(w, h+1, m_widthTaint, m_lineHeight-1));
+//             w += m_widthTaint * trace.regTaint[i].Count;
+//         //}
+//     }
 }
 
 void TracePanel::UpdateData()
@@ -113,10 +113,7 @@ void TracePanel::UpdateData()
 void TracePanel::OnSelectionChange()
 {
     m_parent->OnSelectionChange(m_currSelIndex);
-}
 
-void TracePanel::OnLeftDoubleClick( wxMouseEvent &event )
-{
     const ATracer::TraceVec &vec = m_parent->m_tracer->GetData();
 
     if (m_currSelIndex >= (int) vec.size() || m_currSelIndex < 0) return;
@@ -124,6 +121,11 @@ void TracePanel::OnLeftDoubleClick( wxMouseEvent &event )
 
     wxString desc = wxString::Format("Traced #%I64d", ctx.seq);
     m_parent->m_contextPanel->UpdateData(&ctx, desc.ToAscii());
+}
+
+void TracePanel::OnLeftDoubleClick( wxMouseEvent &event )
+{
+
 }
 
 TraceInfoPanel::TraceInfoPanel( CompositeTracePanel *parent )
@@ -174,14 +176,14 @@ void TraceInfoPanel::OnPaint( wxPaintEvent &event )
     dc.DrawLine(u, 0, u, m_lineHeight);
 
     // draw Taint value
-    w += m_parent->m_tracePanel->m_widthDisasm;
-    u += m_parent->m_tracePanel->m_widthTaint * Taint4::Count;
-    for (int i = 0; i < TraceContext::RegCount; i++) {
-        dc.DrawText("T(" + TraceContext::RegNames[i] + ")", w, h);
-        dc.DrawLine(u, 0, u, m_lineHeight);
-        w += m_parent->m_tracePanel->m_widthTaint * Taint4::Count;
-        u += m_parent->m_tracePanel->m_widthTaint * Taint4::Count;
-    }
+//     w += m_parent->m_tracePanel->m_widthDisasm;
+//     u += m_parent->m_tracePanel->m_widthTaint * Taint4::Count;
+//     for (int i = 0; i < TraceContext::RegCount; i++) {
+//         dc.DrawText("T(" + TraceContext::RegNames[i] + ")", w, h);
+//         dc.DrawLine(u, 0, u, m_lineHeight);
+//         w += m_parent->m_tracePanel->m_widthTaint * Taint4::Count;
+//         u += m_parent->m_tracePanel->m_widthTaint * Taint4::Count;
+//     }
 
     h += m_lineHeight;
     dc.DrawLine(v, h, v + m_parent->m_tracePanel->m_width, h);

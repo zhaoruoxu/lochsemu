@@ -27,7 +27,7 @@ void TaintEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 {
     if (!IsEnabled()) return;
 
-    TaintInstHandler h;
+    TaintInstHandler h = NULL;
     if (INST_ONEBYTE(inst->Main.Inst.Opcode)) {
         h = HandlerOneByte[inst->Main.Inst.Opcode];
     } else if (INST_TWOBYTE(inst->Main.Inst.Opcode)) {
