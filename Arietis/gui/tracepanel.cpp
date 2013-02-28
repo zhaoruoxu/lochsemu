@@ -28,7 +28,7 @@ void TracePanel::InitRender()
     m_widthIp       = g_config.GetInt("TracePanel", "WidthIp", 70);
     m_widthDisasm   = g_config.GetInt("TracePanel", "WidthDisasm", 300);
     m_widthTaint    = g_config.GetInt("TracePanel", "WidthTaint", 16);
-    m_width         = m_widthIp + m_widthDisasm + m_widthTaint * TraceContext::RegCount * Taint32::Count;
+    m_width         = m_widthIp + m_widthDisasm + m_widthTaint * TraceContext::RegCount * Taint4::Count;
 }
 
 void TracePanel::Draw( wxBufferedPaintDC &dc )
@@ -66,7 +66,7 @@ void TracePanel::Draw( wxBufferedPaintDC &dc )
     
     
     for (int i = 0; i < TraceContext::RegCount; i++) {
-        lineX += m_widthTaint * Taint32::Count;
+        lineX += m_widthTaint * Taint4::Count;
         dc.DrawLine(lineX, lineY0, lineX, lineY1);
     }
 
@@ -175,12 +175,12 @@ void TraceInfoPanel::OnPaint( wxPaintEvent &event )
 
     // draw Taint value
     w += m_parent->m_tracePanel->m_widthDisasm;
-    u += m_parent->m_tracePanel->m_widthTaint * Taint32::Count;
+    u += m_parent->m_tracePanel->m_widthTaint * Taint4::Count;
     for (int i = 0; i < TraceContext::RegCount; i++) {
         dc.DrawText("T(" + TraceContext::RegNames[i] + ")", w, h);
         dc.DrawLine(u, 0, u, m_lineHeight);
-        w += m_parent->m_tracePanel->m_widthTaint * Taint32::Count;
-        u += m_parent->m_tracePanel->m_widthTaint * Taint32::Count;
+        w += m_parent->m_tracePanel->m_widthTaint * Taint4::Count;
+        u += m_parent->m_tracePanel->m_widthTaint * Taint4::Count;
     }
 
     h += m_lineHeight;

@@ -30,7 +30,7 @@ struct InstContext {
     static const std::string FlagNames[];
 
     u32                 regs[RegCount];
-    Taint32              regTaint[RegCount];
+    Taint4              regTaint[RegCount];
 
     u32                 Eip;
     Taint               EipTaint;
@@ -50,5 +50,29 @@ struct InstContext {
         inst            = NULL;
     }
 };
- 
+
+INLINE bool IsFlagTested(const Instruction *inst, int flag)
+{
+    u8p pFlag = (u8p) &inst->Main.Inst.Flags;
+    return (pFlag[flag] & TE_) != 0;
+}
+
+INLINE bool IsFlagModified(const Instruction *inst, int flag)
+{
+    u8p pFlag = (u8p) &inst->Main.Inst.Flags;
+    return (pFlag[flag] & MO_) != 0;
+}
+
+INLINE bool IsFlagReset(const Instruction *inst, int flag)
+{
+    u8p pFlag = (u8p) &inst->Main.Inst.Flags;
+    return (pFlag[flag] & RE_) != 0;
+}
+
+INLINE bool IsFlagSet(const Instruction *inst, int flag)
+{
+    u8p pFlag = (u8p) &inst->Main.Inst.Flags;
+    return (pFlag[flag] & SE_) != 0;
+}
+
 #endif // __ARIETIS_INSTCONTEXT_H__

@@ -30,6 +30,10 @@ public:
         memset(m_data, 1, sizeof(m_data));
     }
 
+    void        ResetAll() {
+        memset(m_data, 0, sizeof(m_data));
+    }
+
     void        Reset(int index) { 
         Assert(index < Width); m_data[index] = 0; 
     }
@@ -49,46 +53,46 @@ private:
 };
 
 template <int N>
-struct TaintBlock {
+struct TB {
     static const int    Count = N;
     Taint       T[N];
 
-    TaintBlock<N>   operator&(const TaintBlock<N> &rhs) const
+    TB<N>   operator&(const TB<N> &rhs) const
     {
-        TaintBlock<N>   res = *this;
+        TB<N>   res = *this;
         res &= rhs;
         return res;
     }
 
-    TaintBlock<N>   operator|(const TaintBlock<N> &rhs) const
+    TB<N>   operator|(const TB<N> &rhs) const
     {
-        TaintBlock<N>   res = *this;
+        TB<N>   res = *this;
         res |= rhs;
         return res;
     }
 
-    TaintBlock<N>   operator^(const TaintBlock<N> &rhs) const
+    TB<N>   operator^(const TB<N> &rhs) const
     {
-        TaintBlock<N>   res = *this;
+        TB<N>   res = *this;
         res ^= rhs;
         return res;
     }
 
-    TaintBlock<N>&  operator&=(const TaintBlock<N> &rhs)
+    TB<N>&  operator&=(const TB<N> &rhs)
     {
         for (int i = 0; i < N; i++)
             T[i]    &= rhs.T[i];
         return *this;
     }
 
-    TaintBlock<N>&  operator|=(const TaintBlock<N> &rhs)
+    TB<N>&  operator|=(const TB<N> &rhs)
     {
         for (int i = 0; i < N; i++)
             T[i]    &= rhs.T[i];
         return *this;
     }
 
-    TaintBlock<N>&  operator^=(const TaintBlock<N> &rhs)
+    TB<N>&  operator^=(const TB<N> &rhs)
     {
         for (int i = 0; i < N; i++)
             T[i]    &= rhs.T[i];
@@ -96,18 +100,20 @@ struct TaintBlock {
     }
 };
 
-typedef Taint           Taint8;
-typedef TaintBlock<4>   Taint32;
-typedef TaintBlock<2>   Taint16;
+typedef Taint   Taint1;
+typedef TB<4>   Taint4;
+typedef TB<2>   Taint2;
 
 //  Retrieve from Taint32
-Taint16     ToTaint16(const Taint32 &t, int offset = 0);
+Taint2     ToTaint2(const Taint4 &t, int offset = 0);
 
 //  Set part of Taint32 from Taint16
-void        FromTaint16(Taint32 &dest, const Taint16 &src, int offset = 0);
+void        FromTaint2(Taint4 &dest, const Taint2 &src, int offset = 0);
 
-Taint16     PackTaint(const Taint &t0, const Taint &t1);
-Taint32     PackTaint(const Taint &t0, const Taint &t1, const Taint &t2, const Taint &t3);
+Taint2      PackTaint(const Taint &t0, const Taint &t1);
+Taint4      PackTaint(const Taint &t0, const Taint &t1, const Taint &t2, const Taint &t3);
+Taint       Shrink(const Taint4 &t);
+Taint       Shrink(const Taint2 &t);
 
 // struct Taint4 {
 //     static const int    Count = 4;
