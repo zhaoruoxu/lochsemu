@@ -68,7 +68,7 @@ public:
     std::string ToString() const;
     static Taint    FromBinString(const std::string &s);
 private:
-    static const int    Count = 2;
+    static const int    Count = 1;
     static const int    Width = 32 * Count;
     u32         m_data[Count];
 };
@@ -136,6 +136,8 @@ struct Tb {
 typedef Tb<1>   Taint1;
 typedef Tb<4>   Taint4;
 typedef Tb<2>   Taint2;
+typedef Tb<8>   Taint8;
+typedef Tb<16>  Taint16;
 
 template <int Nsrc, int Ndest>
 Tb<Ndest>   FromTaint(const Tb<Nsrc> &src, int offset = 0)
@@ -175,41 +177,5 @@ Taint1      Shrink(const Tb<N> &t)
     return res;
 }
 
-
-//  Retrieve from Taint32
-// Taint2     ToTaint2(const Taint4 &t, int offset = 0);
-// 
-//  Set part of Taint32 from Taint16
-// void        FromTaint2(Taint4 &dest, const Taint2 &src, int offset = 0);
-// 
-// Taint2      PackTaint(const Taint &t0, const Taint &t1);
-// Taint4      PackTaint(const Taint &t0, const Taint &t1, const Taint &t2, const Taint &t3);
-// Taint       Shrink(const Taint4 &t);
-// Taint       Shrink(const Taint2 &t);
-
-// struct Taint4 {
-//     static const int    Count = 4;
-//     Taint       T[Count];
-// 
-//     Taint4    operator&(const Taint4 &rhs) const;
-//     Taint4    operator|(const Taint4 &rhs) const;
-//     Taint4    operator^(const Taint4 &rhs) const;
-//     Taint4&   operator&=(const Taint4 &rhs);
-//     Taint4&   operator|=(const Taint4 &rhs);
-//     Taint4&   operator^=(const Taint4 &rhs);
-// 
-// 
-// };
-
-// class TaintFactory {
-// public:
-//     Taint *     Create();
-//     //Taint *     Create(int nIndices);
-// private:
-//     FactoryImpl<Taint> m_factory;
-// };
- 
-// typedef Taint *     TaintPtr;
-// 不应该使用AllocOnlyPool, Taint所使用内存会动态调整
 
 #endif // __TAINT_TAINT_H__

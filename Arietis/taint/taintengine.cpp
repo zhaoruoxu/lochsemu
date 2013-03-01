@@ -97,6 +97,69 @@ Taint1 TaintEngine::GetTaintAddressingReg( const ARGTYPE &oper ) const
     return t;
 }
 
+Taint8 TaintEngine::GetTaint8( const Processor *cpu, const ARGTYPE &oper )
+{
+    Assert(oper.ArgSize == 64);
+    if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & MMX_REG)) {
+        return CpuTaint.MM[TranslateReg(oper)];
+    } else if (IsMemoryArg(oper)) {
+        return TaintRule_Load<8>(cpu, oper);
+    } else {
+        LxFatal("GetTaint8() invalid operand\n");
+    }
+    return Taint8();
+}
+
+Taint16 TaintEngine::GetTaint16( const Processor *cpu, const ARGTYPE &oper )
+{
+    Assert(oper.ArgSize == 128);
+    if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & SSE_REG)) {
+        return CpuTaint.XMM[TranslateReg(oper)];
+    } else if (IsMemoryArg(oper)) {
+        return TaintRule_Load<16>(cpu, oper);
+    } else {
+        LxFatal("GetTaint16() invalid operand\n");
+    }
+    return Taint16();
+}
+
+void TaintEngine::SetTaint8( const Processor *cpu, const ARGTYPE &oper, const Taint8 &t )
+{
+    Assert(oper.ArgSize == 64);
+    if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & MMX_REG)) {
+        CpuTaint.MM[TranslateReg(oper)] = t;
+    } else if (IsMemoryArg(oper)) {
+        return TaintRule_Save<8>(cpu, oper, t);
+    } else {
+        LxFatal("SetTaint8() invalid operand\n");
+    }
+}
+
+void TaintEngine::SetTaint16( const Processor *cpu, const ARGTYPE &oper, const Taint16 &t )
+{
+    Assert(oper.ArgSize == 128);
+    if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & SSE_REG)) {
+        CpuTaint.XMM[TranslateReg(oper)] = t;
+    } else if (IsMemoryArg(oper)) {
+        return TaintRule_Save<16>(cpu, oper, t);
+    } else {
+        LxFatal("SetTaint16() invalid operand\n");
+    }
+}
+
+void TaintEngine::TaintMemoryRanged( u32 addr, u32 len, bool taintAllBits )
+{
+    for (uint i = 0; i < len; i++) {
+        Taint1 t;
+        if (taintAllBits) {
+            t.SetAll();
+        } else {
+            t.T[0].Set(i % t.T[0].GetWidth());
+        }
+        MemTaint.Set<1>(addr + i, t);
+    }
+}
+
 TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0x00*/ &TaintEngine::DefaultBinopHandler,
     /*0x01*/ &TaintEngine::DefaultBinopHandler,
@@ -358,7 +421,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
 
 TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0x00*/ NULL,
-    /*0x01*/ NULL,
+    /*0x01*/ &TaintEngine::ClearEaxEdx_Handler,
     /*0x02*/ NULL,
     /*0x03*/ NULL,
     /*0x04*/ NULL,
@@ -397,7 +460,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0x25*/ NULL,
     /*0x26*/ NULL,
     /*0x27*/ NULL,
-    /*0x28*/ NULL,
+    /*0x28*/ &TaintEngine::Movapd660F28_Handler,
     /*0x29*/ NULL,
     /*0x2a*/ NULL,
     /*0x2b*/ NULL,
@@ -406,7 +469,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0x2e*/ NULL,
     /*0x2f*/ NULL,
     /*0x30*/ NULL,
-    /*0x31*/ NULL,
+    /*0x31*/ &TaintEngine::ClearEaxEdx_Handler,
     /*0x32*/ NULL,
     /*0x33*/ NULL,
     /*0x34*/ NULL,
@@ -468,7 +531,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0x6c*/ NULL,
     /*0x6d*/ NULL,
     /*0x6e*/ NULL,
-    /*0x6f*/ NULL,
+    /*0x6f*/ &TaintEngine::Movdqa0F6F_7F_Handler,
     /*0x70*/ NULL,
     /*0x71*/ NULL,
     /*0x72*/ NULL,
@@ -483,8 +546,8 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0x7b*/ NULL,
     /*0x7c*/ NULL,
     /*0x7d*/ NULL,
-    /*0x7e*/ NULL,
-    /*0x7f*/ NULL,
+    /*0x7e*/ &TaintEngine::Movd0F7E_Handler,
+    /*0x7f*/ &TaintEngine::Movdqa0F6F_7F_Handler,
     /*0x80*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::OF>,
     /*0x81*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::OF>,
     /*0x82*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::CF>,
@@ -501,54 +564,55 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0x8d*/ &TaintEngine::TaintPropagate_CJmp2<InstContext::SF, InstContext::OF>,
     /*0x8e*/ &TaintEngine::TaintPropagate_CJmp3<InstContext::ZF, InstContext::SF, InstContext::OF>,
     /*0x8f*/ &TaintEngine::TaintPropagate_CJmp3<InstContext::ZF, InstContext::SF, InstContext::OF>,
-    /*0x90*/ NULL,
-    /*0x91*/ NULL,
-    /*0x92*/ NULL,
-    /*0x93*/ NULL,
-    /*0x94*/ NULL,
-    /*0x95*/ NULL,
-    /*0x96*/ NULL,
-    /*0x97*/ NULL,
-    /*0x98*/ NULL,
-    /*0x99*/ NULL,
-    /*0x9a*/ NULL,
-    /*0x9b*/ NULL,
-    /*0x9c*/ NULL,
-    /*0x9d*/ NULL,
-    /*0x9e*/ NULL,
-    /*0x9f*/ NULL,
+
+    /*0x90*/ &TaintEngine::TaintPropagate_Setcc1<InstContext::OF>,
+    /*0x91*/ &TaintEngine::TaintPropagate_Setcc1<InstContext::OF>,
+    /*0x92*/ &TaintEngine::TaintPropagate_Setcc1<InstContext::CF>,
+    /*0x93*/ &TaintEngine::TaintPropagate_Setcc1<InstContext::CF>,
+    /*0x94*/ &TaintEngine::TaintPropagate_Setcc1<InstContext::ZF>,
+    /*0x95*/ &TaintEngine::TaintPropagate_Setcc1<InstContext::ZF>,
+    /*0x96*/ &TaintEngine::TaintPropagate_Setcc2<InstContext::CF, InstContext::ZF>,
+    /*0x97*/ &TaintEngine::TaintPropagate_Setcc2<InstContext::CF, InstContext::ZF>,
+    /*0x98*/ &TaintEngine::TaintPropagate_Setcc1<InstContext::SF>,
+    /*0x99*/ &TaintEngine::TaintPropagate_Setcc1<InstContext::SF>,
+    /*0x9a*/ &TaintEngine::TaintPropagate_Setcc1<InstContext::PF>,
+    /*0x9b*/ &TaintEngine::TaintPropagate_Setcc1<InstContext::PF>,
+    /*0x9c*/ &TaintEngine::TaintPropagate_Setcc2<InstContext::SF, InstContext::OF>,
+    /*0x9d*/ &TaintEngine::TaintPropagate_Setcc2<InstContext::SF, InstContext::OF>,
+    /*0x9e*/ &TaintEngine::TaintPropagate_Setcc3<InstContext::ZF, InstContext::SF, InstContext::OF>,
+    /*0x9f*/ &TaintEngine::TaintPropagate_Setcc3<InstContext::ZF, InstContext::SF, InstContext::OF>,
     /*0xa0*/ NULL,
     /*0xa1*/ NULL,
-    /*0xa2*/ NULL,
-    /*0xa3*/ NULL,
-    /*0xa4*/ NULL,
-    /*0xa5*/ NULL,
+    /*0xa2*/ &TaintEngine::Cpuid_Handler,
+    /*0xa3*/ &TaintEngine::Bt_Handler,
+    /*0xa4*/ &TaintEngine::Shld_Shrd_Handler,
+    /*0xa5*/ &TaintEngine::Shld_Shrd_Handler,
     /*0xa6*/ NULL,
     /*0xa7*/ NULL,
     /*0xa8*/ NULL,
     /*0xa9*/ NULL,
     /*0xaa*/ NULL,
     /*0xab*/ NULL,
-    /*0xac*/ NULL,
-    /*0xad*/ NULL,
+    /*0xac*/ &TaintEngine::Shld_Shrd_Handler,
+    /*0xad*/ &TaintEngine::Shld_Shrd_Handler,
     /*0xae*/ &TaintEngine::Ext0FAE_Handler,
     /*0xaf*/ &TaintEngine::DefaultBinopHandler, // imul r32, r/m32
     /*0xb0*/ NULL,
-    /*0xb1*/ NULL,
+    /*0xb1*/ &TaintEngine::Cmpxchg0FB1_Handler,
     /*0xb2*/ NULL,
     /*0xb3*/ NULL,
     /*0xb4*/ NULL,
     /*0xb5*/ NULL,
-    /*0xb6*/ NULL,
-    /*0xb7*/ NULL,
+    /*0xb6*/ &TaintEngine::Movzx_Handler,
+    /*0xb7*/ &TaintEngine::Movzx_Handler,
     /*0xb8*/ NULL,
     /*0xb9*/ NULL,
     /*0xba*/ &TaintEngine::Ext0FBA_Handler,
     /*0xbb*/ NULL,
     /*0xbc*/ NULL,
     /*0xbd*/ NULL,
-    /*0xbe*/ NULL,
-    /*0xbf*/ NULL,
+    /*0xbe*/ &TaintEngine::Movsx_Handler,
+    /*0xbf*/ &TaintEngine::Movsx_Handler,
     /*0xc0*/ NULL,
     /*0xc1*/ NULL,
     /*0xc2*/ NULL,
@@ -557,14 +621,14 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0xc5*/ NULL,
     /*0xc6*/ NULL,
     /*0xc7*/ NULL,
-    /*0xc8*/ NULL,
-    /*0xc9*/ NULL,
-    /*0xca*/ NULL,
-    /*0xcb*/ NULL,
-    /*0xcc*/ NULL,
-    /*0xcd*/ NULL,
-    /*0xce*/ NULL,
-    /*0xcf*/ NULL,
+    /*0xc8*/ &TaintEngine::Bswap_Handler,
+    /*0xc9*/ &TaintEngine::Bswap_Handler,
+    /*0xca*/ &TaintEngine::Bswap_Handler,
+    /*0xcb*/ &TaintEngine::Bswap_Handler,
+    /*0xcc*/ &TaintEngine::Bswap_Handler,
+    /*0xcd*/ &TaintEngine::Bswap_Handler,
+    /*0xce*/ &TaintEngine::Bswap_Handler,
+    /*0xcf*/ &TaintEngine::Bswap_Handler,
     /*0xd0*/ NULL,
     /*0xd1*/ NULL,
     /*0xd2*/ NULL,
@@ -596,7 +660,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0xec*/ NULL,
     /*0xed*/ NULL,
     /*0xee*/ NULL,
-    /*0xef*/ NULL,
+    /*0xef*/ &TaintEngine::Pxor660FEF_Handler,
     /*0xf0*/ NULL,
     /*0xf1*/ NULL,
     /*0xf2*/ NULL,
@@ -941,7 +1005,7 @@ void TaintEngine::Ext0FAE_Handler(const Processor *cpu, const Instruction *inst)
         /* 0 */ NULL,
         /* 1 */ NULL,
         /* 2 */ NULL,
-        /* 3 */ NULL,
+        /* 3 */ &TaintEngine::TaintPropagate_ClearDest<4>,
         /* 4 */ NULL,
         /* 5 */ NULL,
         /* 6 */ NULL,
@@ -960,7 +1024,7 @@ void TaintEngine::Ext0FBA_Handler(const Processor *cpu, const Instruction *inst)
         /* 1 */ NULL,
         /* 2 */ NULL,
         /* 3 */ NULL,
-        /* 4 */ NULL,
+        /* 4 */ &TaintEngine::Bt_Handler,
         /* 5 */ NULL,
         /* 6 */ NULL,
         /* 7 */ NULL,
@@ -1007,6 +1071,8 @@ DEFINE_CUSTOM_BINOP_HANDLER(Lods_Handler,           TaintPropagate_Lods)
 DEFINE_CUSTOM_BINOP_HANDLER(Scas_Handler,           TaintPropagate_Scas)
 DEFINE_CUSTOM_BINOP_HANDLER(ShiftRotate_Handler,    TaintPropagate_ShiftRotate)
 DEFINE_CUSTOM_BINOP_HANDLER(Neg_Handler,            TaintPropagate_Neg)
+DEFINE_CUSTOM_BINOP_HANDLER(Bt_Handler,             TaintPropagate_Bt)
+DEFINE_CUSTOM_BINOP_HANDLER(Xadd_Handler,           TaintPropagate_Xadd)
 
 void TaintEngine::ImulF6_MulF6_Handler(const Processor *cpu, const Instruction *inst)
 {
@@ -1089,3 +1155,146 @@ void TaintEngine::DivF7_IdivF7_Handler(const Processor *cpu, const Instruction *
     CpuTaint.GPRegs[LX_REG_EAX] = t;
     CpuTaint.GPRegs[LX_REG_EDX] = t;
 }
+
+
+void TaintEngine::Movapd660F28_Handler(const Processor *cpu, const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize) {
+        Taint16 t   = GetTaint16(cpu, ARG2);
+        SetTaint16(cpu, ARG1, t);
+    } else {
+        NOT_IMPLEMENTED();
+    }
+}
+
+void TaintEngine::Movdqa0F6F_7F_Handler(const Processor *cpu, const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize) {
+        Taint16 t   = GetTaint16(cpu, ARG2);
+        SetTaint16(cpu, ARG1, t);
+    } else {
+        Taint8 t    = GetTaint8(cpu, ARG2);
+        SetTaint8(cpu, ARG1, t);
+    }
+}
+
+void TaintEngine::Movd0F7E_Handler(const Processor *cpu, const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize) {
+        Taint16 t   = GetTaint16(cpu, ARG2);
+        Taint4 s    = FromTaint<16, 4>(t, 0);
+        SetTaint<4>(cpu, ARG1, s);
+    } else {
+        Taint8 t    = GetTaint8(cpu, ARG2);
+        Taint4 s    = FromTaint<8, 4>(t, 0);
+        SetTaint<4>(cpu, ARG1, s);
+    }
+}
+
+void TaintEngine::ClearEaxEdx_Handler(const Processor *cpu, const Instruction *inst)
+{
+    CpuTaint.GPRegs[LX_REG_EAX].ResetAll();
+    CpuTaint.GPRegs[LX_REG_EDX].ResetAll();
+}
+
+void TaintEngine::Cpuid_Handler(const Processor *cpu, const Instruction *inst)
+{
+    CpuTaint.GPRegs[LX_REG_EAX].ResetAll();
+    CpuTaint.GPRegs[LX_REG_ECX].ResetAll();
+    CpuTaint.GPRegs[LX_REG_EDX].ResetAll();
+    CpuTaint.GPRegs[LX_REG_EBX].ResetAll();
+}
+
+void TaintEngine::Shld_Shrd_Handler(const Processor *cpu, const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize) NOT_IMPLEMENTED();
+    Taint4 t = TaintRule_Binop(GetTaint<4>(cpu, ARG1), GetTaint<4>(cpu, ARG2));
+    if (!IsConstantArg(ARG3)) {
+        t |= Extend<4>(FromTaint<4, 1>(CpuTaint.GPRegs[LX_REG_ECX], 0));
+    }
+
+    SetTaint<4>(cpu, ARG1, t);
+    SetFlagTaint<4>(inst, t);
+}
+
+void TaintEngine::Cmpxchg0FB1_Handler(const Processor *cpu, const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize) {
+        Taint2 t1 = GetTaint<2>(cpu, ARG1);
+        Taint2 t2 = GetTaint<2>(cpu, ARG2);
+        Taint2 ax = FromTaint<4, 2>(CpuTaint.GPRegs[LX_REG_EAX], 0);
+        if (cpu->ZF == 1) {
+            SetTaint<2>(cpu, ARG1, t2);
+        } else {
+            ToTaint<2, 4>(CpuTaint.GPRegs[LX_REG_EAX], t1);
+        }
+        CpuTaint.Flags[InstContext::ZF] = Shrink(TaintRule_Binop(ax, t1));
+    } else {
+        Taint4 t1 = GetTaint<4>(cpu, ARG1);
+        Taint4 t2 = GetTaint<4>(cpu, ARG2);
+        Taint4 eax = CpuTaint.GPRegs[LX_REG_EAX];
+        if (cpu->ZF == 1) {
+            SetTaint<4>(cpu, ARG1, t2);
+        } else {
+            CpuTaint.GPRegs[LX_REG_EAX] = t1;
+        }
+        CpuTaint.Flags[InstContext::ZF] = Shrink(TaintRule_Binop(eax, t1));
+    }
+}
+
+void TaintEngine::Movzx_Handler(const Processor *cpu, const Instruction *inst)
+{
+    if (ARG2.ArgSize == 8) {
+        if (ARG1.ArgSize == 32) {
+            Taint4 t;
+            ToTaint<1, 4>(t, GetTaint<1>(cpu, ARG2));
+            SetTaint<4>(cpu, ARG1, t);
+        } else {
+            Taint2 t;
+            ToTaint<1, 2>(t, GetTaint<1>(cpu, ARG2));
+            SetTaint<2>(cpu, ARG1, t);
+        }
+    } else {
+        Taint4 t;
+        ToTaint<2, 4>(t, GetTaint<2>(cpu, ARG2));
+        SetTaint<4>(cpu, ARG1, t);
+    }
+}
+
+void TaintEngine::Movsx_Handler(const Processor *cpu, const Instruction *inst)
+{
+    if (ARG2.ArgSize == 8) {
+        if (ARG1.ArgSize == 32) {
+            Taint4 t = Extend<4>(GetTaint<1>(cpu, ARG2));
+            SetTaint<4>(cpu, ARG1, t);
+        } else {
+            Taint2 t = Extend<2>(GetTaint<1>(cpu, ARG2));
+            SetTaint<2>(cpu, ARG1, t);
+        }
+    } else {
+        Taint4 t = Extend<4>(Shrink<2>(GetTaint<2>(cpu, ARG2)));
+        SetTaint<4>(cpu, ARG1, t);
+    }
+}
+
+void TaintEngine::Bswap_Handler(const Processor *cpu, const Instruction *inst)
+{
+    Taint4 t = GetTaint<4>(cpu, ARG1);
+    Taint4 r;
+    r.T[0] = t.T[3];
+    r.T[1] = t.T[2];
+    r.T[2] = t.T[1];
+    r.T[3] = t.T[0];
+    SetTaint<4>(cpu, ARG1, t);
+}
+
+void TaintEngine::Pxor660FEF_Handler(const Processor *cpu, const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize) {
+        Taint16 t = TaintRule_Binop<16>(GetTaint16(cpu, ARG1), GetTaint16(cpu, ARG2));
+        SetTaint16(cpu, ARG1, t);
+    } else {
+        NOT_IMPLEMENTED();
+    }
+}
+

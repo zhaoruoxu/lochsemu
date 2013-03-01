@@ -38,7 +38,9 @@ MemDataPanel::MemDataPanel( wxWindow *parent, AEngine *engine )
     Bind(wxEVT_LEFT_UP,     &MemDataPanel::OnLeftUp,        this, wxID_ANY);
     Bind(wxEVT_MOTION,      &MemDataPanel::OnMouseMove,     this, wxID_ANY);
     Bind(wxEVT_LEAVE_WINDOW,&MemDataPanel::OnMouseLeave,    this, wxID_ANY);
+    Bind(wxEVT_RIGHT_DOWN,  &MemDataPanel::OnRightClick,    this, wxID_ANY);
 
+    InitMenu();
     InitRender();
     m_section   = NULL;
     m_taint     = m_engine->GetTaintEngine();
@@ -136,8 +138,9 @@ void MemDataPanel::DrawLine( wxBufferedPaintDC &dc, int idx )
     }
     offset = m_context.Base + CharsPerLine * idx;
     for (int i = 0; i < CharsPerLine; i++) {
+        bool highlight = InSelRange((int) offset - m_context.Base, m_selDown, m_selUp);
         DrawTaint(dc, m_taint->MemTaint.Get<1>(offset), 
-            wxRect(w, h, m_widthTaint, m_lineHeight));
+            wxRect(w, h, m_widthTaint, m_lineHeight), highlight);
         offset++;
         w += m_widthTaint;
     }
@@ -231,6 +234,48 @@ int MemDataPanel::GetIndex( const wxPoint &mouse )
         p.x = m_widthHex * CharsPerLine - 1;
     
     return p.y / m_lineHeight * CharsPerLine + p.x / m_widthHex;
+}
+
+void MemDataPanel::InitMenu()
+{
+    m_popup = new wxMenu;
+    wxMenu *taintMem = new wxMenu;
+    taintMem->Append(ID_PopupTaintMemRange, "Cyclic");
+    taintMem->Append(ID_PopupTaintMemRangeAllBits, "All at once");
+    m_popup->AppendSubMenu(taintMem, "Taint Memory Ranged");
+
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &MemDataPanel::OnTaintMemoryRangedClicked, 
+        this, ID_PopupTaintMemRange);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &MemDataPanel::OnTaintMemoryRangedAllBitsClicked,
+        this, ID_PopupTaintMemRangeAllBits);
+}
+
+void MemDataPanel::OnTaintMemoryRangedClicked( wxCommandEvent &event )
+{
+    TaintMemRanged(false);
+}
+
+void MemDataPanel::OnTaintMemoryRangedAllBitsClicked( wxCommandEvent &event )
+{
+    TaintMemRanged(true);
+}
+
+void MemDataPanel::OnRightClick( wxMouseEvent &event )
+{
+    PopupMenu(m_popup);
+}
+
+void MemDataPanel::TaintMemRanged( bool allbits )
+{
+    if (m_selDown == -1 || m_selUp == -1) {
+        wxMessageBox("No selection");
+        return;
+    }
+
+    int start = min(m_selDown, m_selUp);
+    int len = abs(m_selDown - m_selUp) + 1;
+    m_taint->TaintMemoryRanged((uint) m_context.Base + start, (uint) len, allbits);
+    Refresh();
 }
 
 MemInfoPanel::MemInfoPanel(wxWindow *parent, MemDataPanel *data)

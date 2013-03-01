@@ -308,28 +308,41 @@ wxBrush     TaintBrushes[TaintBrushCount] = {
     wxBrush(wxColour("#00ffff")),
 };
 
-void DrawTaint( wxBufferedPaintDC &dc, const Taint &t, const wxRect &rect )
+void DrawTaint( wxBufferedPaintDC &dc, const Taint &t, const wxRect &rect, bool highlight )
 {
+    wxRect rectTaint(rect.x+1, rect.y, rect.width, rect.height-1);
+
     if (t.IsAllTainted()) {
         dc.SetBrush(*wxBLUE_BRUSH);
-        dc.DrawRectangle(rect);
-        return;
-    } 
-    if (t.IsAllUntainted()) {
+        dc.DrawRectangle(rectTaint);
+    } else if (t.IsAllUntainted()) {
         dc.SetBrush(*wxWHITE_BRUSH);
-        dc.DrawRectangle(rect);
-        return;
-    }
-    const int TaintWidth = t.GetWidth();
-    const int w = rect.width / TaintWidth;
-    for (int i = 0; i < TaintWidth; i++) {
-        int xOffset = rect.width * i / TaintWidth;
+        dc.DrawRectangle(rectTaint);
+    } else {
+        const int TaintWidth = t.GetWidth();
+        const int w = rectTaint.width / TaintWidth;
+        for (int i = 0; i < TaintWidth; i++) {
+            int xOffset = rectTaint.width * i / TaintWidth;
 
-        if (t.IsTainted(i)) {
-            dc.SetBrush(*wxBLUE_BRUSH);
-        } else {
-            dc.SetBrush(*wxWHITE_BRUSH);
+            if (t.IsTainted(i)) {
+                dc.SetBrush(*wxBLUE_BRUSH);
+            } else {
+                dc.SetBrush(*wxWHITE_BRUSH);
+            }
+            dc.DrawRectangle(rectTaint.x + xOffset, rectTaint.y, w, rectTaint.height);
         }
-        dc.DrawRectangle(rect.x + xOffset, rect.y, w, rect.height - 1);
+    }
+
+    if (highlight) {
+        dc.SetPen(wxPen(wxColour("#ff4000")));
+        dc.DrawLine(rect.x, rect.y, rect.x + rect.width, rect.y);
+        dc.DrawLine(rect.x, rect.y + rect.height - 1, rect.x + rect.width, 
+            rect.y + rect.height - 1);
+        dc.SetPen(*wxTRANSPARENT_PEN);
+    } else {
+        dc.SetPen(wxPen(wxColour("#e0e0e0")));
+        dc.DrawLine(rect.x, rect.y + rect.height - 1, rect.x + rect.width, 
+            rect.y + rect.height - 1);
+        dc.SetPen(*wxTRANSPARENT_PEN);
     }
 }

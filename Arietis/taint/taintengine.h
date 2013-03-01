@@ -38,6 +38,8 @@ public:
     void        Enable(bool isEnabled);
     bool        IsEnabled() const;
 
+    void        TaintMemoryRanged(u32 addr, u32 len, bool taintAllBits);
+
 private:
 
 
@@ -99,6 +101,10 @@ private:
         }
     }
 
+    Taint8      GetTaint8 (const Processor *cpu, const ARGTYPE &oper);
+    Taint16     GetTaint16(const Processor *cpu, const ARGTYPE &oper);
+    void        SetTaint8 (const Processor *cpu, const ARGTYPE &oper, const Taint8 &t);
+    void        SetTaint16(const Processor *cpu, const ARGTYPE &oper, const Taint16 &t);
 
     template <int N>
     void        SetFlagTaint(const Instruction *inst, const Tb<N> &t)
@@ -252,6 +258,24 @@ private:
         TaintRule_ConditionalEip(CpuTaint.Flags[X] | CpuTaint.Flags[Y] | CpuTaint.Flags[Z]);
     }
 
+    template <int X>
+    void        TaintPropagate_Setcc1(const Processor *cpu, const Instruction *inst)
+    {
+        SetTaint<1>(cpu, ARG2, CpuTaint.Flags[X]);
+    }
+
+    template <int X, int Y>
+    void        TaintPropagate_Setcc2(const Processor *cpu, const Instruction *inst)
+    {
+        SetTaint<1>(cpu, ARG2, CpuTaint.Flags[X] | CpuTaint.Flags[Y]);
+    }
+
+    template <int X, int Y, int Z>
+    void        TaintPropagate_Setcc3(const Processor *cpu, const Instruction *inst)
+    {
+        SetTaint<1>(cpu, ARG2, CpuTaint.Flags[X] | CpuTaint.Flags[Y] | CpuTaint.Flags[Z]);
+    }
+
     template <int N>
     void        TaintPropagate_Xchg(const Processor *cpu, const Instruction *inst)
     {
@@ -335,9 +359,34 @@ private:
     }
 
     template <int N>
+    void        TaintPropagate_ClearDest(const Processor *cpu, const Instruction *inst)
+    {
+        SetTaint<N>(cpu, ARG1, Tb<N>());
+    }
+
+    template <int N>
     void        TaintPropagate_Neg(const Processor *cpu, const Instruction *inst)
     {
         Tb<N> t = GetTaint<N>(cpu, ARG1);
+        SetFlagTaint(inst, t);
+    }
+
+    template <int N>
+    void        TaintPropagate_Bt(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t = TaintRule_Binop(GetTaint<N>(cpu, ARG1), GetTaint<N>(cpu, ARG2));
+        SetTaint<N>(cpu, ARG1, t);
+        CpuTaint.Flags[InstContext::CF] = Shrink<N>(t);
+    }
+
+    template <int N>
+    void        TaintPropagate_Xadd(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t1    = GetTaint<N>(cpu, ARG1);
+        Tb<N> t2    = GetTaint<N>(cpu, ARG2);
+        Tb<N> t     = TaintRule_Binop(t1, t2);
+        SetTaint(cpu, ARG1, t);
+        SetTaint(cpu, ARG2, t1);
         SetFlagTaint(inst, t);
     }
 
@@ -401,6 +450,20 @@ private:
     DECLARE_HANDLER(Jmp_Handler);
     DECLARE_HANDLER(Neg_Handler);
     DECLARE_HANDLER(DivF7_IdivF7_Handler);
+    DECLARE_HANDLER(Bt_Handler);
+    DECLARE_HANDLER(Movapd660F28_Handler);
+    DECLARE_HANDLER(Movdqa0F6F_7F_Handler);
+    DECLARE_HANDLER(Movd0F7E_Handler);
+    DECLARE_HANDLER(ClearEaxEdx_Handler);
+    DECLARE_HANDLER(Cpuid_Handler);
+    DECLARE_HANDLER(Shld_Shrd_Handler);
+    DECLARE_HANDLER(Cmpxchg0FB1_Handler);
+    DECLARE_HANDLER(Movzx_Handler);
+    DECLARE_HANDLER(Movsx_Handler);
+    DECLARE_HANDLER(Xadd_Handler);
+    DECLARE_HANDLER(Bswap_Handler);
+    DECLARE_HANDLER(Pxor660FEF_Handler);
+
 
 private:
     AEngine *   m_engine;

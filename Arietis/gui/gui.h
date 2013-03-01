@@ -52,6 +52,9 @@ enum {
     ID_PopupDelete,
     ID_PopupToggle,
 
+    /* mem data panel */
+    ID_PopupTaintMemRange,
+    ID_PopupTaintMemRangeAllBits,
 
     ID_StatusTimer,
 };
@@ -79,10 +82,10 @@ bool    InRange(T val, T start, T len) {
 const int   TaintBrushCount = 256;
 wxBrush     TaintBrushes[];
 
-void DrawTaint(wxBufferedPaintDC &dc, const Taint &t, const wxRect &rect);
+void DrawTaint(wxBufferedPaintDC &dc, const Taint &t, const wxRect &rect, bool highlight);
 
 template <int N>
-void DrawTaint(wxBufferedPaintDC &dc, const Tb<N> &t, const wxRect &rect)
+void DrawTaint(wxBufferedPaintDC &dc, const Tb<N> &t, const wxRect &rect, bool highlight = false)
 {
     const int TaintWidth = t.T[0].GetWidth();
     const int w = rect.width / TaintWidth;
@@ -91,9 +94,8 @@ void DrawTaint(wxBufferedPaintDC &dc, const Tb<N> &t, const wxRect &rect)
     }
     dc.SetPen(*wxTRANSPARENT_PEN);
     wxRect r = rect;
-    r.height--;
     for (int i = 0; i < N; i++) {
-        DrawTaint(dc, t.T[i], r);
+        DrawTaint(dc, t.T[i], r, highlight);
         r.x += r.width;
     }
 }

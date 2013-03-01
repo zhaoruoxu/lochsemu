@@ -503,7 +503,7 @@ void Processor::WriteOperand64(const Instruction *inst, const ARGTYPE &oper, u32
     if (IsMemoryArg(oper)) {
         RegSeg seg = inst->Main.Prefix.FSPrefix ? LX_REG_FS : LX_REG_DS;
         MemWrite64(offset, val, seg);
-    } else if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & SSE_REG)) {
+    } else if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & MMX_REG)) {
         SIMD.MMReg(REG_NUM(oper.ArgType)) = val;
     } else {
         LxFatal("Processor::WriteOperand64() called with non-memory operand\n");

@@ -57,12 +57,12 @@ void CpuPanel::InitRender()
 void CpuPanel::InitMenu()
 {
     m_popup = new wxMenu;
-    m_popup->Append(ID_PopupShowCurrInst, "&Show current instruction");
+    m_popup->Append(ID_PopupShowCurrInst, "&Show Current Instruction");
     m_popup->AppendSeparator();
     wxMenu *taintMenu = new wxMenu;
-    taintMenu->Append(ID_PopupTaintReg, "Taint &register...");
+    taintMenu->Append(ID_PopupTaintReg, "Taint &Register...");
     m_popup->AppendSubMenu(taintMenu, "Taint");
-    m_popup->Append(ID_PopupTrackMemory, "Trace memory...");
+    m_popup->Append(ID_PopupTrackMemory, "Track Memory...");
 
     Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupShowCurrInst,   this, ID_PopupShowCurrInst);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupTaintReg,       this, ID_PopupTaintReg); 
