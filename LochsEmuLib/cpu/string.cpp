@@ -47,7 +47,7 @@ LxResult CMPSB_A6(Processor *cpu, const Instruction *inst)
 	if (inst->Main.Prefix.AddressSize) RET_NOT_IMPLEMENTED();
 	
 	u8 tmp1 = cpu->MemRead8(cpu->ESI, LX_REG_DS);
-	u8 tmp2 = cpu->MemRead8(cpu->ESI, LX_REG_ES);
+	u8 tmp2 = cpu->MemRead8(cpu->EDI, LX_REG_ES);   // used to be a terrible bug
 	u8 tmp = tmp1 - tmp2;
 	cpu->SetFlagsArith8(tmp, PROMOTE_U16(tmp1) - PROMOTE_U16(tmp2),
 		PROMOTE_I16(tmp1) - PROMOTE_I16(tmp2));
@@ -62,7 +62,6 @@ LxResult CMPSB_A6(Processor *cpu, const Instruction *inst)
 LxResult Stos_AA(Processor *cpu, const Instruction *inst)
 {
     if (inst->Main.Prefix.AddressSize) RET_NOT_IMPLEMENTED();
-
     if (inst->Main.Prefix.OperandSize) RET_NOT_IMPLEMENTED();
 
     cpu->MemWrite8(cpu->EDI, cpu->AL, LX_REG_ES);
@@ -76,7 +75,7 @@ LxResult Stos_AB(Processor *cpu, const Instruction *inst)
     if (inst->Main.Prefix.AddressSize) RET_NOT_IMPLEMENTED();
     if (inst->Main.Prefix.OperandSize) {
         cpu->MemWrite16(cpu->EDI, cpu->AX, LX_REG_ES);
-        cpu->DF == 0 ? cpu->EDI +=2 : cpu->EDI -= 2;
+        cpu->DF == 0 ? cpu->EDI += 2 : cpu->EDI -= 2;
     } else {
         cpu->MemWrite32(cpu->EDI, cpu->EAX, LX_REG_ES);
         cpu->DF == 0 ? cpu->EDI += 4 : cpu->EDI -= 4;

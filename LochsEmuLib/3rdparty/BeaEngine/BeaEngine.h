@@ -342,23 +342,31 @@ INLINE bool IsConstantArg(const ARGTYPE &arg)
 
  REG0 | REG2    -> 0        // TODO
  */
-INLINE int TranslateReg(const ARGTYPE &oper)
+
+INLINE int TranslateReg(u32 reg)
 {
     static int RegMap[]  = {
         -1,  0,  1, -1,  2, -1, -1, -1,  3, -1, -1, -1, -1, -1, -1, -1,
-         4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-         5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-         6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         7
     };
-    int index = RegMap[REG_NUM(oper.ArgType)];
+    int index = RegMap[REG_NUM(reg)];
     Assert(index != -1);
     return index;
 }
+
+INLINE int TranslateReg(const ARGTYPE &oper)
+{
+    return TranslateReg((u32) oper.ArgType);
+}
+
+
 
 enum SPECIAL_INFO
 {

@@ -61,6 +61,11 @@ private:
         MemTaint.Set(o, t);
     }
 
+    void        TaintRule_ConditionalEip(const Taint1 &t)
+    {
+        CpuTaint.Eip = t;
+    }
+
     template <int N>
     Tb<N>       GetTaint(const Processor *cpu, const ARGTYPE &oper)
     {
@@ -106,6 +111,8 @@ private:
             }
         }
     }
+
+    Taint1      GetTaintAddressingReg(const ARGTYPE &oper) const;
 
     template <int N>
     void        TaintPropagate_Binop(const Processor *cpu, const Instruction *inst)
@@ -190,7 +197,7 @@ private:
     }
 
     template <int N>
-    void        TaintPropagate_Cmp(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Cmp_Test(const Processor *cpu, const Instruction *inst)
     {
         Tb<N> t     = TaintRule_Binop(GetTaint<N>(cpu, ARG1), GetTaint<N>(cpu, ARG2));
         SetFlagTaint(inst, t);
@@ -227,6 +234,90 @@ private:
         }
     }
 
+    template <int X>
+    void        TaintPropagate_CJmp1(const Processor *cpu, const Instruction *inst)
+    {
+        TaintRule_ConditionalEip(CpuTaint.Flags[X]);
+    }
+
+    template <int X, int Y>
+    void        TaintPropagate_CJmp2(const Processor *cpu, const Instruction *inst)
+    {
+        TaintRule_ConditionalEip(CpuTaint.Flags[X] | CpuTaint.Flags[Y]);
+    }
+
+    template <int X, int Y, int Z>
+    void        TaintPropagate_CJmp3(const Processor *cpu, const Instruction *inst)
+    {
+        TaintRule_ConditionalEip(CpuTaint.Flags[X] | CpuTaint.Flags[Y] | CpuTaint.Flags[Z]);
+    }
+
+    template <int N>
+    void        TaintPropagate_Xchg(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t1    = GetTaint<N>(cpu, ARG1);
+        Tb<N> t2    = GetTaint<N>(cpu, ARG2);
+        SetTaint<N>(cpu, ARG1, t2);
+        SetTaint<N>(cpu, ARG2, t1);
+    }
+
+    template <int N>
+    void        TaintPropagate_Mov(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t;
+        if (!IsConstantArg(ARG2)) {
+            t       = GetTaint<N>(cpu, ARG2);
+        }
+        SetTaint<N>(cpu, ARG1, t);
+    }
+
+    template <int N>
+    void        TaintPropagate_Lea(const Processor *cpu, const Instruction *inst)
+    {
+        Taint1 t    = GetTaintAddressingReg(ARG2);
+        SetTaint(cpu, ARG1, Extend<N>(t));
+    }
+
+    template <int N>
+    void        TaintPropagate_Movs(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t = MemTaint.Get<N>(cpu->DF == 0 ? cpu->ESI - N : cpu->ESI + N);
+        MemTaint.Set<N>(cpu->DF == 0 ? cpu->ESI - N : cpu->ESI + N, t);
+    }
+
+    template <int N>
+    void        TaintPropagate_Cmps(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t1 = MemTaint.Get<N>(cpu->DF == 0 ? cpu->ESI - N : cpu->ESI + N);
+        Tb<N> t2 = MemTaint.Get<N>(cpu->DF == 0 ? cpu->EDI - N : cpu->ESI + N);
+        Tb<N> t = TaintRule_Binop(t1, t2);
+        SetFlagTaint(inst, t);
+    }
+
+    template <int N>
+    void        TaintPropagate_Stos(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t = FromTaint<4, N>(CpuTaint.GPRegs[LX_REG_EAX], 0);
+        MemTaint.Set<N>(cpu->DF == 0 ? cpu->EDI - N : cpu->EDI + N, t);
+    }
+
+    template <int N>
+    void        TaintPropagate_Lods(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t = MemTaint.Get<N>(cpu->DF == 0 ? cpu->ESI - N : cpu->ESI + N);
+        ToTaint<N, 4>(CpuTaint.GPRegs[LX_REG_EAX], t, 0);
+    }
+
+    template <int N>
+    void        TaintPropagate_Scas(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t1 = FromTaint<4, N>(CpuTaint.GPRegs[LX_REG_EAX], 0);
+        Tb<N> t2 = MemTaint.Get<N>(cpu->DF == 0 ? cpu->EDI - N : cpu->EDI + N);
+        Tb<N> t = TaintRule_Binop(t1, t2);
+        SetFlagTaint(inst, t);
+    }
+
+
 private:
     typedef     void (TaintEngine::*TaintInstHandler)(const Processor *cpu, const Instruction *inst);
     static      TaintInstHandler HandlerOneByte[];
@@ -262,13 +353,25 @@ private:
     DECLARE_HANDLER(Adc_Sbb_Handler);
     DECLARE_HANDLER(And_Handler);
     DECLARE_HANDLER(Xor_Handler);
-    DECLARE_HANDLER(Cmp_Handler);
+    DECLARE_HANDLER(Cmp_Test_Handler);
     DECLARE_HANDLER(Inc_Dec_Handler);
     DECLARE_HANDLER(Push_Handler);
     DECLARE_HANDLER(Pop_Handler);
     DECLARE_HANDLER(Imul69_Imul6B_Handler);
     DECLARE_HANDLER(ImulF6_Handler);
     DECLARE_HANDLER(ImulF7_Handler);
+    DECLARE_HANDLER(JecxzE3_Handler);
+    DECLARE_HANDLER(Xchg_Handler);
+    DECLARE_HANDLER(Mov_Handler);
+    DECLARE_HANDLER(Lea_Handler);
+    DECLARE_HANDLER(Cbw_Handler);
+    DECLARE_HANDLER(Cdq_Handler);
+    DECLARE_HANDLER(Sahf_Handler);
+    DECLARE_HANDLER(Movs_Handler);
+    DECLARE_HANDLER(Cmps_Handler);
+    DECLARE_HANDLER(Stos_Handler);
+    DECLARE_HANDLER(Lods_Handler);
+    DECLARE_HANDLER(Scas_Handler);
 
 private:
     AEngine *   m_engine;

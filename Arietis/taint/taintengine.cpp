@@ -85,6 +85,18 @@ void TaintEngine::DefaultBinopHandler(const Processor *cpu, const Instruction *i
     }
 }
 
+Taint1 TaintEngine::GetTaintAddressingReg( const ARGTYPE &oper ) const
+{
+    Taint1 t;
+    if (oper.Memory.BaseRegister) {
+        t |= Shrink(CpuTaint.GPRegs[TranslateReg(oper.Memory.BaseRegister)]);
+    }
+    if (oper.Memory.IndexRegister) {
+        t |= Shrink(CpuTaint.GPRegs[TranslateReg(oper.Memory.IndexRegister)]);
+    }
+    return t;
+}
+
 TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0x00*/ &TaintEngine::DefaultBinopHandler,
     /*0x01*/ &TaintEngine::DefaultBinopHandler,
@@ -142,12 +154,12 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0x35*/ &TaintEngine::Xor_Handler,
     /*0x36*/ NULL,
     /*0x37*/ NULL,
-    /*0x38*/ &TaintEngine::Cmp_Handler,
-    /*0x39*/ &TaintEngine::Cmp_Handler,
-    /*0x3a*/ &TaintEngine::Cmp_Handler,
-    /*0x3b*/ &TaintEngine::Cmp_Handler,
-    /*0x3c*/ &TaintEngine::Cmp_Handler,
-    /*0x3d*/ &TaintEngine::Cmp_Handler,
+    /*0x38*/ &TaintEngine::Cmp_Test_Handler,
+    /*0x39*/ &TaintEngine::Cmp_Test_Handler,
+    /*0x3a*/ &TaintEngine::Cmp_Test_Handler,
+    /*0x3b*/ &TaintEngine::Cmp_Test_Handler,
+    /*0x3c*/ &TaintEngine::Cmp_Test_Handler,
+    /*0x3d*/ &TaintEngine::Cmp_Test_Handler,
     /*0x3e*/ NULL,
     /*0x3f*/ NULL,
     /*0x40*/ &TaintEngine::Inc_Dec_Handler,
@@ -198,86 +210,86 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0x6d*/ NULL,
     /*0x6e*/ NULL,
     /*0x6f*/ NULL,
-    /*0x70*/ NULL,
-    /*0x71*/ NULL,
-    /*0x72*/ NULL,
-    /*0x73*/ NULL,
-    /*0x74*/ NULL,
-    /*0x75*/ NULL,
-    /*0x76*/ NULL,
-    /*0x77*/ NULL,
-    /*0x78*/ NULL,
-    /*0x79*/ NULL,
-    /*0x7a*/ NULL,
-    /*0x7b*/ NULL,
-    /*0x7c*/ NULL,
-    /*0x7d*/ NULL,
-    /*0x7e*/ NULL,
-    /*0x7f*/ NULL,
+    /*0x70*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::OF>,
+    /*0x71*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::OF>,
+    /*0x72*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::CF>,
+    /*0x73*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::CF>,
+    /*0x74*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::ZF>,
+    /*0x75*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::ZF>,
+    /*0x76*/ &TaintEngine::TaintPropagate_CJmp2<InstContext::CF, InstContext::ZF>,
+    /*0x77*/ &TaintEngine::TaintPropagate_CJmp2<InstContext::CF, InstContext::ZF>,
+    /*0x78*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::SF>,
+    /*0x79*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::SF>,
+    /*0x7a*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::PF>,
+    /*0x7b*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::PF>,
+    /*0x7c*/ &TaintEngine::TaintPropagate_CJmp2<InstContext::SF, InstContext::OF>,
+    /*0x7d*/ &TaintEngine::TaintPropagate_CJmp2<InstContext::SF, InstContext::OF>,
+    /*0x7e*/ &TaintEngine::TaintPropagate_CJmp3<InstContext::ZF, InstContext::SF, InstContext::OF>,
+    /*0x7f*/ &TaintEngine::TaintPropagate_CJmp3<InstContext::ZF, InstContext::SF, InstContext::OF>,
     /*0x80*/ &TaintEngine::Ext80_Handler,
     /*0x81*/ &TaintEngine::Ext81_Handler,
     /*0x82*/ NULL,
     /*0x83*/ &TaintEngine::Ext83_Handler,
-    /*0x84*/ NULL,
-    /*0x85*/ NULL,
+    /*0x84*/ &TaintEngine::Cmp_Test_Handler,
+    /*0x85*/ &TaintEngine::Cmp_Test_Handler,
     /*0x86*/ NULL,
-    /*0x87*/ NULL,
-    /*0x88*/ NULL,
-    /*0x89*/ NULL,
-    /*0x8a*/ NULL,
-    /*0x8b*/ NULL,
-    /*0x8c*/ NULL,
-    /*0x8d*/ NULL,
+    /*0x87*/ &TaintEngine::Xchg_Handler,
+    /*0x88*/ &TaintEngine::Mov_Handler,
+    /*0x89*/ &TaintEngine::Mov_Handler,
+    /*0x8a*/ &TaintEngine::Mov_Handler,
+    /*0x8b*/ &TaintEngine::Mov_Handler,
+    /*0x8c*/ NULL,      // mov r/m16, sreg          not implemented
+    /*0x8d*/ &TaintEngine::Lea_Handler,
     /*0x8e*/ NULL,
     /*0x8f*/ &TaintEngine::Ext8F_Handler,
     /*0x90*/ NULL,
-    /*0x91*/ NULL,
-    /*0x92*/ NULL,
-    /*0x93*/ NULL,
-    /*0x94*/ NULL,
-    /*0x95*/ NULL,
-    /*0x96*/ NULL,
-    /*0x97*/ NULL,
-    /*0x98*/ NULL,
-    /*0x99*/ NULL,
+    /*0x91*/ &TaintEngine::Xchg_Handler,
+    /*0x92*/ &TaintEngine::Xchg_Handler,
+    /*0x93*/ &TaintEngine::Xchg_Handler,
+    /*0x94*/ &TaintEngine::Xchg_Handler,
+    /*0x95*/ &TaintEngine::Xchg_Handler,
+    /*0x96*/ &TaintEngine::Xchg_Handler,
+    /*0x97*/ &TaintEngine::Xchg_Handler,
+    /*0x98*/ &TaintEngine::Cbw_Handler,
+    /*0x99*/ &TaintEngine::Cdq_Handler,
     /*0x9a*/ NULL,
     /*0x9b*/ NULL,
     /*0x9c*/ NULL,
     /*0x9d*/ NULL,
-    /*0x9e*/ NULL,
+    /*0x9e*/ &TaintEngine::Sahf_Handler,
     /*0x9f*/ NULL,
-    /*0xa0*/ NULL,
-    /*0xa1*/ NULL,
-    /*0xa2*/ NULL,
-    /*0xa3*/ NULL,
-    /*0xa4*/ NULL,
-    /*0xa5*/ NULL,
-    /*0xa6*/ NULL,
-    /*0xa7*/ NULL,
-    /*0xa8*/ NULL,
-    /*0xa9*/ NULL,
-    /*0xaa*/ NULL,
-    /*0xab*/ NULL,
-    /*0xac*/ NULL,
-    /*0xad*/ NULL,
-    /*0xae*/ NULL,
-    /*0xaf*/ NULL,
-    /*0xb0*/ NULL,
-    /*0xb1*/ NULL,
-    /*0xb2*/ NULL,
-    /*0xb3*/ NULL,
-    /*0xb4*/ NULL,
-    /*0xb5*/ NULL,
-    /*0xb6*/ NULL,
-    /*0xb7*/ NULL,
-    /*0xb8*/ &TaintEngine::DebugTaintIntroduce,
-    /*0xb9*/ &TaintEngine::DebugTaintIntroduce,
-    /*0xba*/ &TaintEngine::DebugTaintIntroduce,
-    /*0xbb*/ &TaintEngine::DebugTaintIntroduce,
-    /*0xbc*/ &TaintEngine::DebugTaintIntroduce,
-    /*0xbd*/ &TaintEngine::DebugTaintIntroduce,
-    /*0xbe*/ &TaintEngine::DebugTaintIntroduce,
-    /*0xbf*/ &TaintEngine::DebugTaintIntroduce,
+    /*0xa0*/ &TaintEngine::Mov_Handler,
+    /*0xa1*/ &TaintEngine::Mov_Handler,
+    /*0xa2*/ &TaintEngine::Mov_Handler,
+    /*0xa3*/ &TaintEngine::Mov_Handler,
+    /*0xa4*/ &TaintEngine::Movs_Handler,
+    /*0xa5*/ &TaintEngine::Movs_Handler,
+    /*0xa6*/ &TaintEngine::Cmps_Handler,
+    /*0xa7*/ &TaintEngine::Cmps_Handler,
+    /*0xa8*/ &TaintEngine::Cmp_Test_Handler,
+    /*0xa9*/ &TaintEngine::Cmp_Test_Handler,
+    /*0xaa*/ &TaintEngine::Stos_Handler,
+    /*0xab*/ &TaintEngine::Stos_Handler,
+    /*0xac*/ &TaintEngine::Lods_Handler,
+    /*0xad*/ &TaintEngine::Lods_Handler,
+    /*0xae*/ &TaintEngine::Scas_Handler,
+    /*0xaf*/ &TaintEngine::Scas_Handler,
+    /*0xb0*/ &TaintEngine::Mov_Handler,
+    /*0xb1*/ &TaintEngine::Mov_Handler,
+    /*0xb2*/ &TaintEngine::Mov_Handler,
+    /*0xb3*/ &TaintEngine::Mov_Handler,
+    /*0xb4*/ &TaintEngine::Mov_Handler,
+    /*0xb5*/ &TaintEngine::Mov_Handler,
+    /*0xb6*/ &TaintEngine::Mov_Handler,
+    /*0xb7*/ &TaintEngine::Mov_Handler,
+    /*0xb8*/ &TaintEngine::Mov_Handler,
+    /*0xb9*/ &TaintEngine::Mov_Handler,
+    /*0xba*/ &TaintEngine::Mov_Handler,
+    /*0xbb*/ &TaintEngine::Mov_Handler,
+    /*0xbc*/ &TaintEngine::Mov_Handler,
+    /*0xbd*/ &TaintEngine::Mov_Handler,
+    /*0xbe*/ &TaintEngine::Mov_Handler,
+    /*0xbf*/ &TaintEngine::Mov_Handler,
     /*0xc0*/ &TaintEngine::ExtC0_Handler,
     /*0xc1*/ &TaintEngine::ExtC1_Handler,
     /*0xc2*/ NULL,
@@ -313,7 +325,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0xe0*/ NULL,
     /*0xe1*/ NULL,
     /*0xe2*/ NULL,
-    /*0xe3*/ NULL,
+    /*0xe3*/ &TaintEngine::JecxzE3_Handler,
     /*0xe4*/ NULL,
     /*0xe5*/ NULL,
     /*0xe6*/ NULL,
@@ -473,22 +485,22 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0x7d*/ NULL,
     /*0x7e*/ NULL,
     /*0x7f*/ NULL,
-    /*0x80*/ NULL,
-    /*0x81*/ NULL,
-    /*0x82*/ NULL,
-    /*0x83*/ NULL,
-    /*0x84*/ NULL,
-    /*0x85*/ NULL,
-    /*0x86*/ NULL,
-    /*0x87*/ NULL,
-    /*0x88*/ NULL,
-    /*0x89*/ NULL,
-    /*0x8a*/ NULL,
-    /*0x8b*/ NULL,
-    /*0x8c*/ NULL,
-    /*0x8d*/ NULL,
-    /*0x8e*/ NULL,
-    /*0x8f*/ NULL,
+    /*0x80*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::OF>,
+    /*0x81*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::OF>,
+    /*0x82*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::CF>,
+    /*0x83*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::CF>,
+    /*0x84*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::ZF>,
+    /*0x85*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::ZF>,
+    /*0x86*/ &TaintEngine::TaintPropagate_CJmp2<InstContext::CF, InstContext::ZF>,
+    /*0x87*/ &TaintEngine::TaintPropagate_CJmp2<InstContext::CF, InstContext::ZF>,
+    /*0x88*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::SF>,
+    /*0x89*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::SF>,
+    /*0x8a*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::PF>,
+    /*0x8b*/ &TaintEngine::TaintPropagate_CJmp1<InstContext::PF>,
+    /*0x8c*/ &TaintEngine::TaintPropagate_CJmp2<InstContext::SF, InstContext::OF>,
+    /*0x8d*/ &TaintEngine::TaintPropagate_CJmp2<InstContext::SF, InstContext::OF>,
+    /*0x8e*/ &TaintEngine::TaintPropagate_CJmp3<InstContext::ZF, InstContext::SF, InstContext::OF>,
+    /*0x8f*/ &TaintEngine::TaintPropagate_CJmp3<InstContext::ZF, InstContext::SF, InstContext::OF>,
     /*0x90*/ NULL,
     /*0x91*/ NULL,
     /*0x92*/ NULL,
@@ -627,7 +639,7 @@ void TaintEngine::Ext80_Handler(const Processor *cpu, const Instruction *inst)
         /* 4 */ &TaintEngine::And_Handler,
         /* 5 */ &TaintEngine::DefaultBinopHandler,
         /* 6 */ &TaintEngine::Xor_Handler,
-        /* 7 */ &TaintEngine::Cmp_Handler,
+        /* 7 */ &TaintEngine::Cmp_Test_Handler,
     };
     TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
     if (h) {
@@ -645,7 +657,7 @@ void TaintEngine::Ext81_Handler(const Processor *cpu, const Instruction *inst)
         /* 4 */ &TaintEngine::And_Handler,
         /* 5 */ &TaintEngine::DefaultBinopHandler,
         /* 6 */ &TaintEngine::Xor_Handler,
-        /* 7 */ &TaintEngine::Cmp_Handler,
+        /* 7 */ &TaintEngine::Cmp_Test_Handler,
     };
     TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
     if (h) {
@@ -663,7 +675,7 @@ void TaintEngine::Ext83_Handler(const Processor *cpu, const Instruction *inst)
         /* 4 */ &TaintEngine::And_Handler,
         /* 5 */ &TaintEngine::DefaultBinopHandler,
         /* 6 */ &TaintEngine::Xor_Handler,
-        /* 7 */ &TaintEngine::Cmp_Handler,
+        /* 7 */ &TaintEngine::Cmp_Test_Handler,
     };
     TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
     if (h) {
@@ -728,7 +740,7 @@ void TaintEngine::ExtC1_Handler(const Processor *cpu, const Instruction *inst)
 void TaintEngine::ExtC6_Handler(const Processor *cpu, const Instruction *inst)
 {
     static TaintInstHandler handlers[] = {
-        /* 0 */ NULL,
+        /* 0 */ &TaintEngine::Mov_Handler,
         /* 1 */ NULL,
         /* 2 */ NULL,
         /* 3 */ NULL,
@@ -746,7 +758,7 @@ void TaintEngine::ExtC6_Handler(const Processor *cpu, const Instruction *inst)
 void TaintEngine::ExtC7_Handler(const Processor *cpu, const Instruction *inst)
 {
     static TaintInstHandler handlers[] = {
-        /* 0 */ NULL,
+        /* 0 */ &TaintEngine::Mov_Handler,
         /* 1 */ NULL,
         /* 2 */ NULL,
         /* 3 */ NULL,
@@ -836,7 +848,7 @@ void TaintEngine::ExtD3_Handler(const Processor *cpu, const Instruction *inst)
 void TaintEngine::ExtF6_Handler(const Processor *cpu, const Instruction *inst)
 {
     static TaintInstHandler handlers[] = {
-        /* 0 */ NULL,
+        /* 0 */ &TaintEngine::Cmp_Test_Handler,
         /* 1 */ NULL,
         /* 2 */ NULL,
         /* 3 */ NULL,
@@ -854,7 +866,7 @@ void TaintEngine::ExtF6_Handler(const Processor *cpu, const Instruction *inst)
 void TaintEngine::ExtF7_Handler(const Processor *cpu, const Instruction *inst)
 {
     static TaintInstHandler handlers[] = {
-        /* 0 */ NULL,
+        /* 0 */ &TaintEngine::Cmp_Test_Handler,
         /* 1 */ NULL,
         /* 2 */ NULL,
         /* 3 */ NULL,
@@ -976,15 +988,23 @@ void TaintEngine::HandlerName(const Processor *cpu, const Instruction *inst)    
 }                                                                               \
 
 
-DEFINE_CUSTOM_BINOP_HANDLER(Or_Handler,         TaintPropagate_Or)
-DEFINE_CUSTOM_BINOP_HANDLER(Adc_Sbb_Handler,    TaintPropagate_Adc_Sbb)
-DEFINE_CUSTOM_BINOP_HANDLER(And_Handler,        TaintPropagate_And)
-DEFINE_CUSTOM_BINOP_HANDLER(Xor_Handler,        TaintPropagate_Xor)
-DEFINE_CUSTOM_BINOP_HANDLER(Cmp_Handler,        TaintPropagate_Cmp)
-DEFINE_CUSTOM_BINOP_HANDLER(Inc_Dec_Handler,    TaintPropagate_Inc_Dec)
-DEFINE_CUSTOM_BINOP_HANDLER(Push_Handler,       TaintPropagate_Push)
-DEFINE_CUSTOM_BINOP_HANDLER(Pop_Handler,        TaintPropagate_Pop)
-DEFINE_CUSTOM_BINOP_HANDLER(Imul69_Imul6B_Handler,  TaintPropagate_Imul);
+DEFINE_CUSTOM_BINOP_HANDLER(Or_Handler,             TaintPropagate_Or)
+DEFINE_CUSTOM_BINOP_HANDLER(Adc_Sbb_Handler,        TaintPropagate_Adc_Sbb)
+DEFINE_CUSTOM_BINOP_HANDLER(And_Handler,            TaintPropagate_And)
+DEFINE_CUSTOM_BINOP_HANDLER(Xor_Handler,            TaintPropagate_Xor)
+DEFINE_CUSTOM_BINOP_HANDLER(Cmp_Test_Handler,       TaintPropagate_Cmp_Test)
+DEFINE_CUSTOM_BINOP_HANDLER(Inc_Dec_Handler,        TaintPropagate_Inc_Dec)
+DEFINE_CUSTOM_BINOP_HANDLER(Push_Handler,           TaintPropagate_Push)
+DEFINE_CUSTOM_BINOP_HANDLER(Pop_Handler,            TaintPropagate_Pop)
+DEFINE_CUSTOM_BINOP_HANDLER(Imul69_Imul6B_Handler,  TaintPropagate_Imul)
+DEFINE_CUSTOM_BINOP_HANDLER(Xchg_Handler,           TaintPropagate_Xchg)
+DEFINE_CUSTOM_BINOP_HANDLER(Mov_Handler,            TaintPropagate_Mov)
+DEFINE_CUSTOM_BINOP_HANDLER(Lea_Handler,            TaintPropagate_Lea)
+DEFINE_CUSTOM_BINOP_HANDLER(Movs_Handler,           TaintPropagate_Movs)
+DEFINE_CUSTOM_BINOP_HANDLER(Cmps_Handler,           TaintPropagate_Cmps)
+DEFINE_CUSTOM_BINOP_HANDLER(Stos_Handler,           TaintPropagate_Stos)
+DEFINE_CUSTOM_BINOP_HANDLER(Lods_Handler,           TaintPropagate_Lods)
+DEFINE_CUSTOM_BINOP_HANDLER(Scas_Handler,           TaintPropagate_Scas)
 
 void TaintEngine::ImulF6_Handler(const Processor *cpu, const Instruction *inst)
 {
@@ -1001,3 +1021,36 @@ void TaintEngine::ImulF7_Handler(const Processor *cpu, const Instruction *inst)
     SetFlagTaint<4>(inst, t);
 }
 
+void TaintEngine::JecxzE3_Handler(const Processor *cpu, const Instruction *inst)
+{
+    TaintRule_ConditionalEip(Shrink(CpuTaint.GPRegs[LX_REG_ECX]));
+}
+
+void TaintEngine::Cbw_Handler(const Processor *cpu, const Instruction *inst)
+{
+    Taint4 &eax = CpuTaint.GPRegs[LX_REG_EAX];
+    if (inst->Main.Prefix.OperandSize) {
+        eax.T[1] = eax.T[0];
+    } else {
+        Taint t = eax.T[0] | eax.T[1];
+        eax.T[2] = t;
+        eax.T[3] = t;
+    }
+}
+
+void TaintEngine::Cdq_Handler(const Processor *cpu, const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize)
+        NOT_IMPLEMENTED();
+    CpuTaint.GPRegs[LX_REG_EDX] = CpuTaint.GPRegs[LX_REG_EAX];
+}
+
+void TaintEngine::Sahf_Handler(const Processor *cpu, const Instruction *inst)
+{
+    Taint1 t = FromTaint<4, 1>(CpuTaint.GPRegs[LX_REG_EAX], 1);   // AH
+    CpuTaint.Flags[InstContext::CF] = t;
+    CpuTaint.Flags[InstContext::PF] = t;
+    CpuTaint.Flags[InstContext::AF] = t;
+    CpuTaint.Flags[InstContext::ZF] = t;
+    CpuTaint.Flags[InstContext::SF] = t;
+}
