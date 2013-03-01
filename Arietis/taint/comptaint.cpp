@@ -16,31 +16,6 @@ MemoryTaint::~MemoryTaint()
     }
 }
 
-// Taint MemoryTaint::Get( u32 addr )
-// {
-//     PageTaint *page = GetPage(addr);
-//     return page->Get(PAGE_LOW(addr));
-// }
-// 
-// Taint MemoryTaint::Get( u32 addr, u32 len )
-// {
-//     Taint ret = Get(addr);
-//     for (uint i = 1; i < len; i++) {
-//         ret |= Get(addr + i);
-//     }
-//     return ret;
-// }
-// 
-// void MemoryTaint::Set( const Taint &t, u32 addr, u32 len )
-// {
-//     Assert(len > 0);
-//     for (uint i = 0; i < len; i++) {
-//         //m_status[addr + i] = t;
-//         PageTaint *page = GetPage(addr);
-//         page->Set(PAGE_LOW(addr + i), t);
-//     }
-// }
-
 MemoryTaint::PageTaint * MemoryTaint::GetPage( u32 addr )
 {
     const u32 pageNum = PAGE_NUM(addr);
@@ -49,46 +24,6 @@ MemoryTaint::PageTaint * MemoryTaint::GetPage( u32 addr )
     }
     return m_pagetable[pageNum];
 }
-
-// Taint MemoryTaint::Get1( u32 addr )
-// {
-//     PageTaint *page = GetPage(addr);
-//     return page->Get(PAGE_LOW(addr));
-// }
-// 
-// Taint2 MemoryTaint::Get2( u32 addr )
-// {
-//     PageTaint *page0 = GetPage(addr); 
-//     PageTaint *page1 = GetPage(addr+1);
-//     return PackTaint(page0->Get(PAGE_LOW(addr)), page1->Get(PAGE_LOW(addr+1)));
-// }
-// 
-// Taint4 MemoryTaint::Get4( u32 addr )
-// {
-//     Taint4 res;
-//     for (int i = 0; i < Taint4::Count; i++) {
-//         res.T[i] = GetPage(addr+i)->Get(PAGE_LOW(addr+i));
-//     }
-//     return res;
-// }
-// 
-// void MemoryTaint::Set1( u32 addr, const Taint &t )
-// {
-//     GetPage(addr)->Set(PAGE_LOW(addr), t);
-// }
-// 
-// void MemoryTaint::Set2( u32 addr, const Taint2 &t )
-// {
-//     GetPage(addr  )->Set(PAGE_LOW(addr),   t.T[0]);
-//     GetPage(addr+1)->Set(PAGE_LOW(addr+1), t.T[1]);
-// }
-// 
-// void MemoryTaint::Set4( u32 addr, const Taint4 &t )
-// {
-//     for (int i = 0; i < Taint4::Count; i++) {
-//         GetPage(addr+i)->Set(PAGE_LOW(addr+i), t.T[i]);
-//     }
-// }
 
 MemoryTaint::PageTaint::PageTaint()
 {
