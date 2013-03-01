@@ -317,6 +317,29 @@ private:
         SetFlagTaint(inst, t);
     }
 
+    template <int N>
+    void        TaintPropagate_ShiftRotate(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t1 = GetTaint<N>(cpu, ARG1);
+        Taint1 t = Shrink(t1);
+        Tb<N> newT = Extend<N>(t);
+        SetTaint(cpu, ARG1, newT);
+        CpuTaint.Flags[InstContext::CF] = t;
+        CpuTaint.Flags[InstContext::OF] = t;
+    }
+
+    template <int X>
+    void        TaintPropagate_ClearFlag(const Processor *cpu, const Instruction *inst)
+    {
+        CpuTaint.Flags[X].ResetAll();
+    }
+
+    template <int N>
+    void        TaintPropagate_Neg(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t = GetTaint<N>(cpu, ARG1);
+        SetFlagTaint(inst, t);
+    }
 
 private:
     typedef     void (TaintEngine::*TaintInstHandler)(const Processor *cpu, const Instruction *inst);
@@ -358,9 +381,9 @@ private:
     DECLARE_HANDLER(Push_Handler);
     DECLARE_HANDLER(Pop_Handler);
     DECLARE_HANDLER(Imul69_Imul6B_Handler);
-    DECLARE_HANDLER(ImulF6_Handler);
-    DECLARE_HANDLER(ImulF7_Handler);
-    DECLARE_HANDLER(JecxzE3_Handler);
+    DECLARE_HANDLER(ImulF6_MulF6_Handler);
+    DECLARE_HANDLER(ImulF7_MulF6_Handler);
+    DECLARE_HANDLER(LoopE2_JecxzE3_Handler);
     DECLARE_HANDLER(Xchg_Handler);
     DECLARE_HANDLER(Mov_Handler);
     DECLARE_HANDLER(Lea_Handler);
@@ -372,6 +395,12 @@ private:
     DECLARE_HANDLER(Stos_Handler);
     DECLARE_HANDLER(Lods_Handler);
     DECLARE_HANDLER(Scas_Handler);
+    DECLARE_HANDLER(ShiftRotate_Handler);
+    DECLARE_HANDLER(Ret_Handler);
+    DECLARE_HANDLER(Call_Handler);
+    DECLARE_HANDLER(Jmp_Handler);
+    DECLARE_HANDLER(Neg_Handler);
+    DECLARE_HANDLER(DivF7_IdivF7_Handler);
 
 private:
     AEngine *   m_engine;

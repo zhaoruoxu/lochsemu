@@ -292,8 +292,8 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0xbf*/ &TaintEngine::Mov_Handler,
     /*0xc0*/ &TaintEngine::ExtC0_Handler,
     /*0xc1*/ &TaintEngine::ExtC1_Handler,
-    /*0xc2*/ NULL,
-    /*0xc3*/ NULL,
+    /*0xc2*/ &TaintEngine::Ret_Handler,
+    /*0xc3*/ &TaintEngine::Ret_Handler,
     /*0xc4*/ NULL,
     /*0xc5*/ NULL,
     /*0xc6*/ &TaintEngine::ExtC6_Handler,
@@ -324,16 +324,16 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0xdf*/ NULL,
     /*0xe0*/ NULL,
     /*0xe1*/ NULL,
-    /*0xe2*/ NULL,
-    /*0xe3*/ &TaintEngine::JecxzE3_Handler,
+    /*0xe2*/ &TaintEngine::LoopE2_JecxzE3_Handler,
+    /*0xe3*/ &TaintEngine::LoopE2_JecxzE3_Handler,
     /*0xe4*/ NULL,
     /*0xe5*/ NULL,
     /*0xe6*/ NULL,
     /*0xe7*/ NULL,
-    /*0xe8*/ NULL,
-    /*0xe9*/ NULL,
+    /*0xe8*/ &TaintEngine::Call_Handler,
+    /*0xe9*/ &TaintEngine::Jmp_Handler,
     /*0xea*/ NULL,
-    /*0xeb*/ NULL,
+    /*0xeb*/ &TaintEngine::Jmp_Handler,
     /*0xec*/ NULL,
     /*0xed*/ NULL,
     /*0xee*/ NULL,
@@ -346,8 +346,8 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0xf5*/ NULL,
     /*0xf6*/ &TaintEngine::ExtF6_Handler,
     /*0xf7*/ &TaintEngine::ExtF7_Handler,
-    /*0xf8*/ NULL,
-    /*0xf9*/ NULL,
+    /*0xf8*/ &TaintEngine::TaintPropagate_ClearFlag<InstContext::CF>,
+    /*0xf9*/ &TaintEngine::TaintPropagate_ClearFlag<InstContext::CF>,
     /*0xfa*/ NULL,
     /*0xfb*/ NULL,
     /*0xfc*/ NULL,
@@ -704,14 +704,14 @@ void TaintEngine::Ext8F_Handler(const Processor *cpu, const Instruction *inst)
 void TaintEngine::ExtC0_Handler(const Processor *cpu, const Instruction *inst)
 {
     static TaintInstHandler handlers[] = {
-        /* 0 */ NULL,
-        /* 1 */ NULL,
-        /* 2 */ NULL,
-        /* 3 */ NULL,
-        /* 4 */ NULL,
-        /* 5 */ NULL,
+        /* 0 */ &TaintEngine::ShiftRotate_Handler,
+        /* 1 */ &TaintEngine::ShiftRotate_Handler,
+        /* 2 */ &TaintEngine::ShiftRotate_Handler,
+        /* 3 */ &TaintEngine::ShiftRotate_Handler,
+        /* 4 */ &TaintEngine::ShiftRotate_Handler,
+        /* 5 */ &TaintEngine::ShiftRotate_Handler,
         /* 6 */ NULL,
-        /* 7 */ NULL,
+        /* 7 */ &TaintEngine::ShiftRotate_Handler,
     };
     TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
     if (h) {
@@ -722,14 +722,14 @@ void TaintEngine::ExtC0_Handler(const Processor *cpu, const Instruction *inst)
 void TaintEngine::ExtC1_Handler(const Processor *cpu, const Instruction *inst)
 {
     static TaintInstHandler handlers[] = {
-        /* 0 */ NULL,
-        /* 1 */ NULL,
-        /* 2 */ NULL,
-        /* 3 */ NULL,
-        /* 4 */ NULL,
-        /* 5 */ NULL,
+        /* 0 */ &TaintEngine::ShiftRotate_Handler,
+        /* 1 */ &TaintEngine::ShiftRotate_Handler,
+        /* 2 */ &TaintEngine::ShiftRotate_Handler,
+        /* 3 */ &TaintEngine::ShiftRotate_Handler,
+        /* 4 */ &TaintEngine::ShiftRotate_Handler,
+        /* 5 */ &TaintEngine::ShiftRotate_Handler,
         /* 6 */ NULL,
-        /* 7 */ NULL,
+        /* 7 */ &TaintEngine::ShiftRotate_Handler,
     };
     TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
     if (h) {
@@ -776,14 +776,14 @@ void TaintEngine::ExtC7_Handler(const Processor *cpu, const Instruction *inst)
 void TaintEngine::ExtD0_Handler(const Processor *cpu, const Instruction *inst)
 {
     static TaintInstHandler handlers[] = {
-        /* 0 */ NULL,
-        /* 1 */ NULL,
-        /* 2 */ NULL,
-        /* 3 */ NULL,
-        /* 4 */ NULL,
-        /* 5 */ NULL,
+        /* 0 */ &TaintEngine::ShiftRotate_Handler,
+        /* 1 */ &TaintEngine::ShiftRotate_Handler,
+        /* 2 */ &TaintEngine::ShiftRotate_Handler,
+        /* 3 */ &TaintEngine::ShiftRotate_Handler,
+        /* 4 */ &TaintEngine::ShiftRotate_Handler,
+        /* 5 */ &TaintEngine::ShiftRotate_Handler,
         /* 6 */ NULL,
-        /* 7 */ NULL,
+        /* 7 */ &TaintEngine::ShiftRotate_Handler,
     };
     TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
     if (h) {
@@ -794,14 +794,14 @@ void TaintEngine::ExtD0_Handler(const Processor *cpu, const Instruction *inst)
 void TaintEngine::ExtD1_Handler(const Processor *cpu, const Instruction *inst)
 {
     static TaintInstHandler handlers[] = {
-        /* 0 */ NULL,
-        /* 1 */ NULL,
-        /* 2 */ NULL,
-        /* 3 */ NULL,
-        /* 4 */ NULL,
-        /* 5 */ NULL,
+        /* 0 */ &TaintEngine::ShiftRotate_Handler,
+        /* 1 */ &TaintEngine::ShiftRotate_Handler,
+        /* 2 */ &TaintEngine::ShiftRotate_Handler,
+        /* 3 */ &TaintEngine::ShiftRotate_Handler,
+        /* 4 */ &TaintEngine::ShiftRotate_Handler,
+        /* 5 */ &TaintEngine::ShiftRotate_Handler,
         /* 6 */ NULL,
-        /* 7 */ NULL,
+        /* 7 */ &TaintEngine::ShiftRotate_Handler,
     };
     TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
     if (h) {
@@ -812,14 +812,14 @@ void TaintEngine::ExtD1_Handler(const Processor *cpu, const Instruction *inst)
 void TaintEngine::ExtD2_Handler(const Processor *cpu, const Instruction *inst)
 {
     static TaintInstHandler handlers[] = {
-        /* 0 */ NULL,
-        /* 1 */ NULL,
-        /* 2 */ NULL,
-        /* 3 */ NULL,
-        /* 4 */ NULL,
-        /* 5 */ NULL,
+        /* 0 */ &TaintEngine::ShiftRotate_Handler,
+        /* 1 */ &TaintEngine::ShiftRotate_Handler,
+        /* 2 */ &TaintEngine::ShiftRotate_Handler,
+        /* 3 */ &TaintEngine::ShiftRotate_Handler,
+        /* 4 */ &TaintEngine::ShiftRotate_Handler,
+        /* 5 */ &TaintEngine::ShiftRotate_Handler,
         /* 6 */ NULL,
-        /* 7 */ NULL,
+        /* 7 */ &TaintEngine::ShiftRotate_Handler,
     };
     TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
     if (h) {
@@ -830,14 +830,14 @@ void TaintEngine::ExtD2_Handler(const Processor *cpu, const Instruction *inst)
 void TaintEngine::ExtD3_Handler(const Processor *cpu, const Instruction *inst)
 {
     static TaintInstHandler handlers[] = {
-        /* 0 */ NULL,
-        /* 1 */ NULL,
-        /* 2 */ NULL,
-        /* 3 */ NULL,
-        /* 4 */ NULL,
-        /* 5 */ NULL,
+        /* 0 */ &TaintEngine::ShiftRotate_Handler,
+        /* 1 */ &TaintEngine::ShiftRotate_Handler,
+        /* 2 */ &TaintEngine::ShiftRotate_Handler,
+        /* 3 */ &TaintEngine::ShiftRotate_Handler,
+        /* 4 */ &TaintEngine::ShiftRotate_Handler,
+        /* 5 */ &TaintEngine::ShiftRotate_Handler,
         /* 6 */ NULL,
-        /* 7 */ NULL,
+        /* 7 */ &TaintEngine::ShiftRotate_Handler,
     };
     TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
     if (h) {
@@ -851,9 +851,9 @@ void TaintEngine::ExtF6_Handler(const Processor *cpu, const Instruction *inst)
         /* 0 */ &TaintEngine::Cmp_Test_Handler,
         /* 1 */ NULL,
         /* 2 */ NULL,
-        /* 3 */ NULL,
-        /* 4 */ NULL,
-        /* 5 */ &TaintEngine::ImulF6_Handler,
+        /* 3 */ &TaintEngine::Neg_Handler,
+        /* 4 */ &TaintEngine::ImulF6_MulF6_Handler,
+        /* 5 */ &TaintEngine::ImulF6_MulF6_Handler,
         /* 6 */ NULL,
         /* 7 */ NULL,
     };
@@ -869,11 +869,11 @@ void TaintEngine::ExtF7_Handler(const Processor *cpu, const Instruction *inst)
         /* 0 */ &TaintEngine::Cmp_Test_Handler,
         /* 1 */ NULL,
         /* 2 */ NULL,
-        /* 3 */ NULL,
-        /* 4 */ NULL,
-        /* 5 */ &TaintEngine::ImulF7_Handler,
-        /* 6 */ NULL,
-        /* 7 */ NULL,
+        /* 3 */ &TaintEngine::Neg_Handler,
+        /* 4 */ &TaintEngine::ImulF6_MulF6_Handler,
+        /* 5 */ &TaintEngine::ImulF7_MulF6_Handler,
+        /* 6 */ &TaintEngine::DivF7_IdivF7_Handler,
+        /* 7 */ &TaintEngine::DivF7_IdivF7_Handler,
     };
     TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
     if (h) {
@@ -904,9 +904,9 @@ void TaintEngine::ExtFF_Handler(const Processor *cpu, const Instruction *inst)
     static TaintInstHandler handlers[] = {
         /* 0 */ &TaintEngine::Inc_Dec_Handler,
         /* 1 */ &TaintEngine::Inc_Dec_Handler,
-        /* 2 */ NULL,
+        /* 2 */ &TaintEngine::Call_Handler,
         /* 3 */ NULL,
-        /* 4 */ NULL,
+        /* 4 */ &TaintEngine::Jmp_Handler,
         /* 5 */ NULL,
         /* 6 */ &TaintEngine::Push_Handler,
         /* 7 */ NULL,
@@ -1005,15 +1005,17 @@ DEFINE_CUSTOM_BINOP_HANDLER(Cmps_Handler,           TaintPropagate_Cmps)
 DEFINE_CUSTOM_BINOP_HANDLER(Stos_Handler,           TaintPropagate_Stos)
 DEFINE_CUSTOM_BINOP_HANDLER(Lods_Handler,           TaintPropagate_Lods)
 DEFINE_CUSTOM_BINOP_HANDLER(Scas_Handler,           TaintPropagate_Scas)
+DEFINE_CUSTOM_BINOP_HANDLER(ShiftRotate_Handler,    TaintPropagate_ShiftRotate)
+DEFINE_CUSTOM_BINOP_HANDLER(Neg_Handler,            TaintPropagate_Neg)
 
-void TaintEngine::ImulF6_Handler(const Processor *cpu, const Instruction *inst)
+void TaintEngine::ImulF6_MulF6_Handler(const Processor *cpu, const Instruction *inst)
 {
     Taint1 t = TaintRule_Binop(FromTaint<4, 1>(CpuTaint.GPRegs[LX_REG_EAX]), GetTaint<1>(cpu, ARG2));
     ToTaint<2, 4>(CpuTaint.GPRegs[LX_REG_EAX], Extend<2>(t), 0);
     SetFlagTaint<1>(inst, t);
 }
 
-void TaintEngine::ImulF7_Handler(const Processor *cpu, const Instruction *inst)
+void TaintEngine::ImulF7_MulF6_Handler(const Processor *cpu, const Instruction *inst)
 {
     Taint4 t = TaintRule_Binop<4>(CpuTaint.GPRegs[LX_REG_EAX], GetTaint<4>(cpu, ARG2));
     CpuTaint.GPRegs[LX_REG_EAX] = t;
@@ -1021,7 +1023,7 @@ void TaintEngine::ImulF7_Handler(const Processor *cpu, const Instruction *inst)
     SetFlagTaint<4>(inst, t);
 }
 
-void TaintEngine::JecxzE3_Handler(const Processor *cpu, const Instruction *inst)
+void TaintEngine::LoopE2_JecxzE3_Handler(const Processor *cpu, const Instruction *inst)
 {
     TaintRule_ConditionalEip(Shrink(CpuTaint.GPRegs[LX_REG_ECX]));
 }
@@ -1053,4 +1055,37 @@ void TaintEngine::Sahf_Handler(const Processor *cpu, const Instruction *inst)
     CpuTaint.Flags[InstContext::AF] = t;
     CpuTaint.Flags[InstContext::ZF] = t;
     CpuTaint.Flags[InstContext::SF] = t;
+}
+
+void TaintEngine::Ret_Handler(const Processor *cpu, const Instruction *inst)
+{
+    u32 imm         = (u32) inst->Main.Inst.Immediat;
+    Taint4 t        = MemTaint.Get<4>(cpu->ESP - 4 - imm);
+    CpuTaint.Eip    = Shrink(t);
+}
+
+void TaintEngine::Call_Handler(const Processor *cpu, const Instruction *inst)
+{
+    Taint4 t        = Extend<4>(CpuTaint.Eip);
+    MemTaint.Set<4>(cpu->ESP, t);
+    Taint4 newT     = GetTaint<4>(cpu, ARG1);
+    CpuTaint.Eip    = Shrink(newT);
+}
+
+void TaintEngine::Jmp_Handler(const Processor *cpu, const Instruction *inst)
+{
+    Taint4 t        = GetTaint<4>(cpu, ARG1);
+    CpuTaint.Eip    = Shrink(t);
+}
+
+void TaintEngine::DivF7_IdivF7_Handler(const Processor *cpu, const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize) 
+        NOT_IMPLEMENTED();
+
+    Taint4 t1       = CpuTaint.GPRegs[LX_REG_EAX] | CpuTaint.GPRegs[LX_REG_EDX];
+    Taint4 t2       = GetTaint<4>(cpu, ARG2);
+    Taint4 t        = TaintRule_Binop(t1, t2);
+    CpuTaint.GPRegs[LX_REG_EAX] = t;
+    CpuTaint.GPRegs[LX_REG_EDX] = t;
 }
