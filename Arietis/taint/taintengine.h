@@ -203,6 +203,30 @@ private:
         SetFlagTaint(inst, t);
     }
 
+    template <int N>
+    void        TaintPropagate_Push(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t     = GetTaint<N>(cpu, ARG2);
+        MemTaint.Set(cpu->ESP, t);  // should esp be tainted?
+    }
+
+    template <int N>
+    void        TaintPropagate_Pop(const Processor *cpu, const Instruction *inst)
+    {
+        Tb<N> t     = MemTaint.Get<N>(cpu->ESP - N);
+        SetTaint(cpu, ARG1, t);
+    }
+
+    template <int N>
+    void        TaintPropagate_Imul(const Processor *cpu, const Instruction *inst)
+    {
+        if (inst->Main.Inst.Immediat == 0) {
+            TaintPropagate(cpu, inst, Tb<N>());
+        } else {
+            TaintPropagate_Binop<N>(cpu, inst);
+        }
+    }
+
 private:
     typedef     void (TaintEngine::*TaintInstHandler)(const Processor *cpu, const Instruction *inst);
     static      TaintInstHandler HandlerOneByte[];
@@ -240,6 +264,11 @@ private:
     DECLARE_HANDLER(Xor_Handler);
     DECLARE_HANDLER(Cmp_Handler);
     DECLARE_HANDLER(Inc_Dec_Handler);
+    DECLARE_HANDLER(Push_Handler);
+    DECLARE_HANDLER(Pop_Handler);
+    DECLARE_HANDLER(Imul69_Imul6B_Handler);
+    DECLARE_HANDLER(ImulF6_Handler);
+    DECLARE_HANDLER(ImulF7_Handler);
 
 private:
     AEngine *   m_engine;

@@ -376,9 +376,12 @@ void CpuPanel::TrackMemory( u32 instEip )
 {
     InstPtr inst = m_insts->GetInst(instEip);
     wxArrayString strs;
-    strs.Add(wxString::Format("ARG1: %s", inst->Main.Argument1.ArgMnemonic));
-    strs.Add(wxString::Format("ARG2: %s", inst->Main.Argument2.ArgMnemonic));
-    strs.Add(wxString::Format("ARG3: %s", inst->Main.Argument3.ArgMnemonic));
+    strs.Add(wxString::Format("ARG1: %s", IsMemoryArg(inst->Main.Argument1) ? 
+        inst->Main.Argument1.ArgMnemonic : "N/A"));
+    strs.Add(wxString::Format("ARG2: %s", IsMemoryArg(inst->Main.Argument2) ? 
+        inst->Main.Argument2.ArgMnemonic : "N/A"));
+    strs.Add(wxString::Format("ARG3: %s", IsMemoryArg(inst->Main.Argument3) ? 
+        inst->Main.Argument3.ArgMnemonic : "N/A"));
     strs.Add(wxString::Format("ADDR: %08x", (u32) inst->Main.Inst.AddrValue));
     strs.Add(wxString::Format("IMM:  %08x", (u32) inst->Main.Inst.Immediat));
     int ch = wxGetSingleChoiceIndex("Select address", "Track memory", strs, 0);

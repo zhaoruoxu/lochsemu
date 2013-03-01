@@ -166,22 +166,22 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0x4d*/ &TaintEngine::Inc_Dec_Handler,
     /*0x4e*/ &TaintEngine::Inc_Dec_Handler,
     /*0x4f*/ &TaintEngine::Inc_Dec_Handler,
-    /*0x50*/ NULL,
-    /*0x51*/ NULL,
-    /*0x52*/ NULL,
-    /*0x53*/ NULL,
-    /*0x54*/ NULL,
-    /*0x55*/ NULL,
-    /*0x56*/ NULL,
-    /*0x57*/ NULL,
-    /*0x58*/ NULL,
-    /*0x59*/ NULL,
-    /*0x5a*/ NULL,
-    /*0x5b*/ NULL,
-    /*0x5c*/ NULL,
-    /*0x5d*/ NULL,
-    /*0x5e*/ NULL,
-    /*0x5f*/ NULL,
+    /*0x50*/ &TaintEngine::Push_Handler,
+    /*0x51*/ &TaintEngine::Push_Handler,
+    /*0x52*/ &TaintEngine::Push_Handler,
+    /*0x53*/ &TaintEngine::Push_Handler,
+    /*0x54*/ &TaintEngine::Push_Handler,
+    /*0x55*/ &TaintEngine::Push_Handler,
+    /*0x56*/ &TaintEngine::Push_Handler,
+    /*0x57*/ &TaintEngine::Push_Handler,
+    /*0x58*/ &TaintEngine::Pop_Handler,
+    /*0x59*/ &TaintEngine::Pop_Handler,
+    /*0x5a*/ &TaintEngine::Pop_Handler,
+    /*0x5b*/ &TaintEngine::Pop_Handler,
+    /*0x5c*/ &TaintEngine::Pop_Handler,
+    /*0x5d*/ &TaintEngine::Pop_Handler,
+    /*0x5e*/ &TaintEngine::Pop_Handler,
+    /*0x5f*/ &TaintEngine::Pop_Handler,
     /*0x60*/ NULL,
     /*0x61*/ NULL,
     /*0x62*/ NULL,
@@ -190,10 +190,10 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0x65*/ NULL,
     /*0x66*/ NULL,
     /*0x67*/ NULL,
-    /*0x68*/ NULL,
-    /*0x69*/ NULL,
-    /*0x6a*/ NULL,
-    /*0x6b*/ NULL,
+    /*0x68*/ &TaintEngine::Push_Handler,
+    /*0x69*/ &TaintEngine::Imul69_Imul6B_Handler,
+    /*0x6a*/ &TaintEngine::Push_Handler,
+    /*0x6b*/ &TaintEngine::Imul69_Imul6B_Handler,
     /*0x6c*/ NULL,
     /*0x6d*/ NULL,
     /*0x6e*/ NULL,
@@ -520,7 +520,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0xac*/ NULL,
     /*0xad*/ NULL,
     /*0xae*/ &TaintEngine::Ext0FAE_Handler,
-    /*0xaf*/ NULL,
+    /*0xaf*/ &TaintEngine::DefaultBinopHandler, // imul r32, r/m32
     /*0xb0*/ NULL,
     /*0xb1*/ NULL,
     /*0xb2*/ NULL,
@@ -674,7 +674,7 @@ void TaintEngine::Ext83_Handler(const Processor *cpu, const Instruction *inst)
 void TaintEngine::Ext8F_Handler(const Processor *cpu, const Instruction *inst)
 {
     static TaintInstHandler handlers[] = {
-        /* 0 */ NULL,
+        /* 0 */ &TaintEngine::Pop_Handler,
         /* 1 */ NULL,
         /* 2 */ NULL,
         /* 3 */ NULL,
@@ -841,7 +841,7 @@ void TaintEngine::ExtF6_Handler(const Processor *cpu, const Instruction *inst)
         /* 2 */ NULL,
         /* 3 */ NULL,
         /* 4 */ NULL,
-        /* 5 */ NULL,
+        /* 5 */ &TaintEngine::ImulF6_Handler,
         /* 6 */ NULL,
         /* 7 */ NULL,
     };
@@ -859,7 +859,7 @@ void TaintEngine::ExtF7_Handler(const Processor *cpu, const Instruction *inst)
         /* 2 */ NULL,
         /* 3 */ NULL,
         /* 4 */ NULL,
-        /* 5 */ NULL,
+        /* 5 */ &TaintEngine::ImulF7_Handler,
         /* 6 */ NULL,
         /* 7 */ NULL,
     };
@@ -896,7 +896,7 @@ void TaintEngine::ExtFF_Handler(const Processor *cpu, const Instruction *inst)
         /* 3 */ NULL,
         /* 4 */ NULL,
         /* 5 */ NULL,
-        /* 6 */ NULL,
+        /* 6 */ &TaintEngine::Push_Handler,
         /* 7 */ NULL,
     };
     TaintInstHandler h = handlers[MASK_MODRM_REG(inst->Aux.modrm)];
@@ -982,3 +982,22 @@ DEFINE_CUSTOM_BINOP_HANDLER(And_Handler,        TaintPropagate_And)
 DEFINE_CUSTOM_BINOP_HANDLER(Xor_Handler,        TaintPropagate_Xor)
 DEFINE_CUSTOM_BINOP_HANDLER(Cmp_Handler,        TaintPropagate_Cmp)
 DEFINE_CUSTOM_BINOP_HANDLER(Inc_Dec_Handler,    TaintPropagate_Inc_Dec)
+DEFINE_CUSTOM_BINOP_HANDLER(Push_Handler,       TaintPropagate_Push)
+DEFINE_CUSTOM_BINOP_HANDLER(Pop_Handler,        TaintPropagate_Pop)
+DEFINE_CUSTOM_BINOP_HANDLER(Imul69_Imul6B_Handler,  TaintPropagate_Imul);
+
+void TaintEngine::ImulF6_Handler(const Processor *cpu, const Instruction *inst)
+{
+    Taint1 t = TaintRule_Binop(FromTaint<4, 1>(CpuTaint.GPRegs[LX_REG_EAX]), GetTaint<1>(cpu, ARG2));
+    ToTaint<2, 4>(CpuTaint.GPRegs[LX_REG_EAX], Extend<2>(t), 0);
+    SetFlagTaint<1>(inst, t);
+}
+
+void TaintEngine::ImulF7_Handler(const Processor *cpu, const Instruction *inst)
+{
+    Taint4 t = TaintRule_Binop<4>(CpuTaint.GPRegs[LX_REG_EAX], GetTaint<4>(cpu, ARG2));
+    CpuTaint.GPRegs[LX_REG_EAX] = t;
+    CpuTaint.GPRegs[LX_REG_EDX] = t;
+    SetFlagTaint<4>(inst, t);
+}
+
