@@ -3,6 +3,7 @@
 #include "instruction.h"
 #include "processor.h"
 #include "engine.h"
+#include "mainframe.h"
 
 template <typename T>
 static INLINE bool InRangeIncl(T val, T t0, T t1) {
@@ -17,7 +18,8 @@ CpuPanel::CpuPanel( wxWindow *parent, AEngine *engine ) :
 
     Bind(wxEVT_RIGHT_DOWN, &CpuPanel::OnRightDown, this, wxID_ANY);
 
-    m_insts = NULL;
+    m_insts         = NULL;
+    m_cpu           = NULL;
     m_currSelEip    = 0;
     m_currEip       = 0;
     m_currIndex     = -1;
@@ -60,9 +62,11 @@ void CpuPanel::InitMenu()
     wxMenu *taintMenu = new wxMenu;
     taintMenu->Append(ID_PopupTaintReg, "Taint &register...");
     m_popup->AppendSubMenu(taintMenu, "Taint");
+    m_popup->Append(ID_PopupTrackMemory, "Trace memory...");
 
     Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupShowCurrInst,   this, ID_PopupShowCurrInst);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupTaintReg,       this, ID_PopupTaintReg); 
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupTrackMemory,    this, ID_PopupTrackMemory);
 }
 
 
@@ -242,9 +246,10 @@ void CpuPanel::DrawJumpLines( wxBufferedPaintDC &dc, int istart, int iend )
     }
 }
 
-void CpuPanel::OnDataUpdate( const InstSection *insts )
+void CpuPanel::OnDataUpdate( const InstSection *insts, const Processor *cpu )
 {
     m_insts = insts;
+    m_cpu   = cpu;
     if (insts == NULL) return;
 
     {
@@ -253,7 +258,7 @@ void CpuPanel::OnDataUpdate( const InstSection *insts )
         m_procEntryEnd.clear();
         int prevIndex = -1, prevRindex = -1;
         for (InstPtr *inst = m_insts->Begin(); inst != m_insts->End(); inst = m_insts->Next(inst)) {
-            int index = (*inst)->Index;
+            int index   = (*inst)->Index;
             u32 entry   = (*inst)->Entry;
             if (entry == -1) continue;
             if (entry >= (*inst)->Eip) continue;
@@ -318,6 +323,8 @@ int CpuPanel::CalcJumpLineWidth(int idx1, int idx2) const
 
 void CpuPanel::OnRightDown( wxMouseEvent& event )
 {
+    OnLeftDown(event);
+    OnLeftUp(event);
     PopupMenu(m_popup);
 }
 
@@ -351,4 +358,65 @@ void CpuPanel::OnPopupTaintReg( wxCommandEvent &event )
 //         }
 //     }
 
+}
+
+void CpuPanel::OnPopupTrackMemory( wxCommandEvent &event )
+{
+    if (m_cpu == NULL) return;
+    if (GetSelectedEip() != 0) {
+        TrackMemory(GetSelectedEip());
+    } else if (GetCurrentEip() != 0) {
+        TrackMemory(GetCurrentEip());
+    } else {
+        wxMessageBox("No instruction selected!");
+    }
+}
+
+void CpuPanel::TrackMemory( u32 instEip )
+{
+    InstPtr inst = m_insts->GetInst(instEip);
+    wxArrayString strs;
+    strs.Add(wxString::Format("ARG1: %s", inst->Main.Argument1.ArgMnemonic));
+    strs.Add(wxString::Format("ARG2: %s", inst->Main.Argument2.ArgMnemonic));
+    strs.Add(wxString::Format("ARG3: %s", inst->Main.Argument3.ArgMnemonic));
+    strs.Add(wxString::Format("ADDR: %08x", (u32) inst->Main.Inst.AddrValue));
+    strs.Add(wxString::Format("IMM:  %08x", (u32) inst->Main.Inst.Immediat));
+    int ch = wxGetSingleChoiceIndex("Select address", "Track memory", strs, 0);
+    if (ch == -1) return;
+
+    u32 memAddr = 0;
+    switch (ch) {
+    case 0:
+        {
+            if (IsMemoryArg(inst->Main.Argument1))
+                memAddr = m_cpu->Offset32(inst->Main.Argument1);
+        } break;
+    case 1:
+        {
+            if (IsMemoryArg(inst->Main.Argument2)) 
+                memAddr = m_cpu->Offset32(inst->Main.Argument2);
+        } break;
+    case 2:
+        {
+            if (IsMemoryArg(inst->Main.Argument3))
+                memAddr = m_cpu->Offset32(inst->Main.Argument3);
+        } break;
+    case 3:
+        {
+            memAddr = (u32) inst->Main.Inst.AddrValue;
+        } break;
+    case 4:
+        {
+            memAddr = (u32) inst->Main.Inst.Immediat;
+        } break;
+    default:
+        break;
+    }
+
+    if (memAddr == 0) {
+        wxMessageBox("Invalid selection!");
+        return;
+    }
+
+    ((ArietisFrame *) m_parent)->ShowInMemory(memAddr);
 }

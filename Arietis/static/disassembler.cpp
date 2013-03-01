@@ -158,7 +158,7 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
     }
 
     if (m_lastSec != sec || update) {
-        if (m_dataUpdateHandler) m_dataUpdateHandler(instSec);
+        if (m_dataUpdateHandler) m_dataUpdateHandler(instSec, cpu);
     }
     m_lastSec = sec;
 }

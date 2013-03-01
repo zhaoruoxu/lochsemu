@@ -73,8 +73,8 @@ void AEngine::OnProcessPostLoad( const PeLoader *loader )
 void AEngine::SetGuiFrame( ArietisFrame *frame )
 {
     m_gui = frame;
-    m_disassembler.RegisterDataUpdateHandler([this](const InstSection *insts) {
-        this->m_gui->GetCpuPanel()->OnDataUpdate(insts);
+    m_disassembler.RegisterDataUpdateHandler([this](const InstSection *insts, const Processor *cpu) {
+        this->m_gui->GetCpuPanel()->OnDataUpdate(insts, cpu);
     });
     m_gui->GetTracePanel()->SetTracer(&m_tracer);
 }

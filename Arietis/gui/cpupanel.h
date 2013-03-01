@@ -16,12 +16,13 @@ public:
 
     void        ShowCode(u32 addr);
     void        OnCurrentEipChange(u32 addr);
-    void        OnDataUpdate(const InstSection *insts);
+    void        OnDataUpdate(const InstSection *insts, const Processor *cpu);
     void        OnSelectionChange() override;
 
     void        OnRightDown(wxMouseEvent& event);
     void        OnPopupShowCurrInst(wxCommandEvent &event);
     void        OnPopupTaintReg(wxCommandEvent &event);
+    void        OnPopupTrackMemory(wxCommandEvent &event);
 
     u32         GetCurrentEip() const { return m_currEip; }
     u32         GetSelectedEip() const { return m_currSelEip; }
@@ -35,9 +36,11 @@ private:
     void        DrawJumpLines(wxBufferedPaintDC &dc, int istart, int iend);
     wxPoint     GetCurrentScrolledPos() const;
     int         CalcJumpLineWidth(int idx1, int idx2) const;
+    void        TrackMemory(u32 instEip);
 private:
     wxMenu *    m_popup;
     AEngine *   m_engine;
+    const Processor *   m_cpu;
     
     /* render */
     int         m_widthIp;

@@ -45,6 +45,7 @@ enum {
     ID_CpuInstList,
     ID_PopupShowCurrInst,
     ID_PopupTaintReg,
+    ID_PopupTrackMemory,
 
     /* Bps panel */
     ID_PopupShowCode,
@@ -78,6 +79,8 @@ bool    InRange(T val, T start, T len) {
 const int   TaintBrushCount = 256;
 wxBrush     TaintBrushes[];
 
+void DrawTaint(wxBufferedPaintDC &dc, const Taint &t, const wxRect &rect);
+
 template <int N>
 void DrawTaint(wxBufferedPaintDC &dc, const Tb<N> &t, const wxRect &rect)
 {
@@ -87,33 +90,12 @@ void DrawTaint(wxBufferedPaintDC &dc, const Tb<N> &t, const wxRect &rect)
         LxFatal("Drawing width for each taint value is be too small\n");
     }
     dc.SetPen(*wxTRANSPARENT_PEN);
-    for (int n = 0; n < N; n++) {
-        if (t.T[n].IsAllTainted()) {
-            dc.SetBrush(*wxBLUE_BRUSH);
-            dc.DrawRectangle(rect);
-            continue;
-        } 
-        if (t.T[n].IsAllUntainted()) {
-            dc.SetBrush(*wxWHITE_BRUSH);
-            dc.DrawRectangle(rect);
-            continue;
-        }
-        for (int i = 0; i < TaintWidth; i++) {
-            int xOffset = n * rect.width + rect.width * i / TaintWidth;
-            
-
-            if (t.T[n].IsTainted(i)) {
-                //dc.SetBrush(TaintBrushes[i * TaintBrushCount / TaintWidth]);
-                dc.SetBrush(*wxBLUE_BRUSH);
-            } else {
-                dc.SetBrush(*wxWHITE_BRUSH);
-            }
-            //dc.SetBrush(t.T[n].IsTainted(i) ? TaintBrushes[] : *wxWHITE_BRUSH);
-
-            dc.DrawRectangle(rect.x + xOffset, rect.y, w, rect.height - 1);
-        }
+    wxRect r = rect;
+    r.height--;
+    for (int i = 0; i < N; i++) {
+        DrawTaint(dc, t.T[i], r);
+        r.x += r.width;
     }
-
 }
 
 #endif // __ARIETIS_GUI_GUI_H__

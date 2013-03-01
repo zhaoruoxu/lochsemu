@@ -99,7 +99,7 @@ private:
 
 class Disassembler {
 public:
-    typedef std::function<void (InstSection *insts)>    DataUpdateHandler;
+    typedef std::function<void (InstSection *insts, const Processor *cpu)>    DataUpdateHandler;
     
 public:
     Disassembler();

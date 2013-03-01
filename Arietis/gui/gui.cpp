@@ -307,3 +307,29 @@ wxBrush     TaintBrushes[TaintBrushCount] = {
     wxBrush(wxColour("#00feff")),
     wxBrush(wxColour("#00ffff")),
 };
+
+void DrawTaint( wxBufferedPaintDC &dc, const Taint &t, const wxRect &rect )
+{
+    if (t.IsAllTainted()) {
+        dc.SetBrush(*wxBLUE_BRUSH);
+        dc.DrawRectangle(rect);
+        return;
+    } 
+    if (t.IsAllUntainted()) {
+        dc.SetBrush(*wxWHITE_BRUSH);
+        dc.DrawRectangle(rect);
+        return;
+    }
+    const int TaintWidth = t.GetWidth();
+    const int w = rect.width / TaintWidth;
+    for (int i = 0; i < TaintWidth; i++) {
+        int xOffset = rect.width * i / TaintWidth;
+
+        if (t.IsTainted(i)) {
+            dc.SetBrush(*wxBLUE_BRUSH);
+        } else {
+            dc.SetBrush(*wxWHITE_BRUSH);
+        }
+        dc.DrawRectangle(rect.x + xOffset, rect.y, w, rect.height - 1);
+    }
+}
