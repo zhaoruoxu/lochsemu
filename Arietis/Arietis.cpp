@@ -83,3 +83,28 @@ ARIETIS_API void LochsEmu_Process_PreRun            (const Process *proc, Proces
     g_engine.OnProcessPreRun(proc, cpu);
 }
 
+ARIETIS_API bool LochsEmu_Plugin_Cleanup( void )
+{
+    return true;
+}
+
+ARIETIS_API void LochsEmu_Processor_MemRead( const Processor *cpu, u32 address, u32 nBytes, cpbyte data )
+{
+
+}
+
+ARIETIS_API void LochsEmu_Processor_MemWrite( const Processor *cpu, u32 address, u32 nBytes, cpbyte data )
+{
+
+}
+
+ARIETIS_API void LochsEmu_Process_PostRun( const Process *proc )
+{
+
+}
+
+ARIETIS_API void LochsEmu_Process_PreLoad( PeLoader *loader )
+{
+
+}
+

@@ -127,6 +127,7 @@
     <ClInclude Include="gui\tracepanel.h" />
     <ClInclude Include="instcontext.h" />
     <ClInclude Include="memory.h" />
+    <ClInclude Include="plugin\plugin.h" />
     <ClInclude Include="static\disassembler.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="taint\comptaint.h" />
@@ -173,6 +174,8 @@
     <ClCompile Include="gui\mainframe.cpp" />
     <ClCompile Include="gui\contextpanel.cpp" />
     <ClCompile Include="instcontext.cpp" />
+    <ClCompile Include="plugin\plugin.cpp" />
+    <ClCompile Include="plugin\taint_directive.cpp" />
     <ClCompile Include="static\disassembler.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

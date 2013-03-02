@@ -49,6 +49,12 @@
     <Filter Include="Source Files\dbg">
       <UniqueIdentifier>{576ea2be-db41-4d69-9bf7-c872ce27ae2b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\plugin">
+      <UniqueIdentifier>{366e9f8a-dd8f-48eb-81e1-4a269b36ecd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\plugin">
+      <UniqueIdentifier>{2cdb3af4-8404-4960-ad64-2055861b0a4e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -162,6 +168,9 @@
     <ClInclude Include="taint\comptaint.h">
       <Filter>Header Files\taint</Filter>
     </ClInclude>
+    <ClInclude Include="plugin\plugin.h">
+      <Filter>Header Files\plugin</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -244,6 +253,12 @@
     </ClCompile>
     <ClCompile Include="taint\comptaint.cpp">
       <Filter>Source Files\taint</Filter>
+    </ClCompile>
+    <ClCompile Include="plugin\plugin.cpp">
+      <Filter>Source Files\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="plugin\taint_directive.cpp">
+      <Filter>Source Files\plugin</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

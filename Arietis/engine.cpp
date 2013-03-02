@@ -10,7 +10,8 @@
 #include "processor.h"
 #include "buildver.h"
 
-AEngine::AEngine() : m_debugger(this), m_tracer(this), m_taint(this)
+AEngine::AEngine() 
+    : m_debugger(this), m_tracer(this), m_taint(this), m_plugins(this)
 {
     m_emulator  = NULL;
 }
@@ -26,6 +27,7 @@ void AEngine::Initialize(Emulator *emu)
     m_emulator      = emu;
     m_debugger.Initialize();
     m_taint.Initialize();
+    m_plugins.Initialize();
     m_tracer.Enable(g_config.GetInt("Tracer", "Enabled", 1) != 0);
     //m_skipDllEntries    = g_config.GetInt("Engine", "SkipDllEntries", 1) != 0;
     m_mainEntryEntered  = false;
@@ -45,10 +47,10 @@ void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 {
     if (!m_enabled) return;
     m_tracer.OnPreExecute(cpu);
-    
     m_disassembler.OnPreExecute(cpu, inst);
+    m_plugins.OnPreExecute(cpu, inst);
+
     if (m_archive.SkipDllEntries && !m_mainEntryEntered) return;
-    
     m_debugger.OnPreExecute(cpu, inst);
 }
 
@@ -59,6 +61,39 @@ void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 
     m_taint.OnPostExecute(cpu, inst);
     m_tracer.OnPostExecute(cpu, inst);
+    m_plugins.OnPostExecute(cpu, inst);
+}
+
+void AEngine::OnMemRead( const Processor *cpu, u32 addr, u32 nbytes, cpbyte data )
+{
+    if (!m_enabled) return;
+    m_plugins.OnMemRead(cpu, addr, nbytes, data);
+}
+
+void AEngine::OnMemWrite( const Processor *cpu, u32 addr, u32 nbytes, cpbyte data )
+{
+    if (!m_enabled) return;
+    m_plugins.OnMemWrite(cpu, addr, nbytes, data);
+}
+
+void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
+{
+    if (!m_enabled) return;
+    m_mainEntryEntered = true;
+    m_debugger.OnProcPreRun(proc, cpu);
+    m_plugins.OnProcessPreRun(proc, cpu);
+}
+
+void AEngine::OnProcessPostRun( const Process *proc )
+{
+    if (!m_enabled) return;
+    m_plugins.OnProcessPostRun(proc);
+}
+
+void AEngine::OnProcessPreLoad( const PeLoader *loader )
+{
+    if (!m_enabled) return;
+    m_plugins.OnProcessPreLoad(loader);
 }
 
 void AEngine::OnProcessPostLoad( const PeLoader *loader )
@@ -70,6 +105,18 @@ void AEngine::OnProcessPostLoad( const PeLoader *loader )
     LoadArchive(loader->GetModuleInfo(0)->Name);
 }
 
+void AEngine::OnWinapiPreCall( Processor *cpu, uint apiIndex )
+{
+    if (!m_enabled) return;
+    m_plugins.OnWinapiPreCall(cpu, apiIndex);
+}
+
+void AEngine::OnWinapiPostCall( Processor *cpu, uint apiIndex )
+{
+    if (!m_enabled) return;
+    m_plugins.OnWinapiPostCall(cpu, apiIndex);
+}
+
 void AEngine::SetGuiFrame( ArietisFrame *frame )
 {
     m_gui = frame;
@@ -79,14 +126,7 @@ void AEngine::SetGuiFrame( ArietisFrame *frame )
     m_gui->GetTracePanel()->SetTracer(&m_tracer);
 }
 
-void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
-{
-    if (!m_enabled) return;
-    m_mainEntryEntered = true;
-    m_debugger.OnProcPreRun(proc, cpu);
 
-    //Persist();
-}
 
 void AEngine::GetInstContext(InstContext *ctx) const
 {
@@ -180,4 +220,6 @@ void AEngine::SaveArchive()
     fout << str;
     fout.close();
 }
+
+
 

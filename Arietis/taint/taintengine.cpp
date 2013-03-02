@@ -393,10 +393,10 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0xe5*/ NULL,
     /*0xe6*/ NULL,
     /*0xe7*/ NULL,
-    /*0xe8*/ &TaintEngine::Call_Handler,
-    /*0xe9*/ &TaintEngine::Jmp_Handler,
+    /*0xe8*/ &TaintEngine::CallRel_handler,
+    /*0xe9*/ &TaintEngine::JmpRel_Handler,
     /*0xea*/ NULL,
-    /*0xeb*/ &TaintEngine::Jmp_Handler,
+    /*0xeb*/ &TaintEngine::JmpRel_Handler,
     /*0xec*/ NULL,
     /*0xed*/ NULL,
     /*0xee*/ NULL,
@@ -968,9 +968,9 @@ void TaintEngine::ExtFF_Handler(const Processor *cpu, const Instruction *inst)
     static TaintInstHandler handlers[] = {
         /* 0 */ &TaintEngine::Inc_Dec_Handler,
         /* 1 */ &TaintEngine::Inc_Dec_Handler,
-        /* 2 */ &TaintEngine::Call_Handler,
+        /* 2 */ &TaintEngine::CallAbs_Handler,
         /* 3 */ NULL,
-        /* 4 */ &TaintEngine::Jmp_Handler,
+        /* 4 */ &TaintEngine::JmpAbs_Handler,
         /* 5 */ NULL,
         /* 6 */ &TaintEngine::Push_Handler,
         /* 7 */ NULL,
@@ -1130,7 +1130,7 @@ void TaintEngine::Ret_Handler(const Processor *cpu, const Instruction *inst)
     CpuTaint.Eip    = Shrink(t);
 }
 
-void TaintEngine::Call_Handler(const Processor *cpu, const Instruction *inst)
+void TaintEngine::CallAbs_Handler(const Processor *cpu, const Instruction *inst)
 {
     Taint4 t        = Extend<4>(CpuTaint.Eip);
     MemTaint.Set<4>(cpu->ESP, t);
@@ -1138,10 +1138,24 @@ void TaintEngine::Call_Handler(const Processor *cpu, const Instruction *inst)
     CpuTaint.Eip    = Shrink(newT);
 }
 
-void TaintEngine::Jmp_Handler(const Processor *cpu, const Instruction *inst)
+void TaintEngine::CallRel_handler(const Processor *cpu, const Instruction *inst)
+{
+    Assert(IsConstantArg(ARG1));
+    Taint4 t        = Extend<4>(CpuTaint.Eip);
+    MemTaint.Set<4>(cpu->ESP, t);
+    // Doesn't affect Eip
+}
+
+void TaintEngine::JmpAbs_Handler(const Processor *cpu, const Instruction *inst)
 {
     Taint4 t        = GetTaint<4>(cpu, ARG1);
     CpuTaint.Eip    = Shrink(t);
+}
+
+void TaintEngine::JmpRel_Handler(const Processor *cpu, const Instruction *inst)
+{
+    Assert(IsConstantArg(ARG1));
+    // Doesn't affect Eip
 }
 
 void TaintEngine::DivF7_IdivF7_Handler(const Processor *cpu, const Instruction *inst)

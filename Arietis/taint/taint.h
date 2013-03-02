@@ -163,7 +163,7 @@ Tb<N>       Extend(const Taint1 &t)
 {
     Tb<N> res;
     for (int i = 0; i < N; i++)
-        res.T[i] = t.T[i];
+        res.T[i] = t.T[0];
     return res;
 }
 

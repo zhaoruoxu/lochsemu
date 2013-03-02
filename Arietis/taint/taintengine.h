@@ -446,8 +446,10 @@ private:
     DECLARE_HANDLER(Scas_Handler);
     DECLARE_HANDLER(ShiftRotate_Handler);
     DECLARE_HANDLER(Ret_Handler);
-    DECLARE_HANDLER(Call_Handler);
-    DECLARE_HANDLER(Jmp_Handler);
+    DECLARE_HANDLER(CallAbs_Handler);
+    DECLARE_HANDLER(CallRel_handler);
+    DECLARE_HANDLER(JmpAbs_Handler);
+    DECLARE_HANDLER(JmpRel_Handler);
     DECLARE_HANDLER(Neg_Handler);
     DECLARE_HANDLER(DivF7_IdivF7_Handler);
     DECLARE_HANDLER(Bt_Handler);
