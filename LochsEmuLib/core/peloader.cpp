@@ -168,7 +168,7 @@ LochsEmu::LxResult PeLoader::LoadSectionToMem( PeModule *module, PIMAGE_SECTION_
 
     u32 size = max(pSec->Misc.VirtualSize, pSec->SizeOfRawData);
     char desc[64];
-    sprintf(desc, "%s (%s)", pSec->Name, module->GetName());
+    sprintf(desc, "%s", pSec->Name);
 
     SectionDesc sdesc(desc, nModule);
     if (pSec->PointerToRawData == 0) {

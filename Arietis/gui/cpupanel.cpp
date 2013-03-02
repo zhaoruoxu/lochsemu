@@ -248,13 +248,13 @@ void CpuPanel::DrawJumpLines( wxBufferedPaintDC &dc, int istart, int iend )
 
 void CpuPanel::OnDataUpdate( const InstSection *insts, const Processor *cpu )
 {
+    if (insts == NULL) return;
     m_insts = insts;
     m_cpu   = cpu;
-    if (insts == NULL) return;
 
     {
         SyncObjectLock lockx(*m_insts);
-        
+
         m_procEntryEnd.clear();
         int prevIndex = -1, prevRindex = -1;
         for (InstPtr *inst = m_insts->Begin(); inst != m_insts->End(); inst = m_insts->Next(inst)) {
@@ -269,12 +269,16 @@ void CpuPanel::OnDataUpdate( const InstSection *insts, const Processor *cpu )
             prevIndex   = index;
             prevRindex  = rindex;
         }
-    }
 
-    m_currSelIndex  = -1;
-    m_currSelEip    = 0;
-    m_height = m_lineHeight * insts->GetCount();
+        m_currSelIndex  = -1;
+        m_currSelEip    = 0;
+        m_currEip       = cpu->EIP;
+        m_currIndex     = m_insts->GetInst(m_currEip)->Index;
+        m_height        = m_lineHeight * insts->GetCount();
+    }
     SetVirtualSize(m_width, m_height);
+
+    
 }
 
 void CpuPanel::OnCurrentEipChange( u32 addr )
@@ -384,6 +388,7 @@ void CpuPanel::TrackMemory( u32 instEip )
         inst->Main.Argument3.ArgMnemonic : "N/A"));
     strs.Add(wxString::Format("ADDR: %08x", (u32) inst->Main.Inst.AddrValue));
     strs.Add(wxString::Format("IMM:  %08x", (u32) inst->Main.Inst.Immediat));
+    strs.Add(wxString::Format("EIP:  %08x", instEip));
     int ch = wxGetSingleChoiceIndex("Select address", "Track memory", strs, 0);
     if (ch == -1) return;
 
@@ -411,6 +416,10 @@ void CpuPanel::TrackMemory( u32 instEip )
     case 4:
         {
             memAddr = (u32) inst->Main.Inst.Immediat;
+        } break;
+    case 5:
+        {
+            memAddr = instEip;
         } break;
     default:
         break;

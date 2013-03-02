@@ -152,13 +152,15 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
             LxDebug("Disassembling %08x...\n", eip);
             RecursiveDisassemble(cpu, eip, instSec, eip);
             LxDebug("Disassemble complete, count = %d\n", instSec->GetCount());
-            instSec->UpdateIndices();
+            //instSec->UpdateIndices();
             update = true;
         }
     }
 
     if (m_lastSec != sec || update) {
-        if (m_dataUpdateHandler) m_dataUpdateHandler(instSec, cpu);
+        //if (m_dataUpdateHandler) 
+        instSec->UpdateIndices();
+        m_dataUpdateHandler(instSec, cpu);
     }
     m_lastSec = sec;
 }
