@@ -2,6 +2,7 @@
 #include "plugin.h"
 #include "engine.h"
 #include "utilities.h"
+#include "event.h"
 
 #include "processor.h"
 #include "memory.h"
@@ -17,11 +18,12 @@ public:
     ~TaintDirective() {}
 
     void    Initialize() override;
-    virtual void    OnProcessPreRun(const Process *proc, const Processor *cpu) override;
-    virtual void    OnPreExecute(Processor *cpu, const Instruction *inst) override {
-        m_lastEip = cpu->EIP;
+    virtual void    OnProcessPreRun(ProcessPreRunEvent &event) override;
+    virtual void    OnPreExecute(PreExecuteEvent &event) override {
+        if (event.IsPluginInvoked()) return;
+        m_lastEip = event.Cpu->EIP;
     }
-    virtual void    OnPostExecute(Processor *cpu, const Instruction *inst) override;
+    virtual void    OnPostExecute(PostExecuteEvent &event) override;
 
     virtual void    Serialize(Json::Value &root) const override;
     virtual void    Deserialize(Json::Value &root) override;
@@ -41,21 +43,24 @@ void TaintDirective::Initialize()
     m_lastEip = 0;
 }
 
-void TaintDirective::OnProcessPreRun( const Process *proc, const Processor *cpu )
+void TaintDirective::OnProcessPreRun( ProcessPreRunEvent &event )
 {
-    DoTaint(cpu);
+    if (event.IsPluginInvoked()) return;
+    DoTaint(event.Cpu);
 }
 
-void TaintDirective::OnPostExecute( Processor *cpu, const Instruction *inst )
+void TaintDirective::OnPostExecute( PostExecuteEvent &event )
 {
-    if (inst->Main.Inst.Opcode != 0xeb || inst->Main.Inst.AddrValue - m_lastEip != 0x06)
+    if (event.IsPluginInvoked()) return;
+    if (event.Inst->Main.Inst.Opcode != 0xeb || 
+        event.Inst->Main.Inst.AddrValue - m_lastEip != 0x06)
         return;     // only 'jmp eip+4'
     
     u32 magic = 0;
-    cpu->Mem->Read32(cpu->EIP - 4, &magic);
+    event.Cpu->Mem->Read32(event.Cpu->EIP - 4, &magic);
     if (magic != TaintDataSeg) return;
 
-    DoTaint(cpu);
+    DoTaint(event.Cpu);
 }
 
 void TaintDirective::DoTaint( const Processor *cpu )

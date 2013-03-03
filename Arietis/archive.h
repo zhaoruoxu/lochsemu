@@ -17,11 +17,6 @@ struct Archive : public ISerializable, public MutexSyncObject {
     void        Serialize(Json::Value &root) const override;
     void        Deserialize(Json::Value &root) override;
 
-    //bool        IsTracerEnabled;
-    bool        SkipDllEntries;
-    bool        BreakOnCRTEntry;
-    //bool        IsTaintEnabled;
-
 private:
     std::map<std::string, ISerializable *>    m_objects;
 };

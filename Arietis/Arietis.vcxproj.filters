@@ -171,6 +171,9 @@
     <ClInclude Include="plugin\plugin.h">
       <Filter>Header Files\plugin</Filter>
     </ClInclude>
+    <ClInclude Include="event.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

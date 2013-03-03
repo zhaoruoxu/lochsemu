@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "disassembler.h"
 #include "engine.h"
+#include "event.h"
 
 #include "processor.h"
 #include "instruction.h"
@@ -135,12 +136,12 @@ Disassembler::~Disassembler()
 
 }
 
-void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
+void Disassembler::OnPreExecute( PreExecuteEvent &event )
 {
-    m_currProcessor = cpu;
+    m_currProcessor = event.Cpu;
 
-    u32 eip = cpu->EIP;
-    Section *sec = cpu->Mem->GetSection(eip);
+    u32 eip = m_currProcessor->EIP;
+    Section *sec = m_currProcessor->Mem->GetSection(eip);
     
     bool update = false;
     InstSection *instSec = m_instMem.CreateSection(sec->Base(), sec->Size());
@@ -150,7 +151,7 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
 
         if (!instSec->Contains(eip)) {
             LxDebug("Disassembling %08x...\n", eip);
-            RecursiveDisassemble(cpu, eip, instSec, eip);
+            RecursiveDisassemble(m_currProcessor, eip, instSec, eip);
             LxDebug("Disassemble complete, count = %d\n", instSec->GetCount());
             //instSec->UpdateIndices();
             update = true;
@@ -160,7 +161,7 @@ void Disassembler::OnPreExecute( const Processor *cpu, const Instruction *inst )
     if (m_lastSec != sec || update) {
         //if (m_dataUpdateHandler) 
         instSec->UpdateIndices();
-        m_dataUpdateHandler(instSec, cpu);
+        m_dataUpdateHandler(instSec, m_currProcessor);
     }
     m_lastSec = sec;
 }

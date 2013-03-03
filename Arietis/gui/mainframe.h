@@ -41,8 +41,8 @@ private:
     void    OnToggleBreakpoint(wxCommandEvent &event);
     void    OnRemoveBreakpoint(wxCommandEvent &event);
     void    OnToggleTraceClicked(wxCommandEvent &event);
-    void    OnToggleCRTEntryClicked(wxCommandEvent &event);
-    void    OnToggleSkipDllEntryClicked(wxCommandEvent &event);
+//     void    OnToggleCRTEntryClicked(wxCommandEvent &event);
+//     void    OnToggleSkipDllEntryClicked(wxCommandEvent &event);
     void    OnToggleTaintClicked(wxCommandEvent &event);
     void    OnShowMemory(wxCommandEvent &event);
 
@@ -76,8 +76,8 @@ private:
     wxString        m_pathText;
 
     MySwitch *      m_toggleTrace;
-    MySwitch *      m_toggleCRTEntry;
-    MySwitch *      m_toggleSkipDllEntry;
+    //MySwitch *      m_toggleCRTEntry;
+    //MySwitch *      m_toggleSkipDllEntry;
     MySwitch *      m_toggleTaint;
 };
  

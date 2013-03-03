@@ -23,7 +23,7 @@ void RefProcess::Initialize( Emulator *emu )
     m_emu = emu;
     ZeroMemory(&m_pi, sizeof(PROCESS_INFORMATION));
     ZeroMemory(&m_event, sizeof(DEBUG_EVENT));
-    m_createNewConsole = LxConfig.GetInt("ReferenceProcess", "CreateNewConsole", 1) != 0;
+    m_createNewConsole = LxConfig.GetInt("ReferenceProcess", "CreateNewConsole", 0) != 0;
 
     CreateRefProcess();
     GetContext();
@@ -35,13 +35,9 @@ void RefProcess::CreateRefProcess( void )
     char path[MAX_PATH];
     STARTUPINFOA si = {0};
     si.cb = sizeof(STARTUPINFOA);
-    //std::string cmdLine = LxGetRefCommandLine();
     LPCSTR cmdLine = LxEmulator.CmdLine();
     char cmd[LX_CMDLINE_SIZE];
     strcpy(cmd, cmdLine);
-    //LxWarning("RefProcess::CreateRefProcess(), environment string, current directory\n");
-    //char cmd[512];
-    //strcpy(cmd, cmdLine.c_str());
     BOOL okay = CreateProcessA(m_emu->Path(), cmd, NULL, NULL, FALSE,
         m_createNewConsole ? DEBUG_ONLY_THIS_PROCESS | CREATE_NEW_CONSOLE : DEBUG_ONLY_THIS_PROCESS,
         NULL, NULL, &si, &m_pi);

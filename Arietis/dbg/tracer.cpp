@@ -3,6 +3,7 @@
 #include "instruction.h"
 #include "processor.h"
 #include "engine.h"
+#include "event.h"
 
 ATracer::ATracer( AEngine *engine )
     : m_engine(engine),  m_seq(-1)
@@ -13,13 +14,13 @@ ATracer::~ATracer()
 {
 }
 
-void ATracer::OnPreExecute( const Processor *cpu )
+void ATracer::OnPreExecute( PreExecuteEvent &event )
 {
-    m_currEip   = cpu->EIP;
+    m_currEip   = event.Cpu->EIP;
     if (!IsEnabled()) return;
 }
 
-void ATracer::OnPostExecute( const Processor *cpu, const Instruction *inst )
+void ATracer::OnPostExecute( PostExecuteEvent &event )
 {
     ++m_seq;
 

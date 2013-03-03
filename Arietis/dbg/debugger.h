@@ -22,10 +22,10 @@ public:
     ~ADebugger();
 
     void        Initialize();
-    void        OnPreExecute(Processor *cpu, const Instruction *inst);
+    void        OnPreExecute(PreExecuteEvent &event);
     //void        OnPostExecute(Processor *cpu, const Instruction *inst);
-    void        OnProcPreRun(const Process *proc, const Processor *cpu);
-    void        OnProcessPostLoad(const PeLoader *loader);
+    void        OnProcessPreRun(ProcessPreRunEvent &event);
+    void        OnProcessPostLoad(ProcessPostLoadEvent &event);
     void        OnStepInto();
     void        OnStepOver();
     void        OnStepOut();

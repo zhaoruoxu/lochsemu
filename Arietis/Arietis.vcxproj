@@ -115,6 +115,7 @@
     <ClInclude Include="dbg\debugger.h" />
     <ClInclude Include="dbg\tracer.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="event.h" />
     <ClInclude Include="gui\bpspanel.h" />
     <ClInclude Include="gui\cpupanel.h" />
     <ClInclude Include="gui\custombase.h" />

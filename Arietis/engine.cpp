@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "engine.h"
+#include "event.h"
 #include "utilities.h"
 
 #include "gui/mainframe.h"
@@ -29,7 +30,7 @@ void AEngine::Initialize(Emulator *emu)
     m_taint.Initialize();
     m_plugins.Initialize();
     m_tracer.Enable(g_config.GetInt("Tracer", "Enabled", 1) != 0);
-    m_mainEntryEntered  = false;
+    //m_mainEntryEntered  = false;
     m_enabled           = true;
     m_isArchiveLoaded   = false;
 
@@ -44,75 +45,128 @@ void AEngine::Initialize(Emulator *emu)
 void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 {
     if (!m_enabled) return;
-    m_tracer.OnPreExecute(cpu);
-    m_disassembler.OnPreExecute(cpu, inst);
-    m_plugins.OnPreExecute(cpu, inst);
+    PreExecuteEvent event(this, cpu, inst);
 
-    if (m_archive.SkipDllEntries && !m_mainEntryEntered) return;
-    m_debugger.OnPreExecute(cpu, inst);
+    m_plugins.OnPreExecute(event);
+    if (event.IsVetoed()) return;
+
+    m_tracer.OnPreExecute(event);
+    m_disassembler.OnPreExecute(event);
+    m_debugger.OnPreExecute(event);
+
+    m_plugins.OnPreExecute(event);
 }
 
 void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 {
     if (!m_enabled) return;
-    if (m_archive.SkipDllEntries && !m_mainEntryEntered) return;
+    PostExecuteEvent event(this, cpu, inst);
 
-    m_taint.OnPostExecute(cpu, inst);
-    m_tracer.OnPostExecute(cpu, inst);
-    m_plugins.OnPostExecute(cpu, inst);
+    m_plugins.OnPostExecute(event);
+    if (event.IsVetoed()) return;
+
+    m_taint.OnPostExecute(event);
+    m_tracer.OnPostExecute(event);
+    m_plugins.OnPostExecute(event);
+
+    m_plugins.OnPostExecute(event);
 }
 
 void AEngine::OnMemRead( const Processor *cpu, u32 addr, u32 nbytes, cpbyte data )
 {
     if (!m_enabled) return;
-    m_plugins.OnMemRead(cpu, addr, nbytes, data);
+    MemReadEvent event(this, cpu, addr, nbytes, data);
+
+    m_plugins.OnMemRead(event);
+    if (event.IsVetoed()) return;
+
+    // other modules
+
+    m_plugins.OnMemRead(event);
 }
 
 void AEngine::OnMemWrite( const Processor *cpu, u32 addr, u32 nbytes, cpbyte data )
 {
     if (!m_enabled) return;
-    m_plugins.OnMemWrite(cpu, addr, nbytes, data);
+    MemWriteEvent event(this, cpu, addr, nbytes, data);
+
+    m_plugins.OnMemWrite(event);
+    if (event.IsVetoed()) return;
+
+    m_plugins.OnMemWrite(event);
 }
 
 void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
 {
     if (!m_enabled) return;
-    m_mainEntryEntered = true;
-    m_debugger.OnProcPreRun(proc, cpu);
-    m_plugins.OnProcessPreRun(proc, cpu);
+
+    ProcessPreRunEvent event(this, proc, cpu);
+
+    m_plugins.OnProcessPreRun(event);
+    if (event.IsVetoed()) return;
+
+    m_debugger.OnProcessPreRun(event);
+
+    m_plugins.OnProcessPreRun(event);
 }
 
 void AEngine::OnProcessPostRun( const Process *proc )
 {
     if (!m_enabled) return;
-    m_plugins.OnProcessPostRun(proc);
+    ProcessPostRunEvent event(this, proc);
+
+    m_plugins.OnProcessPostRun(event);
+    if (event.IsVetoed()) return;
+
+    m_plugins.OnProcessPostRun(event);
 }
 
 void AEngine::OnProcessPreLoad( const PeLoader *loader )
 {
     if (!m_enabled) return;
-    m_plugins.OnProcessPreLoad(loader);
+    ProcessPreLoadEvent event(this, loader);
+
+    m_plugins.OnProcessPreLoad(event);
+    if (event.IsVetoed()) return;
+
+    m_plugins.OnProcessPreLoad(event);
 }
 
 void AEngine::OnProcessPostLoad( const PeLoader *loader )
 {
     if (!m_enabled) return;
-    m_debugger.OnProcessPostLoad(loader);
-    m_gui->OnProcessLoaded(m_emulator->Path());
-    
+    ProcessPostLoadEvent event(this, loader);
+
+    m_plugins.OnProcessPostLoad(event);
+    if (event.IsVetoed()) return;
+
     LoadArchive(loader->GetModuleInfo(0)->Name);
+    m_debugger.OnProcessPostLoad(event);
+    m_gui->OnProcessLoaded(m_emulator->Path());
+
+    m_plugins.OnProcessPostLoad(event);
 }
 
 void AEngine::OnWinapiPreCall( Processor *cpu, uint apiIndex )
 {
     if (!m_enabled) return;
-    m_plugins.OnWinapiPreCall(cpu, apiIndex);
+    WinapiPreCallEvent event(this, cpu, apiIndex);
+
+    m_plugins.OnWinapiPreCall(event);
+    if (event.IsVetoed()) return;
+
+    m_plugins.OnWinapiPreCall(event);
 }
 
 void AEngine::OnWinapiPostCall( Processor *cpu, uint apiIndex )
 {
     if (!m_enabled) return;
-    m_plugins.OnWinapiPostCall(cpu, apiIndex);
+    WinapiPostCallEvent event(this, cpu, apiIndex);
+
+    m_plugins.OnWinapiPostCall(event);
+    if (event.IsVetoed()) return;
+
+    m_plugins.OnWinapiPostCall(event);
 }
 
 void AEngine::SetGuiFrame( ArietisFrame *frame )
@@ -123,8 +177,6 @@ void AEngine::SetGuiFrame( ArietisFrame *frame )
     });
     m_gui->GetTracePanel()->SetTracer(&m_tracer);
 }
-
-
 
 void AEngine::GetInstContext(InstContext *ctx) const
 {
@@ -158,7 +210,6 @@ void AEngine::Terminate()
 {
     SaveArchive();
     m_enabled = false;
-    //m_emulator->Terminate();
     m_debugger.OnTerminate();
 }
 

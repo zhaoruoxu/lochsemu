@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "plugin.h"
 #include "engine.h"
+#include "event.h"
 
 Plugin::Plugin(const std::string name, uint ovd)
     : m_name(name), m_enabled(true), m_ovdFlag(ovd)
@@ -42,84 +43,94 @@ void APluginManager::RegisterPlugin( Plugin *plugin )
     LxInfo("Arietis plugin registered: %s\n", plugin->GetName().c_str());
 }
 
-void APluginManager::OnPreExecute( Processor *cpu, const Instruction *inst )
+void APluginManager::OnPreExecute( PreExecuteEvent &event )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_PreExecute)) 
-            p->OnPreExecute(cpu, inst);
+            p->OnPreExecute(event);
     }
+    event.PluginInvoke();
 }
 
-void APluginManager::OnPostExecute( Processor *cpu, const Instruction *inst )
+void APluginManager::OnPostExecute( PostExecuteEvent &event)
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_PostExecute))
-            p->OnPostExecute(cpu, inst);
+            p->OnPostExecute(event);
     }
+    event.PluginInvoke();
 }
 
-void APluginManager::OnMemRead( const Processor *cpu, u32 addr, u32 nbytes, cpbyte data )
+void APluginManager::OnMemRead( MemReadEvent &event )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_MemRead))
-            p->OnMemRead(cpu, addr, nbytes, data);
+            p->OnMemRead(event);
     }
+    event.PluginInvoke();
 }
 
-void APluginManager::OnMemWrite( const Processor *cpu, u32 addr, u32 nbytes, cpbyte data )
+void APluginManager::OnMemWrite( MemWriteEvent &event )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_MemWrite))
-            p->OnMemWrite(cpu, addr, nbytes, data);
+            p->OnMemWrite(event);
     }
+    event.PluginInvoke();
 }
 
-void APluginManager::OnProcessPreRun( const Process *proc, const Processor *cpu )
+void APluginManager::OnProcessPreRun( ProcessPreRunEvent &event )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPreRun))
-            p->OnProcessPreRun(proc, cpu);
+            p->OnProcessPreRun(event);
     }
+    event.PluginInvoke();
 }
 
-void APluginManager::OnProcessPostRun( const Process *proc )
+void APluginManager::OnProcessPostRun( ProcessPostRunEvent &event )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPostRun))
-            p->OnProcessPostRun(proc);
+            p->OnProcessPostRun(event);
     }
+    event.PluginInvoke();
 }
 
-void APluginManager::OnProcessPreLoad( const PeLoader *loader )
+void APluginManager::OnProcessPreLoad( ProcessPreLoadEvent &event )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPreLoad))
-            p->OnProcessPreLoad(loader);
+            p->OnProcessPreLoad(event);
     }
+    event.PluginInvoke();
 }
 
-void APluginManager::OnProcessPostLoad( const PeLoader *loader )
+void APluginManager::OnProcessPostLoad( ProcessPostLoadEvent &event )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPostLoad))
-            p->OnProcessPostLoad(loader);
+            p->OnProcessPostLoad(event);
     }
+    event.PluginInvoke();
 }
 
-void APluginManager::OnWinapiPreCall( Processor *cpu, uint apiIndex )
+void APluginManager::OnWinapiPreCall( WinapiPreCallEvent &event )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_WinapiPreCall))
-            p->OnWinapiPreCall(cpu, apiIndex);
+            p->OnWinapiPreCall(event);
     }
+    event.PluginInvoke();
 }
 
-void APluginManager::OnWinapiPostCall( Processor *cpu, uint apiIndex )
+void APluginManager::OnWinapiPostCall( WinapiPostCallEvent &event )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_WinapiPostCall))
-            p->OnWinapiPostCall(cpu, apiIndex);
+            p->OnWinapiPostCall(event);
     }
+    event.PluginInvoke();
 }
 
 void APluginManager::Serialize( Json::Value &root ) const 

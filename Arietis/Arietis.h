@@ -55,6 +55,19 @@ struct Archive;
 class Plugin;
 class APluginManager;
 
+// event
+class Event;
+class PreExecuteEvent;
+class PostExecuteEvent;
+class MemReadEvent;
+class MemWriteEvent;
+class ProcessPreRunEvent;
+class ProcessPostRunEvent;
+class ProcessPreLoadEvent;
+class ProcessPostLoadEvent;
+class WinapiPreCallEvent;
+class WinapiPostCallEvent;
+
 extern Emulator *       g_emulator;
 extern HMODULE          g_module;
 extern Config           g_config;

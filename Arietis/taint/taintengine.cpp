@@ -2,9 +2,7 @@
 #include "taintengine.h"
 #include "processor.h"
 #include "engine.h"
-
-
-
+#include "event.h"
 
 TaintEngine::TaintEngine(AEngine *engine)
     : m_engine(engine)
@@ -22,22 +20,22 @@ void TaintEngine::Initialize()
 
 }
 
-
-void TaintEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
+void TaintEngine::OnPostExecute( PostExecuteEvent &event )
 {
     if (!IsEnabled()) return;
 
     TaintInstHandler h = NULL;
-    if (INST_ONEBYTE(inst->Main.Inst.Opcode)) {
-        h = HandlerOneByte[inst->Main.Inst.Opcode];
-    } else if (INST_TWOBYTE(inst->Main.Inst.Opcode)) {
-        h = HandlerTwoBytes[inst->Main.Inst.Opcode & 0xff];
+    u32 opcode = event.Inst->Main.Inst.Opcode;
+    if (INST_ONEBYTE(opcode)) {
+        h = HandlerOneByte[opcode];
+    } else if (INST_TWOBYTE(opcode)) {
+        h = HandlerTwoBytes[opcode & 0xff];
     } else {
         Assert(0);
     }
 
     if (NULL != h) {
-        (this->*h)(cpu, inst);
+        (this->*h)(event.Cpu, event.Inst);
     }
 }
 

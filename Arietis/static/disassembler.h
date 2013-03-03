@@ -109,7 +109,7 @@ public:
         m_dataUpdateHandler = h;
     }
 
-    void        OnPreExecute(const Processor *cpu, const Instruction *inst);
+    void        OnPreExecute(PreExecuteEvent &event);
     void        UpdateInstContext(InstContext *ctx, u32 eip) const;
     InstPtr     GetInst(u32 eip) const { return m_instMem.GetInst(eip); }
 private:

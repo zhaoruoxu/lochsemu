@@ -23,8 +23,8 @@ public:
     ATracer(AEngine *engine);
     virtual ~ATracer();
 
-    void            OnPreExecute(const Processor *cpu);
-    void            OnPostExecute(const Processor *cpu, const Instruction *inst);
+    void            OnPreExecute(PreExecuteEvent &event);
+    void            OnPostExecute(PostExecuteEvent &event);
 
     //void            TraceInst(const Processor *cpu, u32 eip, i64 seq);
     void            Enable(bool isEnabled) { m_enabled = isEnabled; }

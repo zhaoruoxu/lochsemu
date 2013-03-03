@@ -76,7 +76,7 @@ private:
     APluginManager  m_plugins;
 
     //bool            m_skipDllEntries;
-    bool            m_mainEntryEntered;
+    //bool            m_mainEntryEntered;
 
     std::string     m_archivePath;
     bool            m_isArchiveLoaded;

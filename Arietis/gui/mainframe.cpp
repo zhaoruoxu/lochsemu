@@ -170,14 +170,14 @@ void ArietisFrame::InitToolbars()
         wxSize(60, -1), wxBORDER_NONE));
     tbDebug->AddSeparator();
     m_toggleTrace = new MySwitch(tbDebug, ID_ToolbarToggleTrace, "Trace", wxSize(50, -1));
-    m_toggleCRTEntry = new MySwitch(tbDebug, ID_ToolbarToggleCRTEntry, "crt_ent", wxSize(50, -1));
-    m_toggleSkipDllEntry = new MySwitch(tbDebug, ID_ToolbarToggleSkipDllEntry, "No_DLL", wxSize(50, -1));
+    //m_toggleCRTEntry = new MySwitch(tbDebug, ID_ToolbarToggleCRTEntry, "crt_ent", wxSize(50, -1));
+    //m_toggleSkipDllEntry = new MySwitch(tbDebug, ID_ToolbarToggleSkipDllEntry, "No_DLL", wxSize(50, -1));
     m_toggleTaint = new MySwitch(tbDebug, ID_ToolbarToggleTaint, "Taint", wxSize(50, -1));
     tbDebug->AddControl(m_toggleTrace);
-    tbDebug->AddSeparator();
-    tbDebug->AddControl(m_toggleCRTEntry);
-    tbDebug->AddSeparator();
-    tbDebug->AddControl(m_toggleSkipDllEntry);
+//     tbDebug->AddSeparator();
+//     tbDebug->AddControl(m_toggleCRTEntry);
+//     tbDebug->AddSeparator();
+//     tbDebug->AddControl(m_toggleSkipDllEntry);
     tbDebug->AddSeparator();
     tbDebug->AddControl(m_toggleTaint);
 
@@ -189,10 +189,10 @@ void ArietisFrame::InitToolbars()
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnRun,        this, ID_Run);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnToggleTraceClicked, 
         this, ID_ToolbarToggleTrace);
-    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnToggleCRTEntryClicked, 
-        this, ID_ToolbarToggleCRTEntry);
-    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnToggleSkipDllEntryClicked, 
-        this, ID_ToolbarToggleSkipDllEntry);
+//     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnToggleCRTEntryClicked, 
+//         this, ID_ToolbarToggleCRTEntry);
+//     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnToggleSkipDllEntryClicked, 
+//         this, ID_ToolbarToggleSkipDllEntry);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ArietisFrame::OnToggleTaintClicked,
         this, ID_ToolbarToggleTaint);
 }
@@ -214,7 +214,7 @@ void ArietisFrame::OnAbout( wxCommandEvent &event )
 void ArietisFrame::OnClose( wxCloseEvent &event )
 {
     if (event.CanVeto()) {
-        if (wxMessageBox("Closing this window will terminate emulation.\n\nYou sure?", "Don't", wxICON_QUESTION | wxYES_NO) != wxYES) {
+        if (wxMessageBox("Closing this window will continue emulation without Arietis.\n\nYou sure?", "Quit", wxICON_QUESTION | wxYES_NO) != wxYES) {
             event.Veto();
             return;
         }
@@ -383,27 +383,27 @@ void ArietisFrame::OnToggleTraceClicked( wxCommandEvent &event )
     m_engine->SaveArchive();
 }
 
-void ArietisFrame::OnToggleCRTEntryClicked( wxCommandEvent &event )
-{
-    m_archive->BreakOnCRTEntry = !m_archive->BreakOnCRTEntry;
-    m_toggleCRTEntry->SetOn(m_archive->BreakOnCRTEntry);
-    m_engine->SaveArchive();
-}
-
-void ArietisFrame::OnToggleSkipDllEntryClicked( wxCommandEvent &event )
-{
-    m_archive->SkipDllEntries = !m_archive->SkipDllEntries;
-    m_toggleSkipDllEntry->SetOn(m_archive->SkipDllEntries);
-    m_engine->SaveArchive();
-}
+// void ArietisFrame::OnToggleCRTEntryClicked( wxCommandEvent &event )
+// {
+//     m_archive->BreakOnCRTEntry = !m_archive->BreakOnCRTEntry;
+//     m_toggleCRTEntry->SetOn(m_archive->BreakOnCRTEntry);
+//     m_engine->SaveArchive();
+// }
+// 
+// void ArietisFrame::OnToggleSkipDllEntryClicked( wxCommandEvent &event )
+// {
+//     m_archive->SkipDllEntries = !m_archive->SkipDllEntries;
+//     m_toggleSkipDllEntry->SetOn(m_archive->SkipDllEntries);
+//     m_engine->SaveArchive();
+// }
 
 void ArietisFrame::OnArchiveLoaded( Archive *arc )
 {
     m_archive = arc;
     m_statusbar->SetStatusText(m_tracer->IsEnabled() ? "Tracing" : "", Statusbar_Tracing);
     m_toggleTrace->SetOn(m_tracer->IsEnabled());
-    m_toggleCRTEntry->SetOn(m_archive->BreakOnCRTEntry);
-    m_toggleSkipDllEntry->SetOn(m_archive->SkipDllEntries);
+    //m_toggleCRTEntry->SetOn(m_archive->BreakOnCRTEntry);
+    //m_toggleSkipDllEntry->SetOn(m_archive->SkipDllEntries);
     m_toggleTaint->SetOn(m_taint->IsEnabled());
 }
 

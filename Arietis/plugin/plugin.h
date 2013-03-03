@@ -37,16 +37,16 @@ public:
     void            Deserialize(Json::Value &root) override;
 
     virtual void    Initialize() {}
-    virtual void    OnPreExecute        (Processor *cpu, const Instruction *inst) {}
-    virtual void    OnPostExecute       (Processor *cpu, const Instruction *inst) {}
-    virtual void    OnMemRead           (const Processor *cpu, u32 addr, u32 nbytes, cpbyte data) {}
-    virtual void    OnMemWrite          (const Processor *cpu, u32 addr, u32 nbytes, cpbyte data) {}
-    virtual void    OnProcessPreRun     (const Process *proc, const Processor *cpu) {}
-    virtual void    OnProcessPostRun    (const Process *proc) {}
-    virtual void    OnProcessPreLoad    (const PeLoader *loader) {}
-    virtual void    OnProcessPostLoad   (const PeLoader *loader) {}
-    virtual void    OnWinapiPreCall     (Processor *cpu, uint apiIndex) {}
-    virtual void    OnWinapiPostCall    (Processor *cpu, uint apiIndex) {}
+    virtual void    OnPreExecute        (PreExecuteEvent        &event) {}
+    virtual void    OnPostExecute       (PostExecuteEvent       &event) {}
+    virtual void    OnMemRead           (MemReadEvent           &event) {}
+    virtual void    OnMemWrite          (MemWriteEvent          &event) {}
+    virtual void    OnProcessPreRun     (ProcessPreRunEvent     &event) {}
+    virtual void    OnProcessPostRun    (ProcessPostRunEvent    &event) {}
+    virtual void    OnProcessPreLoad    (ProcessPreLoadEvent    &event) {}
+    virtual void    OnProcessPostLoad   (ProcessPostLoadEvent   &event) {}
+    virtual void    OnWinapiPreCall     (WinapiPreCallEvent     &event) {}
+    virtual void    OnWinapiPostCall    (WinapiPostCallEvent    &event) {}
     
 private:
     std::string     m_name;
@@ -69,16 +69,16 @@ public:
     virtual void    Serialize(Json::Value &root) const override;
     virtual void    Deserialize(Json::Value &root) override;
 
-    void            OnPreExecute        (Processor *cpu, const Instruction *inst);
-    void            OnPostExecute       (Processor *cpu, const Instruction *inst);
-    void            OnMemRead           (const Processor *cpu, u32 addr, u32 nbytes, cpbyte data);
-    void            OnMemWrite          (const Processor *cpu, u32 addr, u32 nbytes, cpbyte data);
-    void            OnProcessPreRun     (const Process *proc, const Processor *cpu);
-    void            OnProcessPostRun    (const Process *proc);
-    void            OnProcessPreLoad    (const PeLoader *loader);
-    void            OnProcessPostLoad   (const PeLoader *loader);
-    void            OnWinapiPreCall     (Processor *cpu, uint apiIndex);
-    void            OnWinapiPostCall    (Processor *cpu, uint apiIndex);
+    void            OnPreExecute        (PreExecuteEvent        &event);
+    void            OnPostExecute       (PostExecuteEvent       &event);
+    void            OnMemRead           (MemReadEvent           &event);
+    void            OnMemWrite          (MemWriteEvent          &event);
+    void            OnProcessPreRun     (ProcessPreRunEvent     &event);
+    void            OnProcessPostRun    (ProcessPostRunEvent    &event);
+    void            OnProcessPreLoad    (ProcessPreLoadEvent    &event);
+    void            OnProcessPostLoad   (ProcessPostLoadEvent   &event);
+    void            OnWinapiPreCall     (WinapiPreCallEvent     &event);
+    void            OnWinapiPostCall    (WinapiPostCallEvent    &event);
 
 private:
     std::vector<Plugin *>   m_plugins;

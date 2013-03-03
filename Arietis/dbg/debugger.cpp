@@ -6,6 +6,7 @@
 #include "instruction.h"
 #include "pemodule.h"
 #include "breakpoint.h"
+#include "event.h"
 
 #include "gui/mainframe.h"
 
@@ -32,21 +33,21 @@ void ADebugger::Initialize()
     m_mainEntry     = 0;
 }
 
-void ADebugger::OnPreExecute( Processor *cpu, const Instruction *inst )
+void ADebugger::OnPreExecute( PreExecuteEvent &event )
 {
-    m_currProcessor = cpu;
-    m_currInst      = inst;
+    m_currProcessor = event.Cpu;
+    m_currInst      = event.Inst;
 
 //     if (!m_crtEntryFound && m_archive->BreakOnCRTEntry) {
 //         AnalyzeCRTEntry(cpu, inst);
 //     }
 
-    CheckBreakpoints(cpu, inst);
+    CheckBreakpoints(m_currProcessor, m_currInst);
 
     switch (m_state) {
     case STATE_SINGLESTEP:
         {
-            DoPreExecSingleStep(cpu, inst);
+            DoPreExecSingleStep(m_currProcessor, m_currInst);
         } break;
     case STATE_RUNNING:
         {
@@ -58,10 +59,10 @@ void ADebugger::OnPreExecute( Processor *cpu, const Instruction *inst )
         } break;
     case STATE_STEPOVER:
         {
-            if (cpu->EIP == m_stepOverEip) {
+            if (m_currProcessor->EIP == m_stepOverEip) {
                 m_state = STATE_SINGLESTEP;
                 m_stepOverEip = 0;
-                DoPreExecSingleStep(cpu, inst);
+                DoPreExecSingleStep(m_currProcessor, m_currInst);
             }
         } break;
     case STATE_TERMINATED:
@@ -182,17 +183,10 @@ void ADebugger::DoPreExecSingleStep( const Processor *cpu, const Instruction *in
     m_semaphore.Wait();
 }
 
-void ADebugger::OnProcPreRun( const Process *proc, const Processor *cpu )
+void ADebugger::OnProcessPreRun( ProcessPreRunEvent &event )
 {
-    // update all breakpoints' runtime info
-    {
-        SyncObjectLock lock(*m_archive);
-        for (auto &bp : m_breakpoints) {
-            const ModuleInfo *minfo = proc->GetModuleInfo(bp.Module);
-            bp.ModuleName = minfo->Name;
-            bp.Address = minfo->ImageBase + bp.Offset;
-        }
-    }
+    
+
 
     if (g_config.GetInt("Debugger", "BreakOnMainModuleEntry", 1) != 0) {
         m_state = STATE_SINGLESTEP;
@@ -202,9 +196,19 @@ void ADebugger::OnProcPreRun( const Process *proc, const Processor *cpu )
     //m_mainEntry = cpu->EIP;
 }
 
-void ADebugger::OnProcessPostLoad( const PeLoader *loader )
+void ADebugger::OnProcessPostLoad( ProcessPostLoadEvent &event )
 {
-    m_mainEntry = loader->GetModuleInfo(0)->EntryPoint;
+    m_mainEntry = event.Loader->GetModuleInfo(0)->EntryPoint;
+
+    // update all breakpoints' runtime info
+    {
+        //SyncObjectLock lock(*m_archive);
+        for (auto &bp : m_breakpoints) {
+            const ModuleInfo *minfo = event.Loader->GetModuleInfo(bp.Module);
+            bp.ModuleName = minfo->Name;
+            bp.Address = minfo->ImageBase + bp.Offset;
+        }
+    }
 }
 
 void ADebugger::OnTerminate()

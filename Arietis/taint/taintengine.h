@@ -27,10 +27,10 @@ public:
     MemoryTaint     MemTaint;
 
     void        Initialize();
-    void        OnPreExecute       (Processor *cpu, const Instruction *inst);
-    void        OnPostExecute      (Processor *cpu, const Instruction *inst);
-    void        OnWinapiPreCall    (Processor *cpu, uint apiIndex);
-    void        OnWinapiPostCall   (Processor *cpu, uint apiIndex);
+    void        OnPreExecute       (PreExecuteEvent     &event);
+    void        OnPostExecute      (PostExecuteEvent    &event);
+    void        OnWinapiPreCall    (WinapiPreCallEvent  &event);
+    void        OnWinapiPostCall   (WinapiPostCallEvent &event);
 
     void        UpdateInstContext(InstContext *ctx) const;
 

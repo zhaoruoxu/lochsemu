@@ -37,8 +37,8 @@ enum {
     /* toolbar */
     ID_ToolbarDebug,
     ID_ToolbarToggleTrace,
-    ID_ToolbarToggleCRTEntry,
-    ID_ToolbarToggleSkipDllEntry,
+    //ID_ToolbarToggleCRTEntry,
+    //ID_ToolbarToggleSkipDllEntry,
     ID_ToolbarToggleTaint,
 
     /* cpu panel */
