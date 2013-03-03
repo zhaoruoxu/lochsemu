@@ -140,9 +140,15 @@ void Disassembler::OnPreExecute( PreExecuteEvent &event )
 {
     m_currProcessor = event.Cpu;
 
-    u32 eip = m_currProcessor->EIP;
+    Disassemble(m_currProcessor->EIP);
+}
+
+InstPtr Disassembler::Disassemble( u32 eip )
+{
+    Assert(m_currProcessor != NULL);
+
     Section *sec = m_currProcessor->Mem->GetSection(eip);
-    
+
     bool update = false;
     InstSection *instSec = m_instMem.CreateSection(sec->Base(), sec->Size());
 
@@ -164,6 +170,8 @@ void Disassembler::OnPreExecute( PreExecuteEvent &event )
         m_dataUpdateHandler(instSec, m_currProcessor);
     }
     m_lastSec = sec;
+
+    return instSec->GetInst(eip);
 }
 
 void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, InstSection *sec, u32 entryEip )
@@ -257,3 +265,12 @@ void Disassembler::UpdateInstContext( InstContext *ctx, u32 eip ) const
     InstPtr inst    = m_instMem.GetInst(eip);
     ctx->inst       = inst;
 }
+
+InstPtr Disassembler::GetInst( u32 eip )
+{
+    InstPtr pinst = m_instMem.GetInst(eip);
+    if (NULL == pinst)
+        pinst = Disassemble(eip);
+    return pinst;
+}
+

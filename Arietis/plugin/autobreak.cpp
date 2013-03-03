@@ -21,15 +21,6 @@ public:
         m_debugger = GetManager()->GetEngine()->GetDebugger();
     }
 
-//     void    OnPreExecute(PreExecuteEvent &event, bool firstTime) override 
-//     {
-//         if (!firstTime) return;
-//         if (m_skipDllEntries && !m_mainModuleEncountered) {
-//             if (event.Cpu->GetCurrentModule() != 0)
-//                 event.Veto();
-//         }
-//     }
-
     void    OnProcessPostLoad(ProcessPostLoadEvent &event, bool firstTime) override 
     {
         if (!firstTime) return;

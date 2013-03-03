@@ -178,6 +178,7 @@
     <ClCompile Include="plugin\autobreak.cpp" />
     <ClCompile Include="plugin\plugin.cpp" />
     <ClCompile Include="plugin\taint_directive.cpp" />
+    <ClCompile Include="plugin\vulnerability_detector.cpp" />
     <ClCompile Include="static\disassembler.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

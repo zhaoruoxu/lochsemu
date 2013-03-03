@@ -266,6 +266,9 @@
     <ClCompile Include="plugin\autobreak.cpp">
       <Filter>Source Files\plugin</Filter>
     </ClCompile>
+    <ClCompile Include="plugin\vulnerability_detector.cpp">
+      <Filter>Source Files\plugin</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="3rdparty\src\json\json_internalarray.inl">

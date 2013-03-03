@@ -81,9 +81,9 @@ void BreakpointsPanel::Draw( wxBufferedPaintDC &dc )
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
     lineX += m_widthModuleName;
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
-    lineX += m_widthDisasm;
-    dc.DrawLine(lineX, lineY0, lineX, lineY1);
     lineX += m_widthDesc;
+    dc.DrawLine(lineX, lineY0, lineX, lineY1);
+    lineX += m_widthDisasm;
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
 }
 
@@ -105,11 +105,12 @@ void BreakpointsPanel::DrawItem( wxBufferedPaintDC &dc, int index )
     w += m_widthAddress;
     dc.DrawText(wxString::Format("%s", bp.ModuleName), w, h);
     w += m_widthModuleName;
+    dc.DrawText(wxString::Format("%s", bp.Desc), w, h);
+    w += m_widthDesc;
     const char *disasm = m_engine->GetDisassembler()->GetInst(bp.Address)->Main.CompleteInstr;
     dc.DrawText(wxString::Format("%s", disasm), w, h);
     w += m_widthDisasm;
-    dc.DrawText(wxString::Format("%s", bp.Desc), w, h);
-    w += m_widthDesc;
+
 }
 
 void BreakpointsPanel::OnLeftDoubleClick( wxMouseEvent &event )

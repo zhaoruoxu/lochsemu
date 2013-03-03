@@ -36,6 +36,12 @@ public:
         return true;
     }
 
+    bool        IsAnyTainted() const {
+        for (int i = 0; i < Count; i++)
+            if (m_data[i] != 0) return true;
+        return false;
+    }
+
     void        Set(int index) { 
         Assert(index < Width); 
         int i = index / 32;
@@ -130,6 +136,13 @@ struct Tb {
     {
         for (int i = 0; i < N; i++)
             T[i].SetAll();
+    }
+
+    bool        IsAnyTainted() const
+    {
+        for (int i = 0; i < N; i++)
+            if (T[i].IsAnyTainted()) return true;
+        return false;
     }
 };
 

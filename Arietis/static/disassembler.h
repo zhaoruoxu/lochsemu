@@ -38,7 +38,7 @@ public:
     int             GetCount() const { return m_count; }
     InstPtr         GetInst(u32 addr) const 
     {
-        Assert(Contains(addr));
+        //Assert(Contains(addr));
         return m_data[addr - m_base];
     }
     bool            Contains(u32 addr) const 
@@ -110,8 +110,9 @@ public:
     }
 
     void        OnPreExecute(PreExecuteEvent &event);
+    InstPtr     Disassemble(u32 eip);
     void        UpdateInstContext(InstContext *ctx, u32 eip) const;
-    InstPtr     GetInst(u32 eip) const { return m_instMem.GetInst(eip); }
+    InstPtr     GetInst(u32 eip);
 private:
     void        RecursiveDisassemble(const Processor *cpu, u32 eip, InstSection *sec, u32 entryEip);
     void        AttachApiInfo(const Processor *cpu, u32 eip, InstSection *sec, InstPtr inst);
