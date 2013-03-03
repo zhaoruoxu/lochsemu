@@ -37,16 +37,16 @@ public:
     void            Deserialize(Json::Value &root) override;
 
     virtual void    Initialize() {}
-    virtual void    OnPreExecute        (PreExecuteEvent        &event) {}
-    virtual void    OnPostExecute       (PostExecuteEvent       &event) {}
-    virtual void    OnMemRead           (MemReadEvent           &event) {}
-    virtual void    OnMemWrite          (MemWriteEvent          &event) {}
-    virtual void    OnProcessPreRun     (ProcessPreRunEvent     &event) {}
-    virtual void    OnProcessPostRun    (ProcessPostRunEvent    &event) {}
-    virtual void    OnProcessPreLoad    (ProcessPreLoadEvent    &event) {}
-    virtual void    OnProcessPostLoad   (ProcessPostLoadEvent   &event) {}
-    virtual void    OnWinapiPreCall     (WinapiPreCallEvent     &event) {}
-    virtual void    OnWinapiPostCall    (WinapiPostCallEvent    &event) {}
+    virtual void    OnPreExecute        (PreExecuteEvent        &event, bool firstTime) {}
+    virtual void    OnPostExecute       (PostExecuteEvent       &event, bool firstTime) {}
+    virtual void    OnMemRead           (MemReadEvent           &event, bool firstTime) {}
+    virtual void    OnMemWrite          (MemWriteEvent          &event, bool firstTime) {}
+    virtual void    OnProcessPreRun     (ProcessPreRunEvent     &event, bool firstTime) {}
+    virtual void    OnProcessPostRun    (ProcessPostRunEvent    &event, bool firstTime) {}
+    virtual void    OnProcessPreLoad    (ProcessPreLoadEvent    &event, bool firstTime) {}
+    virtual void    OnProcessPostLoad   (ProcessPostLoadEvent   &event, bool firstTime) {}
+    virtual void    OnWinapiPreCall     (WinapiPreCallEvent     &event, bool firstTime) {}
+    virtual void    OnWinapiPostCall    (WinapiPostCallEvent    &event, bool firstTime) {}
     
 private:
     std::string     m_name;
@@ -69,16 +69,16 @@ public:
     virtual void    Serialize(Json::Value &root) const override;
     virtual void    Deserialize(Json::Value &root) override;
 
-    void            OnPreExecute        (PreExecuteEvent        &event);
-    void            OnPostExecute       (PostExecuteEvent       &event);
-    void            OnMemRead           (MemReadEvent           &event);
-    void            OnMemWrite          (MemWriteEvent          &event);
-    void            OnProcessPreRun     (ProcessPreRunEvent     &event);
-    void            OnProcessPostRun    (ProcessPostRunEvent    &event);
-    void            OnProcessPreLoad    (ProcessPreLoadEvent    &event);
-    void            OnProcessPostLoad   (ProcessPostLoadEvent   &event);
-    void            OnWinapiPreCall     (WinapiPreCallEvent     &event);
-    void            OnWinapiPostCall    (WinapiPostCallEvent    &event);
+    void            OnPreExecute        (PreExecuteEvent        &event, bool firstTime);
+    void            OnPostExecute       (PostExecuteEvent       &event, bool firstTime);
+    void            OnMemRead           (MemReadEvent           &event, bool firstTime);
+    void            OnMemWrite          (MemWriteEvent          &event, bool firstTime);
+    void            OnProcessPreRun     (ProcessPreRunEvent     &event, bool firstTime);
+    void            OnProcessPostRun    (ProcessPostRunEvent    &event, bool firstTime);
+    void            OnProcessPreLoad    (ProcessPreLoadEvent    &event, bool firstTime);
+    void            OnProcessPostLoad   (ProcessPostLoadEvent   &event, bool firstTime);
+    void            OnWinapiPreCall     (WinapiPreCallEvent     &event, bool firstTime);
+    void            OnWinapiPostCall    (WinapiPostCallEvent    &event, bool firstTime);
 
 private:
     std::vector<Plugin *>   m_plugins;

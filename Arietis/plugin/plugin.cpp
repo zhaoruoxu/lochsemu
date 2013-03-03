@@ -43,94 +43,84 @@ void APluginManager::RegisterPlugin( Plugin *plugin )
     LxInfo("Arietis plugin registered: %s\n", plugin->GetName().c_str());
 }
 
-void APluginManager::OnPreExecute( PreExecuteEvent &event )
+void APluginManager::OnPreExecute( PreExecuteEvent &event, bool firstTime )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_PreExecute)) 
-            p->OnPreExecute(event);
+            p->OnPreExecute(event, firstTime);
     }
-    event.PluginInvoke();
 }
 
-void APluginManager::OnPostExecute( PostExecuteEvent &event)
+void APluginManager::OnPostExecute( PostExecuteEvent &event, bool firstTime)
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_PostExecute))
-            p->OnPostExecute(event);
+            p->OnPostExecute(event, firstTime);
     }
-    event.PluginInvoke();
 }
 
-void APluginManager::OnMemRead( MemReadEvent &event )
+void APluginManager::OnMemRead( MemReadEvent &event, bool firstTime )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_MemRead))
-            p->OnMemRead(event);
+            p->OnMemRead(event, firstTime);
     }
-    event.PluginInvoke();
 }
 
-void APluginManager::OnMemWrite( MemWriteEvent &event )
+void APluginManager::OnMemWrite( MemWriteEvent &event, bool firstTime )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_MemWrite))
-            p->OnMemWrite(event);
+            p->OnMemWrite(event, firstTime);
     }
-    event.PluginInvoke();
 }
 
-void APluginManager::OnProcessPreRun( ProcessPreRunEvent &event )
+void APluginManager::OnProcessPreRun( ProcessPreRunEvent &event, bool firstTime )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPreRun))
-            p->OnProcessPreRun(event);
+            p->OnProcessPreRun(event, firstTime);
     }
-    event.PluginInvoke();
 }
 
-void APluginManager::OnProcessPostRun( ProcessPostRunEvent &event )
+void APluginManager::OnProcessPostRun( ProcessPostRunEvent &event, bool firstTime )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPostRun))
-            p->OnProcessPostRun(event);
+            p->OnProcessPostRun(event, firstTime);
     }
-    event.PluginInvoke();
 }
 
-void APluginManager::OnProcessPreLoad( ProcessPreLoadEvent &event )
+void APluginManager::OnProcessPreLoad( ProcessPreLoadEvent &event, bool firstTime )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPreLoad))
-            p->OnProcessPreLoad(event);
+            p->OnProcessPreLoad(event, firstTime);
     }
-    event.PluginInvoke();
 }
 
-void APluginManager::OnProcessPostLoad( ProcessPostLoadEvent &event )
+void APluginManager::OnProcessPostLoad( ProcessPostLoadEvent &event, bool firstTime )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPostLoad))
-            p->OnProcessPostLoad(event);
+            p->OnProcessPostLoad(event, firstTime);
     }
-    event.PluginInvoke();
 }
 
-void APluginManager::OnWinapiPreCall( WinapiPreCallEvent &event )
+void APluginManager::OnWinapiPreCall( WinapiPreCallEvent &event, bool firstTime )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_WinapiPreCall))
-            p->OnWinapiPreCall(event);
+            p->OnWinapiPreCall(event, firstTime);
     }
-    event.PluginInvoke();
 }
 
-void APluginManager::OnWinapiPostCall( WinapiPostCallEvent &event )
+void APluginManager::OnWinapiPostCall( WinapiPostCallEvent &event, bool firstTime )
 {
     for (auto p : m_plugins) {
         if (p->IsEnabled() && p->HasOverrideFlag(Func_WinapiPostCall))
-            p->OnWinapiPostCall(event);
+            p->OnWinapiPostCall(event, firstTime);
     }
-    event.PluginInvoke();
 }
 
 void APluginManager::Serialize( Json::Value &root ) const 

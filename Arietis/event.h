@@ -7,13 +7,11 @@
 
 class Event {
 public:
-    Event(void *sender) : m_continue(true), m_sender(sender), m_pluginInvoked(false) {}
+    Event(void *sender) : m_continue(true), m_sender(sender) {}
     virtual ~Event() {}
 
     void    Veto() { m_continue = false; }
     bool    IsVetoed() const { return !m_continue; }
-    void    PluginInvoke() { m_pluginInvoked = true; }
-    bool    IsPluginInvoked() const { return m_pluginInvoked; }
 
     template <typename T>
     T *     GetSender() { return (T *) m_sender; }
@@ -24,7 +22,6 @@ public:
 private:
     bool    m_continue;
     void * const    m_sender;
-    bool    m_pluginInvoked;
 };
 
 class PreExecuteEvent : public Event {

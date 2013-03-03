@@ -175,6 +175,7 @@
     <ClCompile Include="gui\mainframe.cpp" />
     <ClCompile Include="gui\contextpanel.cpp" />
     <ClCompile Include="instcontext.cpp" />
+    <ClCompile Include="plugin\autobreak.cpp" />
     <ClCompile Include="plugin\plugin.cpp" />
     <ClCompile Include="plugin\taint_directive.cpp" />
     <ClCompile Include="static\disassembler.cpp" />

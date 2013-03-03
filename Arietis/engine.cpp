@@ -47,14 +47,14 @@ void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
     if (!m_enabled) return;
     PreExecuteEvent event(this, cpu, inst);
 
-    m_plugins.OnPreExecute(event);
+    m_plugins.OnPreExecute(event, true);
     if (event.IsVetoed()) return;
 
     m_tracer.OnPreExecute(event);
     m_disassembler.OnPreExecute(event);
     m_debugger.OnPreExecute(event);
 
-    m_plugins.OnPreExecute(event);
+    m_plugins.OnPreExecute(event, false);
 }
 
 void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
@@ -62,14 +62,13 @@ void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
     if (!m_enabled) return;
     PostExecuteEvent event(this, cpu, inst);
 
-    m_plugins.OnPostExecute(event);
+    m_plugins.OnPostExecute(event, true);
     if (event.IsVetoed()) return;
 
     m_taint.OnPostExecute(event);
     m_tracer.OnPostExecute(event);
-    m_plugins.OnPostExecute(event);
 
-    m_plugins.OnPostExecute(event);
+    m_plugins.OnPostExecute(event, false);
 }
 
 void AEngine::OnMemRead( const Processor *cpu, u32 addr, u32 nbytes, cpbyte data )
@@ -77,12 +76,12 @@ void AEngine::OnMemRead( const Processor *cpu, u32 addr, u32 nbytes, cpbyte data
     if (!m_enabled) return;
     MemReadEvent event(this, cpu, addr, nbytes, data);
 
-    m_plugins.OnMemRead(event);
+    m_plugins.OnMemRead(event, true);
     if (event.IsVetoed()) return;
 
     // other modules
 
-    m_plugins.OnMemRead(event);
+    m_plugins.OnMemRead(event, false);
 }
 
 void AEngine::OnMemWrite( const Processor *cpu, u32 addr, u32 nbytes, cpbyte data )
@@ -90,10 +89,10 @@ void AEngine::OnMemWrite( const Processor *cpu, u32 addr, u32 nbytes, cpbyte dat
     if (!m_enabled) return;
     MemWriteEvent event(this, cpu, addr, nbytes, data);
 
-    m_plugins.OnMemWrite(event);
+    m_plugins.OnMemWrite(event, true);
     if (event.IsVetoed()) return;
 
-    m_plugins.OnMemWrite(event);
+    m_plugins.OnMemWrite(event, false);
 }
 
 void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
@@ -102,12 +101,12 @@ void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
 
     ProcessPreRunEvent event(this, proc, cpu);
 
-    m_plugins.OnProcessPreRun(event);
+    m_plugins.OnProcessPreRun(event, true);
     if (event.IsVetoed()) return;
 
     m_debugger.OnProcessPreRun(event);
 
-    m_plugins.OnProcessPreRun(event);
+    m_plugins.OnProcessPreRun(event, false);
 }
 
 void AEngine::OnProcessPostRun( const Process *proc )
@@ -115,10 +114,12 @@ void AEngine::OnProcessPostRun( const Process *proc )
     if (!m_enabled) return;
     ProcessPostRunEvent event(this, proc);
 
-    m_plugins.OnProcessPostRun(event);
+    m_plugins.OnProcessPostRun(event, true);
     if (event.IsVetoed()) return;
 
-    m_plugins.OnProcessPostRun(event);
+    SaveArchive();
+
+    m_plugins.OnProcessPostRun(event, false);
 }
 
 void AEngine::OnProcessPreLoad( const PeLoader *loader )
@@ -126,10 +127,10 @@ void AEngine::OnProcessPreLoad( const PeLoader *loader )
     if (!m_enabled) return;
     ProcessPreLoadEvent event(this, loader);
 
-    m_plugins.OnProcessPreLoad(event);
+    m_plugins.OnProcessPreLoad(event, true);
     if (event.IsVetoed()) return;
 
-    m_plugins.OnProcessPreLoad(event);
+    m_plugins.OnProcessPreLoad(event, false);
 }
 
 void AEngine::OnProcessPostLoad( const PeLoader *loader )
@@ -137,14 +138,14 @@ void AEngine::OnProcessPostLoad( const PeLoader *loader )
     if (!m_enabled) return;
     ProcessPostLoadEvent event(this, loader);
 
-    m_plugins.OnProcessPostLoad(event);
+    m_plugins.OnProcessPostLoad(event, true);
     if (event.IsVetoed()) return;
 
     LoadArchive(loader->GetModuleInfo(0)->Name);
     m_debugger.OnProcessPostLoad(event);
     m_gui->OnProcessLoaded(m_emulator->Path());
 
-    m_plugins.OnProcessPostLoad(event);
+    m_plugins.OnProcessPostLoad(event, false);
 }
 
 void AEngine::OnWinapiPreCall( Processor *cpu, uint apiIndex )
@@ -152,10 +153,10 @@ void AEngine::OnWinapiPreCall( Processor *cpu, uint apiIndex )
     if (!m_enabled) return;
     WinapiPreCallEvent event(this, cpu, apiIndex);
 
-    m_plugins.OnWinapiPreCall(event);
+    m_plugins.OnWinapiPreCall(event, true);
     if (event.IsVetoed()) return;
 
-    m_plugins.OnWinapiPreCall(event);
+    m_plugins.OnWinapiPreCall(event, false);
 }
 
 void AEngine::OnWinapiPostCall( Processor *cpu, uint apiIndex )
@@ -163,10 +164,10 @@ void AEngine::OnWinapiPostCall( Processor *cpu, uint apiIndex )
     if (!m_enabled) return;
     WinapiPostCallEvent event(this, cpu, apiIndex);
 
-    m_plugins.OnWinapiPostCall(event);
+    m_plugins.OnWinapiPostCall(event, true);
     if (event.IsVetoed()) return;
 
-    m_plugins.OnWinapiPostCall(event);
+    m_plugins.OnWinapiPostCall(event, false);
 }
 
 void AEngine::SetGuiFrame( ArietisFrame *frame )

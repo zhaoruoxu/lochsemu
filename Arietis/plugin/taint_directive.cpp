@@ -7,6 +7,12 @@
 #include "processor.h"
 #include "memory.h"
 
+/*
+ * This plugin automatically taints data segments that have prefix '.taint',
+ * and instructions in code segment which are surrounded by 
+ * TAINT_CODE_BEGIN() and TAINT_CODE_END() macros.
+ */
+
 static const std::string TaintSegmentPrefix = ".taint";
 static const uint       TaintBegin          = 0x14159265;
 static const uint       TaintEnd            = 0x65921514;
@@ -18,12 +24,12 @@ public:
     ~TaintDirective() {}
 
     void    Initialize() override;
-    virtual void    OnProcessPreRun(ProcessPreRunEvent &event) override;
-    virtual void    OnPreExecute(PreExecuteEvent &event) override {
-        if (event.IsPluginInvoked()) return;
+    virtual void    OnProcessPreRun(ProcessPreRunEvent &event, bool firstTime) override;
+    virtual void    OnPreExecute(PreExecuteEvent &event, bool firstTime) override {
+        if (!firstTime) return;
         m_lastEip = event.Cpu->EIP;
     }
-    virtual void    OnPostExecute(PostExecuteEvent &event) override;
+    virtual void    OnPostExecute(PostExecuteEvent &event, bool firstTime) override;
 
     virtual void    Serialize(Json::Value &root) const override;
     virtual void    Deserialize(Json::Value &root) override;
@@ -36,22 +42,20 @@ private:
     u32     m_lastEip;
 };
 
-
-
 void TaintDirective::Initialize()
 {
     m_lastEip = 0;
 }
 
-void TaintDirective::OnProcessPreRun( ProcessPreRunEvent &event )
+void TaintDirective::OnProcessPreRun( ProcessPreRunEvent &event, bool firstTime )
 {
-    if (event.IsPluginInvoked()) return;
+    if (!firstTime) return;
     DoTaint(event.Cpu);
 }
 
-void TaintDirective::OnPostExecute( PostExecuteEvent &event )
+void TaintDirective::OnPostExecute( PostExecuteEvent &event, bool firstTime )
 {
-    if (event.IsPluginInvoked()) return;
+    if (firstTime) return;
     if (event.Inst->Main.Inst.Opcode != 0xeb || 
         event.Inst->Main.Inst.AddrValue - m_lastEip != 0x06)
         return;     // only 'jmp eip+4'

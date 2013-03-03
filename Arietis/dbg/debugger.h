@@ -23,13 +23,14 @@ public:
 
     void        Initialize();
     void        OnPreExecute(PreExecuteEvent &event);
-    //void        OnPostExecute(Processor *cpu, const Instruction *inst);
     void        OnProcessPreRun(ProcessPreRunEvent &event);
     void        OnProcessPostLoad(ProcessPostLoadEvent &event);
     void        OnStepInto();
     void        OnStepOver();
     void        OnStepOut();
     void        OnRun();
+    void        SetState(State s) { m_state = s; }
+    State       GetState() const { return m_state; }
     void        AddBreakpoint(u32 eip, const std::string &desc);
     void        ToggleBreakpoint(u32 eip);
     void        RemoveBreakpoint(u32 eip);

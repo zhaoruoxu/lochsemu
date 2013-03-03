@@ -185,15 +185,10 @@ void ADebugger::DoPreExecSingleStep( const Processor *cpu, const Instruction *in
 
 void ADebugger::OnProcessPreRun( ProcessPreRunEvent &event )
 {
-    
-
-
-    if (g_config.GetInt("Debugger", "BreakOnMainModuleEntry", 1) != 0) {
-        m_state = STATE_SINGLESTEP;
-        LxInfo("Main module entry encountered\n");
-    }
-
-    //m_mainEntry = cpu->EIP;
+//     if (g_config.GetInt("Debugger", "BreakOnMainModuleEntry", 1) != 0) {
+//         m_state = STATE_SINGLESTEP;
+//         LxInfo("Main module entry encountered\n");
+//     }
 }
 
 void ADebugger::OnProcessPostLoad( ProcessPostLoadEvent &event )
