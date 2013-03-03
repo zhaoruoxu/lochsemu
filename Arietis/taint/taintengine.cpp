@@ -922,8 +922,8 @@ void TaintEngine::ExtF7_Handler(const Processor *cpu, const Instruction *inst)
         /* 1 */ NULL,
         /* 2 */ NULL,
         /* 3 */ &TaintEngine::Neg_Handler,
-        /* 4 */ &TaintEngine::ImulF6_MulF6_Handler,
-        /* 5 */ &TaintEngine::ImulF7_MulF6_Handler,
+        /* 4 */ &TaintEngine::ImulF7_MulF7_Handler,
+        /* 5 */ &TaintEngine::ImulF7_MulF7_Handler,
         /* 6 */ &TaintEngine::DivF7_IdivF7_Handler,
         /* 7 */ &TaintEngine::DivF7_IdivF7_Handler,
     };
@@ -1069,7 +1069,7 @@ void TaintEngine::ImulF6_MulF6_Handler(const Processor *cpu, const Instruction *
     SetFlagTaint<1>(inst, t);
 }
 
-void TaintEngine::ImulF7_MulF6_Handler(const Processor *cpu, const Instruction *inst)
+void TaintEngine::ImulF7_MulF7_Handler(const Processor *cpu, const Instruction *inst)
 {
     Taint4 t = TaintRule_Binop<4>(CpuTaint.GPRegs[LX_REG_EAX], GetTaint<4>(cpu, ARG2));
     CpuTaint.GPRegs[LX_REG_EAX] = t;

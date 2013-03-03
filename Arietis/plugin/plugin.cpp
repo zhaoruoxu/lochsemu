@@ -134,11 +134,11 @@ void APluginManager::Serialize( Json::Value &root ) const
 
 void APluginManager::Deserialize( Json::Value &root )
 {
-    Json::Value pluginsRoot = root["plugins"];
-    if (pluginsRoot.isNull()) return;
+    //Json::Value pluginsRoot = root["plugins"];
+    if (root.isNull()) return;
 
     for (auto &plugin : m_plugins) {
-        Json::Value pluginRoot = pluginsRoot[plugin->GetName()];
+        Json::Value pluginRoot = root[plugin->GetName()];
         if (pluginRoot.isNull()) continue;
         plugin->Deserialize(pluginRoot);
     }

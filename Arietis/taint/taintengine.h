@@ -435,7 +435,7 @@ private:
     DECLARE_HANDLER(Pop_Handler);
     DECLARE_HANDLER(Imul69_Imul6B_Handler);
     DECLARE_HANDLER(ImulF6_MulF6_Handler);
-    DECLARE_HANDLER(ImulF7_MulF6_Handler);
+    DECLARE_HANDLER(ImulF7_MulF7_Handler);
     DECLARE_HANDLER(LoopE2_JecxzE3_Handler);
     DECLARE_HANDLER(Xchg_Handler);
     DECLARE_HANDLER(Mov_Handler);
