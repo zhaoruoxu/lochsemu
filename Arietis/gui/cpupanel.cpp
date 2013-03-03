@@ -5,6 +5,8 @@
 #include "engine.h"
 #include "mainframe.h"
 
+#include "dbg/breakpoint.h"
+
 template <typename T>
 static INLINE bool InRangeIncl(T val, T t0, T t1) {
     return t0 <= val && val <= t1;

@@ -9,6 +9,7 @@
 #include "parallel.h"
 #include "instcontext.h"
 #include "comptaint.h"
+#include "utilities.h"
 
 #include "processor.h"
 
@@ -16,7 +17,7 @@
 #define ARG2    (inst->Main.Argument2)
 #define ARG3    (inst->Main.Argument3)
 
-class TaintEngine : public MutexSyncObject {
+class TaintEngine : public MutexSyncObject, public ISerializable {
 public:
 
     TaintEngine(AEngine *engine);
@@ -35,10 +36,13 @@ public:
 
     //void        DefaultTaintPropagate   (Processor *cpu, const Instruction *inst);
 
-    void        Enable(bool isEnabled);
-    bool        IsEnabled() const;
+    void        Enable(bool isEnabled) { m_enabled = isEnabled; }
+    bool        IsEnabled() const { return m_enabled; }
 
     void        TaintMemoryRanged(u32 addr, u32 len, bool taintAllBits);
+
+    void        Serialize(Json::Value &root) const override;
+    void        Deserialize(Json::Value &root) override;
 
 private:
 
@@ -469,7 +473,7 @@ private:
 
 private:
     AEngine *   m_engine;
-    Archive *   m_archive;
+    bool        m_enabled;
 };
 
 #endif // __TAINT_ENGINE_H__

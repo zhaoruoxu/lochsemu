@@ -33,7 +33,10 @@ void AEngine::Initialize(Emulator *emu)
     m_enabled           = true;
     m_isArchiveLoaded   = false;
 
-    m_archive.AddObject("plugins", &m_plugins);
+    m_archive.AddObject("plugins",      &m_plugins);
+    m_archive.AddObject("debugger",     &m_debugger);
+    m_archive.AddObject("tracer",       &m_tracer);
+    m_archive.AddObject("taintengine",  &m_taint);
 
     CreateArchiveDirectory();
 }

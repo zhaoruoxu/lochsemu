@@ -11,6 +11,8 @@
 
 #include "utilities.h"
 #include "engine.h"
+#include "dbg/tracer.h"
+
 
 #include "instruction.h"
 #include "processor.h"
@@ -27,8 +29,11 @@ ArietisFrame::ArietisFrame(AEngine *engine, Emulator *emu)
     InitUI();
 
     m_engine->SetGuiFrame(this);
-    NotifyMainThread();
-    m_archive = NULL;
+    m_archive   = m_engine->GetArchive();
+    m_tracer    = m_engine->GetTracer();
+    m_taint     = m_engine->GetTaintEngine();
+
+    NotifyMainThread(); // so that main thread can go on
 }
 
 ArietisFrame::~ArietisFrame()
@@ -395,11 +400,11 @@ void ArietisFrame::OnToggleSkipDllEntryClicked( wxCommandEvent &event )
 void ArietisFrame::OnArchiveLoaded( Archive *arc )
 {
     m_archive = arc;
-    m_statusbar->SetStatusText(m_archive->IsTracerEnabled ? "Tracing" : "", Statusbar_Tracing);
-    m_toggleTrace->SetOn(m_archive->IsTracerEnabled);
+    m_statusbar->SetStatusText(m_tracer->IsEnabled() ? "Tracing" : "", Statusbar_Tracing);
+    m_toggleTrace->SetOn(m_tracer->IsEnabled());
     m_toggleCRTEntry->SetOn(m_archive->BreakOnCRTEntry);
     m_toggleSkipDllEntry->SetOn(m_archive->SkipDllEntries);
-    m_toggleTaint->SetOn(m_archive->IsTaintEnabled);
+    m_toggleTaint->SetOn(m_taint->IsEnabled());
 }
 
 void ArietisFrame::OnToggleTaintClicked( wxCommandEvent &event )

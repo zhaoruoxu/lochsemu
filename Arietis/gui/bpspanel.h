@@ -31,7 +31,7 @@ private:
     wxMenu *    m_popup;
 
     AEngine *   m_engine;
-    Archive *   m_archive;
+    ADebugger * m_debugger;
 
     int         m_widthAddress;
     int         m_widthModuleName;

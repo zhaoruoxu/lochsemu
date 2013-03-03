@@ -6,7 +6,6 @@
 #include "Arietis.h"
 #include "utilities.h"
 #include "parallel.h"
-#include "dbg/breakpoint.h"
 
 struct Archive : public ISerializable, public MutexSyncObject {
     Archive();
@@ -18,11 +17,10 @@ struct Archive : public ISerializable, public MutexSyncObject {
     void        Serialize(Json::Value &root) const override;
     void        Deserialize(Json::Value &root) override;
 
-    std::vector<Breakpoint>     Breakpoints;
-    bool        IsTracerEnabled;
+    //bool        IsTracerEnabled;
     bool        SkipDllEntries;
     bool        BreakOnCRTEntry;
-    bool        IsTaintEnabled;
+    //bool        IsTaintEnabled;
 
 private:
     std::map<std::string, ISerializable *>    m_objects;

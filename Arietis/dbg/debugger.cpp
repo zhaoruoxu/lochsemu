@@ -5,12 +5,13 @@
 #include "processor.h"
 #include "instruction.h"
 #include "pemodule.h"
+#include "breakpoint.h"
 
 #include "gui/mainframe.h"
 
 ADebugger::ADebugger(AEngine *engine) : m_engine(engine)
 {
-    m_archive = engine->GetArchive();
+    m_archive = m_engine->GetArchive();
 }
 
 ADebugger::~ADebugger()
@@ -36,9 +37,9 @@ void ADebugger::OnPreExecute( Processor *cpu, const Instruction *inst )
     m_currProcessor = cpu;
     m_currInst      = inst;
 
-    if (!m_crtEntryFound && m_archive->BreakOnCRTEntry) {
-        AnalyzeCRTEntry(cpu, inst);
-    }
+//     if (!m_crtEntryFound && m_archive->BreakOnCRTEntry) {
+//         AnalyzeCRTEntry(cpu, inst);
+//     }
 
     CheckBreakpoints(cpu, inst);
 
@@ -122,17 +123,20 @@ void ADebugger::AddBreakpoint( u32 eip, const std::string &desc )
     Breakpoint bp(module, eip - minfo->ImageBase, desc, true);
     bp.Address      = eip;
     bp.ModuleName   = minfo->Name;
-    m_archive->Breakpoints.push_back(bp);
+
+    {
+        SyncObjectLock lock(*m_archive);
+        m_breakpoints.push_back(bp);
+    }
 }
 
 void ADebugger::ToggleBreakpoint(u32 eip)
 {
     SyncObjectLock lock(*m_archive);
 
-    for (auto &bp : m_archive->Breakpoints) {
+    for (auto &bp : m_breakpoints) {
         if (bp.Address == eip) {
             bp.Enabled = !bp.Enabled;       // toggle existing breakpoint
-            //m_archive->Unlock();
             return;
         }
     }
@@ -143,10 +147,10 @@ void ADebugger::ToggleBreakpoint(u32 eip)
 void ADebugger::RemoveBreakpoint(u32 eip)
 {
     SyncObjectLock lock(*m_archive);
-    auto iter = m_archive->Breakpoints.begin();
-    for (; iter != m_archive->Breakpoints.end(); iter++) {
+    auto iter = m_breakpoints.begin();
+    for (; iter != m_breakpoints.end(); iter++) {
         if (iter->Address == eip) {
-            m_archive->Breakpoints.erase(iter);
+            m_breakpoints.erase(iter);
             break;
         }
     }
@@ -154,7 +158,7 @@ void ADebugger::RemoveBreakpoint(u32 eip)
 
 const Breakpoint * ADebugger::GetBreakpoint( u32 eip ) const
 {
-    for (auto &bp : m_archive->Breakpoints) {
+    for (auto &bp : m_breakpoints) {
         if (bp.Address == eip) 
             return &bp;
     }
@@ -163,8 +167,7 @@ const Breakpoint * ADebugger::GetBreakpoint( u32 eip ) const
 
 void ADebugger::CheckBreakpoints( const Processor *cpu, const Instruction *inst )
 {
-    //SyncObjectLock lock(*m_archive);
-    for (auto &bp : m_archive->Breakpoints) {
+    for (auto &bp : m_breakpoints) {
         if (cpu->EIP == bp.Address && bp.Enabled) {
             m_state = STATE_SINGLESTEP;
             break;
@@ -183,8 +186,8 @@ void ADebugger::OnProcPreRun( const Process *proc, const Processor *cpu )
 {
     // update all breakpoints' runtime info
     {
-        //SyncObjectLock lock(*m_archive);
-        for (auto &bp : m_archive->Breakpoints) {
+        SyncObjectLock lock(*m_archive);
+        for (auto &bp : m_breakpoints) {
             const ModuleInfo *minfo = proc->GetModuleInfo(bp.Module);
             bp.ModuleName = minfo->Name;
             bp.Address = minfo->ImageBase + bp.Offset;
@@ -255,22 +258,46 @@ void ADebugger::UpdateTraceContext( TraceContext *ctx, u32 eip ) const
     ctx->moduleImageBase    = minfo->ImageBase;
 }
 
-void ADebugger::AnalyzeCRTEntry( const Processor *cpu, const Instruction *inst )
+// void ADebugger::AnalyzeCRTEntry( const Processor *cpu, const Instruction *inst )
+// {
+//     if (cpu->GetCurrentModule() != 0) return;
+// 
+//     static const int EipDistMax = 2048;
+//     int dist = abs((int) (cpu->EIP - m_mainEntry));
+//     if (dist > EipDistMax) return;
+//     if (inst->Main.Inst.Opcode != 0xe8) return;
+//     if (PAGE_LOW(inst->Main.Inst.AddrValue) != 0) return;
+//     if (cpu->GetModule(inst->Main.Inst.AddrValue) != 0) return;
+// 
+// 
+//     LxInfo("CRT entry found at %08x, entry = %08x\n", cpu->EIP, 
+//         inst->Main.Inst.AddrValue);
+//     m_crtEntryFound = true;
+//     if (GetBreakpoint(cpu->EIP) == NULL)
+//         AddBreakpoint(cpu->EIP, "crt_entry");
+//     m_engine->SaveArchive();
+// }
+
+void ADebugger::Serialize( Json::Value &root ) const 
 {
-    if (cpu->GetCurrentModule() != 0) return;
+    Json::Value bps;
+    for (const Breakpoint &bp : m_breakpoints) {
+        Json::Value b;
+        bp.Serialize(b);
+        bps.append(b);
+    }
 
-    static const int EipDistMax = 2048;
-    int dist = abs((int) (cpu->EIP - m_mainEntry));
-    if (dist > EipDistMax) return;
-    if (inst->Main.Inst.Opcode != 0xe8) return;
-    if (PAGE_LOW(inst->Main.Inst.AddrValue) != 0) return;
-    if (cpu->GetModule(inst->Main.Inst.AddrValue) != 0) return;
+    root["breakpoints"]     = bps;
+}
 
-
-    LxInfo("CRT entry found at %08x, entry = %08x\n", cpu->EIP, 
-        inst->Main.Inst.AddrValue);
-    m_crtEntryFound = true;
-    if (GetBreakpoint(cpu->EIP) == NULL)
-        AddBreakpoint(cpu->EIP, "crt_entry");
-    m_engine->SaveArchive();
+void ADebugger::Deserialize( Json::Value &root )
+{
+    Json::Value bps = root["breakpoints"];
+    if (!bps.empty()) {
+        for (uint i = 0; i < bps.size(); i++) {
+            Breakpoint bp;
+            bp.Deserialize(bps[i]);
+            m_breakpoints.push_back(bp);
+        }
+    }
 }

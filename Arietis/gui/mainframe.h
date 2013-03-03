@@ -58,6 +58,8 @@ private:
     Emulator *      m_emulator;
     AEngine *       m_engine;
     Archive *       m_archive;
+    ATracer *       m_tracer;
+    TaintEngine *   m_taint;
 
     CpuPanel *      m_cpuPanel;
     ContextPanel *  m_contextPanel;

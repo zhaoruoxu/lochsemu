@@ -7,7 +7,6 @@
 ATracer::ATracer( AEngine *engine )
     : m_engine(engine),  m_seq(-1)
 {
-    m_archive = m_engine->GetArchive();
 }
 
 ATracer::~ATracer()
@@ -36,13 +35,12 @@ void ATracer::OnPostExecute( const Processor *cpu, const Instruction *inst )
     }
 }
 
-void ATracer::Enable( bool isEnabled )
+void ATracer::Serialize( Json::Value &root ) const 
 {
-    m_archive->IsTracerEnabled = isEnabled;
+    root["enabled"] = m_enabled;
 }
 
-bool ATracer::IsEnabled() const
+void ATracer::Deserialize( Json::Value &root )
 {
-    return m_archive->IsTracerEnabled;
+    m_enabled = root.get("enabled", m_enabled).asBool();
 }
-

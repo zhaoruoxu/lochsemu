@@ -9,7 +9,7 @@
 TaintEngine::TaintEngine(AEngine *engine)
     : m_engine(engine)
 {
-    m_archive = m_engine->GetArchive();
+    m_enabled = true;
 }
 
 TaintEngine::~TaintEngine()
@@ -50,16 +50,6 @@ void TaintEngine::UpdateInstContext( InstContext *ctx ) const
     ctx->EipTaint           = CpuTaint.Eip;
     for (int i = 0; i < InstContext::FlagCount; i++)
         ctx->flagTaint[i]   = CpuTaint.Flags[i];
-}
-
-bool TaintEngine::IsEnabled() const
-{
-    return m_archive->IsTaintEnabled;
-}
-
-void TaintEngine::Enable( bool isEnabled )
-{
-    m_archive->IsTaintEnabled = isEnabled;
 }
 
 
@@ -1310,5 +1300,15 @@ void TaintEngine::Pxor660FEF_Handler(const Processor *cpu, const Instruction *in
     } else {
         NOT_IMPLEMENTED();
     }
+}
+
+void TaintEngine::Serialize( Json::Value &root ) const 
+{
+    root["enabled"] = m_enabled;
+}
+
+void TaintEngine::Deserialize( Json::Value &root )
+{
+    m_enabled = root.get("enabled", m_enabled).asBool();
 }
 
