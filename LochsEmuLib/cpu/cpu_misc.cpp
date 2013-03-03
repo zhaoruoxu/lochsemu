@@ -3,6 +3,12 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
+LxResult Bound_62(Processor *cpu, const Instruction *inst)
+{
+    // do nothing for now
+    RET_SUCCESS();
+}
+
 LxResult Sahf_9E(Processor *cpu, const Instruction *inst)
 {
     // SAHF

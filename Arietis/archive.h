@@ -12,6 +12,9 @@ struct Archive : public ISerializable, public MutexSyncObject {
     Archive();
     ~Archive();
 
+    void        AddObject(const std::string &name, ISerializable *obj) {
+        m_objects[name] = obj;
+    }
     void        Serialize(Json::Value &root) const override;
     void        Deserialize(Json::Value &root) override;
 
@@ -20,6 +23,9 @@ struct Archive : public ISerializable, public MutexSyncObject {
     bool        SkipDllEntries;
     bool        BreakOnCRTEntry;
     bool        IsTaintEnabled;
+
+private:
+    std::map<std::string, ISerializable *>    m_objects;
 };
  
 #endif // __ARIETIS_ARCHIVE_H__

@@ -96,7 +96,7 @@ void DrawTaint(wxBufferedPaintDC &dc, const Tb<N> &t, const wxRect &rect, bool h
     wxRect r = rect;
     for (int i = 0; i < N; i++) {
         DrawTaint(dc, t.T[i], r, highlight);
-        r.x += r.width;
+        r.x += r.width+1;
     }
 }
 

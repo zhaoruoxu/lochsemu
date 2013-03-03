@@ -4,17 +4,37 @@
 #define __ARIETIS_PLUGIN_PLUGIN_H__
  
 #include "Arietis.h"
+#include "utilities.h"
 
-class Plugin {
+enum FuncOverride : uint {
+    Func_PreExecute     = 1,
+    Func_PostExecute    = 1 << 2,
+    Func_MemRead        = 1 << 3,
+    Func_MemWrite       = 1 << 4,
+    Func_ProcessPreRun  = 1 << 5,
+    Func_ProcessPostRun = 1 << 6,
+    Func_ProcessPreLoad = 1 << 7,
+    Func_ProcessPostLoad= 1 << 8,
+    Func_WinapiPreCall  = 1 << 9,
+    Func_WinapiPostCall = 1 << 10,
+};
+
+
+
+class Plugin : public ISerializable {
 public:
-    Plugin(const std::string name);
+    Plugin(const std::string name, uint ovd);
     virtual ~Plugin() {}
 
     std::string     GetName() const { return m_name; }
     bool            IsEnabled() const { return m_enabled; }
     void            Enable(bool isEnabled) { m_enabled = isEnabled; }
+    bool            HasOverrideFlag(FuncOverride f) const { return (m_ovdFlag & f) != 0; }
     APluginManager* GetManager() { return m_manager; }
     const APluginManager *  GetManager() const { return m_manager; }
+
+    void            Serialize(Json::Value &root) const override;
+    void            Deserialize(Json::Value &root) override;
 
     virtual void    Initialize() {}
     virtual void    OnPreExecute        (Processor *cpu, const Instruction *inst) {}
@@ -32,10 +52,11 @@ private:
     std::string     m_name;
     bool            m_enabled;
     APluginManager *m_manager;
+    uint    m_ovdFlag;
 };
 
 
-class APluginManager {
+class APluginManager : public ISerializable {
 public:
     APluginManager(AEngine *engine);
     ~APluginManager();
@@ -44,6 +65,9 @@ public:
     void            RegisterPlugin(Plugin *plugin);
     AEngine *       GetEngine() { return m_engine; }
     const AEngine * GetEngine() const { return m_engine; }
+
+    virtual void    Serialize(Json::Value &root) const override;
+    virtual void    Deserialize(Json::Value &root) override;
 
     void            OnPreExecute        (Processor *cpu, const Instruction *inst);
     void            OnPostExecute       (Processor *cpu, const Instruction *inst);

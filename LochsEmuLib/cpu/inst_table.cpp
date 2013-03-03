@@ -104,7 +104,7 @@ InstHandler InstTableOneByte[] =
     /*0x5f*/ &Pop_58X,
     /*0x60*/ &Pushad_60,
     /*0x61*/ &Popad_61,
-    /*0x62*/ &InstNotAvailable,
+    /*0x62*/ &Bound_62,
     /*0x63*/ &InstNotAvailable,
     /*0x64*/ &InstNotAvailable,
     /*0x65*/ &InstNotAvailable,
