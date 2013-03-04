@@ -8,7 +8,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LochsEmu", "LochsEmu\LochsE
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LochsEmuLib", "LochsEmuLib\LochsEmuLib.vcxproj", "{F9360164-655E-4557-9355-83994282858B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Arietis", "Arietis\Arietis.vcxproj", "{86DD9AC1-7D04-4FED-8B93-11B38D7F4812}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Prophet", "Prophet\Prophet.vcxproj", "{86DD9AC1-7D04-4FED-8B93-11B38D7F4812}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F9360164-655E-4557-9355-83994282858B} = {F9360164-655E-4557-9355-83994282858B}
 	EndProjectSection
