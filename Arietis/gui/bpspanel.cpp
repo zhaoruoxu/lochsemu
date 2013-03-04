@@ -127,6 +127,7 @@ void BreakpointsPanel::OnPopupShowCode( wxCommandEvent &event )
 
 void BreakpointsPanel::OnPopupDelete( wxCommandEvent &event )
 {
+    if (!IsSelectedValid()) return;
     u32 eip = m_debugger->GetBreakpointIndex(m_currSelIndex).Address;
     m_engine->GetDebugger()->RemoveBreakpoint(eip);
     ((ArietisFrame *) m_parent)->GetCpuPanel()->Refresh();
@@ -135,6 +136,7 @@ void BreakpointsPanel::OnPopupDelete( wxCommandEvent &event )
 
 void BreakpointsPanel::OnPopupToggle( wxCommandEvent &event )
 {
+    if (!IsSelectedValid()) return;
     u32 eip = m_debugger->GetBreakpointIndex(m_currSelIndex).Address;
     m_engine->GetDebugger()->ToggleBreakpoint(eip);
     ((ArietisFrame *) m_parent)->GetCpuPanel()->Refresh();
@@ -148,5 +150,7 @@ bool BreakpointsPanel::IsSelectedValid() const
 
 void BreakpointsPanel::OnRightDown( wxMouseEvent &event )
 {
+    OnLeftDown(event);
+    OnLeftUp(event);
     PopupMenu(m_popup);
 }
