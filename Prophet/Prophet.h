@@ -47,7 +47,7 @@ class Taint;
 class TaintEngine;
 
 // core
-class AEngine;
+class ProEngine;
 struct InstContext;
 struct Archive;
 
@@ -71,7 +71,7 @@ class WinapiPostCallEvent;
 extern Emulator *       g_emulator;
 extern HMODULE          g_module;
 extern Config           g_config;
-extern AEngine          g_engine;
+extern ProEngine          g_engine;
 extern Semaphore        g_guiSem;
 
 #endif // __PROPHET_PROPHET_H__

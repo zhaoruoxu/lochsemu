@@ -20,17 +20,17 @@ void Plugin::Deserialize( Json::Value &root )
     m_enabled = root.get("enabled", m_enabled).asBool();
 }
 
-AEngine * Plugin::GetEngine()
+ProEngine * Plugin::GetEngine()
 {
     return m_manager->GetEngine();
 }
 
-const AEngine * Plugin::GetEngine() const
+const ProEngine * Plugin::GetEngine() const
 {
     return m_manager->GetEngine();
 }
 
-ProPluginManager::ProPluginManager(AEngine *engine)
+ProPluginManager::ProPluginManager(ProEngine *engine)
     : m_engine(engine)
 {
 

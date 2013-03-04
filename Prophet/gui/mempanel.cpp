@@ -31,7 +31,7 @@ SectionContext::SectionContext()
 }
 
 
-MemDataPanel::MemDataPanel( wxWindow *parent, AEngine *engine )
+MemDataPanel::MemDataPanel( wxWindow *parent, ProEngine *engine )
     : CustomScrolledControl(parent, wxSize(400, 150)), m_engine(engine)
 {
     Bind(wxEVT_LEFT_DOWN,   &MemDataPanel::OnLeftDown,      this, wxID_ANY);

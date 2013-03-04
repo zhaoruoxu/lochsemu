@@ -32,8 +32,8 @@ public:
     bool            HasOverrideFlag(FuncOverride f) const { return (m_ovdFlag & f) != 0; }
     ProPluginManager* GetManager() { return m_manager; }
     const ProPluginManager *  GetManager() const { return m_manager; }
-    AEngine *       GetEngine();
-    const AEngine * GetEngine() const;
+    ProEngine *       GetEngine();
+    const ProEngine * GetEngine() const;
 
     void            Serialize(Json::Value &root) const override;
     void            Deserialize(Json::Value &root) override;
@@ -60,13 +60,13 @@ private:
 
 class ProPluginManager : public ISerializable {
 public:
-    ProPluginManager(AEngine *engine);
+    ProPluginManager(ProEngine *engine);
     ~ProPluginManager();
 
     void            Initialize();
     void            RegisterPlugin(Plugin *plugin);
-    AEngine *       GetEngine() { return m_engine; }
-    const AEngine * GetEngine() const { return m_engine; }
+    ProEngine *       GetEngine() { return m_engine; }
+    const ProEngine * GetEngine() const { return m_engine; }
 
     virtual void    Serialize(Json::Value &root) const override;
     virtual void    Deserialize(Json::Value &root) override;
@@ -84,7 +84,7 @@ public:
 
 private:
     std::vector<Plugin *>   m_plugins;
-    AEngine *       m_engine;
+    ProEngine *       m_engine;
 };
 
 #endif // __PROPHET_PLUGIN_PLUGIN_H__

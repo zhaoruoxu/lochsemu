@@ -19,7 +19,7 @@
 
 #include "buildver.h"
 
-ProphetFrame::ProphetFrame(AEngine *engine, Emulator *emu)
+ProphetFrame::ProphetFrame(ProEngine *engine, Emulator *emu)
     : m_engine(engine), m_emulator(emu), wxFrame(NULL, wxID_ANY, 
     wxString::Format("Prophet %x build %d", ProphetVersion, PROPHET_BUILD_VERSION), 
     wxDefaultPosition, wxSize(850, 850), wxDEFAULT_FRAME_STYLE),

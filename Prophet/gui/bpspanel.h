@@ -14,7 +14,7 @@ public:
     BreakpointsPanel(wxWindow *parent);
     ~BreakpointsPanel();
 
-    void        UpdateData(AEngine *eng);
+    void        UpdateData(ProEngine *eng);
     void        OnLeftDoubleClick(wxMouseEvent &event);
     void        OnRightDown(wxMouseEvent &event);
     void        OnPopupShowCode(wxCommandEvent &event);
@@ -30,7 +30,7 @@ private:
 private:
     wxMenu *    m_popup;
 
-    AEngine *   m_engine;
+    ProEngine *   m_engine;
     ProDebugger * m_debugger;
 
     int         m_widthAddress;

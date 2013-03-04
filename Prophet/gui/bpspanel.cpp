@@ -22,7 +22,7 @@ BreakpointsPanel::~BreakpointsPanel()
 {
 }
 
-void BreakpointsPanel::UpdateData( AEngine *eng )
+void BreakpointsPanel::UpdateData( ProEngine *eng )
 {
     m_engine    = eng;
     m_debugger  = eng->GetDebugger();

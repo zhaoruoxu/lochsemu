@@ -10,7 +10,7 @@
 
 #include "gui/mainframe.h"
 
-ProDebugger::ProDebugger(AEngine *engine) : m_engine(engine)
+ProDebugger::ProDebugger(ProEngine *engine) : m_engine(engine)
 {
     m_archive = m_engine->GetArchive();
 }

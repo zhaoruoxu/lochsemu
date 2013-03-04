@@ -20,7 +20,7 @@ class ProTracer : public MutexSyncObject, public ISerializable {
 public:
     typedef std::vector<TraceContext>      TraceVec;
 public:
-    ProTracer(AEngine *engine);
+    ProTracer(ProEngine *engine);
     virtual ~ProTracer();
 
     void            OnPreExecute(PreExecuteEvent &event);
@@ -38,7 +38,7 @@ private:
     u32             m_currEip;
     i64             m_seq;
     bool            m_enabled;
-    AEngine *       m_engine;
+    ProEngine *       m_engine;
     TraceVec        m_traces;
 };
 

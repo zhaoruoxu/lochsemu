@@ -17,7 +17,7 @@ PluginHandle    g_handle;
 Config          g_config;
 
 Emulator *      g_emulator;
-AEngine         g_engine;
+ProEngine         g_engine;
 Semaphore       g_guiSem;
 
 PROPHET_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, PluginInfo *info)

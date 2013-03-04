@@ -11,7 +11,7 @@
 
 class CpuPanel : public SelectableScrolledControl {
 public:
-    CpuPanel(wxWindow *parent, AEngine *engine);
+    CpuPanel(wxWindow *parent, ProEngine *engine);
     ~CpuPanel();
 
     void        ShowCode(u32 addr);
@@ -39,7 +39,7 @@ private:
     void        TrackMemory(u32 instEip);
 private:
     wxMenu *    m_popup;
-    AEngine *   m_engine;
+    ProEngine *   m_engine;
     const Processor *   m_cpu;
     
     /* render */

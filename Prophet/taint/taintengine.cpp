@@ -4,7 +4,7 @@
 #include "engine.h"
 #include "event.h"
 
-TaintEngine::TaintEngine(AEngine *engine)
+TaintEngine::TaintEngine(ProEngine *engine)
     : m_engine(engine)
 {
     m_enabled = true;

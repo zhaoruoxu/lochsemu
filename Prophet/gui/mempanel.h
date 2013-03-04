@@ -24,7 +24,7 @@ struct SectionContext {
 
 class MemDataPanel : public CustomScrolledControl {
 public:
-    MemDataPanel(wxWindow *parent, AEngine *engine);
+    MemDataPanel(wxWindow *parent, ProEngine *engine);
     ~MemDataPanel();
     
     void        Draw(wxBufferedPaintDC &dc) override;
@@ -50,7 +50,7 @@ private:
     const Section *     m_section;
     pbyte               m_rawdata;
     SectionContext      m_context;
-    AEngine *           m_engine;
+    ProEngine *           m_engine;
     TaintEngine *       m_taint;
     wxBrush             m_bgBrush;
     wxMenu *            m_popup;

@@ -5,7 +5,7 @@
 #include "engine.h"
 #include "event.h"
 
-ProTracer::ProTracer( AEngine *engine )
+ProTracer::ProTracer( ProEngine *engine )
     : m_engine(engine),  m_seq(-1)
 {
 }

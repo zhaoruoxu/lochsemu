@@ -11,18 +11,18 @@
 #include "processor.h"
 #include "buildver.h"
 
-AEngine::AEngine() 
+ProEngine::ProEngine() 
     : m_debugger(this), m_tracer(this), m_taint(this), m_plugins(this)
 {
     m_emulator  = NULL;
 }
 
-AEngine::~AEngine()
+ProEngine::~ProEngine()
 {
     //Persist();
 }
 
-void AEngine::Initialize(Emulator *emu)
+void ProEngine::Initialize(Emulator *emu)
 {
     Intro();
     m_emulator      = emu;
@@ -42,7 +42,7 @@ void AEngine::Initialize(Emulator *emu)
     CreateArchiveDirectory();
 }
 
-void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
+void ProEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 {
     if (!m_enabled) return;
     PreExecuteEvent event(this, cpu, inst);
@@ -57,7 +57,7 @@ void AEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
     m_plugins.OnPreExecute(event, false);
 }
 
-void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
+void ProEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 {
     if (!m_enabled) return;
     PostExecuteEvent event(this, cpu, inst);
@@ -71,7 +71,7 @@ void AEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
     m_plugins.OnPostExecute(event, false);
 }
 
-void AEngine::OnMemRead( const Processor *cpu, u32 addr, u32 nbytes, cpbyte data )
+void ProEngine::OnMemRead( const Processor *cpu, u32 addr, u32 nbytes, cpbyte data )
 {
     if (!m_enabled) return;
     MemReadEvent event(this, cpu, addr, nbytes, data);
@@ -84,7 +84,7 @@ void AEngine::OnMemRead( const Processor *cpu, u32 addr, u32 nbytes, cpbyte data
     m_plugins.OnMemRead(event, false);
 }
 
-void AEngine::OnMemWrite( const Processor *cpu, u32 addr, u32 nbytes, cpbyte data )
+void ProEngine::OnMemWrite( const Processor *cpu, u32 addr, u32 nbytes, cpbyte data )
 {
     if (!m_enabled) return;
     MemWriteEvent event(this, cpu, addr, nbytes, data);
@@ -95,7 +95,7 @@ void AEngine::OnMemWrite( const Processor *cpu, u32 addr, u32 nbytes, cpbyte dat
     m_plugins.OnMemWrite(event, false);
 }
 
-void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
+void ProEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
 {
     if (!m_enabled) return;
 
@@ -109,7 +109,7 @@ void AEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
     m_plugins.OnProcessPreRun(event, false);
 }
 
-void AEngine::OnProcessPostRun( const Process *proc )
+void ProEngine::OnProcessPostRun( const Process *proc )
 {
     if (!m_enabled) return;
     ProcessPostRunEvent event(this, proc);
@@ -122,7 +122,7 @@ void AEngine::OnProcessPostRun( const Process *proc )
     m_plugins.OnProcessPostRun(event, false);
 }
 
-void AEngine::OnProcessPreLoad( const PeLoader *loader )
+void ProEngine::OnProcessPreLoad( const PeLoader *loader )
 {
     if (!m_enabled) return;
     ProcessPreLoadEvent event(this, loader);
@@ -133,7 +133,7 @@ void AEngine::OnProcessPreLoad( const PeLoader *loader )
     m_plugins.OnProcessPreLoad(event, false);
 }
 
-void AEngine::OnProcessPostLoad( const PeLoader *loader )
+void ProEngine::OnProcessPostLoad( const PeLoader *loader )
 {
     if (!m_enabled) return;
     ProcessPostLoadEvent event(this, loader);
@@ -148,7 +148,7 @@ void AEngine::OnProcessPostLoad( const PeLoader *loader )
     m_plugins.OnProcessPostLoad(event, false);
 }
 
-void AEngine::OnWinapiPreCall( Processor *cpu, uint apiIndex )
+void ProEngine::OnWinapiPreCall( Processor *cpu, uint apiIndex )
 {
     if (!m_enabled) return;
     WinapiPreCallEvent event(this, cpu, apiIndex);
@@ -159,7 +159,7 @@ void AEngine::OnWinapiPreCall( Processor *cpu, uint apiIndex )
     m_plugins.OnWinapiPreCall(event, false);
 }
 
-void AEngine::OnWinapiPostCall( Processor *cpu, uint apiIndex )
+void ProEngine::OnWinapiPostCall( Processor *cpu, uint apiIndex )
 {
     if (!m_enabled) return;
     WinapiPostCallEvent event(this, cpu, apiIndex);
@@ -170,7 +170,7 @@ void AEngine::OnWinapiPostCall( Processor *cpu, uint apiIndex )
     m_plugins.OnWinapiPostCall(event, false);
 }
 
-void AEngine::SetGuiFrame( ProphetFrame *frame )
+void ProEngine::SetGuiFrame( ProphetFrame *frame )
 {
     m_gui = frame;
     m_disassembler.RegisterDataUpdateHandler([this](const InstSection *insts, const Processor *cpu) {
@@ -179,26 +179,26 @@ void AEngine::SetGuiFrame( ProphetFrame *frame )
     m_gui->GetTracePanel()->SetTracer(&m_tracer);
 }
 
-void AEngine::GetInstContext(InstContext *ctx) const
+void ProEngine::GetInstContext(InstContext *ctx) const
 {
     m_debugger.UpdateInstContext(ctx);
     m_disassembler.UpdateInstContext(ctx, ctx->Eip);
     m_taint.UpdateInstContext(ctx);
 }
 
-void AEngine::GetTraceContext( TraceContext *ctx, u32 eip ) const
+void ProEngine::GetTraceContext( TraceContext *ctx, u32 eip ) const
 {
     m_debugger.UpdateTraceContext(ctx, eip);
     m_disassembler.UpdateInstContext(ctx, eip);
     m_taint.UpdateInstContext(ctx);
 }
 
-void AEngine::ReportBusy( bool isBusy )
+void ProEngine::ReportBusy( bool isBusy )
 {
     m_gui->ReportBusy(isBusy);
 }
 
-void AEngine::Intro() const
+void ProEngine::Intro() const
 {
     LxWarning("********************************************************\n");
     LxWarning("\n");
@@ -207,14 +207,14 @@ void AEngine::Intro() const
     LxWarning("********************************************************\n");
 }
 
-void AEngine::Terminate()
+void ProEngine::Terminate()
 {
     SaveArchive();
     m_enabled = false;
     m_debugger.OnTerminate();
 }
 
-void AEngine::CreateArchiveDirectory()
+void ProEngine::CreateArchiveDirectory()
 {
     std::string dir     = LxGetModuleDirectory(g_module);
     std::string arcDir  = g_config.GetString("General", "ArchiveDir", "archive");
@@ -228,7 +228,7 @@ void AEngine::CreateArchiveDirectory()
     }
 }
 
-void AEngine::LoadArchive(const char *moduleName)
+void ProEngine::LoadArchive(const char *moduleName)
 {
     LPCSTR path     = m_emulator->Path();
     uint hash       = StringHash(path);
@@ -257,7 +257,7 @@ void AEngine::LoadArchive(const char *moduleName)
     m_gui->OnArchiveLoaded(&m_archive);
 }
 
-void AEngine::SaveArchive()
+void ProEngine::SaveArchive()
 {
     Assert(m_isArchiveLoaded);
 

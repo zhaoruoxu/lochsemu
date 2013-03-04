@@ -12,7 +12,7 @@ static INLINE bool InRangeIncl(T val, T t0, T t1) {
     return t0 <= val && val <= t1;
 }
 
-CpuPanel::CpuPanel( wxWindow *parent, AEngine *engine ) : 
+CpuPanel::CpuPanel( wxWindow *parent, ProEngine *engine ) : 
     SelectableScrolledControl(parent, wxSize(400, 200)), m_engine(engine)
 {
     InitMenu();

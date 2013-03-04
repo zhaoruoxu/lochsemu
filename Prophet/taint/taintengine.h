@@ -20,7 +20,7 @@
 class TaintEngine : public MutexSyncObject, public ISerializable {
 public:
 
-    TaintEngine(AEngine *engine);
+    TaintEngine(ProEngine *engine);
     ~TaintEngine();
 
     ProcessorTaint  CpuTaint;
@@ -472,7 +472,7 @@ private:
 
 
 private:
-    AEngine *   m_engine;
+    ProEngine *   m_engine;
     bool        m_enabled;
 };
 

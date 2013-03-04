@@ -18,7 +18,7 @@ public:
         STATE_TERMINATED,
     };
 public:
-    ProDebugger(AEngine *engine);
+    ProDebugger(ProEngine *engine);
     ~ProDebugger();
 
     void        Initialize();
@@ -52,7 +52,7 @@ private:
     State               m_state;
     u32                 m_stepOverEip;
 
-    AEngine *           m_engine;
+    ProEngine *           m_engine;
     Archive *           m_archive;
 
     Semaphore           m_semaphore;

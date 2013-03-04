@@ -8,7 +8,7 @@
 
 class ProphetFrame : public wxFrame {
 public:
-    ProphetFrame(AEngine *engine, Emulator *emu);
+    ProphetFrame(ProEngine *engine, Emulator *emu);
     ~ProphetFrame();
 
 
@@ -56,7 +56,7 @@ private:
     void    InitToolbars();
 private:
     Emulator *      m_emulator;
-    AEngine *       m_engine;
+    ProEngine *       m_engine;
     Archive *       m_archive;
     ProTracer *       m_tracer;
     TaintEngine *   m_taint;

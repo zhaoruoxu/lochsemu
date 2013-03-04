@@ -13,10 +13,10 @@
 #include "plugin/plugin.h"
 
 
-class AEngine {
+class ProEngine {
 public:
-    AEngine();
-    ~AEngine();
+    ProEngine();
+    ~ProEngine();
 
     void            Initialize(Emulator *emu);
     //void            SaveConfig();
