@@ -70,7 +70,7 @@ void TaintDirective::OnPostExecute( PostExecuteEvent &event, bool firstTime )
 void TaintDirective::DoTaint( const Processor *cpu )
 {
     std::vector<SectionInfo>    meminfo = cpu->Mem->GetMemoryInfo();
-    TaintEngine *taint  = GetManager()->GetEngine()->GetTaintEngine();
+    TaintEngine *taint  = GetEngine()->GetTaintEngine();
     for (auto &sec : meminfo) {
         Section *psec = cpu->Mem->GetSection(sec.base);
         if (!psec->IsAllCommitted()) 
@@ -117,4 +117,4 @@ void TaintDirective::Deserialize( Json::Value &root )
     m_taintAllBits = root.get("taint_all_bits", m_taintAllBits).asBool();
 }
 
-static TaintDirective t;
+TaintDirective t;

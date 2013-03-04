@@ -56,7 +56,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__WXWIN__;__WXDEBUG__;WIN32;_DEBUG;_WINDOWS;_USRDLL;ARIETIS_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(WXWIN)\include; $(WXWIN)\lib\vc_lib\mswud; ./; ../; 3rdparty/include; ../LochsEmuLib/core; ../LochsEmuLib; ../LochsEmuLib/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WXWIN)\include; $(WXWIN)\lib\vc_lib\mswud; ./; ../; 3rdparty/include; ../LochsEmuLib/core; ../LochsEmuLib; ../LochsEmuLib/common; %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -175,6 +175,7 @@
     <ClCompile Include="gui\mainframe.cpp" />
     <ClCompile Include="gui\contextpanel.cpp" />
     <ClCompile Include="instcontext.cpp" />
+    <ClCompile Include="plugin\advdbg.cpp" />
     <ClCompile Include="plugin\autobreak.cpp" />
     <ClCompile Include="plugin\plugin.cpp" />
     <ClCompile Include="plugin\taint_directive.cpp" />

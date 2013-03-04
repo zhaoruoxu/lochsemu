@@ -32,6 +32,8 @@ public:
     bool            HasOverrideFlag(FuncOverride f) const { return (m_ovdFlag & f) != 0; }
     APluginManager* GetManager() { return m_manager; }
     const APluginManager *  GetManager() const { return m_manager; }
+    AEngine *       GetEngine();
+    const AEngine * GetEngine() const;
 
     void            Serialize(Json::Value &root) const override;
     void            Deserialize(Json::Value &root) override;

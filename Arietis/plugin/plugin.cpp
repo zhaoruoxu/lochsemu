@@ -20,6 +20,16 @@ void Plugin::Deserialize( Json::Value &root )
     m_enabled = root.get("enabled", m_enabled).asBool();
 }
 
+AEngine * Plugin::GetEngine()
+{
+    return m_manager->GetEngine();
+}
+
+const AEngine * Plugin::GetEngine() const
+{
+    return m_manager->GetEngine();
+}
+
 APluginManager::APluginManager(AEngine *engine)
     : m_engine(engine)
 {

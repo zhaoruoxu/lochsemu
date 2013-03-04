@@ -18,7 +18,7 @@ public:
 
     void    Initialize() override 
     {
-        m_debugger = GetManager()->GetEngine()->GetDebugger();
+        m_debugger = GetEngine()->GetDebugger();
     }
 
     void    OnProcessPostLoad(ProcessPostLoadEvent &event, bool firstTime) override 
@@ -60,4 +60,4 @@ private:
 };
 
 
-static AutoBreak t;
+AutoBreak t;

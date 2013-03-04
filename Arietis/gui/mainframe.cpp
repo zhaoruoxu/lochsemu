@@ -213,12 +213,12 @@ void ArietisFrame::OnAbout( wxCommandEvent &event )
 
 void ArietisFrame::OnClose( wxCloseEvent &event )
 {
-    if (event.CanVeto()) {
-        if (wxMessageBox("Closing this window will continue emulation without Arietis.\n\nYou sure?", "Quit", wxICON_QUESTION | wxYES_NO) != wxYES) {
-            event.Veto();
-            return;
-        }
-    }
+//     if (event.CanVeto()) {
+//         if (wxMessageBox("Closing this window will continue emulation without Arietis.\n\nYou sure?", "Quit", wxICON_QUESTION | wxYES_NO) != wxYES) {
+//             event.Veto();
+//             return;
+//         }
+//     }
     if (g_config.GetInt("General", "AutoSavePerspective", 1) != 0) {
         OnSavePerspective(wxCommandEvent());
     }
