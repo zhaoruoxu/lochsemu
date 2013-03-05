@@ -12,7 +12,7 @@ struct ProcessorTaint {
     Taint1      Flags[InstContext::FLAG_COUNT];
     Taint1      Eip;
     Taint8      MM[8];
-    Taint16     XMM[16];
+    Taint16     XMM[8];
 };
 
 class MemoryTaint {

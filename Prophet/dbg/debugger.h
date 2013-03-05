@@ -52,7 +52,7 @@ private:
     State               m_state;
     u32                 m_stepOverEip;
 
-    ProEngine *           m_engine;
+    ProEngine *         m_engine;
     Archive *           m_archive;
 
     Semaphore           m_semaphore;

@@ -38,7 +38,7 @@ private:
     u32             m_currEip;
     i64             m_seq;
     bool            m_enabled;
-    ProEngine *       m_engine;
+    ProEngine *     m_engine;
     TraceVec        m_traces;
 };
 

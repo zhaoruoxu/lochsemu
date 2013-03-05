@@ -37,16 +37,16 @@ public:
     void            OnWinapiPostCall    (Processor *cpu, uint apiIndex);
 
     Emulator *      GetEmulator() { return m_emulator; }
-    ProDebugger *     GetDebugger() { return &m_debugger; }
-    ProTracer *       GetTracer() { return &m_tracer; }
+    ProDebugger *   GetDebugger() { return &m_debugger; }
+    ProTracer *     GetTracer() { return &m_tracer; }
     Disassembler *  GetDisassembler() { return &m_disassembler; }
     TaintEngine *   GetTaintEngine() { return &m_taint; }
     Archive *       GetArchive() { return &m_archive; }
     ProPluginManager * GetPluginManager() { return &m_plugins; }
 
     const Emulator *    GetEmulator() const { return m_emulator; }
-    const ProDebugger *   GetDebugger() const { return &m_debugger; }
-    const ProTracer *     GetTracer() const { return &m_tracer; }
+    const ProDebugger * GetDebugger() const { return &m_debugger; }
+    const ProTracer *   GetTracer() const { return &m_tracer; }
     const Disassembler *GetDisassembler() const { return &m_disassembler; }
     const TaintEngine * GetTaintEngine() const { return &m_taint; }
     const Archive *     GetArchive() const { return &m_archive; }
@@ -67,13 +67,13 @@ private:
     bool            m_enabled;
     Emulator *      m_emulator;
 
-    ProDebugger       m_debugger;
-    ProTracer         m_tracer;
+    ProDebugger     m_debugger;
+    ProTracer       m_tracer;
     Disassembler    m_disassembler;
     TaintEngine     m_taint;
     ProphetFrame *  m_gui;
     Archive         m_archive;
-    ProPluginManager  m_plugins;
+    ProPluginManager    m_plugins;
 
     //bool            m_skipDllEntries;
     //bool            m_mainEntryEntered;
