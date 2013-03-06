@@ -12,7 +12,7 @@
 #include "utilities.h"
 #include "engine.h"
 #include "dbg/tracer.h"
-
+#include "plugin/plugin.h"
 
 #include "instruction.h"
 #include "processor.h"
@@ -25,14 +25,15 @@ ProphetFrame::ProphetFrame(ProEngine *engine, Emulator *emu)
     wxDefaultPosition, wxSize(850, 850), wxDEFAULT_FRAME_STYLE),
     m_statusTimer(this, ID_StatusTimer)
 {
+    m_archive   = m_engine->GetArchive();
+    m_tracer    = m_engine->GetTracer();
+    m_taint     = m_engine->GetTaintEngine();
+    m_plugins   = m_engine->GetPluginManager();
+
     InitMisc();
     InitUI();
 
     m_engine->SetGuiFrame(this);
-    m_archive   = m_engine->GetArchive();
-    m_tracer    = m_engine->GetTracer();
-    m_taint     = m_engine->GetTaintEngine();
-
     NotifyMainThread(); // so that main thread can go on
 }
 
@@ -89,37 +90,42 @@ void ProphetFrame::InitUI()
 
 void ProphetFrame::InitMenu()
 {
-    wxMenu *menuFile = new wxMenu;
-    menuFile->Append(wxID_EXIT, "Exit\tCtrl-Q");
+    m_menuFile = new wxMenu;
+    m_menuFile->Append(wxID_EXIT, "Exit\tCtrl-Q");
 
-    wxMenu *menuView = new wxMenu;
-    menuView->Append(ID_LoadPerspective, "Load perspective");
-    menuView->Append(ID_SavePerspective, "Save perspective");
-    menuView->Append(ID_ResetPerspective, "Reset perspective");
+    m_menuView = new wxMenu;
+    m_menuView->Append(ID_LoadPerspective, "Load perspective");
+    m_menuView->Append(ID_SavePerspective, "Save perspective");
+    m_menuView->Append(ID_ResetPerspective, "Reset perspective");
 
-    wxMenu *menuDebug = new wxMenu;
+    m_menuDebug = new wxMenu;
+    m_menuDebug->Append(ID_Run, "Run\tF5");
+    m_menuDebug->Append(ID_StepOver, "Step Over\tF10");
+    m_menuDebug->Append(ID_StepInto, "Step Into\tF11");
+    m_menuDebug->Append(ID_StepOut, "Step Out\tShift-F10");
+    m_menuDebug->AppendSeparator();
+    m_menuDebug->Append(ID_ToggleBreakpoint, "Toggle Breakpoint\tF2");
+    m_menuDebug->Append(ID_RemoveBreakpoint, "Remove Breakpoint\tF3");
+    m_menuDebug->AppendSeparator();
+    m_menuDebug->Append(ID_ShowMemory, "Show memory by address\tCtrl-M");
 
-    menuDebug->Append(ID_Run, "Run\tF5");
-    menuDebug->Append(ID_StepOver, "Step Over\tF10");
-    menuDebug->Append(ID_StepInto, "Step Into\tF11");
-    menuDebug->Append(ID_StepOut, "Step Out\tShift-F10");
-    menuDebug->AppendSeparator();
-    menuDebug->Append(ID_ToggleBreakpoint, "Toggle Breakpoint\tF2");
-    menuDebug->Append(ID_RemoveBreakpoint, "Remove Breakpoint\tF3");
-    menuDebug->AppendSeparator();
-    menuDebug->Append(ID_ShowMemory, "Show memory by address\tCtrl-M");
+    m_menuHelp = new wxMenu;
+    m_menuHelp->Append(wxID_ABORT, "&About");
 
-    wxMenu *menuHelp = new wxMenu;
-    menuHelp->Append(wxID_ABORT, "&About");
+    m_menuPlugins = new wxMenu;
+    const int N = m_plugins->GetNumPlugins();
+    for (int i = 0; i < N; i++) {
+        m_menuPlugins->AppendCheckItem(ID_PluginCheckEnable+i, m_plugins->GetPlugin(i)->GetName());
+        Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnPluginCheckEnable, this, ID_PluginCheckEnable+i);
+    }
 
-    
-
-    wxMenuBar *menu = new wxMenuBar;
-    menu->Append(menuFile, "&File");
-    menu->Append(menuView, "&View");
-    menu->Append(menuDebug, "&Debug");
-    menu->Append(menuHelp, "&Help");
-    SetMenuBar(menu);
+    m_mainMenu = new wxMenuBar;
+    m_mainMenu->Append(m_menuFile, "&File");
+    m_mainMenu->Append(m_menuView, "&View");
+    m_mainMenu->Append(m_menuDebug, "&Debug");
+    m_mainMenu->Append(m_menuPlugins, "&Plugins");
+    m_mainMenu->Append(m_menuHelp, "&Help");
+    SetMenuBar(m_mainMenu);
 
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnExit,            this,   wxID_EXIT);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnAbout,           this,   wxID_ABORT);
@@ -133,10 +139,12 @@ void ProphetFrame::InitMenu()
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnToggleBreakpoint, this,  ID_ToggleBreakpoint);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnRemoveBreakpoint, this,  ID_RemoveBreakpoint);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnShowMemory,      this,   ID_ShowMemory);
+    
 }
 
 enum StatusbarText {
-    Statusbar_Path = 0,
+    Statusbar_HelpString = 0,
+    Statusbar_Path,
     Statusbar_Tracing,
     Statusbar_Busy,
     Statusbar_Cpu,
@@ -146,7 +154,7 @@ enum StatusbarText {
 
 void ProphetFrame::InitStatusBar()
 {
-    static const int Widths[] = { -1, 50, 40, 70, 100, 75 };
+    static const int Widths[] = { 240, -1, 50, 40, 70, 100, 75 };
     m_statusbar = CreateStatusBar(_countof(Widths));
     m_statusbar->SetStatusWidths(_countof(Widths), Widths);
 
@@ -405,6 +413,9 @@ void ProphetFrame::OnArchiveLoaded( Archive *arc )
     //m_toggleCRTEntry->SetOn(m_archive->BreakOnCRTEntry);
     //m_toggleSkipDllEntry->SetOn(m_archive->SkipDllEntries);
     m_toggleTaint->SetOn(m_taint->IsEnabled());
+
+    for (int i = 0; i < m_plugins->GetNumPlugins(); i++)
+        m_menuPlugins->Check(ID_PluginCheckEnable+i, m_plugins->GetPlugin(i)->IsEnabled());
 }
 
 void ProphetFrame::OnToggleTaintClicked( wxCommandEvent &event )
@@ -427,4 +438,11 @@ void ProphetFrame::OnShowMemory( wxCommandEvent &event )
     }
 
     ShowInMemory((u32) addr);
+}
+
+void ProphetFrame::OnPluginCheckEnable( wxCommandEvent &event )
+{
+    bool isChecked = m_menuPlugins->IsChecked(event.GetId());
+    m_plugins->GetPlugin(event.GetId() - ID_PluginCheckEnable)->Enable(isChecked);
+    m_engine->SaveArchive();
 }

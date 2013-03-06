@@ -57,6 +57,10 @@ enum {
     ID_PopupTaintMemRangeAllBits,
 
     ID_StatusTimer,
+
+    /* plugins menu */
+    ID_PluginCheckEnable,
+    // ID_PluginCheckEnable+1, +2, ...
 };
 
 class ProphetApp : public wxApp {

@@ -45,6 +45,7 @@ private:
 //     void    OnToggleSkipDllEntryClicked(wxCommandEvent &event);
     void    OnToggleTaintClicked(wxCommandEvent &event);
     void    OnShowMemory(wxCommandEvent &event);
+    void    OnPluginCheckEnable(wxCommandEvent &event);
 
     void    OnStatusTimer(wxTimerEvent &event);
     
@@ -56,10 +57,11 @@ private:
     void    InitToolbars();
 private:
     Emulator *      m_emulator;
-    ProEngine *       m_engine;
+    ProEngine *     m_engine;
     Archive *       m_archive;
-    ProTracer *       m_tracer;
+    ProTracer *     m_tracer;
     TaintEngine *   m_taint;
+    ProPluginManager *  m_plugins;
 
     CpuPanel *      m_cpuPanel;
     ContextPanel *  m_contextPanel;
@@ -70,6 +72,13 @@ private:
 
     wxString        m_defaultPerspective;
     wxAuiManager    m_auiManager;
+
+    wxMenuBar *     m_mainMenu;
+    wxMenu *        m_menuFile;
+    wxMenu *        m_menuView;
+    wxMenu *        m_menuDebug;
+    wxMenu *        m_menuPlugins;
+    wxMenu *        m_menuHelp;
 
     wxTimer         m_statusTimer;
     wxStatusBar *   m_statusbar;

@@ -68,6 +68,9 @@ public:
     ProEngine *       GetEngine() { return m_engine; }
     const ProEngine * GetEngine() const { return m_engine; }
 
+    int             GetNumPlugins() const { return m_plugins.size(); }
+    Plugin *        GetPlugin(int n) { return m_plugins[n]; }
+
     virtual void    Serialize(Json::Value &root) const override;
     virtual void    Deserialize(Json::Value &root) override;
 
