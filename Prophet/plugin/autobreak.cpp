@@ -18,13 +18,22 @@ public:
 
     void    Initialize() override 
     {
-        m_debugger = GetEngine()->GetDebugger();
+        m_debugger  = GetEngine()->GetDebugger();
+        m_taint     = GetEngine()->GetTaintEngine();
+        m_tracer    = GetEngine()->GetTracer();
     }
 
     void    OnProcessPostLoad(ProcessPostLoadEvent &event, bool firstTime) override 
     {
         if (!firstTime) return;
         m_debugger->SetState(m_skipDllEntries ? ProDebugger::STATE_RUNNING : ProDebugger::STATE_SINGLESTEP);
+        if (m_skipDllEntries) {
+            // 禁用DLL初始化时的Taint和Tracer执行
+            m_taintOriginalState    = m_taint->IsEnabled();
+            m_tracerOriginalState   = m_tracer->IsEnabled();
+            m_taint->Enable(false);
+            m_tracer->Enable(false);
+        }
     }
 
     void    OnProcessPreRun(ProcessPreRunEvent &event, bool firstTime) override
@@ -34,6 +43,12 @@ public:
         if (m_breakOnMainModuleEntry) {
             m_debugger->SetState(ProDebugger::STATE_SINGLESTEP);
             LxInfo("AutoBreak: Main module at %08x\n", event.Cpu->EIP);
+        }
+
+        if (m_skipDllEntries) {
+            // 恢复Taint和Tracer执行
+            m_taint->Enable(m_taintOriginalState);
+            m_tracer->Enable(m_tracerOriginalState);
         }
     }
 
@@ -56,7 +71,12 @@ private:
     bool    m_breakOnMainModuleEntry;
     bool    m_skipDllEntries;
 
-    ProDebugger * m_debugger;
+    bool    m_taintOriginalState;
+    bool    m_tracerOriginalState;
+
+    ProDebugger *   m_debugger;
+    TaintEngine *   m_taint;
+    ProTracer *     m_tracer;
 };
 
 
