@@ -12,7 +12,7 @@
 #include "buildver.h"
 
 ProEngine::ProEngine() 
-    : m_debugger(this), m_tracer(this), m_taint(this), m_plugins(this)
+    : m_debugger(this), m_tracer(this), m_taint(this), m_plugins(this), m_protocol(this)
 {
     m_emulator  = NULL;
 }
@@ -28,6 +28,7 @@ void ProEngine::Initialize(Emulator *emu)
     m_emulator      = emu;
     m_debugger.Initialize();
     m_taint.Initialize();
+    m_protocol.Initialize();
     m_plugins.Initialize();
     m_tracer.Enable(g_config.GetInt("Tracer", "Enabled", 1) != 0);
     //m_mainEntryEntered  = false;
@@ -38,6 +39,7 @@ void ProEngine::Initialize(Emulator *emu)
     m_archive.AddObject("debugger",     &m_debugger);
     m_archive.AddObject("tracer",       &m_tracer);
     m_archive.AddObject("taintengine",  &m_taint);
+    m_archive.AddObject("protocol",     &m_protocol);
 
     CreateArchiveDirectory();
 }
@@ -166,6 +168,8 @@ void ProEngine::OnWinapiPostCall( Processor *cpu, uint apiIndex )
 
     m_plugins.OnWinapiPostCall(event, true);
     if (event.IsVetoed()) return;
+
+    m_protocol.OnWinapiPostCall(event);
 
     m_plugins.OnWinapiPostCall(event, false);
 }

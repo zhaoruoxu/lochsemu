@@ -68,6 +68,10 @@ class ProcessPostLoadEvent;
 class WinapiPreCallEvent;
 class WinapiPostCallEvent;
 
+// protocol
+class Protocol;
+class PreTainter;
+
 extern Emulator *       g_emulator;
 extern HMODULE          g_module;
 extern Config           g_config;

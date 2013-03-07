@@ -11,6 +11,7 @@
 #include "static/disassembler.h"
 #include "taint/taintengine.h"
 #include "plugin/plugin.h"
+#include "protocol/protocol.h"
 
 
 class ProEngine {
@@ -43,6 +44,7 @@ public:
     TaintEngine *   GetTaintEngine() { return &m_taint; }
     Archive *       GetArchive() { return &m_archive; }
     ProPluginManager * GetPluginManager() { return &m_plugins; }
+    Protocol *      GetProtocol() { return &m_protocol; }
 
     const Emulator *    GetEmulator() const { return m_emulator; }
     const ProDebugger * GetDebugger() const { return &m_debugger; }
@@ -51,6 +53,7 @@ public:
     const TaintEngine * GetTaintEngine() const { return &m_taint; }
     const Archive *     GetArchive() const { return &m_archive; }
     const ProPluginManager* GetPluginManager() const { return &m_plugins; }
+    const Protocol *    GetProtocol() const { return &m_protocol; }
 
     void            GetInstContext(InstContext *ctx) const;
     void            GetTraceContext(TraceContext *ctx, u32 eip) const;
@@ -74,6 +77,7 @@ private:
     ProphetFrame *  m_gui;
     Archive         m_archive;
     ProPluginManager    m_plugins;
+    Protocol        m_protocol;
 
     //bool            m_skipDllEntries;
     //bool            m_mainEntryEntered;

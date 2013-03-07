@@ -55,6 +55,12 @@
     <Filter Include="Source Files\plugin">
       <UniqueIdentifier>{2cdb3af4-8404-4960-ad64-2055861b0a4e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\protocol">
+      <UniqueIdentifier>{8d1bca9a-4e9f-4882-9384-4f9c74385a22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\protocol">
+      <UniqueIdentifier>{1edba55b-c1f6-4dd7-a186-9e3a5640916c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -174,6 +180,12 @@
     <ClInclude Include="event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\pretaint.h">
+      <Filter>Header Files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\protocol.h">
+      <Filter>Header Files\protocol</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -271,6 +283,12 @@
     </ClCompile>
     <ClCompile Include="plugin\advdbg.cpp">
       <Filter>Source Files\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\pretaint.cpp">
+      <Filter>Source Files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\protocol.cpp">
+      <Filter>Source Files\protocol</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
