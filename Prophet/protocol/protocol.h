@@ -42,6 +42,9 @@ public:
     void        Serialize(Json::Value &root) const override;
     void        Deserialize(Json::Value &root) override;
 
+    ProEngine *         GetEngine() { return m_engine; }
+    const ProEngine *   GetEngine() const { return m_engine; }
+
 private:
     void        ReorderAnalyzers();
 private:

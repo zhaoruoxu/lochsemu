@@ -5,7 +5,7 @@
 Protocol::Protocol( ProEngine *engine )
     : m_engine(engine), m_controller(this)
 {
-    m_enabled = true;
+    m_enabled   = true;
     m_state     = BetweenSession;
 }
 
@@ -16,7 +16,12 @@ Protocol::~Protocol()
 
 void Protocol::Initialize()
 {
+    m_controller.Initialize();
     ReorderAnalyzers();
+
+    for (int i = 0; i < m_totalAnalyzers; i++) {
+        m_analyzers[i]->Initialize();
+    }
 }
 
 // void Protocol::OnWinapiPostCall( WinapiPostCallEvent &event )

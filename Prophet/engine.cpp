@@ -54,6 +54,7 @@ void ProEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
     m_tracer.OnPreExecute(event);
     m_disassembler.OnPreExecute(event);
     m_debugger.OnPreExecute(event);
+    m_protocol.OnPreExecute(event);
 
     m_plugins.OnPreExecute(event, false);
 }
@@ -68,6 +69,7 @@ void ProEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 
     m_taint.OnPostExecute(event);
     m_tracer.OnPostExecute(event);
+    m_protocol.OnPostExecute(event);
 
     m_plugins.OnPostExecute(event, false);
 }
@@ -81,6 +83,7 @@ void ProEngine::OnMemRead( const Processor *cpu, u32 addr, u32 nbytes, cpbyte da
     if (event.IsVetoed()) return;
 
     // other modules
+    m_protocol.OnMemRead(event);
 
     m_plugins.OnMemRead(event, false);
 }
@@ -92,6 +95,8 @@ void ProEngine::OnMemWrite( const Processor *cpu, u32 addr, u32 nbytes, cpbyte d
 
     m_plugins.OnMemWrite(event, true);
     if (event.IsVetoed()) return;
+
+    m_protocol.OnMemWrite(event);
 
     m_plugins.OnMemWrite(event, false);
 }
@@ -106,6 +111,7 @@ void ProEngine::OnProcessPreRun( const Process *proc, const Processor *cpu )
     if (event.IsVetoed()) return;
 
     m_debugger.OnProcessPreRun(event);
+    m_protocol.OnProcessPreRun(event);
 
     m_plugins.OnProcessPreRun(event, false);
 }
@@ -118,6 +124,7 @@ void ProEngine::OnProcessPostRun( const Process *proc )
     m_plugins.OnProcessPostRun(event, true);
     if (event.IsVetoed()) return;
 
+    m_protocol.OnProcessPostRun(event);
     SaveArchive();
 
     m_plugins.OnProcessPostRun(event, false);
@@ -130,6 +137,8 @@ void ProEngine::OnProcessPreLoad( const PeLoader *loader )
 
     m_plugins.OnProcessPreLoad(event, true);
     if (event.IsVetoed()) return;
+
+    m_protocol.OnProcessPreLoad(event);
 
     m_plugins.OnProcessPreLoad(event, false);
 }
@@ -145,6 +154,7 @@ void ProEngine::OnProcessPostLoad( const PeLoader *loader )
     LoadArchive(loader->GetModuleInfo(0)->Name);
     m_debugger.OnProcessPostLoad(event);
     m_gui->OnProcessLoaded(m_emulator->Path());
+    m_protocol.OnProcessPostLoad(event);
 
     m_plugins.OnProcessPostLoad(event, false);
 }
@@ -157,6 +167,8 @@ void ProEngine::OnWinapiPreCall( Processor *cpu, uint apiIndex )
     m_plugins.OnWinapiPreCall(event, true);
     if (event.IsVetoed()) return;
 
+    m_protocol.OnWinapiPreCall(event);
+
     m_plugins.OnWinapiPreCall(event, false);
 }
 
@@ -168,7 +180,7 @@ void ProEngine::OnWinapiPostCall( Processor *cpu, uint apiIndex )
     m_plugins.OnWinapiPostCall(event, true);
     if (event.IsVetoed()) return;
 
-    m_protocol.OnWinapiPostCall(event);
+    m_protocol.OnWinapiPostCall(event); 
 
     m_plugins.OnWinapiPostCall(event, false);
 }

@@ -20,7 +20,7 @@ public:
 
     void        OnWinapiPostCall(WinapiPostCallEvent &event) override 
     {
-        LxWarning("Winapi post call: %d\n", event.ApiIndex);
+        //LxWarning("Winapi post call: %d\n", event.ApiIndex);
     }
 };
 

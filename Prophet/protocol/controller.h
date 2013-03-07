@@ -11,7 +11,7 @@ public:
     Controller(Protocol *protocol);
     ~Controller();
 
-
+    void    Initialize();
     void    Serialize(Json::Value &root) const override {}
     void    Deserialize(Json::Value &root) override {}
 

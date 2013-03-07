@@ -34,11 +34,10 @@ public:
 
     void        UpdateInstContext(InstContext *ctx) const;
 
-    //void        DefaultTaintPropagate   (Processor *cpu, const Instruction *inst);
-
     void        Enable(bool isEnabled) { m_enabled = isEnabled; }
     bool        IsEnabled() const { return m_enabled; }
 
+    Taint1      GetTaintAddressingReg(const ARGTYPE &oper) const;
     void        TaintMemoryRanged(u32 addr, u32 len, bool taintAllBits);
 
     void        Serialize(Json::Value &root) const override;
@@ -121,8 +120,6 @@ private:
             }
         }
     }
-
-    Taint1      GetTaintAddressingReg(const ARGTYPE &oper) const;
 
     template <int N>
     void        TaintPropagate_Binop(const Processor *cpu, const Instruction *inst)
