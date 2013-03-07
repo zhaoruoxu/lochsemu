@@ -129,7 +129,8 @@
     <ClInclude Include="instcontext.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="plugin\plugin.h" />
-    <ClInclude Include="protocol\pretaint.h" />
+    <ClInclude Include="protocol\analyzer.h" />
+    <ClInclude Include="protocol\controller.h" />
     <ClInclude Include="protocol\protocol.h" />
     <ClInclude Include="static\disassembler.h" />
     <ClInclude Include="stdafx.h" />
@@ -182,7 +183,10 @@
     <ClCompile Include="plugin\plugin.cpp" />
     <ClCompile Include="plugin\taint_directive.cpp" />
     <ClCompile Include="plugin\vulnerability_detector.cpp" />
-    <ClCompile Include="protocol\pretaint.cpp" />
+    <ClCompile Include="protocol\analyzer.cpp" />
+    <ClCompile Include="protocol\analyzers\length_field.cpp" />
+    <ClCompile Include="protocol\analyzers\tainter.cpp" />
+    <ClCompile Include="protocol\controller.cpp" />
     <ClCompile Include="protocol\protocol.cpp" />
     <ClCompile Include="static\disassembler.cpp" />
     <ClCompile Include="stdafx.cpp">

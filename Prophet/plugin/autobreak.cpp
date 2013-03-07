@@ -7,7 +7,7 @@
 
 class AutoBreak : public Plugin {
 public:
-    AutoBreak() : Plugin("AutoBreak", Func_ProcessPreRun | Func_ProcessPostLoad) 
+    AutoBreak() : Plugin("AutoBreak", ProcessPreRunHandler | ProcessPostLoadHandler) 
     {
         m_breakOnMainModuleEntry = true;
         m_skipDllEntries = true;

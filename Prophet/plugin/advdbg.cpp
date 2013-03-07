@@ -6,7 +6,7 @@
 
 class AdvancedDebugger : public Plugin {
 public:
-    AdvancedDebugger() : Plugin("Advanced Debugger", Func_PreExecute)
+    AdvancedDebugger() : Plugin("Advanced Debugger", PreExecuteHandler)
     {
         m_breakOnWinMain    = true;
         m_callsBackward     = 0;

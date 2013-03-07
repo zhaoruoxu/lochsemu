@@ -20,7 +20,7 @@ static const uint       TaintDataSeg        = 0xf1edcacf;
 
 class TaintDirective : public Plugin {
 public:
-    TaintDirective() : Plugin("TaintDirective", Func_PreExecute | Func_PostExecute | Func_ProcessPreRun) {}
+    TaintDirective() : Plugin("TaintDirective", PreExecuteHandler | PostExecuteHandler | ProcessPreRunHandler) {}
     ~TaintDirective() {}
 
     void    Initialize() override;

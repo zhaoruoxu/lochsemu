@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "plugin.h"
 #include "engine.h"
-#include "event.h"
 
 Plugin::Plugin(const std::string name, uint ovd)
     : m_name(name), m_enabled(true), m_ovdFlag(ovd)
@@ -65,7 +64,7 @@ void ProPluginManager::OnPreExecute( PreExecuteEvent &event, bool firstTime )
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(Func_PreExecute)) 
+        if (p->IsEnabled() && p->HasOverrideFlag(PreExecuteHandler)) 
             p->OnPreExecute(event, firstTime);
     }
 }
@@ -75,7 +74,7 @@ void ProPluginManager::OnPostExecute( PostExecuteEvent &event, bool firstTime)
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(Func_PostExecute))
+        if (p->IsEnabled() && p->HasOverrideFlag(PostExecuteHandler))
             p->OnPostExecute(event, firstTime);
     }
 }
@@ -85,7 +84,7 @@ void ProPluginManager::OnMemRead( MemReadEvent &event, bool firstTime )
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(Func_MemRead))
+        if (p->IsEnabled() && p->HasOverrideFlag(MemReadHandler))
             p->OnMemRead(event, firstTime);
     }
 }
@@ -95,7 +94,7 @@ void ProPluginManager::OnMemWrite( MemWriteEvent &event, bool firstTime )
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(Func_MemWrite))
+        if (p->IsEnabled() && p->HasOverrideFlag(MemWriteHandler))
             p->OnMemWrite(event, firstTime);
     }
 }
@@ -105,7 +104,7 @@ void ProPluginManager::OnProcessPreRun( ProcessPreRunEvent &event, bool firstTim
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPreRun))
+        if (p->IsEnabled() && p->HasOverrideFlag(ProcessPreRunHandler))
             p->OnProcessPreRun(event, firstTime);
     }
 }
@@ -115,7 +114,7 @@ void ProPluginManager::OnProcessPostRun( ProcessPostRunEvent &event, bool firstT
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPostRun))
+        if (p->IsEnabled() && p->HasOverrideFlag(ProcessPostRunHandler))
             p->OnProcessPostRun(event, firstTime);
     }
 }
@@ -125,7 +124,7 @@ void ProPluginManager::OnProcessPreLoad( ProcessPreLoadEvent &event, bool firstT
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPreLoad))
+        if (p->IsEnabled() && p->HasOverrideFlag(ProcessPreLoadHandler))
             p->OnProcessPreLoad(event, firstTime);
     }
 }
@@ -135,7 +134,7 @@ void ProPluginManager::OnProcessPostLoad( ProcessPostLoadEvent &event, bool firs
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPostLoad))
+        if (p->IsEnabled() && p->HasOverrideFlag(ProcessPostLoadHandler))
             p->OnProcessPostLoad(event, firstTime);
     }
 }
@@ -145,7 +144,7 @@ void ProPluginManager::OnWinapiPreCall( WinapiPreCallEvent &event, bool firstTim
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(Func_WinapiPreCall))
+        if (p->IsEnabled() && p->HasOverrideFlag(WinapiPreCallHandler))
             p->OnWinapiPreCall(event, firstTime);
     }
 }
@@ -155,7 +154,7 @@ void ProPluginManager::OnWinapiPostCall( WinapiPostCallEvent &event, bool firstT
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(Func_WinapiPostCall))
+        if (p->IsEnabled() && p->HasOverrideFlag(WinapiPostCallHandler))
             p->OnWinapiPostCall(event, firstTime);
     }
 }

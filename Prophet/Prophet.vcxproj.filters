@@ -61,6 +61,9 @@
     <Filter Include="Source Files\protocol">
       <UniqueIdentifier>{1edba55b-c1f6-4dd7-a186-9e3a5640916c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\protocol\analyzers">
+      <UniqueIdentifier>{9cf3e9cd-2c56-49ef-97ea-3ba8e5f0b711}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -180,10 +183,13 @@
     <ClInclude Include="event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\pretaint.h">
+    <ClInclude Include="protocol\protocol.h">
       <Filter>Header Files\protocol</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\protocol.h">
+    <ClInclude Include="protocol\analyzer.h">
+      <Filter>Header Files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\controller.h">
       <Filter>Header Files\protocol</Filter>
     </ClInclude>
   </ItemGroup>
@@ -284,10 +290,19 @@
     <ClCompile Include="plugin\advdbg.cpp">
       <Filter>Source Files\plugin</Filter>
     </ClCompile>
-    <ClCompile Include="protocol\pretaint.cpp">
+    <ClCompile Include="protocol\protocol.cpp">
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
-    <ClCompile Include="protocol\protocol.cpp">
+    <ClCompile Include="protocol\analyzer.cpp">
+      <Filter>Source Files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\analyzers\tainter.cpp">
+      <Filter>Source Files\protocol\analyzers</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\analyzers\length_field.cpp">
+      <Filter>Source Files\protocol\analyzers</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\controller.cpp">
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
   </ItemGroup>
