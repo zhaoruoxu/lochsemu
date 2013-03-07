@@ -30,7 +30,6 @@ void ProEngine::Initialize(Emulator *emu)
     m_taint.Initialize();
     m_protocol.Initialize();
     m_plugins.Initialize();
-    m_tracer.Enable(g_config.GetInt("Tracer", "Enabled", 1) != 0);
     //m_mainEntryEntered  = false;
     m_enabled           = true;
     m_isArchiveLoaded   = false;

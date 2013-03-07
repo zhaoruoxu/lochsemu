@@ -74,7 +74,7 @@ public:
     std::string ToString() const;
     static Taint    FromBinString(const std::string &s);
 private:
-    static const int    Count = 2;
+    static const int    Count = 4;
     static const int    Width = 32 * Count;
     u32         m_data[Count];
 };

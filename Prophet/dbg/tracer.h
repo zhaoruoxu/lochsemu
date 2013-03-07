@@ -27,7 +27,9 @@ public:
     void            OnPostExecute(PostExecuteEvent &event);
 
     //void            TraceInst(const Processor *cpu, u32 eip, i64 seq);
-    void            Enable(bool isEnabled) { m_enabled = isEnabled; }
+    void            Enable(bool isEnabled) { 
+        m_enabled = isEnabled; 
+    }
     bool            IsEnabled() const { return m_enabled; }
     const TraceVec& GetData() const { return m_traces; }
 

@@ -310,7 +310,7 @@ wxBrush     TaintBrushes[TaintBrushCount] = {
 
 void DrawTaint( wxBufferedPaintDC &dc, const Taint &t, const wxRect &rect, bool highlight )
 {
-    wxRect rectTaint(rect.x+1, rect.y, rect.width, rect.height-1);
+    wxRect rectTaint(rect.x, rect.y, rect.width, rect.height-1);
 
     if (t.IsAllTainted()) {
         dc.SetBrush(*wxBLUE_BRUSH);
@@ -328,17 +328,20 @@ void DrawTaint( wxBufferedPaintDC &dc, const Taint &t, const wxRect &rect, bool 
             if (t.IsTainted(i) == currentTaint) {
                 sameTaintLen++;
             } 
-            if (i < TaintWidth - 1) continue;
-            int xOffset = rectTaint.width * i / (float) TaintWidth;
-            dc.SetBrush(currentTaint ? *wxBLUE_BRUSH : *wxWHITE_BRUSH);
-            int currTaintWidth = static_cast<int>(w * sameTaintLen);
-            if (currentTaint)
-                currTaintWidth = min(currTaintWidth, 1);
-            dc.DrawRectangle(rectTaint.x + xOffset, rectTaint.y, currTaintWidth, rectTaint.height);
+            if (t.IsTainted(i) != currentTaint || i == TaintWidth-1) {
+                int xOffset = rectTaint.width * sameTaintStart / (float) TaintWidth;
+                dc.SetBrush(currentTaint ? *wxBLUE_BRUSH : *wxWHITE_BRUSH);
+                int currTaintWidth = static_cast<int>(w * sameTaintLen);
+                if (currentTaint)
+                    currTaintWidth = max(currTaintWidth, 1);
+                dc.DrawRectangle(rectTaint.x + xOffset, rectTaint.y, currTaintWidth, rectTaint.height);
 
-            currentTaint = !currentTaint;
-            sameTaintLen = 0;
-            sameTaintStart = i;
+                sameTaintStart = i;
+                if (currentTaint) sameTaintStart++;
+                currentTaint = !currentTaint;
+                sameTaintLen = 0;
+                
+            }
         }
     }
 

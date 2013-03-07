@@ -10,6 +10,8 @@ Taint::Taint( )
 Taint::Taint( const Taint &t )
 {
     memcpy(m_data, t.m_data, sizeof(m_data));
+//     for (int i = 0; i < Count; i++)
+//         m_data[i] = t.m_data[i];
 }
 
 Taint & Taint::operator=( Taint rhs )

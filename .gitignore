@@ -36,3 +36,4 @@ LochsEmu/pi_data.txt
 *.sdf
 LochsEmu.sdf
 *.pyc
+LochsEmu.psess
