@@ -15,5 +15,5 @@ PreTainter::~PreTainter()
 
 void PreTainter::OnWinapiPostCall( WinapiPostCallEvent &event )
 {
-    LxWarning("Winapi post call: %d\n", event.ApiIndex);
+    //LxWarning("Winapi post call: %d\n", event.ApiIndex);
 }

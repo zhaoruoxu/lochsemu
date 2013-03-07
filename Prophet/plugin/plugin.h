@@ -63,12 +63,15 @@ public:
     ProPluginManager(ProEngine *engine);
     ~ProPluginManager();
 
+
+    void            Enable(bool isEnabled) { m_enabled = isEnabled; }
+    bool            IsEnabled() const { return m_enabled; }
     void            Initialize();
     void            RegisterPlugin(Plugin *plugin);
     ProEngine *       GetEngine() { return m_engine; }
     const ProEngine * GetEngine() const { return m_engine; }
 
-    int             GetNumPlugins() const { return m_plugins.size(); }
+    int             GetNumPlugins() const { return m_totalPlugins; }
     Plugin *        GetPlugin(int n) { return m_plugins[n]; }
 
     virtual void    Serialize(Json::Value &root) const override;
@@ -86,8 +89,12 @@ public:
     void            OnWinapiPostCall    (WinapiPostCallEvent    &event, bool firstTime);
 
 private:
-    std::vector<Plugin *>   m_plugins;
-    ProEngine *       m_engine;
+    //std::vector<Plugin *>   m_plugins;
+    static const int    MaxPlugins = 32;
+    int             m_totalPlugins;
+    Plugin *        m_plugins[MaxPlugins];
+    ProEngine *     m_engine;
+    bool            m_enabled;
 };
 
 #endif // __PROPHET_PLUGIN_PLUGIN_H__

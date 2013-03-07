@@ -33,7 +33,10 @@ const ProEngine * Plugin::GetEngine() const
 ProPluginManager::ProPluginManager(ProEngine *engine)
     : m_engine(engine)
 {
-
+    for (int i = 0; i < MaxPlugins; i++)
+        m_plugins[i] = NULL;
+    m_enabled = true;
+    m_totalPlugins = 0;
 }
 
 ProPluginManager::~ProPluginManager()
@@ -43,19 +46,25 @@ ProPluginManager::~ProPluginManager()
 
 void ProPluginManager::Initialize()
 {
-    for (auto p : m_plugins) 
-        p->Initialize();
+    for (int i = 0; i < m_totalPlugins; i++) 
+        m_plugins[i]->Initialize();
 }
 
 void ProPluginManager::RegisterPlugin( Plugin *plugin )
 {
-    m_plugins.push_back(plugin);
+    //m_plugins.push_back(plugin);
+    if (m_totalPlugins >= MaxPlugins) {
+        LxFatal("Too many plugins!\n");
+    }
+    m_plugins[m_totalPlugins++] = plugin;
     LxInfo("Prophet plugin registered: %s\n", plugin->GetName().c_str());
 }
 
 void ProPluginManager::OnPreExecute( PreExecuteEvent &event, bool firstTime )
 {
-    for (auto p : m_plugins) {
+    if (!m_enabled) return;
+    for (int i = 0; i < m_totalPlugins; i++) {
+        Plugin *p = m_plugins[i];
         if (p->IsEnabled() && p->HasOverrideFlag(Func_PreExecute)) 
             p->OnPreExecute(event, firstTime);
     }
@@ -63,7 +72,9 @@ void ProPluginManager::OnPreExecute( PreExecuteEvent &event, bool firstTime )
 
 void ProPluginManager::OnPostExecute( PostExecuteEvent &event, bool firstTime)
 {
-    for (auto p : m_plugins) {
+    if (!m_enabled) return;
+    for (int i = 0; i < m_totalPlugins; i++) {
+        Plugin *p = m_plugins[i];
         if (p->IsEnabled() && p->HasOverrideFlag(Func_PostExecute))
             p->OnPostExecute(event, firstTime);
     }
@@ -71,7 +82,9 @@ void ProPluginManager::OnPostExecute( PostExecuteEvent &event, bool firstTime)
 
 void ProPluginManager::OnMemRead( MemReadEvent &event, bool firstTime )
 {
-    for (auto p : m_plugins) {
+    if (!m_enabled) return;
+    for (int i = 0; i < m_totalPlugins; i++) {
+        Plugin *p = m_plugins[i];
         if (p->IsEnabled() && p->HasOverrideFlag(Func_MemRead))
             p->OnMemRead(event, firstTime);
     }
@@ -79,7 +92,9 @@ void ProPluginManager::OnMemRead( MemReadEvent &event, bool firstTime )
 
 void ProPluginManager::OnMemWrite( MemWriteEvent &event, bool firstTime )
 {
-    for (auto p : m_plugins) {
+    if (!m_enabled) return;
+    for (int i = 0; i < m_totalPlugins; i++) {
+        Plugin *p = m_plugins[i];
         if (p->IsEnabled() && p->HasOverrideFlag(Func_MemWrite))
             p->OnMemWrite(event, firstTime);
     }
@@ -87,7 +102,9 @@ void ProPluginManager::OnMemWrite( MemWriteEvent &event, bool firstTime )
 
 void ProPluginManager::OnProcessPreRun( ProcessPreRunEvent &event, bool firstTime )
 {
-    for (auto p : m_plugins) {
+    if (!m_enabled) return;
+    for (int i = 0; i < m_totalPlugins; i++) {
+        Plugin *p = m_plugins[i];
         if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPreRun))
             p->OnProcessPreRun(event, firstTime);
     }
@@ -95,7 +112,9 @@ void ProPluginManager::OnProcessPreRun( ProcessPreRunEvent &event, bool firstTim
 
 void ProPluginManager::OnProcessPostRun( ProcessPostRunEvent &event, bool firstTime )
 {
-    for (auto p : m_plugins) {
+    if (!m_enabled) return;
+    for (int i = 0; i < m_totalPlugins; i++) {
+        Plugin *p = m_plugins[i];
         if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPostRun))
             p->OnProcessPostRun(event, firstTime);
     }
@@ -103,7 +122,9 @@ void ProPluginManager::OnProcessPostRun( ProcessPostRunEvent &event, bool firstT
 
 void ProPluginManager::OnProcessPreLoad( ProcessPreLoadEvent &event, bool firstTime )
 {
-    for (auto p : m_plugins) {
+    if (!m_enabled) return;
+    for (int i = 0; i < m_totalPlugins; i++) {
+        Plugin *p = m_plugins[i];
         if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPreLoad))
             p->OnProcessPreLoad(event, firstTime);
     }
@@ -111,7 +132,9 @@ void ProPluginManager::OnProcessPreLoad( ProcessPreLoadEvent &event, bool firstT
 
 void ProPluginManager::OnProcessPostLoad( ProcessPostLoadEvent &event, bool firstTime )
 {
-    for (auto p : m_plugins) {
+    if (!m_enabled) return;
+    for (int i = 0; i < m_totalPlugins; i++) {
+        Plugin *p = m_plugins[i];
         if (p->IsEnabled() && p->HasOverrideFlag(Func_ProcessPostLoad))
             p->OnProcessPostLoad(event, firstTime);
     }
@@ -119,7 +142,9 @@ void ProPluginManager::OnProcessPostLoad( ProcessPostLoadEvent &event, bool firs
 
 void ProPluginManager::OnWinapiPreCall( WinapiPreCallEvent &event, bool firstTime )
 {
-    for (auto p : m_plugins) {
+    if (!m_enabled) return;
+    for (int i = 0; i < m_totalPlugins; i++) {
+        Plugin *p = m_plugins[i];
         if (p->IsEnabled() && p->HasOverrideFlag(Func_WinapiPreCall))
             p->OnWinapiPreCall(event, firstTime);
     }
@@ -127,7 +152,9 @@ void ProPluginManager::OnWinapiPreCall( WinapiPreCallEvent &event, bool firstTim
 
 void ProPluginManager::OnWinapiPostCall( WinapiPostCallEvent &event, bool firstTime )
 {
-    for (auto p : m_plugins) {
+    if (!m_enabled) return;
+    for (int i = 0; i < m_totalPlugins; i++) {
+        Plugin *p = m_plugins[i];
         if (p->IsEnabled() && p->HasOverrideFlag(Func_WinapiPostCall))
             p->OnWinapiPostCall(event, firstTime);
     }
@@ -135,7 +162,9 @@ void ProPluginManager::OnWinapiPostCall( WinapiPostCallEvent &event, bool firstT
 
 void ProPluginManager::Serialize( Json::Value &root ) const 
 {
-    for (auto &plugin : m_plugins) {
+    root["enabled"] = m_enabled;
+    for (int i = 0; i < m_totalPlugins; i++) {
+        Plugin *plugin = m_plugins[i];
         Json::Value pluginRoot;
         plugin->Serialize(pluginRoot);
         root[plugin->GetName()] = pluginRoot;
@@ -144,10 +173,11 @@ void ProPluginManager::Serialize( Json::Value &root ) const
 
 void ProPluginManager::Deserialize( Json::Value &root )
 {
-    //Json::Value pluginsRoot = root["plugins"];
+    m_enabled = root.get("enabled", m_enabled).asBool();
     if (root.isNull()) return;
 
-    for (auto &plugin : m_plugins) {
+    for (int i = 0; i < m_totalPlugins; i++) {
+        Plugin *plugin = m_plugins[i];
         Json::Value pluginRoot = root[plugin->GetName()];
         if (pluginRoot.isNull()) continue;
         plugin->Deserialize(pluginRoot);

@@ -15,7 +15,7 @@ public:
     Taint &operator=(Taint rhs);
     virtual ~Taint();
 
-    int         GetWidth() const { return Width; }
+    static int  GetWidth() { return Width; }
 
     bool        IsTainted(int index) const { 
         Assert(index < Width);

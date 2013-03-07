@@ -341,28 +341,27 @@ void CpuPanel::OnPopupShowCurrInst( wxCommandEvent &event )
 
 void CpuPanel::OnPopupTaintReg( wxCommandEvent &event )
 {
-    wxMessageBox("not implemented");
-//     static const wxString Regs[] = { 
-//         "EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI", "EIP" 
-//     };
-// 
-//     int reg = wxGetSingleChoiceIndex("Select a register", "Taint", _countof(Regs), Regs);
-//     if (reg == -1) return;  // Cancelled
-// 
-//     wxString val = wxGetTextFromUser("Set Taint value (binary) for " + Regs[reg], "Taint");
-//     if (val.IsEmpty()) return; // Cancelled
-//     
-//     TaintEngine *te = m_engine->GetTaintEngine();
-//     {
-//         SyncObjectLock lock(*te);
-//         if (reg < 8) {
-//             te->CpuTaint.GPRegs[reg] = Taint::FromBinString(val.ToStdString());
-//         } else if (reg == 8) {
-//             te->CpuTaint.Eip = Taint::FromBinString(val.ToStdString());
-//         } else {
-//             Assert(0);
-//         }
-//     }
+    static const wxString Regs[] = { 
+        "EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI", "EIP" 
+    };
+
+    int reg = wxGetSingleChoiceIndex("Select a register", "Taint", _countof(Regs), Regs);
+    if (reg == -1) return;  // Cancelled
+
+    wxString val = wxGetTextFromUser("Set Taint value (binary) for " + Regs[reg], "Taint");
+    if (val.IsEmpty()) return; // Cancelled
+    
+    TaintEngine *te = m_engine->GetTaintEngine();
+    {
+        SyncObjectLock lock(*te);
+        if (reg < 8) {
+            te->CpuTaint.GPRegs[reg].T[0] = Taint::FromBinString(val.ToStdString());
+        } else if (reg == 8) {
+            te->CpuTaint.Eip.T[0] = Taint::FromBinString(val.ToStdString());
+        } else {
+            Assert(0);
+        }
+    }
 
 }
 
