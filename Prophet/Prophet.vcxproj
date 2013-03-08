@@ -130,7 +130,7 @@
     <ClInclude Include="memory.h" />
     <ClInclude Include="plugin\plugin.h" />
     <ClInclude Include="protocol\analyzer.h" />
-    <ClInclude Include="protocol\controller.h" />
+    <ClInclude Include="protocol\apiprocessor.h" />
     <ClInclude Include="protocol\protocol.h" />
     <ClInclude Include="static\disassembler.h" />
     <ClInclude Include="stdafx.h" />
@@ -186,7 +186,7 @@
     <ClCompile Include="protocol\analyzer.cpp" />
     <ClCompile Include="protocol\analyzers\length_field.cpp" />
     <ClCompile Include="protocol\analyzers\tainter.cpp" />
-    <ClCompile Include="protocol\controller.cpp" />
+    <ClCompile Include="protocol\apiprocessor.cpp" />
     <ClCompile Include="protocol\protocol.cpp" />
     <ClCompile Include="static\disassembler.cpp" />
     <ClCompile Include="stdafx.cpp">

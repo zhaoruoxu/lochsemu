@@ -189,7 +189,7 @@
     <ClInclude Include="protocol\analyzer.h">
       <Filter>Header Files\protocol</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\controller.h">
+    <ClInclude Include="protocol\apiprocessor.h">
       <Filter>Header Files\protocol</Filter>
     </ClInclude>
   </ItemGroup>
@@ -302,7 +302,7 @@
     <ClCompile Include="protocol\analyzers\length_field.cpp">
       <Filter>Source Files\protocol\analyzers</Filter>
     </ClCompile>
-    <ClCompile Include="protocol\controller.cpp">
+    <ClCompile Include="protocol\apiprocessor.cpp">
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
   </ItemGroup>

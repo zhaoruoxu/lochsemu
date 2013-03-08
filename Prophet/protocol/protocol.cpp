@@ -3,7 +3,7 @@
 #include "event.h"
 
 Protocol::Protocol( ProEngine *engine )
-    : m_engine(engine), m_controller(this)
+    : m_engine(engine), m_apiprocessor(this)
 {
     m_enabled   = true;
     m_state     = BetweenSession;
@@ -16,7 +16,7 @@ Protocol::~Protocol()
 
 void Protocol::Initialize()
 {
-    m_controller.Initialize();
+    m_apiprocessor.Initialize();
     ReorderAnalyzers();
 
     for (int i = 0; i < m_totalAnalyzers; i++) {
@@ -32,6 +32,7 @@ void Protocol::Initialize()
 void Protocol::Serialize( Json::Value &root ) const 
 {
     root["enabled"] = m_enabled;
+    
     Json::Value analyzers;
     for (int i = 0; i < m_totalAnalyzers; i++) {
         ProtocolAnalyzer *pa = m_analyzers[i];
@@ -40,19 +41,29 @@ void Protocol::Serialize( Json::Value &root ) const
         analyzers[pa->GetName()] = paroot;
     }
     root["analyzers"] = analyzers;
+
+    Json::Value apiProc;
+    m_apiprocessor.Serialize(apiProc);
+    root["api_processor"] = apiProc;
 }
 
 void Protocol::Deserialize( Json::Value &root )
 {
     m_enabled = root.get("enabled", m_enabled).asBool();
-    Json::Value analyzers = root["analyzers"];
-    if (analyzers.isNull()) return;
 
-    for (int i = 0; i < m_totalAnalyzers; i++) {
-        ProtocolAnalyzer *pa = m_analyzers[i];
-        Json::Value paroot = analyzers[pa->GetName()];
-        if (paroot.isNull()) continue;
-        pa->Deserialize(paroot);
+    Json::Value analyzers = root["analyzers"];
+    if (!analyzers.isNull()) {
+        for (int i = 0; i < m_totalAnalyzers; i++) {
+            ProtocolAnalyzer *pa = m_analyzers[i];
+            Json::Value paroot = analyzers[pa->GetName()];
+            if (paroot.isNull()) continue;
+            pa->Deserialize(paroot);
+        }
+    }
+
+    Json::Value apiProc = root["api_processor"];
+    if (!apiProc.isNull()) {
+        m_apiprocessor.Deserialize(apiProc);
     }
 }
 
@@ -173,6 +184,8 @@ void Protocol::OnWinapiPreCall( WinapiPreCallEvent &event )
 {
     if (!m_enabled) return;
 
+    m_apiprocessor.OnWinapiPreCall(event);
+
     if (m_state == InSession) {
         for (int i = 0; i < m_totalAnalyzers; i++) {
             ProtocolAnalyzer *pa = m_analyzers[i];
@@ -185,6 +198,8 @@ void Protocol::OnWinapiPreCall( WinapiPreCallEvent &event )
 void Protocol::OnWinapiPostCall( WinapiPostCallEvent &event )
 {
     if (!m_enabled) return;
+
+    m_apiprocessor.OnWinapiPostCall(event);
 
     if (m_state == InSession) {
         for (int i = 0; i < m_totalAnalyzers; i++) {

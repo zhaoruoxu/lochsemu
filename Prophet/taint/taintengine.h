@@ -467,7 +467,7 @@ private:
     DECLARE_HANDLER(Bswap_Handler);
     DECLARE_HANDLER(Pxor660FEF_Handler);
 
-
+#undef DECLARE_HANDLER
 private:
     ProEngine *   m_engine;
     bool        m_enabled;

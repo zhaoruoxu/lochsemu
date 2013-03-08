@@ -70,6 +70,17 @@ uint Ws2_32_recv(Processor *cpu)
     RET_PARAMS(4);
 }
 
+uint Ws2_32_send(Processor *cpu)
+{
+    RET_VALUE = (u32) send(
+        (SOCKET)        PARAM(0),
+        (const char *)  PARAM_PTR(1),
+        (int)           PARAM(2),
+        (int)           PARAM(3)
+        );
+    RET_PARAMS(4);
+}
+
 uint Ws2_32_socket(Processor *cpu)
 {
     RET_VALUE = (u32) socket(

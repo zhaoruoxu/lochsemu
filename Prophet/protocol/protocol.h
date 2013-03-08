@@ -6,7 +6,7 @@
 #include "Prophet.h"
 #include "utilities.h"
 #include "analyzer.h"
-#include "controller.h"
+#include "apiprocessor.h"
 
 class Protocol : public ISerializable {
 
@@ -54,7 +54,7 @@ private:
     int         m_totalAnalyzers;
     ProtocolAnalyzer *  m_analyzers[MaxAnalyzers];
 
-    Controller  m_controller;
+    ApiProcessor    m_apiprocessor;
     State       m_state;
     bool        m_enabled;
 };

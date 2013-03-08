@@ -18,6 +18,8 @@ public:
 
     void    OnPreExecute(PreExecuteEvent &event) override
     {
+        if (event.Cpu->GetCurrentModule() != 0) return;
+
         if (IsMemoryArg(event.Inst->Main.Argument1)) {
             Taint1 t = m_taint->GetTaintAddressingReg(event.Inst->Main.Argument1);
             if (t.IsAnyTainted()) {

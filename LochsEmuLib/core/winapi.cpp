@@ -282,6 +282,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 16, 0x09, "htons", Ws2_32_htons },
     { 16, 0x0d, "listen", Ws2_32_listen },
     { 16, 0x10, "recv", Ws2_32_recv },
+    { 16, 0x13, "send", Ws2_32_send },
     { 16, 0x17, "socket", Ws2_32_socket },
     { 16, 0x73, "WSAStartup", Ws2_32_WSAStartup },
     { 16, 0x74, "WSACleanup", Ws2_32_WSACleanup },

@@ -261,8 +261,8 @@ public:
     /************************************************************************/
     /* Utilities                                                            */
     /************************************************************************/
-    INLINE u32      GetStackParam32     (uint num);
-    INLINE void *   GetStackParamPtr32  (uint num);
+    INLINE u32      GetStackParam32     (uint num) const;
+    INLINE void *   GetStackParamPtr32  (uint num) const;
     pbyte           GetCodePtr          () const { Assert(Mem); return Mem->GetRawData(EIP); }
     pbyte           GetCodePtr          (u32 eip) const { return Mem->GetRawData(eip); }
     INLINE u32      GetCallbackEntry    (uint callbackId) const;
@@ -771,12 +771,12 @@ INLINE void Processor::SetFlagsShift32( u32 val )
 }
 
 
-INLINE u32 Processor::GetStackParam32( uint num )
+INLINE u32 Processor::GetStackParam32( uint num ) const
 {
     return MemRead32(ESP + (num+1) * 4, LX_REG_SS);
 }
 
-INLINE void * Processor::GetStackParamPtr32( uint num )
+INLINE void * Processor::GetStackParamPtr32( uint num ) const
 {
     u32 offset = GetStackParam32(num);
     return offset == 0 ? NULL : (void *) Mem->GetRawData(offset);
