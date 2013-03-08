@@ -420,12 +420,13 @@ void CallWindowsAPI( Processor *cpu, u32 val )
     WinAPIHandler apiFunc = WinAPIInfoTable[apiIndex].Handler;
 
     uint r = apiFunc(cpu);
-    cpu->EIP = cpu->Pop32();
-    cpu->ESP += r * 4;
 
     if (cpu->Thr()) {
         cpu->Thr()->Plugins()->OnWinapiPostCall(cpu, apiIndex);
     }
+
+    cpu->EIP = cpu->Pop32();
+    cpu->ESP += r * 4;
 }
 
 LX_API const char * LxGetWinAPIModuleName( u32 index )
