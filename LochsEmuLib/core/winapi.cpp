@@ -33,6 +33,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     
     /* kernel32.dll */
 	{ 01, 0, "AddAtomA", Kernel32_AddAtomA },
+    { 01, 0, "AreFileApisANSI", Kernel32_AreFileApisANSI },
     { 01, 0, "CloseHandle", Kernel32_CloseHandle },
 	{ 01, 0, "CompareStringW", Kernel32_CompareStringW },
     { 01, 0, "CreateFileA", Kernel32_CreateFileA },
@@ -64,6 +65,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "GetCommandLineA", Kernel32_GetCommandLineA },
     { 01, 0, "GetCommandLineW", Kernel32_GetCommandLineW },
 	{ 01, 0, "GetCurrentDirectoryW", Kernel32_GetCurrentDirectoryW },
+    //{ 01, 0, "GetCurrentPackageId", Kernel32_GetCurrentPackageId },
     { 01, 0, "GetCurrentProcess", Kernel32_GetCurrentProcess },
     { 01, 0, "GetCurrentProcessId", Kernel32_GetCurrentProcessId },
     { 01, 0, "GetCurrentThreadId", Kernel32_GetCurrentThreadId },
@@ -278,8 +280,10 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 16, 0x01, "accept", Ws2_32_accept },
     { 16, 0x02, "bind", Ws2_32_bind },
     { 16, 0x03, "closesocket", Ws2_32_closesocket },
+    { 16, 0x04, "connect", Ws2_32_connect },
     { 16, 0x08, "htonl", Ws2_32_htonl },
     { 16, 0x09, "htons", Ws2_32_htons },
+    { 16, 0x0b, "inet_addr", Ws2_32_inet_addr },
     { 16, 0x0d, "listen", Ws2_32_listen },
     { 16, 0x10, "recv", Ws2_32_recv },
     { 16, 0x13, "send", Ws2_32_send },

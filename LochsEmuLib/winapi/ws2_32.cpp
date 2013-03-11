@@ -32,6 +32,16 @@ uint Ws2_32_closesocket(Processor *cpu)
     RET_PARAMS(1);
 }
 
+uint Ws2_32_connect(Processor *cpu)
+{
+    RET_VALUE = (u32) connect(
+        (SOCKET)        PARAM(0),
+        (const sockaddr *)  PARAM_PTR(1),
+        (int)           PARAM(2)
+        );
+    RET_PARAMS(3);
+}
+
 uint Ws2_32_htonl(Processor *cpu)
 {
     Assert(sizeof(u_long) == 4);
@@ -46,6 +56,14 @@ uint Ws2_32_htons(Processor *cpu)
     Assert(sizeof(u_short) == 2);
     RET_VALUE = (u32) htons(
         (u_short)       PARAM(0)
+        );
+    RET_PARAMS(1);
+}
+
+uint Ws2_32_inet_addr(Processor *cpu)
+{
+    RET_VALUE  = (u32) inet_addr(
+        (const char *)  PARAM_PTR(0)
         );
     RET_PARAMS(1);
 }

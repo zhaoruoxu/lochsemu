@@ -181,15 +181,9 @@ void ApiProcessor::Handler_recv(const Processor *cpu)
 
 void ApiProcessor::Handler_ReadFile(const Processor *cpu)
 {
-    //LxInfo("ReadFile\n");
-
     u32 bufferAddr  = PARAM(1, u32);        // begin address of buffer
     u32 lenRead     = *(PARAM_PTR(3, u32p));// length of data read
     m_taint->TaintMemoryRanged(bufferAddr, lenRead, false);
-
-    for (uint i = 0; i < lenRead; i++) {
-        LxWarning("Taint %d: %s\n", i, m_taint->MemTaint.Get<1>(bufferAddr+i).T[0].ToString().c_str());
-    }
 }
 
 void ApiProcessor::Handler_WriteFile(const Processor *cpu)

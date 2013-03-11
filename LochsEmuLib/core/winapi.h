@@ -73,6 +73,7 @@ DECLARE_WINAPI_ENTRY(WinAPINotAvailable);
 /* Alphabetically, I hope                                               */
 /************************************************************************/
 DECLARE_WINAPI_ENTRY(Kernel32_AddAtomA);
+DECLARE_WINAPI_ENTRY(Kernel32_AreFileApisANSI);
 DECLARE_WINAPI_ENTRY(Kernel32_CloseHandle);
 DECLARE_WINAPI_ENTRY(Kernel32_CompareStringW);
 DECLARE_WINAPI_ENTRY(Kernel32_CreateFileA);
@@ -104,6 +105,7 @@ DECLARE_WINAPI_ENTRY(Kernel32_GetCommandLineA);
 DECLARE_WINAPI_ENTRY(Kernel32_GetCommandLineW);
 DECLARE_WINAPI_ENTRY(Kernel32_GetConsoleMode);
 DECLARE_WINAPI_ENTRY(Kernel32_GetCurrentDirectoryW);
+//DECLARE_WINAPI_ENTRY(Kernel32_GetCurrentPackageId);
 DECLARE_WINAPI_ENTRY(Kernel32_GetCurrentProcess);
 DECLARE_WINAPI_ENTRY(Kernel32_GetCurrentProcessId);
 DECLARE_WINAPI_ENTRY(Kernel32_GetCurrentThreadId);
@@ -358,8 +360,10 @@ DECLARE_WINAPI_ENTRY(Oleaut32_SysFreeString);
 DECLARE_WINAPI_ENTRY(Ws2_32_accept);
 DECLARE_WINAPI_ENTRY(Ws2_32_bind);
 DECLARE_WINAPI_ENTRY(Ws2_32_closesocket);
+DECLARE_WINAPI_ENTRY(Ws2_32_connect);
 DECLARE_WINAPI_ENTRY(Ws2_32_htonl);
 DECLARE_WINAPI_ENTRY(Ws2_32_htons);
+DECLARE_WINAPI_ENTRY(Ws2_32_inet_addr);
 DECLARE_WINAPI_ENTRY(Ws2_32_listen);
 DECLARE_WINAPI_ENTRY(Ws2_32_recv);
 DECLARE_WINAPI_ENTRY(Ws2_32_send);

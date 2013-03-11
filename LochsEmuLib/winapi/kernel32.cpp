@@ -23,6 +23,12 @@ uint Pgort90_FindActCtxSectionStringW(Processor *cpu)
     RET_PARAMS(5);
 }
 
+uint Kernel32_AreFileApisANSI(Processor *cpu)
+{
+    RET_VALUE = (BOOL) AreFileApisANSI();
+    RET_PARAMS(0);
+}
+
 uint Kernel32_AddAtomA(Processor *cpu)
 {
 	RET_VALUE = (u32) AddAtomA((LPCSTR) PARAM_PTR(0));
@@ -334,6 +340,16 @@ uint Kernel32_GetCurrentDirectoryW(Processor *cpu)
 		);
 	RET_PARAMS(2);
 }
+
+// uint Kernel32_GetCurrentPackageId(Processor *cpu)
+// {
+//     RET_VALUE = (u32) GetCurrentPackageId(
+//         (UINT32 *)  PARAM_PTR(0),
+//         (BYTE *)    PARAM_PTR(1)
+//         );
+//     RET_PARAMS(2);
+// }
+
 uint Kernel32_GetCurrentProcess(Processor *cpu)
 {
     RET_VALUE = (u32) GetCurrentProcess();
