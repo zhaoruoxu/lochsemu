@@ -53,4 +53,14 @@ LxResult Setle_0F9E(Processor *cpu, const Instruction *inst)
     RET_SUCCESS();
 }
 
+LxResult Setnle_0F9F(Processor *cpu, const Instruction *inst)
+{
+    /*
+     * SETNLE r/m8
+     */
+    SetByte(cpu, inst, cpu->ZF == 0 && cpu->SF == cpu->OF);
+    RET_SUCCESS();
+}
+
+
 END_NAMESPACE_LOCHSEMU()

@@ -195,6 +195,9 @@ void ApiProcessor::Handler_ReadFile(const Processor *cpu)
 void ApiProcessor::Handler_WriteFile(const Processor *cpu)
 {
     //LxInfo("WriteFile\n");
+    u32 bufferAddr = PARAM(1, u32);
+    Tb<1> t = m_taint->MemTaint.Get<1>(bufferAddr);
+    
 }
 
 

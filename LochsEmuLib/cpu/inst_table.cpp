@@ -426,7 +426,7 @@ InstHandler InstTableTwoBytes[] =
     /*0f 9c*/ &InstNotAvailable,
     /*0f 9d*/ &Setnl_0F9D,
     /*0f 9e*/ &Setle_0F9E,
-    /*0f 9f*/ &InstNotAvailable,
+    /*0f 9f*/ &Setnle_0F9F,
     /*0f a0*/ &InstNotAvailable,
     /*0f a1*/ &InstNotAvailable,
     /*0f a2*/ &Cpuid_0FA2,
