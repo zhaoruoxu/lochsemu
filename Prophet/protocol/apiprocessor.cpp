@@ -116,11 +116,10 @@ void ApiProcessor::DeserializeApi( Json::Value &root, bool isPreCallApi )
 void ApiProcessor::InitializeDefaultHandlers()
 {
     RegisterHandlerPreCall("kernel32.dll", "WriteFile", &ApiProcessor::Handler_WriteFile, true);
+    RegisterHandlerPreCall("ws2_32.dll", "send", &ApiProcessor::Handler_send, true);
 
-    RegisterHandlerPostCall("ws2_32.dll", "send", &ApiProcessor::Handler_send, true);
     RegisterHandlerPostCall("kernel32.dll", "ReadFile", &ApiProcessor::Handler_ReadFile, true);
     RegisterHandlerPostCall("ws2_32.dll", "recv", &ApiProcessor::Handler_recv, true);
-    
 }
 
 void ApiProcessor::RegisterHandlerPreCall( const char *dllName, const char *apiName, WinapiHandler h, bool enabled )

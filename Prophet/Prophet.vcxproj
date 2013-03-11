@@ -185,7 +185,6 @@
     <ClCompile Include="plugin\vulnerability_detector.cpp" />
     <ClCompile Include="protocol\analyzer.cpp" />
     <ClCompile Include="protocol\analyzers\length_field.cpp" />
-    <ClCompile Include="protocol\analyzers\tainter.cpp" />
     <ClCompile Include="protocol\apiprocessor.cpp" />
     <ClCompile Include="protocol\protocol.cpp" />
     <ClCompile Include="static\disassembler.cpp" />

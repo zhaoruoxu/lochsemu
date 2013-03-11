@@ -296,9 +296,6 @@
     <ClCompile Include="protocol\analyzer.cpp">
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
-    <ClCompile Include="protocol\analyzers\tainter.cpp">
-      <Filter>Source Files\protocol\analyzers</Filter>
-    </ClCompile>
     <ClCompile Include="protocol\analyzers\length_field.cpp">
       <Filter>Source Files\protocol\analyzers</Filter>
     </ClCompile>
