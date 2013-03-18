@@ -15,7 +15,7 @@ public:
     void    Initialize();
 
     void    OnMessageBegin(MessageBeginEvent &event);
-    void    OnSessionEnd(MessageEndEvent &event);
+    void    OnMessageEnd(MessageEndEvent &event);
 
     void    Serialize(Json::Value &root) const override;
     void    Deserialize(Json::Value &root) override;

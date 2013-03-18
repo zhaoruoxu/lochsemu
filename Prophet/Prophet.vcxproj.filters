@@ -64,6 +64,9 @@
     <Filter Include="Source Files\protocol\analyzers">
       <UniqueIdentifier>{9cf3e9cd-2c56-49ef-97ea-3ba8e5f0b711}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\protocol\analyzers">
+      <UniqueIdentifier>{371545c4-4781-4e79-89e6-13e1126fff84}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -213,6 +216,9 @@
     <ClInclude Include="protocol\msgmgr.h">
       <Filter>Header Files\protocol</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\analyzers\direction_field.h">
+      <Filter>Header Files\protocol\analyzers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -314,9 +320,6 @@
     <ClCompile Include="protocol\analyzer.cpp">
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
-    <ClCompile Include="protocol\analyzers\length_field.cpp">
-      <Filter>Source Files\protocol\analyzers</Filter>
-    </ClCompile>
     <ClCompile Include="protocol\apiprocessor.cpp">
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
@@ -331,6 +334,9 @@
     </ClCompile>
     <ClCompile Include="protocol\msgmgr.cpp">
       <Filter>Source Files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\analyzers\direction_field.cpp">
+      <Filter>Source Files\protocol\analyzers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

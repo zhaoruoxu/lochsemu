@@ -4,12 +4,10 @@
 #include "event.h"
 
 
-ProtocolAnalyzer::ProtocolAnalyzer( int execOrder, const std::string &name, uint handlerFlags )
-    : m_execOrder(execOrder), m_name(name), m_handlerFlags(handlerFlags)
+ProtocolAnalyzer::ProtocolAnalyzer( Protocol *protocol, const std::string &name, uint handlerFlags )
+    : m_protocol(protocol), m_name(name), m_handlerFlags(handlerFlags)
 {
     m_enabled = true;
-    m_protocol = g_engine.GetProtocol();
-    m_protocol->RegisterAnalyzer(this);
 }
 
 ProtocolAnalyzer::~ProtocolAnalyzer()
@@ -27,7 +25,7 @@ void ProtocolAnalyzer::Deserialize( Json::Value &root )
     m_enabled = root.get("enabled", m_enabled).asBool();
 }
 
-bool ProtocolAnalyzer::Compare( const ProtocolAnalyzer *lhs, const ProtocolAnalyzer *rhs )
-{
-    return lhs->GetExecOrder() < rhs->GetExecOrder();
-}
+// bool ProtocolAnalyzer::Compare( const ProtocolAnalyzer *lhs, const ProtocolAnalyzer *rhs )
+// {
+//     return lhs->GetExecOrder() < rhs->GetExecOrder();
+// }

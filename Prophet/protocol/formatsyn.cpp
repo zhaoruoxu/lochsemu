@@ -23,7 +23,7 @@ void FormatSynthesizer::OnMessageBegin( MessageBeginEvent &event )
 
 }
 
-void FormatSynthesizer::OnSessionEnd( MessageEndEvent &event )
+void FormatSynthesizer::OnMessageEnd( MessageEndEvent &event )
 {
 
 }

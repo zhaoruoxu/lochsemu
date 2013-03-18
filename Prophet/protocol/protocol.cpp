@@ -3,10 +3,16 @@
 #include "event.h"
 #include "engine.h"
 #include "taint/taintengine.h"
+#include "message.h"
+#include "analyzers/direction_field.h"
 
 Protocol::Protocol( ProEngine *engine )
     : m_engine(engine), m_apiprocessor(this), m_formatsyn(this), m_msgmanager(this)
 {
+    ZeroMemory(m_analyzers, sizeof(m_analyzers));
+    ZeroMemory(m_messages, sizeof(m_messages));
+    m_totalAnalyzers    = 0;
+    m_totalMessages     = 0;
     m_taint     = NULL;
     m_enabled   = true;
     m_state     = Idle;
@@ -14,7 +20,12 @@ Protocol::Protocol( ProEngine *engine )
 
 Protocol::~Protocol()
 {
-
+    for (int i = 0; i < m_totalAnalyzers; i++) {
+        SAFE_DELETE(m_analyzers[i]);
+    }
+    for (int i = 0; i < m_totalMessages; i++) {
+        SAFE_DELETE(m_messages[i]);
+    }
 }
 
 void Protocol::Initialize()
@@ -23,7 +34,9 @@ void Protocol::Initialize()
     m_apiprocessor.Initialize();
     m_formatsyn.Initialize();
     m_msgmanager.Initialize();
-    ReorderAnalyzers();
+
+    RegisterAnalyzer(new DirectionField(this));
+    
     for (int i = 0; i < m_totalAnalyzers; i++) {
         m_analyzers[i]->Initialize();
     }
@@ -85,15 +98,23 @@ void Protocol::RegisterAnalyzer( ProtocolAnalyzer *analyzer )
     LxInfo("Prophet protocol analyzer registered: %s\n", analyzer->GetName().c_str());
 }
 
-void Protocol::ReorderAnalyzers()
-{
-    std::sort(m_analyzers, m_analyzers + m_totalAnalyzers, ProtocolAnalyzer::Compare);
+// void Protocol::ReorderAnalyzers()
+// {
+//     std::sort(m_analyzers, m_analyzers + m_totalAnalyzers, ProtocolAnalyzer::Compare);
+// 
+//     LxInfo("Prophet protocol analyzers order:\n");
+//     for (int i = 0; i < m_totalAnalyzers; i++) {
+//         LxInfo("%8d: %s\n", m_analyzers[i]->GetExecOrder(), m_analyzers[i]->GetName().c_str());
+//     }
+//     LxInfo("\n");
+// }
 
-    LxInfo("Prophet protocol analyzers order:\n");
-    for (int i = 0; i < m_totalAnalyzers; i++) {
-        LxInfo("%8d: %s\n", m_analyzers[i]->GetExecOrder(), m_analyzers[i]->GetName().c_str());
+void Protocol::AddMessage( Message *msg )
+{
+    if (m_totalMessages >= MaxMessages) {
+        LxFatal("Too many protocol messages!\n");
     }
-    LxInfo("\n");
+    m_messages[m_totalMessages++] = msg;
 }
 
 void Protocol::OnPreExecute( PreExecuteEvent &event )
@@ -259,8 +280,8 @@ void Protocol::OnMessageEnd( MessageEndEvent &event )
             pa->OnMessageEnd(event);
     }
 
-    m_formatsyn.OnSessionEnd(event);
-    m_msgmanager.OnSessionEnd(event);
+    m_formatsyn.OnMessageEnd(event);
+    m_msgmanager.OnMessageEnd(event);
 
     m_taint->Enable(false);
     m_state = Idle;

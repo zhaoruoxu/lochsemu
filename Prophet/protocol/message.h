@@ -16,9 +16,10 @@ enum FieldFormat {
 
 struct MessageByte {
     FieldFormat     Format;
+    byte            Data;
 
-    MessageByte() : Format(Unknown) {
-
+    MessageByte() : Format(Unknown), Data(0)
+    {
     }
 };
 

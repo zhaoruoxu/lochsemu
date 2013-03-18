@@ -47,8 +47,10 @@ public:
     ProEngine *         GetEngine() { return m_engine; }
     const ProEngine *   GetEngine() const { return m_engine; }
 
+    void        AddMessage(Message *msg);
+
 private:
-    void        ReorderAnalyzers();
+/*    void        ReorderAnalyzers();*/
 private:
     ProEngine *         m_engine;
     TaintEngine *       m_taint;
@@ -56,6 +58,10 @@ private:
     static const int    MaxAnalyzers = 64;
     int                 m_totalAnalyzers;
     ProtocolAnalyzer *  m_analyzers[MaxAnalyzers];
+
+    static const int    MaxMessages = 4096;
+    int                 m_totalMessages;
+    Message *           m_messages[MaxMessages];
 
     ApiProcessor        m_apiprocessor;
     FormatSynthesizer   m_formatsyn;

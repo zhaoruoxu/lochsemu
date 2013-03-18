@@ -5,7 +5,7 @@
 MessageManager::MessageManager( Protocol *protocol )
     : m_protocol(protocol)
 {
-
+    m_message = NULL;
 }
 
 MessageManager::~MessageManager()
@@ -22,9 +22,10 @@ void MessageManager::OnMessageBegin( MessageBeginEvent &event )
 {
     LxError("Session begins: len=%08x, addr=%08x, data=%s\n", 
         event.MessageLen, event.MessageAddr, event.MessageData);
+
 }
 
-void MessageManager::OnSessionEnd( MessageEndEvent &event )
+void MessageManager::OnMessageEnd( MessageEndEvent &event )
 {
     LxError("Session ends: len=%08x, addr=%08x, data=%s\n",
         event.MessageLen, event.MessageAddr, event.MessageData);
