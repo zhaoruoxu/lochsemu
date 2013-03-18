@@ -3,7 +3,7 @@
 #ifndef __PROPHET_ARCHIVE_H__
 #define __PROPHET_ARCHIVE_H__
  
-#include "Prophet.h"
+#include "prophet.h"
 #include "utilities.h"
 #include "parallel.h"
 

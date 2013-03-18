@@ -3,7 +3,7 @@
 #ifndef __PROPHET_INSTCONTEXT_H__
 #define __PROPHET_INSTCONTEXT_H__
  
-#include "Prophet.h"
+#include "prophet.h"
 #include "taint/taint.h"
 #include "static/disassembler.h"
 

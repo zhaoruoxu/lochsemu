@@ -300,7 +300,7 @@ void CpuPanel::OnCurrentEipChange( u32 addr )
     }
 
     Refresh();
-    Update();
+    //Update();
 }
 
 void CpuPanel::ShowCode( u32 addr )

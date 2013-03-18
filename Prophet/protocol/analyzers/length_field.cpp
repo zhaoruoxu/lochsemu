@@ -3,6 +3,7 @@
 #include "instruction.h"
 #include "taint/taintengine.h"
 #include "engine.h"
+#include "protocol/message.h"
 
 class LengthFieldDetector : public ProtocolAnalyzer {
 public:

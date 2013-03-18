@@ -3,7 +3,7 @@
 #ifndef __PROPHET_PROTOCOL_ANALYZER_H__
 #define __PROPHET_PROTOCOL_ANALYZER_H__
 
-#include "Prophet.h"
+#include "prophet.h"
 #include "event.h"
 #include "utilities.h"
 
@@ -41,6 +41,8 @@ public:
     virtual void    OnProcessPostLoad   (ProcessPostLoadEvent   &event) {}
     virtual void    OnWinapiPreCall     (WinapiPreCallEvent     &event) {}
     virtual void    OnWinapiPostCall    (WinapiPostCallEvent    &event) {}
+    virtual void    OnMessageBegin      (MessageBeginEvent      &event) {}
+    virtual void    OnMessageEnd        (MessageEndEvent        &event) {}
 
 public:
     static bool     Compare(const ProtocolAnalyzer *lhs, const ProtocolAnalyzer *rhs);

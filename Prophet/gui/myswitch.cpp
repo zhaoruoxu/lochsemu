@@ -15,4 +15,5 @@ MySwitch::MySwitch( wxWindow *parent, wxWindowID id, const wxString &label, cons
 void MySwitch::SetOn( bool isOn )
 {
     SetBackgroundColour(isOn ? m_colorOn : m_colorOff);
+    Refresh();
 }

@@ -3,7 +3,7 @@
 #ifndef __PROPHET_EVENT_H__
 #define __PROPHET_EVENT_H__
  
-#include "Prophet.h"
+#include "prophet.h"
 
 class Event {
 public:
@@ -35,6 +35,8 @@ enum EventHandlerFlag : uint {
     ProcessPostLoadHandler  = 1 << 8,
     WinapiPreCallHandler    = 1 << 9,
     WinapiPostCallHandler   = 1 << 10,
+    SessionBeginHandler     = 1 << 11,
+    SessionEndHandler       = 1 << 12,
 };
 
 class PreExecuteEvent : public Event {
@@ -42,8 +44,8 @@ public:
     PreExecuteEvent(void *sender, Processor *cpu, const Instruction *inst)
         : Event(sender), Cpu(cpu), Inst(inst) {}
     
-    Processor * const   Cpu;
-    const Instruction * const Inst;
+    Processor * const           Cpu;
+    const Instruction * const   Inst;
 };
 
 class PostExecuteEvent : public Event {
@@ -51,8 +53,8 @@ public:
     PostExecuteEvent(void *sender, Processor *cpu, const Instruction *inst)
         : Event(sender), Cpu(cpu), Inst(inst) {}
 
-    Processor * const   Cpu;
-    const Instruction * const Inst;
+    Processor * const           Cpu;
+    const Instruction * const   Inst;
 };
 
 class MemReadEvent : public Event {
@@ -126,6 +128,25 @@ public:
     
     Processor * const       Cpu;
     const uint              ApiIndex;
+};
+
+class MessageBeginEvent : public Event {
+public:
+    MessageBeginEvent(void *sender, int msglen, u32 msgaddr, cpbyte msgdata)
+        : Event(sender), MessageLen(msglen), MessageAddr(msgaddr), MessageData(msgdata) {}
+
+    const int       MessageLen;
+    const u32       MessageAddr;
+    const cpbyte    MessageData;
+};
+
+class MessageEndEvent : public Event {
+public:
+    MessageEndEvent(void *sender, int msglen, u32 msgaddr, cpbyte msgdata)
+        : Event(sender), MessageLen(msglen), MessageAddr(msgaddr), MessageData(msgdata) {}
+    const int       MessageLen;
+    const int       MessageAddr;
+    const cpbyte    MessageData;
 };
 
 #endif // __PROPHET_EVENT_H__

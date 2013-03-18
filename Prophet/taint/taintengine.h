@@ -3,7 +3,7 @@
 #ifndef __TAINT_ENGINE_H__
 #define __TAINT_ENGINE_H__
  
-#include "Prophet.h"
+#include "prophet.h"
 #include "taint.h"
 #include "instruction.h"
 #include "parallel.h"
@@ -34,7 +34,7 @@ public:
 
     void        UpdateInstContext(InstContext *ctx) const;
 
-    void        Enable(bool isEnabled) { m_enabled = isEnabled; }
+    void        Enable(bool isEnabled);
     bool        IsEnabled() const { return m_enabled; }
 
     Taint1      GetTaintAddressingReg(const ARGTYPE &oper) const;

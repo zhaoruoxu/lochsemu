@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "Prophet.h"
+#include "prophet.h"
 #include "winapi.h"
 #include "instruction.h"
 #include "peloader.h"
@@ -17,7 +17,7 @@ PluginHandle    g_handle;
 Config          g_config;
 
 Emulator *      g_emulator;
-ProEngine         g_engine;
+ProEngine       g_engine;
 Semaphore       g_guiSem;
 
 PROPHET_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, PluginInfo *info)

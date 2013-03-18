@@ -2,11 +2,14 @@
 #include "plugin.h"
 #include "engine.h"
 
-Plugin::Plugin(const std::string name, uint ovd)
-    : m_name(name), m_enabled(true), m_ovdFlag(ovd)
+#include "advdbg.h"
+#include "autobreak.h"
+#include "taint_directive.h"
+#include "vulnerability_detector.h"
+
+Plugin::Plugin(ProPluginManager *manager, const std::string name, uint ovd)
+    : m_manager(manager), m_name(name), m_enabled(true), m_ovdFlag(ovd)
 {
-    m_manager = g_engine.GetPluginManager();
-    m_manager->RegisterPlugin(this);
 }
 
 void Plugin::Serialize( Json::Value &root ) const 
@@ -33,18 +36,25 @@ ProPluginManager::ProPluginManager(ProEngine *engine)
     : m_engine(engine)
 {
     for (int i = 0; i < MaxPlugins; i++)
-        m_plugins[i] = NULL;
-    m_enabled = true;
-    m_totalPlugins = 0;
+        m_plugins[i]    = NULL;
+    m_enabled           = true;
+    m_totalPlugins      = 0;
 }
 
 ProPluginManager::~ProPluginManager()
 {
-
+    for (int i = 0; i < m_totalPlugins; i++) {
+        SAFE_DELETE(m_plugins[i]);
+    }
 }
 
 void ProPluginManager::Initialize()
 {
+    RegisterPlugin(new AdvancedDebugger(this));
+    RegisterPlugin(new AutoBreak(this));
+    RegisterPlugin(new TaintDirective(this));
+    RegisterPlugin(new VulnerabilityDetector(this));
+
     for (int i = 0; i < m_totalPlugins; i++) 
         m_plugins[i]->Initialize();
 }

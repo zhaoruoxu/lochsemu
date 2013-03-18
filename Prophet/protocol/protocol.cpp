@@ -1,12 +1,15 @@
 #include "stdafx.h"
 #include "protocol.h"
 #include "event.h"
+#include "engine.h"
+#include "taint/taintengine.h"
 
 Protocol::Protocol( ProEngine *engine )
-    : m_engine(engine), m_apiprocessor(this)
+    : m_engine(engine), m_apiprocessor(this), m_formatsyn(this), m_msgmanager(this)
 {
+    m_taint     = NULL;
     m_enabled   = true;
-    m_state     = BetweenSession;
+    m_state     = Idle;
 }
 
 Protocol::~Protocol()
@@ -16,18 +19,15 @@ Protocol::~Protocol()
 
 void Protocol::Initialize()
 {
+    m_taint = m_engine->GetTaintEngine();
     m_apiprocessor.Initialize();
+    m_formatsyn.Initialize();
+    m_msgmanager.Initialize();
     ReorderAnalyzers();
-
     for (int i = 0; i < m_totalAnalyzers; i++) {
         m_analyzers[i]->Initialize();
     }
 }
-
-// void Protocol::OnWinapiPostCall( WinapiPostCallEvent &event )
-// {
-//     m_pretaint.OnWinapiPostCall(event);
-// }
 
 void Protocol::Serialize( Json::Value &root ) const 
 {
@@ -45,6 +45,10 @@ void Protocol::Serialize( Json::Value &root ) const
     Json::Value apiProc;
     m_apiprocessor.Serialize(apiProc);
     root["api_processor"] = apiProc;
+
+    Json::Value formatsyn;
+    m_formatsyn.Serialize(formatsyn);
+    root["format_synthesizer"] = formatsyn;
 }
 
 void Protocol::Deserialize( Json::Value &root )
@@ -65,6 +69,11 @@ void Protocol::Deserialize( Json::Value &root )
     if (!apiProc.isNull()) {
         m_apiprocessor.Deserialize(apiProc);
     }
+
+    Json::Value formatsyn = root["format_synthesizer"];
+    if (!formatsyn.isNull()) {
+        m_formatsyn.Deserialize(formatsyn);
+    }
 }
 
 void Protocol::RegisterAnalyzer( ProtocolAnalyzer *analyzer )
@@ -76,11 +85,22 @@ void Protocol::RegisterAnalyzer( ProtocolAnalyzer *analyzer )
     LxInfo("Prophet protocol analyzer registered: %s\n", analyzer->GetName().c_str());
 }
 
+void Protocol::ReorderAnalyzers()
+{
+    std::sort(m_analyzers, m_analyzers + m_totalAnalyzers, ProtocolAnalyzer::Compare);
+
+    LxInfo("Prophet protocol analyzers order:\n");
+    for (int i = 0; i < m_totalAnalyzers; i++) {
+        LxInfo("%8d: %s\n", m_analyzers[i]->GetExecOrder(), m_analyzers[i]->GetName().c_str());
+    }
+    LxInfo("\n");
+}
+
 void Protocol::OnPreExecute( PreExecuteEvent &event )
 {
     if (!m_enabled) return;
     
-    if (m_state == InSession) {
+    if (m_state == ProcessingMessage) {
         for (int i = 0; i < m_totalAnalyzers; i++) {
             ProtocolAnalyzer *pa = m_analyzers[i];
             if (pa->IsEnabled() && pa->HasHandlerFlag(PreExecuteHandler))
@@ -93,7 +113,7 @@ void Protocol::OnPostExecute( PostExecuteEvent &event )
 {
     if (!m_enabled) return;
 
-    if (m_state == InSession) {
+    if (m_state == ProcessingMessage) {
         for (int i = 0; i < m_totalAnalyzers; i++) {
             ProtocolAnalyzer *pa = m_analyzers[i];
             if (pa->IsEnabled() && pa->HasHandlerFlag(PostExecuteHandler))
@@ -106,7 +126,7 @@ void Protocol::OnMemRead( MemReadEvent &event )
 {
     if (!m_enabled) return;
 
-    if (m_state == InSession) {
+    if (m_state == ProcessingMessage) {
         for (int i = 0; i < m_totalAnalyzers; i++) {
             ProtocolAnalyzer *pa = m_analyzers[i];
             if (pa->IsEnabled() && pa->HasHandlerFlag(MemReadHandler))
@@ -119,7 +139,7 @@ void Protocol::OnMemWrite( MemWriteEvent &event )
 {
     if (!m_enabled) return;
 
-    if (m_state == InSession) {
+    if (m_state == ProcessingMessage) {
         for (int i = 0; i < m_totalAnalyzers; i++) {
             ProtocolAnalyzer *pa = m_analyzers[i];
             if (pa->IsEnabled() && pa->HasHandlerFlag(MemWriteHandler))
@@ -132,7 +152,7 @@ void Protocol::OnProcessPreRun( ProcessPreRunEvent &event )
 {
     if (!m_enabled) return;
 
-    if (m_state == InSession) {
+    if (m_state == ProcessingMessage) {
         for (int i = 0; i < m_totalAnalyzers; i++) {
             ProtocolAnalyzer *pa = m_analyzers[i];
             if (pa->IsEnabled() && pa->HasHandlerFlag(ProcessPreRunHandler))
@@ -145,7 +165,7 @@ void Protocol::OnProcessPostRun( ProcessPostRunEvent &event )
 {
     if (!m_enabled) return;
 
-    if (m_state == InSession) {
+    if (m_state == ProcessingMessage) {
         for (int i = 0; i < m_totalAnalyzers; i++) {
             ProtocolAnalyzer *pa = m_analyzers[i];
             if (pa->IsEnabled() && pa->HasHandlerFlag(ProcessPostRunHandler))
@@ -158,7 +178,7 @@ void Protocol::OnProcessPreLoad( ProcessPreLoadEvent &event )
 {
     if (!m_enabled) return;
 
-    if (m_state == InSession) {
+    if (m_state == ProcessingMessage) {
         for (int i = 0; i < m_totalAnalyzers; i++) {
             ProtocolAnalyzer *pa = m_analyzers[i];
             if (pa->IsEnabled() && pa->HasHandlerFlag(ProcessPreLoadHandler))
@@ -171,7 +191,7 @@ void Protocol::OnProcessPostLoad( ProcessPostLoadEvent &event )
 {
     if (!m_enabled) return;
 
-    if (m_state == InSession) {
+    if (m_state == ProcessingMessage) {
         for (int i = 0; i < m_totalAnalyzers; i++) {
             ProtocolAnalyzer *pa = m_analyzers[i];
             if (pa->IsEnabled() && pa->HasHandlerFlag(ProcessPostLoadHandler))
@@ -186,7 +206,7 @@ void Protocol::OnWinapiPreCall( WinapiPreCallEvent &event )
 
     m_apiprocessor.OnWinapiPreCall(event);
 
-    if (m_state == InSession) {
+    if (m_state == ProcessingMessage) {
         for (int i = 0; i < m_totalAnalyzers; i++) {
             ProtocolAnalyzer *pa = m_analyzers[i];
             if (pa->IsEnabled() && pa->HasHandlerFlag(WinapiPreCallHandler))
@@ -201,7 +221,7 @@ void Protocol::OnWinapiPostCall( WinapiPostCallEvent &event )
 
     m_apiprocessor.OnWinapiPostCall(event);
 
-    if (m_state == InSession) {
+    if (m_state == ProcessingMessage) {
         for (int i = 0; i < m_totalAnalyzers; i++) {
             ProtocolAnalyzer *pa = m_analyzers[i];
             if (pa->IsEnabled() && pa->HasHandlerFlag(WinapiPostCallHandler))
@@ -210,13 +230,38 @@ void Protocol::OnWinapiPostCall( WinapiPostCallEvent &event )
     }
 }
 
-void Protocol::ReorderAnalyzers()
+void Protocol::OnMessageBegin( MessageBeginEvent &event )
 {
-    std::sort(m_analyzers, m_analyzers + m_totalAnalyzers, ProtocolAnalyzer::Compare);
-
-    LxInfo("Prophet protocol analyzers order:\n");
-    for (int i = 0; i < m_totalAnalyzers; i++) {
-        LxInfo("%8d: %s\n", m_analyzers[i]->GetExecOrder(), m_analyzers[i]->GetName().c_str());
+    if (m_state == ProcessingMessage) {
+        LxFatal("Already in session\n");
     }
-    LxInfo("\n");
+
+    m_state = ProcessingMessage;
+    m_taint->Enable(true);
+    
+    m_msgmanager.OnMessageBegin(event);
+    m_formatsyn.OnMessageBegin(event);
+
+    for (int i = 0; i < m_totalAnalyzers; i++) {
+        ProtocolAnalyzer *pa = m_analyzers[i];
+        if (pa->IsEnabled() && pa->HasHandlerFlag(SessionBeginHandler))
+            pa->OnMessageBegin(event);
+    }
+}
+
+void Protocol::OnMessageEnd( MessageEndEvent &event )
+{
+    if (m_state == Idle) return;
+
+    for (int i = 0; i < m_totalAnalyzers; i++) {
+        ProtocolAnalyzer *pa = m_analyzers[i];
+        if (pa->IsEnabled() && pa->HasHandlerFlag(SessionEndHandler))
+            pa->OnMessageEnd(event);
+    }
+
+    m_formatsyn.OnSessionEnd(event);
+    m_msgmanager.OnSessionEnd(event);
+
+    m_taint->Enable(false);
+    m_state = Idle;
 }

@@ -3,7 +3,7 @@
 #ifndef __PROPHET_MEMORY_H__
 #define __PROPHET_MEMORY_H__
  
-#include "Prophet.h"
+#include "prophet.h"
 
 template <typename T>
 class AllocOnlyPool {

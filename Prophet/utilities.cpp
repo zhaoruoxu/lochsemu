@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Prophet.h"
+#include "prophet.h"
 #include "utilities.h"
 
 

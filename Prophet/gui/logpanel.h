@@ -3,7 +3,7 @@
 #ifndef __PROPHET_GUI_LOGPANEL_H__
 #define __PROPHET_GUI_LOGPANEL_H__
  
-#include "Prophet.h"
+#include "prophet.h"
 #include "gui.h"
 
 class LogPanel : public wxPanel {

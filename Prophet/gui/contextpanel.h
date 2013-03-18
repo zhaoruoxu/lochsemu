@@ -3,7 +3,7 @@
 #ifndef __PROPHET_GUI_REGPANEL_H__
 #define __PROPHET_GUI_REGPANEL_H__
 
-#include "Prophet.h"
+#include "prophet.h"
 #include "gui.h"
 #include "parallel.h"
 #include "engine.h"

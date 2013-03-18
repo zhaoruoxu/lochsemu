@@ -109,7 +109,6 @@
     <ClInclude Include="3rdparty\src\json\json_batchallocator.h" />
     <ClInclude Include="3rdparty\src\json\json_tool.h" />
     <ClInclude Include="archive.h" />
-    <ClInclude Include="Prophet.h" />
     <ClInclude Include="buildver.h" />
     <ClInclude Include="dbg\breakpoint.h" />
     <ClInclude Include="dbg\debugger.h" />
@@ -128,10 +127,18 @@
     <ClInclude Include="gui\tracepanel.h" />
     <ClInclude Include="instcontext.h" />
     <ClInclude Include="memory.h" />
+    <ClInclude Include="plugin\advdbg.h" />
+    <ClInclude Include="plugin\autobreak.h" />
     <ClInclude Include="plugin\plugin.h" />
+    <ClInclude Include="plugin\taint_directive.h" />
+    <ClInclude Include="plugin\vulnerability_detector.h" />
+    <ClInclude Include="prophet.h" />
     <ClInclude Include="protocol\analyzer.h" />
     <ClInclude Include="protocol\apiprocessor.h" />
+    <ClInclude Include="protocol\formatsyn.h" />
+    <ClInclude Include="protocol\message.h" />
     <ClInclude Include="protocol\protocol.h" />
+    <ClInclude Include="protocol\msgmgr.h" />
     <ClInclude Include="static\disassembler.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="taint\comptaint.h" />
@@ -154,7 +161,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="archive.cpp" />
-    <ClCompile Include="Prophet.cpp" />
     <ClCompile Include="dbg\breakpoint.cpp" />
     <ClCompile Include="dbg\debugger.cpp" />
     <ClCompile Include="dbg\tracer.cpp" />
@@ -183,10 +189,14 @@
     <ClCompile Include="plugin\plugin.cpp" />
     <ClCompile Include="plugin\taint_directive.cpp" />
     <ClCompile Include="plugin\vulnerability_detector.cpp" />
+    <ClCompile Include="prophet.cpp" />
     <ClCompile Include="protocol\analyzer.cpp" />
     <ClCompile Include="protocol\analyzers\length_field.cpp" />
     <ClCompile Include="protocol\apiprocessor.cpp" />
+    <ClCompile Include="protocol\formatsyn.cpp" />
+    <ClCompile Include="protocol\message.cpp" />
     <ClCompile Include="protocol\protocol.cpp" />
+    <ClCompile Include="protocol\msgmgr.cpp" />
     <ClCompile Include="static\disassembler.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

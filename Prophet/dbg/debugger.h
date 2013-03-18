@@ -3,7 +3,7 @@
 #ifndef __PROPHET_DEBUGGER_H__
 #define __PROPHET_DEBUGGER_H__
 
-#include "Prophet.h"
+#include "prophet.h"
 #include "parallel.h"
 #include "utilities.h"
 #include "breakpoint.h"

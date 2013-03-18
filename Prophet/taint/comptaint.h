@@ -3,7 +3,7 @@
 #ifndef __PROPHET_TAINT_COMPTAINT_H__
 #define __PROPHET_TAINT_COMPTAINT_H__
  
-#include "Prophet.h"
+#include "prophet.h"
 #include "taint.h"
 #include "instcontext.h"
 

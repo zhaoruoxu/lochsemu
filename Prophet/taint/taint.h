@@ -3,7 +3,7 @@
 #ifndef __TAINT_TAINT_H__
 #define __TAINT_TAINT_H__
  
-#include "Prophet.h"
+#include "prophet.h"
 #include "memory.h"
 
 // Per BYTE Taint structure

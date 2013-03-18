@@ -3,7 +3,7 @@
 #ifndef __PROPHET_STATIC_DISASSEMBLER_H__
 #define __PROPHET_STATIC_DISASSEMBLER_H__
 
-#include "Prophet.h"
+#include "prophet.h"
 #include "instruction.h"
 #include "memory.h"
 #include "parallel.h"

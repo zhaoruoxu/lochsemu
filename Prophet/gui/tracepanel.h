@@ -3,7 +3,7 @@
 #ifndef __PROPHET_GUI_TRACEPANEL_H__
 #define __PROPHET_GUI_TRACEPANEL_H__
 
-#include "Prophet.h"
+#include "prophet.h"
 #include "gui.h"
 #include "dbg/tracer.h"
 #include "custombase.h"

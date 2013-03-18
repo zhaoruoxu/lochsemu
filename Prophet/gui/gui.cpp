@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "gui.h"
 #include "mainframe.h"
-#include "Prophet.h"
+#include "prophet.h"
 #include "parallel.h"
 #include "taint/taint.h"
 

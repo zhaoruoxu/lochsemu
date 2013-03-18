@@ -26,7 +26,6 @@ ApiProcessor::~ApiProcessor()
 void ApiProcessor::Initialize()
 {
     m_taint = m_protocol->GetEngine()->GetTaintEngine();
-    m_protocol->SetInSession(); // todo
     InitializeDefaultHandlers();
 }
 
@@ -183,14 +182,22 @@ void ApiProcessor::Handler_ReadFile(const Processor *cpu)
 {
     u32 bufferAddr  = PARAM(1, u32);        // begin address of buffer
     u32 lenRead     = *(PARAM_PTR(3, u32p));// length of data read
-    m_taint->TaintMemoryRanged(bufferAddr, lenRead, false);
+    //m_taint->TaintMemoryRanged(bufferAddr, lenRead, false);
+    
+    MessageBeginEvent e(this, lenRead, bufferAddr, cpu->Mem->GetRawData(bufferAddr));
+    m_protocol->OnMessageBegin(e);
 }
 
 void ApiProcessor::Handler_WriteFile(const Processor *cpu)
 {
     //LxInfo("WriteFile\n");
-    u32 bufferAddr = PARAM(1, u32);
-    Tb<1> t = m_taint->MemTaint.Get<1>(bufferAddr);
+//     u32 bufferAddr = PARAM(1, u32);
+//     Tb<1> t = m_taint->MemTaint.Get<1>(bufferAddr);
+
+    u32 bufferAddr  = PARAM(1, u32);
+    int len         = PARAM(2, int);
+    MessageEndEvent e(this, len, bufferAddr, cpu->Mem->GetRawData(bufferAddr));
+    m_protocol->OnMessageEnd(e);
     
 }
 

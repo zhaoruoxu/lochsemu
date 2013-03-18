@@ -408,14 +408,7 @@ void ProphetFrame::OnToggleTraceClicked( wxCommandEvent &event )
 void ProphetFrame::OnArchiveLoaded( Archive *arc )
 {
     m_archive = arc;
-    m_statusbar->SetStatusText(m_tracer->IsEnabled() ? "Tracing" : "", Statusbar_Tracing);
-    m_toggleTrace->SetOn(m_tracer->IsEnabled());
-    //m_toggleCRTEntry->SetOn(m_archive->BreakOnCRTEntry);
-    //m_toggleSkipDllEntry->SetOn(m_archive->SkipDllEntries);
-    m_toggleTaint->SetOn(m_taint->IsEnabled());
-
-    for (int i = 0; i < m_plugins->GetNumPlugins(); i++)
-        m_menuPlugins->Check(ID_PluginCheckEnable+i, m_plugins->GetPlugin(i)->IsEnabled());
+    OnUpdate();
 }
 
 void ProphetFrame::OnToggleTaintClicked( wxCommandEvent &event )
@@ -445,4 +438,14 @@ void ProphetFrame::OnPluginCheckEnable( wxCommandEvent &event )
     bool isChecked = m_menuPlugins->IsChecked(event.GetId());
     m_plugins->GetPlugin(event.GetId() - ID_PluginCheckEnable)->Enable(isChecked);
     m_engine->SaveArchive();
+}
+
+void ProphetFrame::OnUpdate()
+{
+    m_statusbar->SetStatusText(m_tracer->IsEnabled() ? "Tracing" : "", Statusbar_Tracing);
+    m_toggleTrace->SetOn(m_tracer->IsEnabled());
+    m_toggleTaint->SetOn(m_taint->IsEnabled());
+
+    for (int i = 0; i < m_plugins->GetNumPlugins(); i++)
+        m_menuPlugins->Check(ID_PluginCheckEnable+i, m_plugins->GetPlugin(i)->IsEnabled());
 }

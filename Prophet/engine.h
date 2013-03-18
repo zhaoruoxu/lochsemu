@@ -3,7 +3,7 @@
 #ifndef __PROPHET_ENGINE_H__
 #define __PROPHET_ENGINE_H__
 
-#include "Prophet.h"
+#include "prophet.h"
 #include "archive.h"
 #include "dbg/debugger.h"
 #include "dbg/tracer.h"
@@ -60,6 +60,7 @@ public:
 
     void            ReportBusy(bool isBusy);
     void            Terminate();
+    void            UpdateGUI();
     
 private:
     void            Intro() const;

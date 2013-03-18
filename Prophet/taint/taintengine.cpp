@@ -7,7 +7,7 @@
 TaintEngine::TaintEngine(ProEngine *engine)
     : m_engine(engine)
 {
-    m_enabled = true;
+    m_enabled = false;
 }
 
 TaintEngine::~TaintEngine()
@@ -1308,5 +1308,11 @@ void TaintEngine::Serialize( Json::Value &root ) const
 void TaintEngine::Deserialize( Json::Value &root )
 {
     m_enabled = root.get("enabled", m_enabled).asBool();
+}
+
+void TaintEngine::Enable( bool isEnabled )
+{ 
+    m_enabled = isEnabled; 
+    m_engine->UpdateGUI();
 }
 

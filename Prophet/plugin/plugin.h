@@ -3,13 +3,13 @@
 #ifndef __PROPHET_PLUGIN_PLUGIN_H__
 #define __PROPHET_PLUGIN_PLUGIN_H__
  
-#include "Prophet.h"
+#include "prophet.h"
 #include "utilities.h"
 #include "event.h"
 
 class Plugin : public ISerializable {
 public:
-    Plugin(const std::string name, uint ovd);
+    Plugin(ProPluginManager *manager, const std::string name, uint ovd);
     virtual ~Plugin() {}
 
     std::string     GetName() const { return m_name; }
@@ -56,7 +56,6 @@ public:
     ProEngine *         GetEngine() { return m_engine; }
     const ProEngine *   GetEngine() const { return m_engine; }
 
-    void            RegisterPlugin(Plugin *plugin);
     int             GetNumPlugins() const { return m_totalPlugins; }
     Plugin *        GetPlugin(int n) { return m_plugins[n]; }
 
@@ -74,6 +73,8 @@ public:
     void            OnWinapiPreCall     (WinapiPreCallEvent     &event, bool firstTime);
     void            OnWinapiPostCall    (WinapiPostCallEvent    &event, bool firstTime);
 
+private:
+    void            RegisterPlugin(Plugin *plugin);
 private:
     //std::vector<Plugin *>   m_plugins;
     static const int    MaxPlugins = 32;

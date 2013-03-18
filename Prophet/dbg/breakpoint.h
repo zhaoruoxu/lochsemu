@@ -3,7 +3,7 @@
 #ifndef __PROPHET_DBG_BREAKPOINT_H__
 #define __PROPHET_DBG_BREAKPOINT_H__
  
-#include "Prophet.h"
+#include "prophet.h"
 #include "utilities.h"
 
 struct Breakpoint : public ISerializable {

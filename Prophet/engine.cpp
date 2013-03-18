@@ -286,5 +286,10 @@ void ProEngine::SaveArchive()
     fout.close();
 }
 
+void ProEngine::UpdateGUI()
+{
+    m_gui->OnUpdate();
+}
+
 
 

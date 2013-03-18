@@ -3,7 +3,7 @@
 #ifndef __PROPHET_TRACER_H__
 #define __PROPHET_TRACER_H__
 
-#include "Prophet.h"
+#include "prophet.h"
 #include "parallel.h"
 #include "static/disassembler.h"
 #include "instcontext.h"
@@ -27,9 +27,7 @@ public:
     void            OnPostExecute(PostExecuteEvent &event);
 
     //void            TraceInst(const Processor *cpu, u32 eip, i64 seq);
-    void            Enable(bool isEnabled) { 
-        m_enabled = isEnabled; 
-    }
+    void            Enable(bool isEnabled);
     bool            IsEnabled() const { return m_enabled; }
     const TraceVec& GetData() const { return m_traces; }
 

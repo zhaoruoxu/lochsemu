@@ -45,3 +45,9 @@ void ProTracer::Deserialize( Json::Value &root )
 {
     m_enabled = root.get("enabled", m_enabled).asBool();
 }
+
+void ProTracer::Enable( bool isEnabled )
+{
+    m_enabled = isEnabled;
+    m_engine->UpdateGUI();
+}

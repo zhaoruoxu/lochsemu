@@ -3,7 +3,7 @@
 #ifndef __PROPHET_GUI_GUI_H__
 #define __PROPHET_GUI_GUI_H__
  
-#include "Prophet.h"
+#include "prophet.h"
 #include "taint/taint.h"
 
 void RunGUI();

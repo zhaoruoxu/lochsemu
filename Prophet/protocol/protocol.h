@@ -3,16 +3,18 @@
 #ifndef __PROPHET__PROTOCOL_H__
 #define __PROPHET__PROTOCOL_H__
  
-#include "Prophet.h"
+#include "prophet.h"
 #include "utilities.h"
 #include "analyzer.h"
 #include "apiprocessor.h"
+#include "formatsyn.h"
+#include "msgmgr.h"
 
 class Protocol : public ISerializable {
 
     enum State {
-        InSession,
-        BetweenSession,
+        Idle,
+        ProcessingMessage,
     };
 
 public:
@@ -22,9 +24,6 @@ public:
     void        Enable(bool isEnabled) { m_enabled = isEnabled; }
     bool        IsEnabled() const { return m_enabled; }
 
-    void        SetInSession() { m_state = InSession; }
-    void        SetBetweenSession() { m_state = BetweenSession; }
-    
     void        RegisterAnalyzer(ProtocolAnalyzer *analyzer);
 
     void        Initialize();
@@ -39,6 +38,9 @@ public:
     void        OnWinapiPreCall     (WinapiPreCallEvent     &event);
     void        OnWinapiPostCall    (WinapiPostCallEvent    &event);
 
+    void        OnMessageBegin      (MessageBeginEvent      &event);
+    void        OnMessageEnd        (MessageEndEvent        &event);
+
     void        Serialize(Json::Value &root) const override;
     void        Deserialize(Json::Value &root) override;
 
@@ -48,15 +50,19 @@ public:
 private:
     void        ReorderAnalyzers();
 private:
-    ProEngine * m_engine;
+    ProEngine *         m_engine;
+    TaintEngine *       m_taint;
 
     static const int    MaxAnalyzers = 64;
-    int         m_totalAnalyzers;
+    int                 m_totalAnalyzers;
     ProtocolAnalyzer *  m_analyzers[MaxAnalyzers];
 
-    ApiProcessor    m_apiprocessor;
-    State       m_state;
-    bool        m_enabled;
+    ApiProcessor        m_apiprocessor;
+    FormatSynthesizer   m_formatsyn;
+    MessageManager      m_msgmanager;
+    
+    State               m_state;
+    bool                m_enabled;
 };
  
 #endif // __PROPHET__PROTOCOL_H__
