@@ -146,7 +146,7 @@ void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const InstPtr inst, int index )
             if (bp->Desc == "crt_entry") {
                 dc.SetBrush(wxBrush(wxColour("#8080ff")));
             } else {
-                dc.SetBrush(*wxGREEN_BRUSH);
+                dc.SetBrush(wxColour("#00c000"));
             }
         } else {
             dc.SetBrush(*wxRED_BRUSH);

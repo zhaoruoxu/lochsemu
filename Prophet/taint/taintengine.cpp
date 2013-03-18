@@ -1120,7 +1120,9 @@ void TaintEngine::Ret_Handler(const Processor *cpu, const Instruction *inst)
 
 void TaintEngine::CallAbs_Handler(const Processor *cpu, const Instruction *inst)
 {
+    if (cpu->HasExecFlag(LX_EXEC_WINAPI_CALL)) return;
     Taint4 t        = Extend<4>(CpuTaint.Eip);
+    LxDebug("esp = %08x\n", cpu->ESP);
     MemTaint.Set<4>(cpu->ESP, t);
     Taint4 newT     = GetTaint<4>(cpu, ARG1);
     CpuTaint.Eip    = Shrink(newT);
@@ -1136,6 +1138,7 @@ void TaintEngine::CallRel_handler(const Processor *cpu, const Instruction *inst)
 
 void TaintEngine::JmpAbs_Handler(const Processor *cpu, const Instruction *inst)
 {
+    if (cpu->HasExecFlag(LX_EXEC_WINAPI_JMP)) return;
     Taint4 t        = GetTaint<4>(cpu, ARG1);
     CpuTaint.Eip    = Shrink(t);
 }
@@ -1302,12 +1305,13 @@ void TaintEngine::Pxor660FEF_Handler(const Processor *cpu, const Instruction *in
 
 void TaintEngine::Serialize( Json::Value &root ) const 
 {
-    root["enabled"] = m_enabled;
+    //root["enabled"] = m_enabled;
 }
 
 void TaintEngine::Deserialize( Json::Value &root )
 {
-    m_enabled = root.get("enabled", m_enabled).asBool();
+    //m_enabled = root.get("enabled", m_enabled).asBool();
+    // always disabled at startup
 }
 
 void TaintEngine::Enable( bool isEnabled )

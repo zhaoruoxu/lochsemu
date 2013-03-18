@@ -25,7 +25,7 @@ void FormatSynthesizer::OnMessageBegin( MessageBeginEvent &event )
 
 void FormatSynthesizer::OnMessageEnd( MessageEndEvent &event )
 {
-
+    // report message format & clear
 }
 
 void FormatSynthesizer::Serialize( Json::Value &root ) const 
