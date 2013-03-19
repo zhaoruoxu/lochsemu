@@ -349,7 +349,7 @@ LX_API uint QueryWinAPIIndexByName( const char *dllName, const char *funcName )
         hModule = LxGetModuleHandle(dllName);
     uint idx = QueryWinAPIIndexByName(hModule, funcName);
     if (0 == idx) {
-        LxWarning("Winapi %s::%s not found\n", dllName, funcName);
+        //LxWarning("Winapi %s::%s not found\n", dllName, funcName);
     }
     return idx;
 }

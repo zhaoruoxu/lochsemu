@@ -156,9 +156,9 @@ InstPtr Disassembler::Disassemble( u32 eip )
         SyncObjectLock lock(m_instMem);
 
         if (!instSec->Contains(eip)) {
-            LxDebug("Disassembling %08x...\n", eip);
+            //LxDebug("Disassembling %08x...\n", eip);
             RecursiveDisassemble(m_currProcessor, eip, instSec, eip);
-            LxDebug("Disassemble complete, count = %d\n", instSec->GetCount());
+            //LxDebug("Disassemble complete, count = %d\n", instSec->GetCount());
             //instSec->UpdateIndices();
             update = true;
         }

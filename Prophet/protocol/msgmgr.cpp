@@ -23,7 +23,7 @@ void MessageManager::Initialize()
 
 void MessageManager::OnMessageBegin( MessageBeginEvent &event )
 {
-    LxError("Session begins: len=%08x, addr=%08x, data=%s\n", 
+    LxError("Message begins: len=%08x, addr=%08x, data=%s\n", 
         event.MessageLen, event.MessageAddr, event.MessageData);
     // set taint
     m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
@@ -34,7 +34,7 @@ void MessageManager::OnMessageBegin( MessageBeginEvent &event )
 
 void MessageManager::OnMessageEnd( MessageEndEvent &event )
 {
-    LxError("Session ends: len=%08x, addr=%08x, data=%s\n",
+    LxError("Message ends: len=%08x, addr=%08x, data=%s\n",
         event.MessageLen, event.MessageAddr, event.MessageData);
 
     m_format.OnMessageEnd(event);

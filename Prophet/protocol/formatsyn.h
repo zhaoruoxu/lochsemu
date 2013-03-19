@@ -6,6 +6,7 @@
 #include "prophet.h"
 #include "utilities.h"
 #include "event.h"
+#include "apiprocessor.h"
 
 // Format Synthesizer
 class FormatSyn : public ISerializable {

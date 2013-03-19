@@ -57,6 +57,8 @@ private:
     void    InitStatusBar();
     void    InitToolbars();
 private:
+    bool            m_isProcLoaded;
+    bool            m_isbusy;
     Emulator *      m_emulator;
     ProEngine *     m_engine;
     Archive *       m_archive;

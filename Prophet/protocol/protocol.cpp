@@ -186,6 +186,8 @@ void Protocol::OnProcessPostRun( ProcessPostRunEvent &event )
     if (!m_enabled) return;
 
     if (m_state == ProcessingMessage) {
+        OnMessageEnd(MessageEndEvent(this));
+
         for (int i = 0; i < m_totalAnalyzers; i++) {
             ProtocolAnalyzer *pa = m_analyzers[i];
             if (pa->IsEnabled() && pa->HasHandlerFlag(ProcessPostRunHandler))
@@ -253,7 +255,14 @@ void Protocol::OnWinapiPostCall( WinapiPostCallEvent &event )
 void Protocol::OnMessageBegin( MessageBeginEvent &event )
 {
     if (m_state == ProcessingMessage) {
-        LxFatal("Already in session\n");
+        LxWarning("Already processing message, ending current message\n");
+        MessageEndEvent e(this);
+        OnMessageEnd(e);
+    }
+
+    if (event.MessageLen <= 0) {
+        LxWarning("Message begins with length %d, ignored\n", event.MessageLen);
+        return;
     }
 
     m_state = ProcessingMessage;
@@ -271,6 +280,11 @@ void Protocol::OnMessageBegin( MessageBeginEvent &event )
 
 void Protocol::OnMessageEnd( MessageEndEvent &event )
 {
+//     if (event.MessageLen <= 0) {
+//         LxWarning("Message ends with length %d, ignored\n", event.MessageLen);
+//         return;
+//     }
+
     if (m_state == Idle) return;
 
     for (int i = 0; i < m_totalAnalyzers; i++) {

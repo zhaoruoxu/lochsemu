@@ -33,6 +33,8 @@ ProphetFrame::ProphetFrame(ProEngine *engine, Emulator *emu)
     InitMisc();
     InitUI();
 
+    m_isProcLoaded  = false;
+    m_isbusy        = true;
     m_engine->SetGuiFrame(this);
     NotifyMainThread(); // so that main thread can go on
 }
@@ -296,27 +298,32 @@ void ProphetFrame::OnStatusTimer( wxTimerEvent &event )
 
 void ProphetFrame::OnStepInto( wxCommandEvent &event )
 {
+    if (m_isbusy) return;
     m_engine->GetDebugger()->OnStepInto();
 }
 
 void ProphetFrame::OnRun( wxCommandEvent &event )
 {
+    if (m_isbusy) return;
     OnSavePerspective(wxCommandEvent());
     m_engine->GetDebugger()->OnRun();
 }
 
 void ProphetFrame::OnStepOver( wxCommandEvent &event )
 {
+    if (m_isbusy) return;
     m_engine->GetDebugger()->OnStepOver();
 }
 
 void ProphetFrame::OnStepOut( wxCommandEvent &event )
 {
+    if (m_isbusy) return;
     m_engine->GetDebugger()->OnStepOut();
 }
 
 void ProphetFrame::OnToggleBreakpoint( wxCommandEvent &event )
 {
+    if (m_isbusy) return;
     u32 eip = m_cpuPanel->GetSelectedEip();
     if (eip == 0) eip = m_cpuPanel->GetCurrentEip();
     Assert(eip != 0);
@@ -327,6 +334,7 @@ void ProphetFrame::OnToggleBreakpoint( wxCommandEvent &event )
 
 void ProphetFrame::OnRemoveBreakpoint( wxCommandEvent &event )
 {
+    if (m_isbusy) return;
     u32 eip = m_cpuPanel->GetSelectedEip();
     if (eip == 0) eip = m_cpuPanel->GetCurrentEip();
     Assert(eip != 0);
@@ -375,15 +383,18 @@ void ProphetFrame::ShowInMemory( u32 addr )
 void ProphetFrame::ReportBusy( bool isBusy )
 {
     m_statusbar->SetStatusText(isBusy ? "Busy" : "Idle", Statusbar_Busy);
+    m_isbusy = isBusy;
 }
 
 void ProphetFrame::OnProcessLoaded( LPCSTR path )
 {
-    m_pathText = path;
+    m_pathText      = path;
+    m_isProcLoaded  = true;
 }
 
 void ProphetFrame::OnToggleTraceClicked( wxCommandEvent &event )
 {
+    if (m_isbusy) return;
     bool beingEnabled = !m_engine->GetTracer()->IsEnabled();
     m_engine->GetTracer()->Enable(beingEnabled);
     m_statusbar->SetStatusText(beingEnabled ? "Tracing" : "", Statusbar_Tracing);
@@ -413,6 +424,7 @@ void ProphetFrame::OnArchiveLoaded( Archive *arc )
 
 void ProphetFrame::OnToggleTaintClicked( wxCommandEvent &event )
 {
+    if (m_isbusy) return;
     bool beingEnabled = !m_engine->GetTaintEngine()->IsEnabled();
     m_engine->GetTaintEngine()->Enable(beingEnabled);
     m_toggleTaint->SetOn(beingEnabled);
@@ -421,6 +433,7 @@ void ProphetFrame::OnToggleTaintClicked( wxCommandEvent &event )
 
 void ProphetFrame::OnShowMemory( wxCommandEvent &event )
 {
+    if (m_isbusy) return;
     wxString str = wxGetTextFromUser("Input address");
     if (str.IsEmpty()) return;
 
@@ -435,6 +448,7 @@ void ProphetFrame::OnShowMemory( wxCommandEvent &event )
 
 void ProphetFrame::OnPluginCheckEnable( wxCommandEvent &event )
 {
+    if (m_isbusy) return;
     bool isChecked = m_menuPlugins->IsChecked(event.GetId());
     m_plugins->GetPlugin(event.GetId() - ID_PluginCheckEnable)->Enable(isChecked);
     m_engine->SaveArchive();

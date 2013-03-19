@@ -130,23 +130,5 @@ public:
     const uint              ApiIndex;
 };
 
-class MessageBeginEvent : public Event {
-public:
-    MessageBeginEvent(void *sender, int msglen, u32 msgaddr, cpbyte msgdata)
-        : Event(sender), MessageLen(msglen), MessageAddr(msgaddr), MessageData(msgdata) {}
-
-    const int       MessageLen;
-    const u32       MessageAddr;
-    const cpbyte    MessageData;
-};
-
-class MessageEndEvent : public Event {
-public:
-    MessageEndEvent(void *sender, int msglen, u32 msgaddr, cpbyte msgdata)
-        : Event(sender), MessageLen(msglen), MessageAddr(msgaddr), MessageData(msgdata) {}
-    const int       MessageLen;
-    const int       MessageAddr;
-    const cpbyte    MessageData;
-};
 
 #endif // __PROPHET_EVENT_H__

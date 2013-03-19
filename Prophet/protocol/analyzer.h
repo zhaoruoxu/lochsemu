@@ -6,7 +6,7 @@
 #include "prophet.h"
 #include "event.h"
 #include "utilities.h"
-
+#include "apiprocessor.h"
 
 class ProtocolAnalyzer : public ISerializable {
 public:

@@ -7,6 +7,39 @@
 #include "utilities.h"
 #include "event.h"
 
+enum MessageReason {
+    MR_Unknown,
+    MR_recv,
+    MR_send,
+    MR_ReadFile,
+    MR_WriteFile,
+};
+
+class MessageBeginEvent : public Event {
+public:
+    MessageBeginEvent(void *sender) : Event(sender), MessageLen(0), MessageAddr(0), 
+        MessageData(NULL), Reason(MR_Unknown) {}
+    MessageBeginEvent(void *sender, int msglen, u32 msgaddr, cpbyte msgdata, MessageReason r)
+        : Event(sender), MessageLen(msglen), MessageAddr(msgaddr), MessageData(msgdata), Reason(r) {}
+
+    const int       MessageLen;
+    const u32       MessageAddr;
+    const cpbyte    MessageData;
+    const MessageReason Reason;
+};
+
+class MessageEndEvent : public Event {
+public:
+    MessageEndEvent(void *sender) : Event(sender), MessageLen(0), MessageAddr(0),
+        MessageData(NULL), Reason(MR_Unknown) {}
+    MessageEndEvent(void *sender, int msglen, u32 msgaddr, cpbyte msgdata, MessageReason r)
+        : Event(sender), MessageLen(msglen), MessageAddr(msgaddr), MessageData(msgdata), Reason(r) {}
+    const int       MessageLen;
+    const int       MessageAddr;
+    const cpbyte    MessageData;
+    const MessageReason Reason;
+};
+
 class ApiProcessor : public ISerializable {
 public:
     ApiProcessor(Protocol *protocol);
