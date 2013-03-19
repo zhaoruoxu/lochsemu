@@ -86,6 +86,7 @@ LxResult Movq_0FD6(Processor *cpu, const Instruction *inst)
             u128 r = cpu->ReadOperand128(inst, inst->Main.Argument1, NULL);
             r.dat[0] = val.dat[0];
             r.dat[1] = val.dat[1];
+            r.dat[2] = r.dat[3] = 0;
             cpu->WriteOperand128(inst, inst->Main.Argument1, 0, r);
         }
     } else {
