@@ -291,5 +291,12 @@ void ProEngine::UpdateGUI()
     m_gui->OnUpdate();
 }
 
+void ProEngine::BreakOnNextInst(const char *desc)
+{
+    if (desc != NULL)
+        LxInfo("Prophet break: %s\n", desc);
+    m_debugger.SetState(ProDebugger::STATE_SINGLESTEP);
+}
+
 
 

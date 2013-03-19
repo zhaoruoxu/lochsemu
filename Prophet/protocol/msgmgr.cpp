@@ -2,7 +2,7 @@
 #include "msgmgr.h"
 #include "engine.h"
 #include "message.h"
-
+#include "gui/mainframe.h"
 
 MessageManager::MessageManager( Protocol *protocol )
     : m_protocol(protocol), m_format(this)
@@ -45,6 +45,8 @@ void MessageManager::OnMessageEnd( MessageEndEvent &event )
         LxError("has tainted buffer byte\n");
     }
     m_protocol->AddMessage(m_message);
+    m_protocol->GetEngine()->GetGUI()->ShowMessage(m_message);
+    m_protocol->GetEngine()->BreakOnNextInst("Message end");
     m_message = NULL;
 }
 

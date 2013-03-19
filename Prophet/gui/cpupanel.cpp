@@ -82,8 +82,11 @@ wxPoint CpuPanel::GetCurrentScrolledPos() const
 
 void CpuPanel::Draw( wxBufferedPaintDC &dc )
 {
-    if (m_insts == NULL) return;
-    //MutexCSLock lock(m_mutex);
+    if (m_insts == NULL) {
+        dc.SetBackground(*wxGREY_BRUSH);
+        dc.Clear();
+        return;
+    }
     SyncObjectLock lock(*m_insts);
 
     wxPoint pv  = GetViewStart();

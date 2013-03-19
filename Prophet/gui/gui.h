@@ -17,6 +17,7 @@ class CompositeTracePanel;
 class MemInfoPanel;
 class MemDataPanel;
 class BreakpointsPanel;
+class MessagePanel;
 class MySwitch;
 
 enum {

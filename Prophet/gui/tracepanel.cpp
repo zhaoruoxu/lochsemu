@@ -33,7 +33,11 @@ void TracePanel::InitRender()
 
 void TracePanel::Draw( wxBufferedPaintDC &dc )
 {
-    if (m_parent->m_tracer == NULL) return;
+    if (m_parent->m_tracer == NULL) {
+        dc.SetBackground(*wxGREY_BRUSH);
+        dc.Clear();
+        return;
+    }
 
     SyncObjectLock lock(*m_parent->m_tracer);
 

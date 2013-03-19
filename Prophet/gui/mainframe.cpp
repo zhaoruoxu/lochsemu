@@ -8,6 +8,7 @@
 #include "mempanel.h"
 #include "bpspanel.h"
 #include "myswitch.h"
+#include "msgpanel.h"
 
 #include "utilities.h"
 #include "engine.h"
@@ -64,6 +65,7 @@ void ProphetFrame::InitUI()
     m_memDataPanel  = new MemDataPanel(this, m_engine);
     m_memInfoPanel  = new MemInfoPanel(this, m_memDataPanel);
     m_bpsPanel      = new BreakpointsPanel(this);
+    m_msgPanel      = new MessagePanel(this, m_engine);
     
     
     m_auiManager.AddPane(m_cpuPanel, 
@@ -72,6 +74,8 @@ void ProphetFrame::InitUI()
         wxAuiPaneInfo().Name("Trace").Caption("Trace").Top());
     m_auiManager.AddPane(m_contextPanel, 
         wxAuiPaneInfo().Name("Context").Caption("Context").Right());
+    m_auiManager.AddPane(m_msgPanel,
+        wxAuiPaneInfo().Name("Message").Caption("Message").Right());
     m_auiManager.AddPane(m_memInfoPanel, 
         wxAuiPaneInfo().Name("Sections").Caption("Sections").Bottom().Position(0).Row(1));
     m_auiManager.AddPane(m_memDataPanel, 
@@ -462,4 +466,9 @@ void ProphetFrame::OnUpdate()
 
     for (int i = 0; i < m_plugins->GetNumPlugins(); i++)
         m_menuPlugins->Check(ID_PluginCheckEnable+i, m_plugins->GetPlugin(i)->IsEnabled());
+}
+
+void ProphetFrame::ShowMessage( const Message *msg )
+{
+    m_msgPanel->UpdateData(msg);
 }

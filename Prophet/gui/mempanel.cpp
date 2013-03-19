@@ -71,7 +71,11 @@ void MemDataPanel::InitRender()
 
 void MemDataPanel::Draw( wxBufferedPaintDC &dc )
 {
-    if (NULL == m_section) return;
+    if (NULL == m_section) {
+        dc.SetBackground(*wxGREY_BRUSH);
+        dc.Clear();
+        return;
+    }
 
     MutexCSLock lock(m_mutex);
 

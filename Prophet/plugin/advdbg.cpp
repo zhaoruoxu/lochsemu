@@ -57,7 +57,8 @@ void AdvancedDebugger::AnalyzeWinMain( PreExecuteEvent &event )
 void AdvancedDebugger::MarkWinMain( u32 addr )
 {
     LxInfo("WinMain() found at %08x\n", addr);
-    if (m_debugger->GetBreakpoint(addr) == NULL) {
-        m_debugger->AddBreakpoint(addr, "winmain");
-    }
+//     if (m_debugger->GetBreakpoint(addr) == NULL) {
+//         m_debugger->AddBreakpoint(addr, "winmain");
+//     }
+    GetEngine()->BreakOnNextInst("WinMain");
 }

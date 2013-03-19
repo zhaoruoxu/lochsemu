@@ -34,8 +34,9 @@ void AutoBreak::OnProcessPreRun( ProcessPreRunEvent &event, bool firstTime )
     if (firstTime) return;
 
     if (m_breakOnMainModuleEntry) {
-        m_debugger->SetState(ProDebugger::STATE_SINGLESTEP);
-        LxInfo("AutoBreak: Main module at %08x\n", event.Cpu->EIP);
+        //m_debugger->SetState(ProDebugger::STATE_SINGLESTEP);
+        GetEngine()->BreakOnNextInst("Main module entry");
+        LxInfo("AutoBreak: Main module at %08x\n", event.Proc->GetEntryPoint());
     }
 
     if (m_skipDllEntries) {

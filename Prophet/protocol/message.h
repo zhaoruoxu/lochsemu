@@ -29,6 +29,19 @@ public:
     Message(int len, cpbyte data);
     virtual ~Message();
 
+    int         Size() const { return m_length; }
+    MessageByte&    operator[](int index) 
+    {
+        Assert(index >= 0 && index < m_length);
+        return m_data[index];
+    }
+
+    const MessageByte &operator[](int index) const
+    {
+        Assert(index >= 0 && index < m_length);
+        return m_data[index];
+    }
+
 private:
     int             m_length;
     MessageByte *   m_data;

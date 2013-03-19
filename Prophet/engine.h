@@ -58,6 +58,8 @@ public:
     void            GetInstContext(InstContext *ctx) const;
     void            GetTraceContext(TraceContext *ctx, u32 eip) const;
 
+    void            BreakOnNextInst(const char *desc);
+
     void            ReportBusy(bool isBusy);
     void            Terminate();
     void            UpdateGUI();

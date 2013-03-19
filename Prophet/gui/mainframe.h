@@ -24,6 +24,7 @@ public:
     void    OnArchiveLoaded(Archive *arc);
 
     void    ShowInMemory(u32 addr);
+    void    ShowMessage(const Message *msg);
 private:
     void    OnExit(wxCommandEvent &event);
     void    OnAbout(wxCommandEvent &event);
@@ -72,6 +73,7 @@ private:
     MemInfoPanel *  m_memInfoPanel;
     MemDataPanel *  m_memDataPanel;
     BreakpointsPanel    *   m_bpsPanel;
+    MessagePanel *  m_msgPanel;
 
     wxString        m_defaultPerspective;
     wxAuiManager    m_auiManager;
