@@ -40,10 +40,12 @@ public:
 public:
     //static bool     Compare(const ProtocolAnalyzer *lhs, const ProtocolAnalyzer *rhs);
 
+protected:
+    Protocol *      m_protocol;
+
 private:
     std::string     m_name;
     bool            m_enabled;
-    Protocol *      m_protocol;
     uint            m_handlerFlags;
 };
 

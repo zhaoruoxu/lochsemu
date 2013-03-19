@@ -63,3 +63,8 @@ void MessageManager::Deserialize( Json::Value &root )
     if (!formatsyn.isNull())
         m_format.Deserialize(formatsyn);
 }
+
+void MessageManager::OnSubmitFormat( const Taint &t, FieldFormat f )
+{
+    LxWarning("Format submitted: %d %s\n", f, t.ToString().c_str());
+}

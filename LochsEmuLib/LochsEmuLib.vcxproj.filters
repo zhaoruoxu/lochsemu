@@ -333,9 +333,6 @@
     <ClCompile Include="simd\simd_mov.cpp">
       <Filter>Source Files\simd</Filter>
     </ClCompile>
-    <ClCompile Include="simd\simd_pxor.cpp">
-      <Filter>Source Files\simd</Filter>
-    </ClCompile>
     <ClCompile Include="cpu\cmpxchg.cpp">
       <Filter>Source Files\cpu</Filter>
     </ClCompile>
@@ -347,6 +344,9 @@
     </ClCompile>
     <ClCompile Include="common\parallel.cpp">
       <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="simd\simd_xor.cpp">
+      <Filter>Source Files\simd</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

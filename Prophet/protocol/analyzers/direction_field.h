@@ -13,7 +13,8 @@ public:
     void    OnPreExecute(PreExecuteEvent &event) override;
 
 private:
-    TaintEngine *   m_taint;
+    TaintEngine *       m_taint;
+    MessageManager *    m_msgmgr;
 };
 
  

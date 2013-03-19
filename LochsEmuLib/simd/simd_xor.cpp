@@ -3,6 +3,18 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
+LxResult Xorps_0F57(Processor *cpu, const Instruction *inst)
+{
+    u128 val1 = cpu->ReadOperand128(inst, inst->Main.Argument1, NULL);
+    u128 val2 = cpu->ReadOperand128(inst, inst->Main.Argument2, NULL);
+    val1.dat[0] ^= val2.dat[0];
+    val1.dat[1] ^= val2.dat[1];
+    val1.dat[2] ^= val2.dat[2];
+    val1.dat[3] ^= val2.dat[3];
+    cpu->WriteOperand128(inst, inst->Main.Argument1, 0, val1);
+    RET_SUCCESS();
+}
+
 LxResult Pxor_66_0FEF(Processor *cpu, const Instruction *inst)
 {
 	if (inst->Main.Prefix.OperandSize){

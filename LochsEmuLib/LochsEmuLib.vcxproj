@@ -239,7 +239,7 @@
     <ClCompile Include="fpu\fsub.cpp" />
     <ClCompile Include="simd\simd_misc.cpp" />
     <ClCompile Include="simd\simd_mov.cpp" />
-    <ClCompile Include="simd\simd_pxor.cpp" />
+    <ClCompile Include="simd\simd_xor.cpp" />
     <ClCompile Include="winapi\ws2_32.cpp" />
   </ItemGroup>
   <ItemGroup>

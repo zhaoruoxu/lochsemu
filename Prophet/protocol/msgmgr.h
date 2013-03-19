@@ -6,6 +6,7 @@
 #include "prophet.h"
 #include "event.h"
 #include "formatsyn.h"
+#include "message.h"
 
 class MessageManager : ISerializable {
 public:
@@ -23,6 +24,8 @@ public:
 
     void            Serialize(Json::Value &root) const override;
     void            Deserialize(Json::Value &root) override;
+
+    void            OnSubmitFormat(const Taint &t, FieldFormat f);
 private:
     FormatSyn       m_format;
     Protocol *      m_protocol;

@@ -46,6 +46,10 @@ public:
 
     ProEngine *         GetEngine() { return m_engine; }
     const ProEngine *   GetEngine() const { return m_engine; }
+    MessageManager *    GetMessageManager() { return &m_msgmanager; }
+    const MessageManager *  GetMessageManager() const { return &m_msgmanager; }
+    ApiProcessor *      GetApiProcessor() { return &m_apiprocessor; }
+    const ApiProcessor *    GetApiProcessor() const { return &m_apiprocessor; }
 
     void        AddMessage(Message *msg);
 

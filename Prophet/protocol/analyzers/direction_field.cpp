@@ -3,6 +3,7 @@
 #include "instruction.h"
 #include "engine.h"
 #include "taint/taintengine.h"
+#include "protocol/msgmgr.h"
 
 DirectionField::DirectionField( Protocol *protocol )
     : ProtocolAnalyzer(protocol, "DirectionField", PreExecuteHandler)
@@ -12,25 +13,24 @@ DirectionField::DirectionField( Protocol *protocol )
 
 void DirectionField::Initialize()
 {
-    m_taint = GetProtocol()->GetEngine()->GetTaintEngine();
+    m_taint = m_protocol->GetEngine()->GetTaintEngine();
+    m_msgmgr = m_protocol->GetMessageManager();
 }
 
 void DirectionField::OnPreExecute( PreExecuteEvent &event )
 {
     if (event.Cpu->GetCurrentModule() != 0) return;
 
-//     if (IsMemoryArg(event.Inst->Main.Argument1)) {
-//         Taint1 t = m_taint->GetTaintAddressingReg(event.Inst->Main.Argument1);
-//         if (t.IsAnyTainted()) {
-//             LxError("Found: %s at [%08x] %s\n", t.T[0].ToString().c_str(), event.Cpu->EIP, 
-//                 event.Inst->Main.CompleteInstr);
-//         }
-//     }
-//     if (IsMemoryArg(event.Inst->Main.Argument2)) {
-//         Taint1 t = m_taint->GetTaintAddressingReg(event.Inst->Main.Argument2);
-//         if (t.IsAnyTainted()) {
-//             LxError("Found: %s at [%08x] %s\n", t.T[0].ToString().c_str(), event.Cpu->EIP, 
-//                 event.Inst->Main.CompleteInstr);
-//         }
-//     }
+    if (IsMemoryArg(event.Inst->Main.Argument1)) {
+        Taint1 t = m_taint->GetTaintAddressingReg(event.Inst->Main.Argument1);
+        if (t.IsAnyTainted()) {
+            m_msgmgr->OnSubmitFormat(t.T[0], FieldFormat::Length);
+        }
+    }
+    if (IsMemoryArg(event.Inst->Main.Argument2)) {
+        Taint1 t = m_taint->GetTaintAddressingReg(event.Inst->Main.Argument2);
+        if (t.IsAnyTainted()) {
+            m_msgmgr->OnSubmitFormat(t.T[0], FieldFormat::Length);
+        }
+    }
 }

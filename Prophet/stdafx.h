@@ -22,7 +22,6 @@
 #include <winternl.h>
 #include <fstream>
 #include <unordered_map>
-#include <WinSock2.h>
 #include <Psapi.h>
 #include <Tlhelp32.h>
 #include <memory>
