@@ -26,6 +26,7 @@ struct MessageByte {
 class Message {
 public:
     Message(int len);
+    Message(int len, cpbyte data);
     virtual ~Message();
 
 private:

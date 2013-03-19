@@ -7,10 +7,11 @@
 #include "utilities.h"
 #include "event.h"
 
-class FormatSynthesizer : public ISerializable {
+// Format Synthesizer
+class FormatSyn : public ISerializable {
 public:
-    FormatSynthesizer(Protocol *protocol);
-    ~FormatSynthesizer();
+    FormatSyn(MessageManager *msgmgr);
+    ~FormatSyn();
 
     void    Initialize();
 
@@ -21,7 +22,7 @@ public:
     void    Deserialize(Json::Value &root) override;
 
 private:
-    Protocol *      m_protocol;
+    MessageManager *    m_msgmgr;
     TaintEngine *   m_taint;
 };
 

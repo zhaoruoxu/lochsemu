@@ -71,6 +71,8 @@ class WinapiPostCallEvent;
 // protocol
 class Protocol;
 class Message;
+class MessageManager;
+class FormatSyn;
 
 extern Emulator *       g_emulator;
 extern HMODULE          g_module;

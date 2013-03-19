@@ -7,7 +7,7 @@
 #include "analyzers/direction_field.h"
 
 Protocol::Protocol( ProEngine *engine )
-    : m_engine(engine), m_apiprocessor(this), m_formatsyn(this), m_msgmanager(this)
+    : m_engine(engine), m_apiprocessor(this), m_msgmanager(this)
 {
     ZeroMemory(m_analyzers, sizeof(m_analyzers));
     ZeroMemory(m_messages, sizeof(m_messages));
@@ -32,7 +32,6 @@ void Protocol::Initialize()
 {
     m_taint = m_engine->GetTaintEngine();
     m_apiprocessor.Initialize();
-    m_formatsyn.Initialize();
     m_msgmanager.Initialize();
 
     RegisterAnalyzer(new DirectionField(this));
@@ -59,9 +58,9 @@ void Protocol::Serialize( Json::Value &root ) const
     m_apiprocessor.Serialize(apiProc);
     root["api_processor"] = apiProc;
 
-    Json::Value formatsyn;
-    m_formatsyn.Serialize(formatsyn);
-    root["format_synthesizer"] = formatsyn;
+//     Json::Value formatsyn;
+//     m_formatsyn.Serialize(formatsyn);
+//     root["format_synthesizer"] = formatsyn;
 }
 
 void Protocol::Deserialize( Json::Value &root )
@@ -83,10 +82,10 @@ void Protocol::Deserialize( Json::Value &root )
         m_apiprocessor.Deserialize(apiProc);
     }
 
-    Json::Value formatsyn = root["format_synthesizer"];
-    if (!formatsyn.isNull()) {
-        m_formatsyn.Deserialize(formatsyn);
-    }
+//     Json::Value formatsyn = root["format_synthesizer"];
+//     if (!formatsyn.isNull()) {
+//         m_formatsyn.Deserialize(formatsyn);
+//     }
 }
 
 void Protocol::RegisterAnalyzer( ProtocolAnalyzer *analyzer )
@@ -261,7 +260,7 @@ void Protocol::OnMessageBegin( MessageBeginEvent &event )
     m_taint->Enable(true);
     
     m_msgmanager.OnMessageBegin(event);
-    m_formatsyn.OnMessageBegin(event);
+    //m_formatsyn.OnMessageBegin(event);
 
     for (int i = 0; i < m_totalAnalyzers; i++) {
         ProtocolAnalyzer *pa = m_analyzers[i];
@@ -280,7 +279,7 @@ void Protocol::OnMessageEnd( MessageEndEvent &event )
             pa->OnMessageEnd(event);
     }
 
-    m_formatsyn.OnMessageEnd(event);
+    //m_formatsyn.OnMessageEnd(event);
     m_msgmanager.OnMessageEnd(event);
 
     m_taint->Enable(false);

@@ -5,7 +5,7 @@
 
 
 MessageManager::MessageManager( Protocol *protocol )
-    : m_protocol(protocol)
+    : m_protocol(protocol), m_format(this)
 {
     m_message = NULL;
 }
@@ -18,6 +18,7 @@ MessageManager::~MessageManager()
 void MessageManager::Initialize()
 {
     m_taint = m_protocol->GetEngine()->GetTaintEngine();
+    m_format.Initialize();
 }
 
 void MessageManager::OnMessageBegin( MessageBeginEvent &event )
@@ -26,14 +27,18 @@ void MessageManager::OnMessageBegin( MessageBeginEvent &event )
         event.MessageLen, event.MessageAddr, event.MessageData);
     // set taint
     m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
-    m_message = new Message(event.MessageLen);
+    m_message = new Message(event.MessageLen, event.MessageData);
     // TODO : other stuff
+    m_format.OnMessageBegin(event);
 }
 
 void MessageManager::OnMessageEnd( MessageEndEvent &event )
 {
     LxError("Session ends: len=%08x, addr=%08x, data=%s\n",
         event.MessageLen, event.MessageAddr, event.MessageData);
+
+    m_format.OnMessageEnd(event);
+
     // clear taint
     Taint1 t = m_taint->MemTaint.Get<1>(event.MessageAddr);
     if (t.IsAnyTainted()) {
@@ -41,4 +46,20 @@ void MessageManager::OnMessageEnd( MessageEndEvent &event )
     }
     m_protocol->AddMessage(m_message);
     m_message = NULL;
+}
+
+void MessageManager::Serialize( Json::Value &root ) const 
+{
+    // TODO : msgmgr stuff
+    Json::Value formatsyn;
+    m_format.Serialize(formatsyn);
+    root["format_synthesizer"] = formatsyn;
+}
+
+void MessageManager::Deserialize( Json::Value &root )
+{
+    // TODO : msgmgr stuff
+    Json::Value formatsyn = root["format_synthesizer"];
+    if (!formatsyn.isNull())
+        m_format.Deserialize(formatsyn);
 }

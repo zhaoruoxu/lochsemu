@@ -64,7 +64,6 @@ private:
     Message *           m_messages[MaxMessages];
 
     ApiProcessor        m_apiprocessor;
-    FormatSynthesizer   m_formatsyn;
     MessageManager      m_msgmanager;
     
     State               m_state;

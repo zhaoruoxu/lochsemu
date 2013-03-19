@@ -2,38 +2,38 @@
 #include "formatsyn.h"
 
 
-FormatSynthesizer::FormatSynthesizer( Protocol *protocol )
-    : m_protocol(protocol)
+FormatSyn::FormatSyn( MessageManager *msgmgr )
+    : m_msgmgr(msgmgr)
 {
 
 }
 
-FormatSynthesizer::~FormatSynthesizer()
+FormatSyn::~FormatSyn()
 {
 
 }
 
-void FormatSynthesizer::Initialize()
+void FormatSyn::Initialize()
 {
 
 }
 
-void FormatSynthesizer::OnMessageBegin( MessageBeginEvent &event )
+void FormatSyn::OnMessageBegin( MessageBeginEvent &event )
 {
 
 }
 
-void FormatSynthesizer::OnMessageEnd( MessageEndEvent &event )
+void FormatSyn::OnMessageEnd( MessageEndEvent &event )
 {
     // report message format & clear
 }
 
-void FormatSynthesizer::Serialize( Json::Value &root ) const 
+void FormatSyn::Serialize( Json::Value &root ) const 
 {
 
 }
 
-void FormatSynthesizer::Deserialize( Json::Value &root )
+void FormatSyn::Deserialize( Json::Value &root )
 {
 
 }
