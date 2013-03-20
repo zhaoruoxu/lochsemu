@@ -31,7 +31,7 @@ void MessageManager::OnMessageBegin( MessageBeginEvent &event )
             Taint::GetWidth());
     }
     m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
-    m_message = new Message(event.MessageLen, event.MessageData);
+    m_message = new Message(event.MessageLen, event.MessageAddr, event.MessageData);
     // TODO : other stuff
     m_format.OnMessageBegin(event);
 }
@@ -77,11 +77,18 @@ void MessageManager::Deserialize( Json::Value &root )
 
 void MessageManager::SubmitLengthField( int first, int last, int target )
 {
-    LxWarning("Length field: %d - %d, target %d\n", first, last, target);
+    //LxWarning("Length field: %d - %d, target %d\n", first, last, target);
+    Assert(first >= 0   && first < m_message->Size());
+    Assert(last >= 0    && last < m_message->Size());
+    Assert(target == -1 || target >= 0  && target < m_message->Size());
+    m_format.SubmitLengthField(first, last, target);
 }
 
 void MessageManager::SubmitToken( byte t, int first, int last )
 {
-    LxWarning("Token: %02x(%c) %d - %d\n", t, t, first, last);
+    //LxWarning("Token: %02x(%c) %d - %d\n", t, t, first, last);
+    Assert(first >= 0   && first < m_message->Size());
+    Assert(last >= 0    && last < m_message->Size());
+    m_format.SubmitToken(t, first, last);
 }
 

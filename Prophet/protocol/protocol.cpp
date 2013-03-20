@@ -62,6 +62,10 @@ void Protocol::Serialize( Json::Value &root ) const
     m_apiprocessor.Serialize(apiProc);
     root["api_processor"] = apiProc;
 
+    Json::Value msgMgr;
+    m_msgmanager.Serialize(msgMgr);
+    root["message_manager"] = msgMgr;
+
 //     Json::Value formatsyn;
 //     m_formatsyn.Serialize(formatsyn);
 //     root["format_synthesizer"] = formatsyn;
@@ -84,6 +88,11 @@ void Protocol::Deserialize( Json::Value &root )
     Json::Value apiProc = root["api_processor"];
     if (!apiProc.isNull()) {
         m_apiprocessor.Deserialize(apiProc);
+    }
+
+    Json::Value msgMgr = root["message_manager"];
+    if (!msgMgr.isNull()) {
+        m_msgmanager.Deserialize(msgMgr);
     }
 
 //     Json::Value formatsyn = root["format_synthesizer"];

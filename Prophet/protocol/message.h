@@ -6,13 +6,18 @@
 #include "prophet.h"
 
 enum FieldFormat {
-    Unknown     = 0,
-    Length,
+    Unknown     = 0,        // lower number with high priority
     Separator,
     Keyword,
+    Length,
     FixedLen,
     VariableLen,
+    //      lowest priority
+
+    Total,  // total number of formats
 };
+
+const char *FieldFormatName[];
 
 struct MessageByte {
     FieldFormat     Format;
@@ -25,11 +30,12 @@ struct MessageByte {
 
 class Message {
 public:
-    Message(int len);
-    Message(int len, cpbyte data);
+    Message(int len, u32 addr);
+    Message(int len, u32 addr, cpbyte data);
     virtual ~Message();
 
     int         Size() const { return m_length; }
+    u32         Base() const { return m_baseAddr; }
     MessageByte&    operator[](int index) 
     {
         Assert(index >= 0 && index < m_length);
@@ -43,6 +49,7 @@ public:
     }
 
 private:
+    u32             m_baseAddr;
     int             m_length;
     MessageByte *   m_data;
 };
