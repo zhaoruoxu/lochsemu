@@ -329,18 +329,14 @@ void DrawTaint( wxBufferedPaintDC &dc, const Taint &t, const wxRect &rect, bool 
                 sameTaintLen++;
             } 
             if (t.IsTainted(i) != currentTaint || i == TaintWidth-1) {
-                int xOffset = rectTaint.width * sameTaintStart / (float) TaintWidth;
+                int xOffset = static_cast<int>(w * sameTaintStart + 0.5f);//rectTaint.width * sameTaintStart / (float) TaintWidth;
                 dc.SetBrush(currentTaint ? *wxBLUE_BRUSH : *wxWHITE_BRUSH);
-                int currTaintWidth = static_cast<int>(w * sameTaintLen);
-                if (currentTaint)
-                    currTaintWidth = max(currTaintWidth, 1);
+                int currTaintWidth = static_cast<int>(w * sameTaintLen + 0.5f);
                 dc.DrawRectangle(rectTaint.x + xOffset, rectTaint.y, currTaintWidth, rectTaint.height);
 
                 sameTaintStart = i;
-                if (currentTaint) sameTaintStart++;
                 currentTaint = !currentTaint;
-                sameTaintLen = 0;
-                
+                sameTaintLen = 1;
             }
         }
     }

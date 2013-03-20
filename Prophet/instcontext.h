@@ -29,25 +29,26 @@ struct InstContext {
     static const std::string RegNames[];
     static const std::string FlagNames[];
 
-    u32                 regs[RegCount];
-    Taint4              regTaint[RegCount];
+    u32                 Regs[RegCount];
+    Taint4              RegTaint[RegCount];
 
     u32                 Eip;
     Taint1              EipTaint;
 
-    u32                 flags[FlagCount];
-    Taint1              flagTaint[FlagCount];
+    u32                 Flags[FlagCount];
+    Taint1              FlagTaint[FlagCount];
 
-    std::string         moduleName;
-    u32                 moduleImageBase;
+    std::string         ModuleName;
+    u32                 ModuleImageBase;
 
-    InstPtr             inst;
+    InstPtr             Inst;
+    bool                JumpTaken;
 
     InstContext() {
-        ZeroMemory(regs, sizeof(regs));
-        ZeroMemory(flags, sizeof(flags));
-        moduleImageBase = 0;
-        inst            = NULL;
+        ZeroMemory(Regs, sizeof(Regs));
+        ZeroMemory(Flags, sizeof(Flags));
+        ModuleImageBase = 0;
+        Inst            = NULL;
     }
 };
 

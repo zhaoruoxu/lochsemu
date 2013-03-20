@@ -26,6 +26,10 @@ void MessageManager::OnMessageBegin( MessageBeginEvent &event )
     LxError("Message begins: len=%08x, addr=%08x, data=%s\n", 
         event.MessageLen, event.MessageAddr, event.MessageData);
     // set taint
+    if (event.MessageLen >= Taint::GetWidth()) {
+        LxWarning("Prophet: message length(%d) >= taint width(%d)!\n", event.MessageLen,
+            Taint::GetWidth());
+    }
     m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
     m_message = new Message(event.MessageLen, event.MessageData);
     // TODO : other stuff
@@ -70,3 +74,4 @@ void MessageManager::OnSubmitFormat( const Taint &t, FieldFormat f )
 {
     LxWarning("Format submitted: %d %s\n", f, t.ToString().c_str());
 }
+

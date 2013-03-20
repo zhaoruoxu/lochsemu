@@ -358,9 +358,9 @@ void CpuPanel::OnPopupTaintReg( wxCommandEvent &event )
     {
         SyncObjectLock lock(*te);
         if (reg < 8) {
-            te->CpuTaint.GPRegs[reg].T[0] = Taint::FromBinString(val.ToStdString());
+            te->CpuTaint.GPRegs[reg][0] = Taint::FromBinString(val.ToStdString());
         } else if (reg == 8) {
-            te->CpuTaint.Eip.T[0] = Taint::FromBinString(val.ToStdString());
+            te->CpuTaint.Eip[0] = Taint::FromBinString(val.ToStdString());
         } else {
             Assert(0);
         }

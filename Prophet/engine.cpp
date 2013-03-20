@@ -196,8 +196,8 @@ void ProEngine::SetGuiFrame( ProphetFrame *frame )
 
 void ProEngine::GetInstContext(InstContext *ctx) const
 {
+    m_disassembler.UpdateInstContext(ctx, 0);
     m_debugger.UpdateInstContext(ctx);
-    m_disassembler.UpdateInstContext(ctx, ctx->Eip);
     m_taint.UpdateInstContext(ctx);
 }
 

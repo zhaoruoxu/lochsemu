@@ -523,4 +523,46 @@ void Processor::WriteOperand128(const Instruction *inst, const ARGTYPE &oper, u3
     }
 }
 
+bool Processor::IsJumpTaken( const Instruction *inst ) const
+{
+    typedef     bool (Processor::*Tester)(void) const;
+
+    static Tester Testers[] = {
+        /* 0 */ &Processor::IsJumpTaken_Jo,
+        /* 1 */ &Processor::IsJumpTaken_Jno,
+        /* 2 */ &Processor::IsJumpTaken_Jb,
+        /* 3 */ &Processor::IsJumpTaken_Jnb,
+        /* 4 */ &Processor::IsJumpTaken_Je,
+        /* 5 */ &Processor::IsJumpTaken_Jne,
+        /* 6 */ &Processor::IsJumpTaken_Jbe,
+        /* 7 */ &Processor::IsJumpTaken_Ja,
+        /* 8 */ &Processor::IsJumpTaken_Js,
+        /* 9 */ &Processor::IsJumpTaken_Jns,
+        /* a */ &Processor::IsJumpTaken_Jp,
+        /* b */ &Processor::IsJumpTaken_Jnp,
+        /* c */ &Processor::IsJumpTaken_Jl,
+        /* d */ &Processor::IsJumpTaken_Jge,
+        /* e */ &Processor::IsJumpTaken_Jle,
+        /* f */ &Processor::IsJumpTaken_Jg,
+    };
+
+    Tester t = NULL;
+    u32 opcode = inst->Main.Inst.Opcode;
+    if (opcode >= 0x70 && opcode < 0x80) {
+        t = Testers[opcode - 0x70];
+    } else if (opcode >= 0x0f80 && opcode < 0x0f90) {
+        t = Testers[opcode - 0x0f80];
+    } else if (opcode >= 0x0f90 && opcode < 0x0fa0) {
+        t = Testers[opcode - 0x0f90];
+    } else if (opcode == 0xe3) {
+        t = &Processor::IsJumpTaken_Jecxz;
+    } else if (opcode == 0xe2) {
+        t = &Processor::IsJumpTaken_Loop;
+    } else {
+        Assert(0);  // shouldn't be used for other instructions
+    }
+    Assert(t != NULL);
+    return (this->*t)();
+}
+
 END_NAMESPACE_LOCHSEMU()

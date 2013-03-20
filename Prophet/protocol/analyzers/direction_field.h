@@ -13,6 +13,7 @@ public:
     void    OnPreExecute(PreExecuteEvent &event) override;
 
 private:
+    Disassembler *      m_disasm;
     TaintEngine *       m_taint;
     MessageManager *    m_msgmgr;
 };

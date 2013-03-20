@@ -75,13 +75,8 @@ LochsEmu::LxResult PeLoader::LoadModule( LPCSTR lpFileName )
     u32 size = module.GetHeadersSize();
     char desc[64];
     sprintf(desc, "PE header (%s)", module.GetName());
-    V( m_memory->AllocCopy(
-        SectionDesc(desc, m_infos.size()), 
-        imageBase, 
-        size, 
-        PAGE_READONLY, 
-        module.GetDataPtr(), 
-        size) );
+    V( m_memory->AllocCopy(SectionDesc(desc, m_infos.size()), imageBase, size, PAGE_READONLY, 
+        module.GetDataPtr(), size) );
 
     for (uint i = 0; i < nSections; i++) {
         V( LoadSectionToMem(&module, module.GetSectionHeader(i), imageBase, m_infos.size()) );
@@ -264,8 +259,8 @@ LochsEmu::LxResult PeLoader::LoadIAT( uint nModule )
                 }
             }
             const ExportEntry &entry = m_infos[dllIndex].Exports[index];
-            LxDebug("Loading function in library %s::%s (%d)0x%08x\n", dllName, entry.Name.c_str(),
-                entry.Ordinal, entry.Address);
+//             LxDebug("Loading function in library %s::%s (%d)0x%08x\n", dllName, entry.Name.c_str(),
+//                 entry.Ordinal, entry.Address);
             V( m_memory->Write32(importIter->second[i].IATOffset, entry.Address) );
             funcCount++;
         }

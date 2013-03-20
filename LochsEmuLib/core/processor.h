@@ -17,15 +17,15 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-enum Reg8 {
-    LX_REG_AL = 0,
-    LX_REG_CL,
-    LX_REG_DL,
-    LX_REG_BL,
-    LX_REG_AH,
-    LX_REG_CH,
-    LX_REG_DH,
-    LX_REG_BH,
+    enum Reg8 {
+        LX_REG_AL = 0,
+        LX_REG_CL,
+        LX_REG_DL,
+        LX_REG_BL,
+        LX_REG_AH,
+        LX_REG_CH,
+        LX_REG_DH,
+        LX_REG_BH,
 };
 
 enum Reg16 {
@@ -339,6 +339,26 @@ public:
     // Convert from/to CONTEXT structure
     void            ToContext           (CONTEXT *context);
     void            FromContext         (const CONTEXT *context);
+
+    bool            IsJumpTaken_Jo() const    { return OF != 0; }
+    bool            IsJumpTaken_Jno() const   { return OF == 0; }
+    bool            IsJumpTaken_Jb() const    { return CF != 0; }
+    bool            IsJumpTaken_Jnb() const   { return CF == 0; }
+    bool            IsJumpTaken_Je() const    { return ZF != 0; }
+    bool            IsJumpTaken_Jne() const   { return ZF == 0; }
+    bool            IsJumpTaken_Jbe() const   { return CF != 0 || ZF != 0; }
+    bool            IsJumpTaken_Ja() const    { return CF == 0 && ZF == 0; }
+    bool            IsJumpTaken_Js() const    { return SF != 0; }
+    bool            IsJumpTaken_Jns() const   { return SF == 0; }
+    bool            IsJumpTaken_Jp() const    { return PF != 0; }
+    bool            IsJumpTaken_Jnp() const   { return PF == 0; }
+    bool            IsJumpTaken_Jl() const    { return SF != OF; }
+    bool            IsJumpTaken_Jge() const   { return SF == OF; }
+    bool            IsJumpTaken_Jle() const   { return ZF != 0 || SF != OF; }
+    bool            IsJumpTaken_Jg() const    { return ZF == 0 && SF == OF; }
+    bool            IsJumpTaken_Jecxz() const { return ECX == 0; }
+    bool            IsJumpTaken_Loop() const  { return ECX != 0; }
+    bool            IsJumpTaken     (const Instruction *inst) const;
 
 protected:
     Thread *        m_thread;

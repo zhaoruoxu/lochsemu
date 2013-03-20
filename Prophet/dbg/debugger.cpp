@@ -215,16 +215,20 @@ void ProDebugger::OnTerminate()
 void ProDebugger::UpdateInstContext( InstContext *ctx ) const
 {
     for (int i = 0; i < InstContext::RegCount; i++) {
-        ctx->regs[i]        = m_currProcessor->GP_Regs[i].X32;
+        ctx->Regs[i]        = m_currProcessor->GP_Regs[i].X32;
     }
     ctx->Eip                = m_currProcessor->EIP;
 
-    ctx->flags[InstContext::OF]         = m_currProcessor->OF;
-    ctx->flags[InstContext::SF]         = m_currProcessor->SF;
-    ctx->flags[InstContext::ZF]         = m_currProcessor->ZF;
-    ctx->flags[InstContext::AF]         = m_currProcessor->AF;
-    ctx->flags[InstContext::PF]         = m_currProcessor->PF;
-    ctx->flags[InstContext::CF]         = m_currProcessor->CF;
+    if (Instruction::IsConditionalJump(ctx->Inst)) {
+        ctx->JumpTaken      = m_currProcessor->IsJumpTaken(ctx->Inst);
+    }
+
+    ctx->Flags[InstContext::OF]         = m_currProcessor->OF;
+    ctx->Flags[InstContext::SF]         = m_currProcessor->SF;
+    ctx->Flags[InstContext::ZF]         = m_currProcessor->ZF;
+    ctx->Flags[InstContext::AF]         = m_currProcessor->AF;
+    ctx->Flags[InstContext::PF]         = m_currProcessor->PF;
+    ctx->Flags[InstContext::CF]         = m_currProcessor->CF;
 //     ctx->flags[6]            = m_currProcessor->TF;
 //     ctx->flags[7]            = m_currProcessor->IF;
 //     ctx->flags[8]            = m_currProcessor->DF;
@@ -233,28 +237,28 @@ void ProDebugger::UpdateInstContext( InstContext *ctx ) const
 
     uint module             = m_currProcessor->GetCurrentModule();
     const ModuleInfo *minfo = m_currProcessor->Proc()->GetModuleInfo(module);
-    ctx->moduleName         = minfo->Name;
-    ctx->moduleImageBase    = minfo->ImageBase;
+    ctx->ModuleName         = minfo->Name;
+    ctx->ModuleImageBase    = minfo->ImageBase;
 }
 
 void ProDebugger::UpdateTraceContext( TraceContext *ctx, u32 eip ) const
 {
     for (int i = 0; i < InstContext::RegCount; i++) {
-        ctx->regs[i]        = m_currProcessor->GP_Regs[i].X32;
+        ctx->Regs[i]        = m_currProcessor->GP_Regs[i].X32;
     }
     ctx->Eip                = eip;
 
-    ctx->flags[InstContext::OF]         = m_currProcessor->OF;
-    ctx->flags[InstContext::SF]         = m_currProcessor->SF;
-    ctx->flags[InstContext::ZF]         = m_currProcessor->ZF;
-    ctx->flags[InstContext::AF]         = m_currProcessor->AF;
-    ctx->flags[InstContext::PF]         = m_currProcessor->PF;
-    ctx->flags[InstContext::CF]         = m_currProcessor->CF;
+    ctx->Flags[InstContext::OF]         = m_currProcessor->OF;
+    ctx->Flags[InstContext::SF]         = m_currProcessor->SF;
+    ctx->Flags[InstContext::ZF]         = m_currProcessor->ZF;
+    ctx->Flags[InstContext::AF]         = m_currProcessor->AF;
+    ctx->Flags[InstContext::PF]         = m_currProcessor->PF;
+    ctx->Flags[InstContext::CF]         = m_currProcessor->CF;
 
     uint module             = m_currProcessor->GetModule(eip);
     const ModuleInfo *minfo = m_currProcessor->Proc()->GetModuleInfo(module);
-    ctx->moduleName         = minfo->Name;
-    ctx->moduleImageBase    = minfo->ImageBase;
+    ctx->ModuleName         = minfo->Name;
+    ctx->ModuleImageBase    = minfo->ImageBase;
 }
 
 // void ADebugger::AnalyzeCRTEntry( const Processor *cpu, const Instruction *inst )

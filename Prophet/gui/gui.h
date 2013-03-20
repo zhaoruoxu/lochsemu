@@ -92,7 +92,7 @@ void DrawTaint(wxBufferedPaintDC &dc, const Taint &t, const wxRect &rect, bool h
 template <int N>
 void DrawTaint(wxBufferedPaintDC &dc, const Tb<N> &t, const wxRect &rect, bool highlight = false)
 {
-    const int TaintWidth = t.T[0].GetWidth();
+    const int TaintWidth = t[0].GetWidth();
 //     const int w = rect.width / TaintWidth;
 //     if (w == 0) {
 //         LxFatal("Drawing width for each taint value is be too small\n");
@@ -100,7 +100,7 @@ void DrawTaint(wxBufferedPaintDC &dc, const Tb<N> &t, const wxRect &rect, bool h
     dc.SetPen(*wxTRANSPARENT_PEN);
     wxRect r = rect;
     for (int i = 0; i < N; i++) {
-        DrawTaint(dc, t.T[i], r, highlight);
+        DrawTaint(dc, t[i], r, highlight);
         r.x += r.width+1;
     }
 }

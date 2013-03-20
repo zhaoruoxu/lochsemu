@@ -57,42 +57,33 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
     dc.DrawText(wxString::Format("----  %s  ----", m_dataDesc), 0, 0);
     h += m_lineHeight;
 
-    if (!m_data.inst) return;
+    if (!m_data.Inst) return;
 
     dc.DrawText("Disassembly:", 0, h);
     h += m_lineHeight;
-    dc.DrawText(wxString::Format("[ %s ]", m_data.inst->Main.CompleteInstr), 0, h);
+    dc.DrawText(wxString::Format("[ %s ]", m_data.Inst->Main.CompleteInstr), 0, h);
     h += m_lineHeight;
 
-    if (m_data.inst->Entry != -1) {
-        dc.DrawText(wxString::Format("Entry: %08X", m_data.inst->Entry), 0, h);
+    if (m_data.Inst->Entry != -1) {
+        dc.DrawText(wxString::Format("Entry: %08X", m_data.Inst->Entry), 0, h);
         h += m_lineHeight;
     }
-    if (m_data.inst->Target != -1) {
-        dc.DrawText(wxString::Format("Target: %08X", m_data.inst->Target), 0, h);
+    if (m_data.Inst->Target != -1) {
+        dc.DrawText(wxString::Format("Target: %08X", m_data.Inst->Target), 0, h);
         h += m_lineHeight;
     }
 
     h += m_lineHeight;
 
-    wxString mod = wxString::Format("Module [%s] at %08X", m_data.moduleName, m_data.moduleImageBase);
+    wxString mod = wxString::Format("Module [%s] at %08X", m_data.ModuleName, m_data.ModuleImageBase);
     dc.DrawText(mod, 0, h);
     h += m_lineHeight * 2;
 
-//     dc.DrawText("Eip", 0, h);
-//     dc.DrawText(wxString::Format("%08X", m_data.Eip), m_widthRegName, h);
-//     DrawTaint(dc, m_data.EipTaint, wxRect(m_widthRegName + m_widthRegValue, 
-//         h, m_widthTaint * Taint4::Count, m_lineHeight));
-//     h += m_lineHeight;
-
     for (int i = 0; i < InstContext::RegCount; i++) {
         dc.DrawText(InstContext::RegNames[i], 0, h);
-        dc.DrawText(wxString::Format("%08X", m_data.regs[i]), m_widthRegName, h);
+        dc.DrawText(wxString::Format("%08X", m_data.Regs[i]), m_widthRegName, h);
         int w = m_widthRegName + m_widthRegValue;
-        //for (auto &t : m_data.regTaint[i].T) {
-            DrawTaint(dc, m_data.regTaint[i], wxRect(w, h, m_widthTaint, m_lineHeight));
-            //w += m_widthTaint;
-        //}
+        DrawTaint(dc, m_data.RegTaint[i], wxRect(w, h, m_widthTaint, m_lineHeight));
 
         h += m_lineHeight;
     }
@@ -100,7 +91,7 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
 
     h += m_lineHeight;
     dc.DrawText("Eip", 0, h);
-    dc.DrawText(wxString::Format("%08X", m_data.inst->Eip), m_widthRegName, h);
+    dc.DrawText(wxString::Format("%08X", m_data.Inst->Eip), m_widthRegName, h);
     DrawTaint(dc, m_data.EipTaint, wxRect(m_widthRegName + m_widthRegValue,
         h, m_widthTaint, m_lineHeight));
     h += m_lineHeight * 2;
@@ -108,21 +99,20 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
     dc.DrawText("  TE MO RE SE", m_widthRegName, h);
     h += m_lineHeight;
 
-    if (m_data.inst) {
-        //u8p pFlag = (u8p) &m_data.inst->Main.Inst.Flags;
-        for (int i = 0; i < InstContext::FlagCount; i++) {
-            dc.DrawText(wxString::Format(" %s", InstContext::FlagNames[i]), 0, h);
-            wxString flag = wxString::Format("%d  %d  %d  %d  %d", m_data.flags[i],
-                IsFlagTested(m_data.inst, i), IsFlagModified(m_data.inst, i),
-                IsFlagReset(m_data.inst, i), IsFlagSet(m_data.inst, i));
-                //(*pFlag & TE_) != 0, (*pFlag & MO_) != 0, (*pFlag & RE_) != 0, (*pFlag & SE_) != 0);
-            //pFlag++;
-            dc.DrawText(flag, m_widthRegName, h);
-            DrawTaint(dc, m_data.flagTaint[i],
-                wxRect(m_widthRegName + m_widthFlagValue, h, m_widthTaint, m_lineHeight));
-            h += m_lineHeight;
-        }
-        h += m_lineHeight * 2;
+    for (int i = 0; i < InstContext::FlagCount; i++) {
+        dc.DrawText(wxString::Format(" %s", InstContext::FlagNames[i]), 0, h);
+        wxString flag = wxString::Format("%d  %d  %d  %d  %d", m_data.Flags[i],
+            IsFlagTested(m_data.Inst, i), IsFlagModified(m_data.Inst, i),
+            IsFlagReset(m_data.Inst, i), IsFlagSet(m_data.Inst, i));
+        dc.DrawText(flag, m_widthRegName, h);
+        DrawTaint(dc, m_data.FlagTaint[i],
+            wxRect(m_widthRegName + m_widthFlagValue, h, m_widthTaint, m_lineHeight));
+        h += m_lineHeight;
+    }
+    h += m_lineHeight;
+
+    if (Instruction::IsConditionalJump(m_data.Inst)) {
+        dc.DrawText(m_data.JumpTaken ? "Jump is taken" : "Jump is NOT taken", 0, h);
     }
 
 }

@@ -51,7 +51,7 @@ Tb<N> MemoryTaint::Get( u32 addr )
 {
     Tb<N> res;
     for (int i = 0; i < N; i++) {
-        res.T[i]    = GetPage(addr+i)->Get(PAGE_LOW(addr+i));
+        res[i]  = GetPage(addr+i)->Get(PAGE_LOW(addr+i));
     }
     return res;
 }
@@ -60,7 +60,7 @@ template <int N>
 void MemoryTaint::Set( u32 addr, const Tb<N> &t )
 {
     for (int i = 0; i < N; i++) {
-        GetPage(addr+i)->Set(PAGE_LOW(addr+i), t.T[i]);
+        GetPage(addr+i)->Set(PAGE_LOW(addr+i), t[i]);
     }
 }
 

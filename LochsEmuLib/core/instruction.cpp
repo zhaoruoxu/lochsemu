@@ -12,8 +12,16 @@ bool Instruction::IsRet( const Instruction *inst )
 
 bool Instruction::IsCall( const Instruction *inst )
 {
-    const char *mnemonics = inst->Main.Inst.Mnemonic;
-    return strstr(mnemonics, "call") == mnemonics;
+    const char *m= inst->Main.Inst.Mnemonic;
+    /*return strstr(mnemonics, "call") == mnemonics;*/
+    return m[0] == 'c' && m[1] == 'a' && m[2] == 'l' && m[3] == 'l';
+}
+
+bool Instruction::IsConditionalJump( const Instruction *inst )
+{
+    u32 op = inst->Main.Inst.Opcode;
+    return (op >= 0x70 && op < 0x80) || (op >= 0x0f80 && op < 0x0f90) || 
+        (op == 0xe2) || (op == 0xe3);
 }
 
 END_NAMESPACE_LOCHSEMU()

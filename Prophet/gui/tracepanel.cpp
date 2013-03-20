@@ -93,9 +93,9 @@ void TracePanel::DrawTrace( wxBufferedPaintDC &dc, const TraceContext &trace, in
     dc.SetPen(*wxBLACK_PEN);
 
     int w = 0;
-    dc.DrawText(wxString::Format("%08X", trace.inst->Eip), w, h);
+    dc.DrawText(wxString::Format("%08X", trace.Inst->Eip), w, h);
     w += m_widthIp;
-    dc.DrawText(trace.inst->Main.CompleteInstr, w, h);
+    dc.DrawText(trace.Inst->Main.CompleteInstr, w, h);
     w += m_widthDisasm;
 
     // draw Taint

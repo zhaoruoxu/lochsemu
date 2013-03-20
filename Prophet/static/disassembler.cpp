@@ -263,8 +263,8 @@ void Disassembler::UpdateInstContext( InstContext *ctx, u32 eip ) const
 {
     Assert(m_currProcessor);
 
-    InstPtr inst    = m_instMem.GetInst(eip);
-    ctx->inst       = inst;
+    InstPtr inst    = m_instMem.GetInst(eip == 0 ? m_currProcessor->EIP : eip);
+    ctx->Inst       = inst;
 }
 
 InstPtr Disassembler::GetInst( u32 eip )

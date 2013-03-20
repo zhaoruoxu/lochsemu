@@ -7,6 +7,7 @@
 #include "event.h"
 #include "formatsyn.h"
 #include "message.h"
+#include "taint/taint.h"
 
 class MessageManager : ISerializable {
 public:
@@ -26,6 +27,10 @@ public:
     void            Deserialize(Json::Value &root) override;
 
     void            OnSubmitFormat(const Taint &t, FieldFormat f);
+    void            OnSubmitFormat(const Taint1 &t, FieldFormat f)
+    {
+        OnSubmitFormat(t[0], f);
+    }
 private:
     FormatSyn       m_format;
     Protocol *      m_protocol;

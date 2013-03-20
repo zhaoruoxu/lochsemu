@@ -84,6 +84,18 @@ struct Tb {
     static const int    Count = N;
     Taint       T[N];
 
+    Taint & operator[](int n)
+    {
+        Assert(n >= 0 && n < N);
+        return T[n];
+    }
+
+    const Taint &   operator[](int n) const
+    {
+        Assert(n >= 0 && n < N);
+        return T[n];
+    }
+
     Tb<N>   operator&(const Tb<N> &rhs) const
     {
         Tb<N>   res = *this;
@@ -108,21 +120,21 @@ struct Tb {
     Tb<N>&  operator&=(const Tb<N> &rhs)
     {
         for (int i = 0; i < N; i++)
-            T[i]    &= rhs.T[i];
+            T[i]    &= rhs[i];
         return *this;
     }
 
     Tb<N>&  operator|=(const Tb<N> &rhs)
     {
         for (int i = 0; i < N; i++)
-            T[i]    |= rhs.T[i];
+            T[i]    |= rhs[i];
         return *this;
     }
 
     Tb<N>&  operator^=(const Tb<N> &rhs)
     {
         for (int i = 0; i < N; i++)
-            T[i]    ^= rhs.T[i];
+            T[i]    ^= rhs[i];
         return *this;
     }
 
@@ -159,7 +171,7 @@ Tb<Ndest>   FromTaint(const Tb<Nsrc> &src, int offset = 0)
 
     Tb<Ndest> res;
     for (int i = 0; i < Ndest; i++)
-        res.T[i] = src.T[i+offset];
+        res[i] = src[i+offset];
     return res;
 }
 
@@ -168,7 +180,7 @@ void        ToTaint(Tb<Ndest> &dest, const Tb<Nsrc> &src, int offset = 0)
 {
     Assert(Nsrc + offset <= Ndest);
     for (int i = 0; i < Nsrc; i++)
-        dest.T[i+offset] = src.T[i];
+        dest[i+offset] = src[i];
 }
 
 template <int N>
@@ -176,7 +188,7 @@ Tb<N>       Extend(const Taint1 &t)
 {
     Tb<N> res;
     for (int i = 0; i < N; i++)
-        res.T[i] = t.T[0];
+        res[i] = t[0];
     return res;
 }
 
@@ -184,9 +196,9 @@ template <int N>
 Taint1      Shrink(const Tb<N> &t)
 {
     Taint1 res;
-    res.T[0] = t.T[0];
+    res[0] = t[0];
     for (int i = 1; i < N; i++)
-        res.T[0] |= t.T[i];
+        res[0] |= t[i];
     return res;
 }
 

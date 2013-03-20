@@ -23,6 +23,7 @@ public:
 
     static bool IsRet(const Instruction *inst);
     static bool IsCall(const Instruction *inst);
+    static bool IsConditionalJump(const Instruction *inst);
 
     DISASM          Main;  /* BeaEngine */
 
