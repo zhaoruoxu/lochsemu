@@ -26,11 +26,14 @@ public:
     void            Serialize(Json::Value &root) const override;
     void            Deserialize(Json::Value &root) override;
 
-    void            OnSubmitFormat(const Taint &t, FieldFormat f);
-    void            OnSubmitFormat(const Taint1 &t, FieldFormat f)
-    {
-        OnSubmitFormat(t[0], f);
-    }
+//     void            OnSubmitFormat(const Taint &t, FieldFormat f);
+//     void            OnSubmitFormat(const Taint1 &t, FieldFormat f)
+//     {
+//         OnSubmitFormat(t[0], f);
+//     }
+
+    void            SubmitLengthField(int first, int last, int target);
+    void            SubmitToken(byte t, int first, int last);
 private:
     FormatSyn       m_format;
     Protocol *      m_protocol;

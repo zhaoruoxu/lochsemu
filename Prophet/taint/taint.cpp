@@ -89,3 +89,26 @@ Taint Taint::FromBinString( const std::string &s )
     }
     return r;
 }
+
+void GetTaintRange( const Taint &t, int *firstIndex, int *lastIndex )
+{
+    if (firstIndex) {
+        *firstIndex = -1;
+        for (int i = 0; i < t.GetWidth(); i++) {
+            if (t.IsTainted(i)) {
+                *firstIndex = i;
+                break;
+            }
+        }
+    }
+
+    if (lastIndex) {
+        *lastIndex = -1;
+        for (int i = t.GetWidth() - 1; i >= 0; i--) {
+            if (t.IsTainted(i)) {
+                *lastIndex = i;
+                break;
+            }
+        }
+    }
+}

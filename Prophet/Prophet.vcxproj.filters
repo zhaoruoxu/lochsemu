@@ -222,6 +222,9 @@
     <ClInclude Include="gui\msgpanel.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\analyzers\separator.h">
+      <Filter>Header Files\protocol\analyzers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -343,6 +346,9 @@
     </ClCompile>
     <ClCompile Include="gui\msgpanel.cpp">
       <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\analyzers\separator.cpp">
+      <Filter>Source Files\protocol\analyzers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

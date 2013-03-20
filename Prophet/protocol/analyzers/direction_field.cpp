@@ -12,9 +12,11 @@
  */
 
 DirectionField::DirectionField( Protocol *protocol )
-    : ProtocolAnalyzer(protocol, "DirectionField", PreExecuteHandler)
+    : ProtocolAnalyzer(protocol, "DirectionField", 
+    PreExecuteHandler | MessageBeginHandler | MessageEndHandler)
 {
     m_taint = NULL;
+    m_useFlag = true;
 }
 
 void DirectionField::Initialize()
@@ -28,49 +30,80 @@ void DirectionField::OnPreExecute( PreExecuteEvent &event )
 {
     if (event.Cpu->GetCurrentModule() != 0) return;
 
-    const ARGTYPE &arg1 = event.Inst->Main.Argument1;
-    const ARGTYPE &arg2 = event.Inst->Main.Argument2;
-    // 读内存时：1）寻址寄存器被Taint；2）内存位置被Taint 
+    if (IsMemoryArg(event.Inst->Main.Argument2)) {
+        CheckMemory(event, event.Inst->Main.Argument2);
+    }
+    if (m_useFlag) {
+        CheckFlag(event);
+    }
+}
 
-    if (IsMemoryArg(arg2)) {
-        Taint1 tReg = m_taint->GetTaintAddressingReg(arg2);
-        if (tReg.IsAnyTainted()) {
-            Taint1 tMem = m_taint->GetTaintShrink(event.Cpu, arg2);
-            if (tMem.IsAnyTainted()) {
-                LxDebug("memory\n");
-                m_msgmgr->OnSubmitFormat(tReg, FieldFormat::Length);
-                m_protocol->GetEngine()->BreakOnNextInst("memory");
-            }
-        }
-    }
+void DirectionField::Serialize( Json::Value &root ) const 
+{
+    root["use_flag"] = m_useFlag;
+}
+
+void DirectionField::Deserialize( Json::Value &root )
+{
+    m_useFlag = root.get("use_flag", m_useFlag).asBool();
+}
+
+void DirectionField::CheckMemory( PreExecuteEvent &event, const ARGTYPE &arg )
+{
+    Taint1 tReg = m_taint->GetTaintAddressingReg(arg);
+    if (!tReg.IsAnyTainted()) return;
+
+    Taint1 tMem = m_taint->GetTaintShrink(event.Cpu, arg);
+    if (!tMem.IsAnyTainted()) return;
+
+    LxDebug("memory\n");
+    int first, last, target;
+    GetTaintRange(tReg[0], &first, &last);
+    GetTaintRange(tMem[0], &target, NULL);
+    m_msgmgr->SubmitLengthField(first, last, target);
+    //m_protocol->GetEngine()->BreakOnNextInst("memory");
+}
+
+void DirectionField::CheckFlag( PreExecuteEvent &event )
+{
     InstPtr inst = m_disasm->GetInst(event.Cpu->EIP);
-    if (Instruction::IsConditionalJump(inst)) {
-        if ( (inst->Target < event.Cpu->EIP && !event.Cpu->IsJumpTaken(inst)) 
-            ||
-             (inst->Target > event.Cpu->EIP && event.Cpu->IsJumpTaken(inst)) ) {
-            Taint1 tFlag = m_taint->GetTestedFlagTaint(inst);
-            if (tFlag.IsAnyTainted()) {
-                LxDebug("flag\n");
-                m_msgmgr->OnSubmitFormat(tFlag, FieldFormat::Length);
-                m_protocol->GetEngine()->BreakOnNextInst("flag");
-            }
-        }
+    if (!Instruction::IsConditionalJump(inst)) return;
+
+    /*
+     * target > eip: forwards jump, taken:end of loop
+     * target < eip: backwards jump, not taken:end of loop
+     */
+    u32 eip = event.Cpu->EIP;
+    if (m_inloop.find(eip) == m_inloop.end()) {
+        bool inLoop = (inst->Target > eip && !event.Cpu->IsJumpTaken(inst))
+            || (inst->Target < eip && event.Cpu->IsJumpTaken(inst));
+        if (inLoop) m_inloop.insert(eip);
+        return;
     }
-// 
-//     if (IsMemoryArg(event.Inst->Main.Argument1)) {
-//         Taint1 t = m_taint->GetTaintAddressingReg(event.Inst->Main.Argument1);
-//         if (t.IsAnyTainted()) {
-//             LxInfo("arg1\n");
-//             m_msgmgr->OnSubmitFormat(t[0], FieldFormat::Length);
-//             m_protocol->GetEngine()->BreakOnNextInst("arg1");
-//         }
-//     }
-//     if (IsMemoryArg(event.Inst->Main.Argument2)) {
-//         Taint1 t = m_taint->GetTaintAddressingReg(event.Inst->Main.Argument2);
-//         if (t.IsAnyTainted()) {
-//             LxInfo("arg2\n");
-//             m_msgmgr->OnSubmitFormat(t[0], FieldFormat::Length);
-//             m_protocol->GetEngine()->BreakOnNextInst("arg2");
-//         }
-//     }
+
+    bool endLoop = (inst->Target > eip && event.Cpu->IsJumpTaken(inst))
+        || (inst->Target < eip && !event.Cpu->IsJumpTaken(inst));
+
+    if (!endLoop) return;
+
+    m_inloop.erase(eip);
+
+    Taint1 tFlag = m_taint->GetTestedFlagTaint(inst);
+    if (!tFlag.IsAnyTainted()) return;
+
+    LxDebug("flag\n");
+    int first, last;
+    GetTaintRange(tFlag[0], &first, &last);
+    m_msgmgr->SubmitLengthField(first, last, -1);
+    //m_protocol->GetEngine()->BreakOnNextInst("flag");
+}
+
+void DirectionField::OnMessageBegin( MessageBeginEvent &event )
+{
+
+}
+
+void DirectionField::OnMessageEnd( MessageEndEvent &event )
+{
+    m_inloop.clear();
 }

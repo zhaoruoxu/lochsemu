@@ -42,6 +42,18 @@ public:
         return false;
     }
 
+    bool        IsRangeAllTainted(int first, int last) const {
+        for (int i = first; i <= last; i++)
+            if (!IsTainted(i)) return false;
+        return true;
+    }
+
+    bool        IsRangeAllUntainted(int first, int last) const {
+        for (int i = first; i <= last; i++)
+            if (IsTainted(i)) return false;
+        return true;
+    }
+
     void        Set(int index) { 
         Assert(index < Width); 
         int i = index / 32;
@@ -74,10 +86,12 @@ public:
     std::string ToString() const;
     static Taint    FromBinString(const std::string &s);
 private:
-    static const int    Count = 1;
+    static const int    Count = 8;
     static const int    Width = 32 * Count;
     u32         m_data[Count];
 };
+
+void    GetTaintRange(const Taint &t, int *firstIndex, int *lastIndex);
 
 template <int N>
 struct Tb {

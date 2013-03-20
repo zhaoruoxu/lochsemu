@@ -136,6 +136,7 @@
     <ClInclude Include="prophet.h" />
     <ClInclude Include="protocol\analyzer.h" />
     <ClInclude Include="protocol\analyzers\direction_field.h" />
+    <ClInclude Include="protocol\analyzers\separator.h" />
     <ClInclude Include="protocol\apiprocessor.h" />
     <ClInclude Include="protocol\formatsyn.h" />
     <ClInclude Include="protocol\message.h" />
@@ -195,6 +196,7 @@
     <ClCompile Include="prophet.cpp" />
     <ClCompile Include="protocol\analyzer.cpp" />
     <ClCompile Include="protocol\analyzers\direction_field.cpp" />
+    <ClCompile Include="protocol\analyzers\separator.cpp" />
     <ClCompile Include="protocol\apiprocessor.cpp" />
     <ClCompile Include="protocol\formatsyn.cpp" />
     <ClCompile Include="protocol\message.cpp" />

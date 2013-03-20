@@ -22,6 +22,7 @@
 #include <winternl.h>
 #include <fstream>
 #include <unordered_map>
+#include <unordered_set>
 #include <Psapi.h>
 #include <Tlhelp32.h>
 #include <memory>

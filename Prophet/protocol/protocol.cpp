@@ -4,7 +4,10 @@
 #include "engine.h"
 #include "taint/taintengine.h"
 #include "message.h"
+
+/* Analyzers */
 #include "analyzers/direction_field.h"
+#include "analyzers/separator.h"
 
 Protocol::Protocol( ProEngine *engine )
     : m_engine(engine), m_apiprocessor(this), m_msgmanager(this)
@@ -35,6 +38,7 @@ void Protocol::Initialize()
     m_msgmanager.Initialize();
 
     RegisterAnalyzer(new DirectionField(this));
+    RegisterAnalyzer(new SeparatorKeyword(this));
     
     for (int i = 0; i < m_totalAnalyzers; i++) {
         m_analyzers[i]->Initialize();
@@ -273,7 +277,7 @@ void Protocol::OnMessageBegin( MessageBeginEvent &event )
 
     for (int i = 0; i < m_totalAnalyzers; i++) {
         ProtocolAnalyzer *pa = m_analyzers[i];
-        if (pa->IsEnabled() && pa->HasHandlerFlag(SessionBeginHandler))
+        if (pa->IsEnabled() && pa->HasHandlerFlag(MessageBeginHandler))
             pa->OnMessageBegin(event);
     }
 }
@@ -289,7 +293,7 @@ void Protocol::OnMessageEnd( MessageEndEvent &event )
 
     for (int i = 0; i < m_totalAnalyzers; i++) {
         ProtocolAnalyzer *pa = m_analyzers[i];
-        if (pa->IsEnabled() && pa->HasHandlerFlag(SessionEndHandler))
+        if (pa->IsEnabled() && pa->HasHandlerFlag(MessageEndHandler))
             pa->OnMessageEnd(event);
     }
 

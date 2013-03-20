@@ -27,7 +27,7 @@ void MessageManager::OnMessageBegin( MessageBeginEvent &event )
         event.MessageLen, event.MessageAddr, event.MessageData);
     // set taint
     if (event.MessageLen >= Taint::GetWidth()) {
-        LxWarning("Prophet: message length(%d) >= taint width(%d)!\n", event.MessageLen,
+        LxError("Prophet: message length(%d) >= taint width(%d)!\n", event.MessageLen,
             Taint::GetWidth());
     }
     m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
@@ -70,8 +70,18 @@ void MessageManager::Deserialize( Json::Value &root )
         m_format.Deserialize(formatsyn);
 }
 
-void MessageManager::OnSubmitFormat( const Taint &t, FieldFormat f )
+// void MessageManager::OnSubmitFormat( const Taint &t, FieldFormat f )
+// {
+//     LxWarning("Format submitted: %d %s\n", f, t.ToString().c_str());
+// }
+
+void MessageManager::SubmitLengthField( int first, int last, int target )
 {
-    LxWarning("Format submitted: %d %s\n", f, t.ToString().c_str());
+    LxWarning("Length field: %d - %d, target %d\n", first, last, target);
+}
+
+void MessageManager::SubmitToken( byte t, int first, int last )
+{
+    LxWarning("Token: %02x(%c) %d - %d\n", t, t, first, last);
 }
 

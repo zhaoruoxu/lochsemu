@@ -35,8 +35,8 @@ enum EventHandlerFlag : uint {
     ProcessPostLoadHandler  = 1 << 8,
     WinapiPreCallHandler    = 1 << 9,
     WinapiPostCallHandler   = 1 << 10,
-    SessionBeginHandler     = 1 << 11,
-    SessionEndHandler       = 1 << 12,
+    MessageBeginHandler     = 1 << 11,
+    MessageEndHandler       = 1 << 12,
 };
 
 class PreExecuteEvent : public Event {
