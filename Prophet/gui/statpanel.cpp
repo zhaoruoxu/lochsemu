@@ -87,10 +87,10 @@ void StatPanel::Draw( wxBufferedPaintDC &dc )
     if (!m_started) return;
 
     static const uint Levels[] = {
-        1000,  10000, 100000, 200000, 500000, 1000000, 10000000, 100000000, 0xffffffff
+        1000,  10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000, 100000000, 0xffffffff
     };
     static const wxString LevelText[] = {
-        "1k",  "10k", "100k", "200k", "500k",  "1M",    "10M",    "100M",     "Inf."
+        "1k",  "10k", "100k", "200k", "500k",  "1M",   "2M",    "5M",    "10M",    "100M",     "Inf."
     };
     static const int CeilingBanner   = 15;
     static const int LeftBanner     = 50;
