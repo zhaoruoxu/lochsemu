@@ -172,9 +172,11 @@ void MemDataPanel::UpdateData( const Section *sec, const SectionContext &ctx )
 void MemDataPanel::SelectAddress( u32 addr, u32 len )
 {
     // todo 
+    Assert(InRange(addr, m_context.Base, m_context.Size));
     m_selDown   = (int) addr - m_context.Base;
     m_selUp     = m_selDown + len - 1;
     Scroll(0, (addr - m_context.Base) / CharsPerLine);
+    Refresh();
 }
 
 void MemDataPanel::OnLeftDown( wxMouseEvent &event )

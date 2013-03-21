@@ -14,7 +14,7 @@ Statistics::~Statistics()
 
 void Statistics::Initialize()
 {
-    m_total = max(g_config.GetInt("Statistics", "Granularity", 100), 10);
+    m_total = max(g_config.GetInt("Statistics", "Granularity", 200), 10);
     m_data = new uint[m_total];
     ZeroMemory(m_data, sizeof(uint) * m_total);
 }
