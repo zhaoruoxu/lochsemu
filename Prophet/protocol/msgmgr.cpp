@@ -8,7 +8,7 @@ MessageManager::MessageManager( Protocol *protocol )
     : m_protocol(protocol), m_format(this)
 {
     m_message = NULL;
-    m_breakOnMsgBegin   = false;
+    m_breakOnMsgBegin   = true;
     m_breakOnMsgEnd     = true;
     m_autoShowMemory    = true;
 }

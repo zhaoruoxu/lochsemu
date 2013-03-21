@@ -31,7 +31,7 @@ void MessagePanel::InitRender()
     m_currSelBrush  = wxBrush(wxColour(g_config.GetString("MessagePanel", "SelBgColor", "#c0c0c0")));
     m_widthIndex    = g_config.GetInt("MessagePanel", "WidthIndex", 45);
     m_widthAddr     = g_config.GetInt("MessagePanel", "WidthAddr", 70);
-    m_widthHex      = g_config.GetInt("MessagePanel", "WidthHex", 30);
+    m_widthHex      = g_config.GetInt("MessagePanel", "WidthHex", 35);
     m_widthFormat   = g_config.GetInt("MessagePanel", "WidthFormat", 100);
     m_widthDesc     = g_config.GetInt("MessagePanel", "WidthDesc", 200);
 

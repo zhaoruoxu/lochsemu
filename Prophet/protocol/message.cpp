@@ -2,7 +2,7 @@
 #include "message.h"
 
 const char *FieldFormatName[] = {
-    "unknown", "separator", "keyword", "length", "fixed_length", "variable", NULL
+    "unknown", "separator", "keyword", "length", "fixed_length", "var_length", NULL
 };
 
 Message::Message( int len, u32 addr )
