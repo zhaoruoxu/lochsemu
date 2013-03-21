@@ -36,6 +36,7 @@ public:
 
     void        Enable(bool isEnabled);
     bool        IsEnabled() const { return m_enabled; }
+    void        Reset();
 
     Taint1      GetTaintAddressingReg(const ARGTYPE &oper) const;
     Taint1      GetTaintShrink(const Processor *cpu, const ARGTYPE &oper);

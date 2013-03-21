@@ -19,6 +19,7 @@ Protocol::Protocol( ProEngine *engine )
     m_taint     = NULL;
     m_enabled   = true;
     m_state     = Idle;
+    m_eipPreExec = 0;
 }
 
 Protocol::~Protocol()
@@ -65,10 +66,6 @@ void Protocol::Serialize( Json::Value &root ) const
     Json::Value msgMgr;
     m_msgmanager.Serialize(msgMgr);
     root["message_manager"] = msgMgr;
-
-//     Json::Value formatsyn;
-//     m_formatsyn.Serialize(formatsyn);
-//     root["format_synthesizer"] = formatsyn;
 }
 
 void Protocol::Deserialize( Json::Value &root )
@@ -94,11 +91,6 @@ void Protocol::Deserialize( Json::Value &root )
     if (!msgMgr.isNull()) {
         m_msgmanager.Deserialize(msgMgr);
     }
-
-//     Json::Value formatsyn = root["format_synthesizer"];
-//     if (!formatsyn.isNull()) {
-//         m_formatsyn.Deserialize(formatsyn);
-//     }
 }
 
 void Protocol::RegisterAnalyzer( ProtocolAnalyzer *analyzer )
@@ -109,17 +101,6 @@ void Protocol::RegisterAnalyzer( ProtocolAnalyzer *analyzer )
     m_analyzers[m_totalAnalyzers++] = analyzer;
     LxInfo("Prophet protocol analyzer registered: %s\n", analyzer->GetName().c_str());
 }
-
-// void Protocol::ReorderAnalyzers()
-// {
-//     std::sort(m_analyzers, m_analyzers + m_totalAnalyzers, ProtocolAnalyzer::Compare);
-// 
-//     LxInfo("Prophet protocol analyzers order:\n");
-//     for (int i = 0; i < m_totalAnalyzers; i++) {
-//         LxInfo("%8d: %s\n", m_analyzers[i]->GetExecOrder(), m_analyzers[i]->GetName().c_str());
-//     }
-//     LxInfo("\n");
-// }
 
 void Protocol::AddMessage( Message *msg )
 {
@@ -132,6 +113,7 @@ void Protocol::AddMessage( Message *msg )
 void Protocol::OnPreExecute( PreExecuteEvent &event )
 {
     if (!m_enabled) return;
+    m_eipPreExec = event.Cpu->EIP;
     
     if (m_state == ProcessingMessage) {
         for (int i = 0; i < m_totalAnalyzers; i++) {
@@ -279,16 +261,18 @@ void Protocol::OnMessageBegin( MessageBeginEvent &event )
     }
 
     m_state = ProcessingMessage;
+    m_engine->GetDisassembler()->GetInst(m_eipPreExec)->Desc = "Message begin";
     m_taint->Enable(true);
     
     m_msgmanager.OnMessageBegin(event);
-    //m_formatsyn.OnMessageBegin(event);
 
     for (int i = 0; i < m_totalAnalyzers; i++) {
         ProtocolAnalyzer *pa = m_analyzers[i];
         if (pa->IsEnabled() && pa->HasHandlerFlag(MessageBeginHandler))
             pa->OnMessageBegin(event);
     }
+
+    
 }
 
 void Protocol::OnMessageEnd( MessageEndEvent &event )
@@ -299,6 +283,8 @@ void Protocol::OnMessageEnd( MessageEndEvent &event )
 //     }
 
     if (m_state == Idle) return;
+
+    m_engine->GetDisassembler()->GetInst(m_eipPreExec)->Desc = "Message end";
 
     for (int i = 0; i < m_totalAnalyzers; i++) {
         ProtocolAnalyzer *pa = m_analyzers[i];

@@ -18,7 +18,7 @@ TracePanel::~TracePanel()
 
 void TracePanel::InitRender()
 {
-    wxFont f =    wxFont(g_config.GetInt("TracePanel", "FontSize", 8), 
+    wxFont f =    wxFont(g_config.GetInt("TracePanel", "FontSize", 9), 
         wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, 
         g_config.GetString("TracePanel", "FontName", "Lucida Console"));
     UpdateFont(f);

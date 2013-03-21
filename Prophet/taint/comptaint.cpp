@@ -25,6 +25,14 @@ MemoryTaint::PageTaint * MemoryTaint::GetPage( u32 addr )
     return m_pagetable[pageNum];
 }
 
+void MemoryTaint::Reset()
+{
+    for (int i = 0; i < LX_PAGE_COUNT; i++) {
+        if (m_pagetable[i] != NULL)
+            m_pagetable[i]->Reset();
+    }
+}
+
 MemoryTaint::PageTaint::PageTaint()
 {
     ZeroMemory(m_data, sizeof(m_data));
@@ -45,4 +53,22 @@ void MemoryTaint::PageTaint::Set( u32 offset, const Taint &t )
 {
     Assert(offset < LX_PAGE_SIZE);
     m_data[offset] = t;
+}
+
+void MemoryTaint::PageTaint::Reset()
+{
+    for (int i = 0; i < LX_PAGE_SIZE; i++)
+        m_data[i].ResetAll();
+}
+
+void ProcessorTaint::Reset()
+{
+    for (int i = 0; i < 8; i++) {
+        GPRegs[i].ResetAll();
+        MM[i].ResetAll();
+        XMM[i].ResetAll();
+    }
+    for (int i = 0; i < InstContext::FLAG_COUNT; i++)
+        Flags[i].ResetAll();
+    Eip.ResetAll();
 }

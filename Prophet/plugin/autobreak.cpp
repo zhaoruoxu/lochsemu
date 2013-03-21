@@ -19,7 +19,7 @@ void AutoBreak::Initialize()
 
 void AutoBreak::OnProcessPostLoad( ProcessPostLoadEvent &event, bool firstTime )
 {
-    if (!firstTime) return;
+    if (firstTime) return;
     m_debugger->SetState(m_skipDllEntries ? ProDebugger::STATE_RUNNING : ProDebugger::STATE_SINGLESTEP);
     if (m_skipDllEntries) {
         // 禁用DLL初始化时的Taint和Tracer执行

@@ -33,7 +33,7 @@ void BreakpointsPanel::UpdateData( ProEngine *eng )
 
 void BreakpointsPanel::InitRender()
 {
-    wxFont f = wxFont(g_config.GetInt("BpsPanel", "FontSize", 8),
+    wxFont f = wxFont(g_config.GetInt("BpsPanel", "FontSize", 9),
         wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
         g_config.GetString("BpsPanel", "FontName", "Lucida Console"));
     UpdateFont(f);

@@ -23,7 +23,7 @@ void MessagePanel::UpdateData( const Message *msg )
 
 void MessagePanel::InitRender()
 {
-    wxFont f = wxFont(g_config.GetInt("MessagePanel", "FontSize", 8),
+    wxFont f = wxFont(g_config.GetInt("MessagePanel", "FontSize", 9),
         wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
         g_config.GetString("MessagePanel", "FontName", "Lucida Console"));
     UpdateFont(f);

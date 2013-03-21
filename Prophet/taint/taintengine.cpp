@@ -1250,7 +1250,6 @@ void TaintEngine::CallAbs_Handler(const Processor *cpu, const Instruction *inst)
 {
     if (cpu->HasExecFlag(LX_EXEC_WINAPI_CALL)) return;
     Taint4 t        = Extend<4>(CpuTaint.Eip);
-    LxDebug("esp = %08x\n", cpu->ESP);
     MemTaint.Set<4>(cpu->ESP, t);
     Taint4 newT     = GetTaint<4>(cpu, ARG1);
     CpuTaint.Eip    = Shrink(newT);
@@ -1429,5 +1428,11 @@ void TaintEngine::Pxor660FEF_Handler(const Processor *cpu, const Instruction *in
     } else {
         NOT_IMPLEMENTED();
     }
+}
+
+void TaintEngine::Reset()
+{
+    CpuTaint.Reset();
+    MemTaint.Reset();
 }
 

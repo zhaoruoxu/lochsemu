@@ -59,7 +59,6 @@ void SeparatorKeyword::OnMessageEnd( MessageEndEvent &event )
 {
     for (int i = 0; i < 256; i++) {
         if (!m_hasCmpSuccessed[i] || !m_hasCmpFailed[i]) continue;
-        LxError("possible token: %02x %c\n", i, i);
         CheckToken(i);
     }
 
@@ -81,9 +80,6 @@ void SeparatorKeyword::CheckToken( byte t )
     GetTaintRange(m_tokenTable[t], &first, &last);
     if (last - first < m_tokenMinCmpRange) return;
     if (!m_tokenTable[t].IsRangeAllTainted(first, last)) return;
-
-    LxError("TOKEN range: %d - %d\n", first, last);
-    LxError("TOKEN taint: %s\n", m_tokenTable[t].ToString().c_str());
 
     m_msgmgr->SubmitToken(t, first, last);
 }

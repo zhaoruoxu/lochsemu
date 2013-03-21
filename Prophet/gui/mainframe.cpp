@@ -84,11 +84,11 @@ void ProphetFrame::InitUI()
     m_nbTrace->AddPage(m_tracePanel, "Trace");
     m_nbMemory->AddPage(m_memDataPanel, "Memory");
 
-    m_auiManager.AddPane(m_nbMain, wxAuiPaneInfo().Name("Main").Caption("Main").CenterPane());
-    m_auiManager.AddPane(m_nbContext, wxAuiPaneInfo().Name("Context").Caption("Context").Right());
-    m_auiManager.AddPane(m_nbSections, wxAuiPaneInfo().Name("Sections").Caption("Sections").Bottom().Position(0).Row(1));
-    m_auiManager.AddPane(m_nbTrace, wxAuiPaneInfo().Name("Trace").Caption("Trace").Bottom().Position(1).Row(1));
-    m_auiManager.AddPane(m_nbMemory, wxAuiPaneInfo().Name("Memory").Caption("Memory").Bottom().Row(0));
+    m_auiManager.AddPane(m_nbMain, wxAuiPaneInfo().Name("Main").CenterPane());
+    m_auiManager.AddPane(m_nbContext, wxAuiPaneInfo().Name("Context").Right());
+    m_auiManager.AddPane(m_nbSections, wxAuiPaneInfo().Name("Sections").Bottom().Position(0).Row(1));
+    m_auiManager.AddPane(m_nbTrace, wxAuiPaneInfo().Name("Trace").Bottom().Position(1).Row(1));
+    m_auiManager.AddPane(m_nbMemory, wxAuiPaneInfo().Name("Memory").Bottom().Row(0));
     
     Bind(wxEVT_COMMAND_AUINOTEBOOK_ALLOW_DND, &ProphetFrame::OnAllowDND, this, wxID_ANY);
     

@@ -72,6 +72,8 @@ private:
     
     State               m_state;
     bool                m_enabled;
+
+    u32                 m_eipPreExec;
 };
  
 #endif // __PROPHET__PROTOCOL_H__

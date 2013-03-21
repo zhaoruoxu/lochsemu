@@ -56,7 +56,7 @@ MemDataPanel::~MemDataPanel()
 
 void MemDataPanel::InitRender()
 {
-    wxFont f = wxFont(g_config.GetInt("MemDataPanel", "FontSize", 8),
+    wxFont f = wxFont(g_config.GetInt("MemDataPanel", "FontSize", 9),
         wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
         g_config.GetString("MemInfoPanel", "FontName", "Lucida Console"));
     UpdateFont(f);
@@ -315,7 +315,7 @@ void MemInfoPanel::UpdateData( const Emulator *emu, const Memory *mem )
 
 void MemInfoPanel::InitRender()
 {
-    wxFont f = wxFont(g_config.GetInt("MemInfoPanel", "FontSize", 8),
+    wxFont f = wxFont(g_config.GetInt("MemInfoPanel", "FontSize", 9),
         wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
         g_config.GetString("MemInfoPanel", "FontName", "Lucida Console"));
     UpdateFont(f);

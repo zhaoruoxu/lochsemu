@@ -40,7 +40,7 @@ void CpuPanel::InitRender()
 
     m_minDistanceToBottom = g_config.GetInt("CpuPanel", "MinDistanceToBottom", 7);
 
-    wxFont f = wxFont(g_config.GetInt("CpuPanel", "FontSize", 8), wxFONTFAMILY_DEFAULT,
+    wxFont f = wxFont(g_config.GetInt("CpuPanel", "FontSize", 9), wxFONTFAMILY_DEFAULT,
         wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, 
         g_config.GetString("CpuPanel", "FontName", "Lucida Console"));
     UpdateFont(f);

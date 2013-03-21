@@ -13,6 +13,8 @@ struct ProcessorTaint {
     Taint1      Eip;
     Taint8      MM[8];
     Taint16     XMM[8];
+
+    void        Reset();
 };
 
 class MemoryTaint {
@@ -24,6 +26,7 @@ class MemoryTaint {
 
         Taint   Get(u32 offset);
         void    Set(u32 offset, const Taint &t);
+        void    Reset();
     private:
         Taint           m_data[LX_PAGE_SIZE];
     };
@@ -39,6 +42,7 @@ public:
     template <int N>
     void        Set(u32 addr, const Tb<N> &t);
 
+    void        Reset();
 private:
     PageTaint *  GetPage(u32 addr);
 

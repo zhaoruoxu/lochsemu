@@ -130,7 +130,7 @@ void FormatSyn::Synthesize()
             }
             totalVotes += m_msgInfo[i].FormatCount[f];
         }
-        LxError("%3d %10s %d/%d\n", i, FieldFormatName[mostFormat], mostVotes, totalVotes);
+        //LxError("%3d %10s %d/%d\n", i, FieldFormatName[mostFormat], mostVotes, totalVotes);
         (*m_message)[i].Format = (FieldFormat) mostFormat;
     }
 
@@ -151,9 +151,9 @@ void FormatSyn::Synthesize()
         ptr = target;
     }
 
-    for (int i = 0; i < m_message->Size(); i++) {
-        LxError("%3d %02x %10s\n", i, (*m_message)[i].Data, FieldFormatName[(*m_message)[i].Format]);
-    }
+//     for (int i = 0; i < m_message->Size(); i++) {
+//         LxError("%3d %02x %10s\n", i, (*m_message)[i].Data, FieldFormatName[(*m_message)[i].Format]);
+//     }
     
 }
 

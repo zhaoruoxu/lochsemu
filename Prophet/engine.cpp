@@ -253,7 +253,7 @@ void ProEngine::LoadArchive(const char *moduleName)
 {
     LPCSTR path     = m_emulator->Path();
     uint hash       = StringHash(path);
-    hash            ^= FileTimeHash(path);
+    hash            ^= FileTimeHash(path); 
 
     char buf[MAX_PATH];
     sprintf(buf, "%08x_", hash);

@@ -8,6 +8,9 @@ MessageManager::MessageManager( Protocol *protocol )
     : m_protocol(protocol), m_format(this)
 {
     m_message = NULL;
+    m_breakOnMsgBegin   = false;
+    m_breakOnMsgEnd     = true;
+    m_autoShowMemory    = true;
 }
 
 MessageManager::~MessageManager()
@@ -23,40 +26,50 @@ void MessageManager::Initialize()
 
 void MessageManager::OnMessageBegin( MessageBeginEvent &event )
 {
-    LxError("Message begins: len=%08x, addr=%08x, data=%s\n", 
-        event.MessageLen, event.MessageAddr, event.MessageData);
-    // set taint
     if (event.MessageLen >= Taint::GetWidth()) {
         LxError("Prophet: message length(%d) >= taint width(%d)!\n", event.MessageLen,
             Taint::GetWidth());
     }
     m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
     m_message = new Message(event.MessageLen, event.MessageAddr, event.MessageData);
-    // TODO : other stuff
     m_format.OnMessageBegin(event);
+
+    if (m_breakOnMsgBegin) {
+        char buf[256];
+        sprintf(buf, "message begins: addr=%08x, len=%08x", event.MessageAddr, 
+            event.MessageLen);
+        m_protocol->GetEngine()->BreakOnNextInst(buf);
+
+        if (m_autoShowMemory) {
+            m_protocol->GetEngine()->GetGUI()->ShowInMemory(event.MessageAddr);
+        }
+    }
 }
 
 void MessageManager::OnMessageEnd( MessageEndEvent &event )
 {
-    LxError("Message ends: len=%08x, addr=%08x, data=%s\n",
-        event.MessageLen, event.MessageAddr, event.MessageData);
-
     m_format.OnMessageEnd(event);
 
-    // clear taint
-    Taint1 t = m_taint->MemTaint.Get<1>(event.MessageAddr);
-    if (t.IsAnyTainted()) {
-        LxError("has tainted buffer byte\n");
-    }
     m_protocol->AddMessage(m_message);
     m_protocol->GetEngine()->GetGUI()->ShowMessage(m_message);
-    m_protocol->GetEngine()->BreakOnNextInst("Message end");
     m_message = NULL;
+
+    if (m_breakOnMsgEnd) {
+        char buf[256];
+        sprintf(buf, "message ends: addr=%08x, len=%08x", 
+            event.MessageAddr, event.MessageLen);
+        m_protocol->GetEngine()->BreakOnNextInst(buf);
+    }
+
+    m_taint->Reset();
 }
 
 void MessageManager::Serialize( Json::Value &root ) const 
 {
-    // TODO : msgmgr stuff
+    root["break_on_message_begin"]  = m_breakOnMsgBegin;
+    root["break_on_message_end"]    = m_breakOnMsgEnd;
+    root["auto_show_memory"]        = m_autoShowMemory;
+
     Json::Value formatsyn;
     m_format.Serialize(formatsyn);
     root["format_synthesizer"] = formatsyn;
@@ -64,20 +77,17 @@ void MessageManager::Serialize( Json::Value &root ) const
 
 void MessageManager::Deserialize( Json::Value &root )
 {
-    // TODO : msgmgr stuff
+    m_breakOnMsgBegin   = root.get("break_on_message_begin", m_breakOnMsgBegin).asBool();
+    m_breakOnMsgEnd     = root.get("break_on_message_end", m_breakOnMsgEnd).asBool();
+    m_autoShowMemory    = root.get("auto_show_memory", m_autoShowMemory).asBool();
+
     Json::Value formatsyn = root["format_synthesizer"];
     if (!formatsyn.isNull())
         m_format.Deserialize(formatsyn);
 }
 
-// void MessageManager::OnSubmitFormat( const Taint &t, FieldFormat f )
-// {
-//     LxWarning("Format submitted: %d %s\n", f, t.ToString().c_str());
-// }
-
 void MessageManager::SubmitLengthField( int first, int last, int target )
 {
-    //LxWarning("Length field: %d - %d, target %d\n", first, last, target);
     Assert(first >= 0   && first < m_message->Size());
     Assert(last >= 0    && last < m_message->Size());
     Assert(target == -1 || target >= 0  && target < m_message->Size());
@@ -86,7 +96,6 @@ void MessageManager::SubmitLengthField( int first, int last, int target )
 
 void MessageManager::SubmitToken( byte t, int first, int last )
 {
-    //LxWarning("Token: %02x(%c) %d - %d\n", t, t, first, last);
     Assert(first >= 0   && first < m_message->Size());
     Assert(last >= 0    && last < m_message->Size());
     m_format.SubmitToken(t, first, last);
