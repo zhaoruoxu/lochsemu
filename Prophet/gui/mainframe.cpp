@@ -130,6 +130,7 @@ void ProphetFrame::InitMenu()
 
     m_menuDebug = new wxMenu;
     m_menuDebug->Append(ID_Run, "Run\tF5");
+    m_menuDebug->Append(ID_RunNoBp, "Run(no break)\tCtrl-F5");
     m_menuDebug->Append(ID_StepOver, "Step Over\tF10");
     m_menuDebug->Append(ID_StepInto, "Step Into\tF11");
     m_menuDebug->Append(ID_StepOut, "Step Out\tShift-F10");
@@ -166,6 +167,7 @@ void ProphetFrame::InitMenu()
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnStepOver,        this,   ID_StepOver);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnStepOut,         this,   ID_StepOut);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnRun,             this,   ID_Run);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnRunNoBp,         this,   ID_RunNoBp);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnToggleBreakpoint,this,  ID_ToggleBreakpoint);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnRemoveBreakpoint,this,  ID_RemoveBreakpoint);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnShowMemory,      this,   ID_ShowMemory);
@@ -206,7 +208,10 @@ void ProphetFrame::InitToolbars()
         wxSize(60, -1), wxBORDER_NONE));
     tbDebug->AddControl(new wxButton(tbDebug, ID_Run, "Run", wxDefaultPosition,
         wxSize(60, -1), wxBORDER_NONE));
+    tbDebug->AddControl(new wxButton(tbDebug, ID_RunNoBp, "RunNoBp", wxDefaultPosition,
+        wxSize(60, -1), wxBORDER_NONE));
     tbDebug->AddSeparator();
+    //tbDebug->AddStretchableSpace();
     m_toggleTrace = new MySwitch(tbDebug, ID_ToolbarToggleTrace, "Trace", wxSize(50, -1));
     m_toggleTaint = new MySwitch(tbDebug, ID_ToolbarToggleTaint, "Taint", wxSize(50, -1));
     tbDebug->AddControl(m_toggleTrace);
@@ -219,6 +224,7 @@ void ProphetFrame::InitToolbars()
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnStepOver,   this, ID_StepOver);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnStepOut,    this, ID_StepOut);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnRun,        this, ID_Run);
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnRunNoBp,    this, ID_RunNoBp);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnToggleTraceClicked, 
         this, ID_ToolbarToggleTrace);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnToggleTaintClicked,
@@ -325,6 +331,14 @@ void ProphetFrame::OnRun( wxCommandEvent &event )
     if (m_isbusy) return;
     OnSavePerspective(wxCommandEvent());
     m_engine->GetDebugger()->OnRun();
+}
+
+
+void ProphetFrame::OnRunNoBp( wxCommandEvent &event )
+{
+    if (m_isbusy) return;
+    OnSavePerspective(wxCommandEvent());
+    m_engine->GetDebugger()->OnRunNoBp();
 }
 
 void ProphetFrame::OnStepOver( wxCommandEvent &event )

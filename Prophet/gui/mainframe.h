@@ -39,6 +39,7 @@ private:
 
     /* Debug */
     void    OnRun(wxCommandEvent &event);
+    void    OnRunNoBp(wxCommandEvent &event);
     void    OnStepOver(wxCommandEvent &event);
     void    OnStepInto(wxCommandEvent &event);
     void    OnStepOut(wxCommandEvent &event);

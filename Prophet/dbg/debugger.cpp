@@ -39,6 +39,8 @@ void ProDebugger::OnPreExecute( PreExecuteEvent &event )
     m_currProcessor = event.Cpu;
     m_currInst      = event.Inst;
 
+    if (m_state == STATE_RUNNING_NOBP) return; // ignore everything
+    
     CheckBreakpoints(m_currProcessor, m_currInst);
 
     switch (m_state) {
@@ -70,7 +72,7 @@ void ProDebugger::OnPreExecute( PreExecuteEvent &event )
             exit(0);
         } break;
     default:
-        LxFatal("invalid Prophet.Debugger state\n");
+        LxFatal("invalid Prophet Debugger state\n");
     }
 }
 
@@ -98,6 +100,13 @@ void ProDebugger::OnStepOver()
 void ProDebugger::OnRun()
 {
     m_state = STATE_RUNNING;
+    m_semaphore.Post();
+    m_engine->ReportBusy(true);
+}
+
+void ProDebugger::OnRunNoBp()
+{
+    m_state = STATE_RUNNING_NOBP;
     m_semaphore.Post();
     m_engine->ReportBusy(true);
 }
@@ -296,4 +305,10 @@ void ProDebugger::Deserialize( Json::Value &root )
             m_breakpoints.push_back(bp);
         }
     }
+}
+
+void ProDebugger::SetState( State s )
+{
+    if (m_state == STATE_RUNNING_NOBP) return;
+    m_state = s;
 }

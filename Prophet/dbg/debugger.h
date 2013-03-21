@@ -12,6 +12,7 @@ class ProDebugger : public ISerializable {
 public:
     enum State {
         STATE_RUNNING,
+        STATE_RUNNING_NOBP,
         STATE_SINGLESTEP,
         STATE_STEPOVER,
         STATE_STEPOUT,
@@ -29,7 +30,8 @@ public:
     void        OnStepOver();
     void        OnStepOut();
     void        OnRun();
-    void        SetState(State s) { m_state = s; }
+    void        OnRunNoBp();
+    void        SetState(State s);
     State       GetState() const { return m_state; }
     void        AddBreakpoint(u32 eip, const std::string &desc);
     void        ToggleBreakpoint(u32 eip);

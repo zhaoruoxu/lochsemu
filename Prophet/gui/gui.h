@@ -32,6 +32,7 @@ enum {
     ID_StepOver,
     ID_StepOut,
     ID_Run,
+    ID_RunNoBp,
     ID_ToggleBreakpoint,
     ID_RemoveBreakpoint,
     ID_ShowMemory,
