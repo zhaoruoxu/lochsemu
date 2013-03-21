@@ -27,6 +27,7 @@ void ProEngine::Initialize(Emulator *emu)
 {
     Intro();
     m_emulator      = emu;
+    m_statistics.Initialize();
     m_debugger.Initialize();
     m_taint.Initialize();
     m_protocol.Initialize();
@@ -49,6 +50,8 @@ void ProEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
     if (!m_enabled) return;
     PreExecuteEvent event(this, cpu, inst);
 
+    m_statistics.OnPreExecute(event);
+    m_gui->OnPreExecute(event);
     m_plugins.OnPreExecute(event, true);
     if (event.IsVetoed()) return;
 
@@ -121,6 +124,8 @@ void ProEngine::OnProcessPostRun( const Process *proc )
 {
     if (!m_enabled) return;
     ProcessPostRunEvent event(this, proc);
+
+    m_gui->OnProcessPostRun(event);
 
     m_plugins.OnProcessPostRun(event, true);
     if (event.IsVetoed()) return;

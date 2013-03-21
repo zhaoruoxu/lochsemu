@@ -50,6 +50,7 @@ class TaintEngine;
 class ProEngine;
 struct InstContext;
 struct Archive;
+class Statistics;
 
 // plugin
 class Plugin;

@@ -8,7 +8,7 @@ BEGIN_NAMESPACE_LOCHSEMU()
 
 LX_API Memory::Memory()
 {
-    ZeroMemory(m_sectionTable, sizeof(Section *) * LX_PAGE_COUNT);
+    ZeroMemory(m_sectionTable, sizeof(m_sectionTable));
 }
 
 

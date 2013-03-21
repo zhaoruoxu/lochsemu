@@ -19,6 +19,7 @@ class MemDataPanel;
 class BreakpointsPanel;
 class MessagePanel;
 class MySwitch;
+class StatPanel;
 
 enum {
     /* view */
@@ -48,6 +49,7 @@ enum {
     ID_NbSections,
     ID_NbTrace,
     ID_NbMemory,
+    ID_NbStat,
 
     /* cpu panel */
     ID_CpuInstList,
@@ -65,6 +67,7 @@ enum {
     ID_PopupTaintMemRangeAllBits,
 
     ID_StatusTimer,
+    ID_StatTimer,
 
     /* plugins menu */
     ID_PluginCheckEnable,

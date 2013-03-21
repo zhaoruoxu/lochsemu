@@ -21,11 +21,12 @@ ProDebugger::~ProDebugger()
 
 void ProDebugger::Initialize()
 {
-    if (g_config.GetInt("Debugger", "BreakOnEntry", 1) != 0) {
-        m_state     = STATE_SINGLESTEP;
-    } else {
-        m_state     = STATE_RUNNING;
-    }
+//     if (g_config.GetInt("Debugger", "BreakOnEntry", 1) != 0) {
+//         m_state     = STATE_SINGLESTEP;
+//     } else {
+//         m_state     = STATE_RUNNING;
+//     }
+    m_state         = STATE_RUNNING;
     m_stepOverEip   = 0;
     m_currInst      = NULL;
     m_currProcessor = NULL;
@@ -47,7 +48,7 @@ void ProDebugger::OnPreExecute( PreExecuteEvent &event )
         } break;
     case STATE_RUNNING:
         {
-            // do nothing
+            
         } break;
     case STATE_STEPOUT:
         {
@@ -180,6 +181,7 @@ void ProDebugger::OnProcessPreRun( ProcessPreRunEvent &event )
 //         m_state = STATE_SINGLESTEP;
 //         LxInfo("Main module entry encountered\n");
 //     }
+    m_engine->ReportBusy(true);
 }
 
 void ProDebugger::OnProcessPostLoad( ProcessPostLoadEvent &event )

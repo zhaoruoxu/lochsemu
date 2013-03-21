@@ -225,6 +225,12 @@
     <ClInclude Include="protocol\analyzers\separator.h">
       <Filter>Header Files\protocol\analyzers</Filter>
     </ClInclude>
+    <ClInclude Include="statistics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\statpanel.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -349,6 +355,12 @@
     </ClCompile>
     <ClCompile Include="protocol\analyzers\separator.cpp">
       <Filter>Source Files\protocol\analyzers</Filter>
+    </ClCompile>
+    <ClCompile Include="statistics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\statpanel.cpp">
+      <Filter>Source Files\gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

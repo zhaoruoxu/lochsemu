@@ -5,6 +5,7 @@
 
 #include "prophet.h"
 #include "archive.h"
+#include "statistics.h"
 #include "dbg/debugger.h"
 #include "dbg/tracer.h"
 #include "gui/gui.h"
@@ -45,6 +46,7 @@ public:
     Archive *       GetArchive() { return &m_archive; }
     ProPluginManager * GetPluginManager() { return &m_plugins; }
     Protocol *      GetProtocol() { return &m_protocol; }
+    Statistics *    GetStatistics() { return &m_statistics; }
 
     const Emulator *    GetEmulator() const { return m_emulator; }
     const ProDebugger * GetDebugger() const { return &m_debugger; }
@@ -54,6 +56,7 @@ public:
     const Archive *     GetArchive() const { return &m_archive; }
     const ProPluginManager* GetPluginManager() const { return &m_plugins; }
     const Protocol *    GetProtocol() const { return &m_protocol; }
+    const Statistics *  GetStatistics() const { return &m_statistics; }
 
     void            GetInstContext(InstContext *ctx) const;
     void            GetTraceContext(TraceContext *ctx, u32 eip) const;
@@ -74,6 +77,7 @@ private:
     bool            m_enabled;
     Emulator *      m_emulator;
 
+    Statistics      m_statistics;
     ProDebugger     m_debugger;
     ProTracer       m_tracer;
     Disassembler    m_disassembler;
@@ -82,6 +86,7 @@ private:
     Archive         m_archive;
     ProPluginManager    m_plugins;
     Protocol        m_protocol;
+
 
     //bool            m_skipDllEntries;
     //bool            m_mainEntryEntered;

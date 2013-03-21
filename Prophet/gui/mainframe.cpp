@@ -9,6 +9,7 @@
 #include "bpspanel.h"
 #include "myswitch.h"
 #include "msgpanel.h"
+#include "statpanel.h"
 
 #include "utilities.h"
 #include "engine.h"
@@ -21,7 +22,7 @@
 #include "buildver.h"
 
 ProphetFrame::ProphetFrame(ProEngine *engine, Emulator *emu)
-    : m_engine(engine), m_emulator(emu), wxFrame(NULL, wxID_ANY, 
+    : m_engine(engine), wxFrame(NULL, wxID_ANY, 
     wxString::Format("Prophet %x build %d", ProphetVersion, PROPHET_BUILD_VERSION), 
     wxDefaultPosition, wxSize(850, 850), wxDEFAULT_FRAME_STYLE),
     m_statusTimer(this, ID_StatusTimer)
@@ -34,6 +35,7 @@ ProphetFrame::ProphetFrame(ProEngine *engine, Emulator *emu)
     InitMisc();
     InitUI();
 
+    m_currProcessor = NULL;
     m_isProcLoaded  = false;
     m_isbusy        = true;
     m_engine->SetGuiFrame(this);
@@ -66,29 +68,33 @@ void ProphetFrame::InitUI()
     m_memInfoPanel  = new MemInfoPanel(this, m_memDataPanel);
     m_bpsPanel      = new BreakpointsPanel(this);
     m_msgPanel      = new MessagePanel(this, m_engine);
+    m_statPanel     = new StatPanel(this, m_engine);
     
     const long noteStyle = wxAUI_NB_TOP | wxAUI_NB_TAB_SPLIT | wxAUI_NB_TAB_MOVE | 
         wxAUI_NB_SCROLL_BUTTONS | wxAUI_NB_CLOSE_ON_ACTIVE_TAB | wxAUI_NB_WINDOWLIST_BUTTON | 
         wxAUI_NB_TAB_EXTERNAL_MOVE;
-    m_nbMain = new wxAuiNotebook(this, ID_NbMain, wxDefaultPosition, wxSize(400, 400), noteStyle);
-    m_nbContext = new wxAuiNotebook(this, ID_NbContext, wxDefaultPosition, wxSize(200, 400), noteStyle);
-    m_nbSections = new wxAuiNotebook(this, ID_NbSections, wxDefaultPosition, wxSize(400, 200), noteStyle);
-    m_nbTrace = new wxAuiNotebook(this, ID_NbTrace, wxDefaultPosition, wxSize(200, 200), noteStyle);
-    m_nbMemory = new wxAuiNotebook(this, ID_NbMemory, wxDefaultPosition, wxSize(600, 200), noteStyle);
+    m_nbMain        = new wxAuiNotebook(this, ID_NbMain,    wxDefaultPosition, wxSize(400, 400), noteStyle);
+    m_nbContext     = new wxAuiNotebook(this, ID_NbContext, wxDefaultPosition, wxSize(200, 400), noteStyle);
+    m_nbSections    = new wxAuiNotebook(this, ID_NbSections, wxDefaultPosition, wxSize(400, 200), noteStyle);
+    //m_nbTrace       = new wxAuiNotebook(this, ID_NbTrace,   wxDefaultPosition, wxSize(200, 200), noteStyle);
+    //m_nbMemory      = new wxAuiNotebook(this, ID_NbMemory,  wxDefaultPosition, wxSize(400, 200), noteStyle);
+    //m_nbStat        = new wxAuiNotebook(this, ID_NbStat,    wxDefaultPosition, wxSize(200, 200), noteStyle);
 
     m_nbMain->AddPage(m_cpuPanel, "CPU");
     m_nbContext->AddPage(m_contextPanel, "Context");
     m_nbContext->AddPage(m_msgPanel, "Message");
     m_nbSections->AddPage(m_memInfoPanel, "Sections");
     m_nbSections->AddPage(m_bpsPanel, "Breakpoints");
-    m_nbTrace->AddPage(m_tracePanel, "Trace");
-    m_nbMemory->AddPage(m_memDataPanel, "Memory");
+    //m_nbTrace->AddPage(m_tracePanel, "Trace");
+    //m_nbMemory->AddPage(m_memDataPanel, "Memory");
+    //m_nbStat->AddPage(m_statPanel, "Stat");
 
     m_auiManager.AddPane(m_nbMain, wxAuiPaneInfo().Name("Main").CenterPane());
     m_auiManager.AddPane(m_nbContext, wxAuiPaneInfo().Name("Context").Right());
     m_auiManager.AddPane(m_nbSections, wxAuiPaneInfo().Name("Sections").Bottom().Position(0).Row(1));
-    m_auiManager.AddPane(m_nbTrace, wxAuiPaneInfo().Name("Trace").Bottom().Position(1).Row(1));
-    m_auiManager.AddPane(m_nbMemory, wxAuiPaneInfo().Name("Memory").Bottom().Row(0));
+    m_auiManager.AddPane(m_tracePanel, wxAuiPaneInfo().Name("Trace").Caption("Trace").Bottom().Position(1).Row(1));
+    m_auiManager.AddPane(m_memDataPanel, wxAuiPaneInfo().Name("Memory").Caption("Memory").Bottom().Position(0).Row(0));
+    m_auiManager.AddPane(m_statPanel, wxAuiPaneInfo().Name("Stat").Caption("Stat").Bottom().Position(1).Row(0));
     
     Bind(wxEVT_COMMAND_AUINOTEBOOK_ALLOW_DND, &ProphetFrame::OnAllowDND, this, wxID_ANY);
     
@@ -361,7 +367,8 @@ void ProphetFrame::PreExecSingleStepCallback( const Processor *cpu, const Instru
 
 void ProphetFrame::ShowInMemory( u32 addr )
 {
-    Memory *mem = m_emulator->Proc()->Mem();
+    Assert(m_currProcessor);
+    Memory *mem = LxEmulator.Mem();
     std::vector<SectionInfo>    secInfo = mem->GetMemoryInfo();
     bool found = false;
     for (auto &sec : secInfo) {
@@ -370,7 +377,7 @@ void ProphetFrame::ShowInMemory( u32 addr )
         const Section *section = mem->GetSection(sec.base);
         Assert(section->Contains(addr));
 
-        SectionContext ctx(sec, m_emulator->Proc()->GetModuleInfo(sec.Module));
+        SectionContext ctx(sec, LxEmulator.Proc()->GetModuleInfo(sec.Module));
         m_memDataPanel->UpdateData(section, ctx);
         m_memDataPanel->SelectAddress(addr, 4);
 
@@ -385,14 +392,16 @@ void ProphetFrame::ShowInMemory( u32 addr )
 
 void ProphetFrame::ReportBusy( bool isBusy )
 {
-    m_statusbar->SetStatusText(isBusy ? "Busy" : "Idle", Statusbar_Busy);
     m_isbusy = isBusy;
+    m_statusbar->SetStatusText(isBusy ? "Busy" : "Idle", Statusbar_Busy);
+    m_statPanel->ReportBusy(isBusy);
 }
 
 void ProphetFrame::OnProcessLoaded( LPCSTR path )
 {
     m_pathText      = path;
     m_isProcLoaded  = true;
+    m_statPanel->Start();
 }
 
 void ProphetFrame::OnToggleTraceClicked( wxCommandEvent &event )
@@ -475,4 +484,14 @@ void ProphetFrame::ShowMessage( const Message *msg )
 void ProphetFrame::OnAllowDND( wxAuiNotebookEvent &event )
 {
     event.Allow();
+}
+
+void ProphetFrame::OnProcessPostRun( ProcessPostRunEvent &event )
+{
+    m_statPanel->Stop();
+}
+
+void ProphetFrame::OnPreExecute( PreExecuteEvent &event )
+{
+    m_currProcessor = event.Cpu;
 }
