@@ -146,13 +146,13 @@ void ProphetFrame::InitMenu()
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnAbout,           this,   wxID_ABORT);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnLoadPerspective, this,   ID_LoadPerspective);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnSavePerspective, this,   ID_SavePerspective);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnResetPerspective, this,  ID_ResetPerspective);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnResetPerspective,this,  ID_ResetPerspective);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnStepInto,        this,   ID_StepInto);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnStepOver,        this,   ID_StepOver);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnStepOut,         this,   ID_StepOut);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnRun,             this,   ID_Run);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnToggleBreakpoint, this,  ID_ToggleBreakpoint);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnRemoveBreakpoint, this,  ID_RemoveBreakpoint);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnToggleBreakpoint,this,  ID_ToggleBreakpoint);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnRemoveBreakpoint,this,  ID_RemoveBreakpoint);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnShowMemory,      this,   ID_ShowMemory);
     
 }
@@ -193,14 +193,8 @@ void ProphetFrame::InitToolbars()
         wxSize(60, -1), wxBORDER_NONE));
     tbDebug->AddSeparator();
     m_toggleTrace = new MySwitch(tbDebug, ID_ToolbarToggleTrace, "Trace", wxSize(50, -1));
-    //m_toggleCRTEntry = new MySwitch(tbDebug, ID_ToolbarToggleCRTEntry, "crt_ent", wxSize(50, -1));
-    //m_toggleSkipDllEntry = new MySwitch(tbDebug, ID_ToolbarToggleSkipDllEntry, "No_DLL", wxSize(50, -1));
     m_toggleTaint = new MySwitch(tbDebug, ID_ToolbarToggleTaint, "Taint", wxSize(50, -1));
     tbDebug->AddControl(m_toggleTrace);
-//     tbDebug->AddSeparator();
-//     tbDebug->AddControl(m_toggleCRTEntry);
-//     tbDebug->AddSeparator();
-//     tbDebug->AddControl(m_toggleSkipDllEntry);
     tbDebug->AddSeparator();
     tbDebug->AddControl(m_toggleTaint);
 
@@ -212,10 +206,6 @@ void ProphetFrame::InitToolbars()
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnRun,        this, ID_Run);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnToggleTraceClicked, 
         this, ID_ToolbarToggleTrace);
-//     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnToggleCRTEntryClicked, 
-//         this, ID_ToolbarToggleCRTEntry);
-//     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnToggleSkipDllEntryClicked, 
-//         this, ID_ToolbarToggleSkipDllEntry);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnToggleTaintClicked,
         this, ID_ToolbarToggleTaint);
 }

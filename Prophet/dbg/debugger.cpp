@@ -38,10 +38,6 @@ void ProDebugger::OnPreExecute( PreExecuteEvent &event )
     m_currProcessor = event.Cpu;
     m_currInst      = event.Inst;
 
-//     if (!m_crtEntryFound && m_archive->BreakOnCRTEntry) {
-//         AnalyzeCRTEntry(cpu, inst);
-//     }
-
     CheckBreakpoints(m_currProcessor, m_currInst);
 
     switch (m_state) {
@@ -55,7 +51,10 @@ void ProDebugger::OnPreExecute( PreExecuteEvent &event )
         } break;
     case STATE_STEPOUT:
         {
-            // not implemented
+            if (m_currProcessor->GetCurrentModule() == 0) {
+                m_state = STATE_SINGLESTEP;
+                DoPreExecSingleStep(m_currProcessor, m_currInst);
+            }
         } break;
     case STATE_STEPOVER:
         {
@@ -74,13 +73,6 @@ void ProDebugger::OnPreExecute( PreExecuteEvent &event )
     }
 }
 
-// void ADebugger::OnPostExecute( Processor *cpu, const Instruction *inst )
-// {
-//     if (m_state == STATE_SINGLESTEP) {
-//         m_engine->GetGUI()->PostExecSingleStepCallback(cpu, inst);
-//     }
-// }
-
 void ProDebugger::OnStepInto()
 {
     Assert(m_state == STATE_SINGLESTEP);
@@ -91,10 +83,8 @@ void ProDebugger::OnStepInto()
 void ProDebugger::OnStepOver()
 {
     if (m_state == STATE_STEPOVER) return;
-
     if (NULL == m_currProcessor || NULL == m_currInst) return;
 
-    
     if (Instruction::IsCall(m_currInst)) {
         m_state = STATE_STEPOVER;
         m_stepOverEip = m_currProcessor->EIP + m_currInst->Length;
@@ -113,8 +103,9 @@ void ProDebugger::OnRun()
 
 void ProDebugger::OnStepOut()
 {
-    //m_engine->GetGUI()->DebugLog("StepOut not implemented");
-    LxError("StepOut not implemented\n");
+    m_state = STATE_STEPOUT;
+    m_semaphore.Post();
+    m_engine->ReportBusy(true);
 }
 
 void ProDebugger::AddBreakpoint( u32 eip, const std::string &desc )
