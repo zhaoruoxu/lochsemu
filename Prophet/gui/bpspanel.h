@@ -11,7 +11,7 @@
 
 class BreakpointsPanel : public SelectableScrolledControl {
 public:
-    BreakpointsPanel(wxWindow *parent);
+    BreakpointsPanel(wxWindow *parent, ProphetFrame *dad);
     ~BreakpointsPanel();
 
     void        UpdateData(ProEngine *eng);
@@ -29,6 +29,7 @@ private:
     bool        IsSelectedValid() const;
 private:
     wxMenu *    m_popup;
+    ProphetFrame *  m_dad;
 
     ProEngine *   m_engine;
     ProDebugger * m_debugger;

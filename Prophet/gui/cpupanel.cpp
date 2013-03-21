@@ -12,8 +12,8 @@ static INLINE bool InRangeIncl(T val, T t0, T t1) {
     return t0 <= val && val <= t1;
 }
 
-CpuPanel::CpuPanel( wxWindow *parent, ProEngine *engine ) : 
-    SelectableScrolledControl(parent, wxSize(400, 200)), m_engine(engine)
+CpuPanel::CpuPanel( wxWindow *parent, ProphetFrame *dad, ProEngine *engine ) : 
+    SelectableScrolledControl(parent, wxSize(400, 200)), m_engine(engine), m_dad(dad)
 {
     InitMenu();
     InitRender();
@@ -441,5 +441,5 @@ void CpuPanel::TrackMemory( u32 instEip )
         return;
     }
 
-    ((ProphetFrame *) m_parent)->ShowInMemory(memAddr);
+    m_dad->ShowInMemory(memAddr);
 }

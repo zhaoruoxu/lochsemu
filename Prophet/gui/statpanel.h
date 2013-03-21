@@ -9,7 +9,7 @@
 
 class StatPanel : public wxPanel {
 public:
-    StatPanel(wxWindow *parent, ProEngine *engine);
+    StatPanel(wxWindow *parent, ProphetFrame *dad, ProEngine *engine);
     ~StatPanel();
 
     void        Start();
@@ -24,6 +24,7 @@ private:
     void        Draw(wxBufferedPaintDC &dc);
 
 private:
+    ProphetFrame *  m_dad;
     long        m_startTime;
     bool        m_started;
     wxFont      m_font;

@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "msgpanel.h"
 
-MessagePanel::MessagePanel( wxWindow *parent, ProEngine *engine )
-    : SelectableScrolledControl(parent, wxSize(400, 200)), m_engine(engine)
+MessagePanel::MessagePanel( wxWindow *parent, ProphetFrame *dad, ProEngine *engine )
+    : SelectableScrolledControl(parent, wxSize(400, 200)), m_engine(engine), m_dad(dad)
 {
     InitRender();
     m_message = NULL;

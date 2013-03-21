@@ -6,8 +6,8 @@
 #include "mainframe.h"
 #include "cpupanel.h"
 
-BreakpointsPanel::BreakpointsPanel( wxWindow *parent )
-    : SelectableScrolledControl(parent, wxSize(500, 100))
+BreakpointsPanel::BreakpointsPanel( wxWindow *parent, ProphetFrame *dad )
+    : SelectableScrolledControl(parent, wxSize(500, 100)), m_dad(dad)
 {
     InitRender();
     InitMenu();
@@ -117,7 +117,7 @@ void BreakpointsPanel::OnLeftDoubleClick( wxMouseEvent &event )
 {
     if (!IsSelectedValid()) return;
     u32 eip = m_debugger->GetBreakpointIndex(m_currSelIndex).Address;
-    ((ProphetFrame *) m_parent)->GetCpuPanel()->ShowCode(eip);
+    m_dad->GetCpuPanel()->ShowCode(eip);
 }
 
 void BreakpointsPanel::OnPopupShowCode( wxCommandEvent &event )
@@ -130,7 +130,7 @@ void BreakpointsPanel::OnPopupDelete( wxCommandEvent &event )
     if (!IsSelectedValid()) return;
     u32 eip = m_debugger->GetBreakpointIndex(m_currSelIndex).Address;
     m_engine->GetDebugger()->RemoveBreakpoint(eip);
-    ((ProphetFrame *) m_parent)->GetCpuPanel()->Refresh();
+    m_dad->GetCpuPanel()->Refresh();
     Refresh();
 }
 
@@ -139,7 +139,7 @@ void BreakpointsPanel::OnPopupToggle( wxCommandEvent &event )
     if (!IsSelectedValid()) return;
     u32 eip = m_debugger->GetBreakpointIndex(m_currSelIndex).Address;
     m_engine->GetDebugger()->ToggleBreakpoint(eip);
-    ((ProphetFrame *) m_parent)->GetCpuPanel()->Refresh();
+    m_dad->GetCpuPanel()->Refresh();
     Refresh();
 }
 

@@ -2,8 +2,9 @@
 #include "contextpanel.h"
 #include "processor.h"
 
-ContextPanel::ContextPanel( wxWindow *parent )
-    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(300, 200))
+ContextPanel::ContextPanel( wxWindow *parent, ProphetFrame *dad )
+    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(300, 200)),
+    m_dad(dad)
 {
     //m_mutex = MutexCS::Create();
     InitRender();

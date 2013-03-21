@@ -11,7 +11,7 @@
 
 class CpuPanel : public SelectableScrolledControl {
 public:
-    CpuPanel(wxWindow *parent, ProEngine *engine);
+    CpuPanel(wxWindow *parent, ProphetFrame *dad, ProEngine *engine);
     ~CpuPanel();
 
     void        ShowCode(u32 addr);
@@ -38,6 +38,7 @@ private:
     int         CalcJumpLineWidth(int idx1, int idx2) const;
     void        TrackMemory(u32 instEip);
 private:
+    ProphetFrame *  m_dad;
     wxMenu *    m_popup;
     ProEngine *   m_engine;
     const Processor *   m_cpu;

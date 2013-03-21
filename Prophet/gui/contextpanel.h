@@ -10,7 +10,7 @@
 
 class ContextPanel : public wxPanel {
 public:
-    ContextPanel(wxWindow *parent);
+    ContextPanel(wxWindow *parent, ProphetFrame *dad);
     ~ContextPanel();
 
     void        OnPaint(wxPaintEvent &event);
@@ -20,6 +20,7 @@ private:
     void        InitRender();
     void        Draw(wxBufferedPaintDC &dc);
 private:
+    ProphetFrame *  m_dad;
     MutexCS     m_mutex;
     InstContext m_data;
     wxString    m_dataDesc;

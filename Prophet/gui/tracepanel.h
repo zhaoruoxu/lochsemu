@@ -16,7 +16,7 @@ class CompositeTracePanel : public wxPanel {
     friend class TraceInfoPanel;
     friend class TracePanel;
 public:
-    CompositeTracePanel(wxWindow *parent, ContextPanel *ctxPanel);
+    CompositeTracePanel(wxWindow *parent, ProphetFrame *dad, ContextPanel *ctxPanel);
     ~CompositeTracePanel();
 
     const wxFont *GetFont() const { return &m_font; }
@@ -26,6 +26,7 @@ public:
 private:
     void        Init();
 private:
+    ProphetFrame *  m_dad;
     const ProTracer * m_tracer;
     TracePanel *    m_tracePanel;
     TraceInfoPanel *m_infoPanel;

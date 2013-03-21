@@ -31,8 +31,8 @@ SectionContext::SectionContext()
 }
 
 
-MemDataPanel::MemDataPanel( wxWindow *parent, ProEngine *engine )
-    : CustomScrolledControl(parent, wxSize(400, 150)), m_engine(engine)
+MemDataPanel::MemDataPanel( wxWindow *parent, ProphetFrame *dad, ProEngine *engine )
+    : CustomScrolledControl(parent, wxSize(400, 150)), m_engine(engine), m_dad(dad)
 {
     Bind(wxEVT_LEFT_DOWN,   &MemDataPanel::OnLeftDown,      this, wxID_ANY);
     Bind(wxEVT_LEFT_UP,     &MemDataPanel::OnLeftUp,        this, wxID_ANY);
@@ -282,8 +282,8 @@ void MemDataPanel::TaintMemRanged( bool allbits )
     Refresh();
 }
 
-MemInfoPanel::MemInfoPanel(wxWindow *parent, MemDataPanel *data)
-    : SelectableScrolledControl(parent, wxSize(400, 150)), m_dataPanel(data)
+MemInfoPanel::MemInfoPanel(wxWindow *parent, ProphetFrame *dad, MemDataPanel *data)
+    : SelectableScrolledControl(parent, wxSize(400, 150)), m_dataPanel(data), m_dad(dad)
 {
     InitRender();
     m_memory = NULL;

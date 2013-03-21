@@ -10,7 +10,7 @@
 
 class MessagePanel : public SelectableScrolledControl {
 public:
-    MessagePanel(wxWindow *parent, ProEngine *engine);
+    MessagePanel(wxWindow *parent, ProphetFrame *dad, ProEngine *engine);
     ~MessagePanel();
 
     void        UpdateData(const Message *msg);
@@ -20,6 +20,7 @@ private:
     void        DrawItem(wxBufferedPaintDC &dc, int index);
 
 private:
+    ProphetFrame *  m_dad;
     ProEngine * m_engine;
     const Message * m_message;
 

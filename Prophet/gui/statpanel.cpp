@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "statpanel.h"
 
-StatPanel::StatPanel( wxWindow *parent, ProEngine *engine )
+StatPanel::StatPanel( wxWindow *parent, ProphetFrame *dad, ProEngine *engine )
     : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(200, 300)),
-    m_timer(this, ID_StatTimer), m_engine(engine)
+    m_timer(this, ID_StatTimer), m_engine(engine), m_dad(dad)
 {
     InitRender();
 

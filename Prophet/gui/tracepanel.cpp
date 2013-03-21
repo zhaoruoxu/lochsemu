@@ -216,8 +216,9 @@ void TraceInfoPanel::UpdateData()
 }
 
 
-CompositeTracePanel::CompositeTracePanel( wxWindow *parent, ContextPanel *ctxPanel )
-    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(600, 600)), m_contextPanel(ctxPanel)
+CompositeTracePanel::CompositeTracePanel( wxWindow *parent, ProphetFrame *dad, ContextPanel *ctxPanel )
+    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(600, 600)), m_contextPanel(ctxPanel),
+    m_dad(dad)
 {
     Init();
     m_tracer = NULL;

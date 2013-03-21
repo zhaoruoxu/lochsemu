@@ -68,14 +68,14 @@ void ProphetFrame::InitUI()
     //m_nbStat        = new wxNotebook(this, ID_NbStat,    wxDefaultPosition, wxSize(200, 200));
 
 
-    m_cpuPanel      = new CpuPanel(this, m_engine);
-    m_contextPanel  = new ContextPanel(m_nbContext);
-    m_tracePanel    = new CompositeTracePanel(this, m_contextPanel);
-    m_memDataPanel  = new MemDataPanel(this, m_engine);
-    m_memInfoPanel  = new MemInfoPanel(m_nbSections, m_memDataPanel);
-    m_bpsPanel      = new BreakpointsPanel(m_nbSections);
-    m_msgPanel      = new MessagePanel(m_nbContext, m_engine);
-    m_statPanel     = new StatPanel(this, m_engine);
+    m_cpuPanel      = new CpuPanel(this, this, m_engine);
+    m_contextPanel  = new ContextPanel(m_nbContext, this);
+    m_tracePanel    = new CompositeTracePanel(this, this, m_contextPanel);
+    m_memDataPanel  = new MemDataPanel(this, this, m_engine);
+    m_memInfoPanel  = new MemInfoPanel(m_nbSections, this, m_memDataPanel);
+    m_bpsPanel      = new BreakpointsPanel(m_nbSections, this);
+    m_msgPanel      = new MessagePanel(m_nbContext, this, m_engine);
+    m_statPanel     = new StatPanel(this, this, m_engine);
 
     m_nbContext->AddPage(m_contextPanel, "Context");
     m_nbContext->AddPage(m_msgPanel, "Message");
@@ -198,7 +198,6 @@ void ProphetFrame::InitStatusBar()
 void ProphetFrame::InitToolbars()
 {
     wxToolBar *tbDebug = CreateToolBar(wxTB_FLAT | wxTB_TEXT | wxTB_NOICONS, ID_ToolbarDebug, "Debug");
-
 
     tbDebug->AddControl(new wxButton(tbDebug, ID_StepInto, "Step Into", wxDefaultPosition, 
         wxSize(60, -1), wxBORDER_NONE));

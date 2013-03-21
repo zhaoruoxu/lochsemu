@@ -24,7 +24,7 @@ struct SectionContext {
 
 class MemDataPanel : public CustomScrolledControl {
 public:
-    MemDataPanel(wxWindow *parent, ProEngine *engine);
+    MemDataPanel(wxWindow *parent, ProphetFrame *dad, ProEngine *engine);
     ~MemDataPanel();
     
     void        Draw(wxBufferedPaintDC &dc) override;
@@ -46,6 +46,7 @@ private:
     int         GetIndex(const wxPoint &mouse);
     void        TaintMemRanged(bool allbits);
 private:
+    ProphetFrame *      m_dad;
     static const int    CharsPerLine = 8;
     const Section *     m_section;
     pbyte               m_rawdata;
@@ -72,7 +73,7 @@ private:
 
 class MemInfoPanel : public SelectableScrolledControl {
 public:
-    MemInfoPanel(wxWindow *parent, MemDataPanel *data);
+    MemInfoPanel(wxWindow *parent, ProphetFrame *dad, MemDataPanel *data);
     ~MemInfoPanel();
 
     void        UpdateData(const Emulator *emu, const Memory *mem);
@@ -82,6 +83,7 @@ private:
     void        Draw(wxBufferedPaintDC &dc) override;
     void        DrawItem(wxBufferedPaintDC &dc, int index);
 private:
+    ProphetFrame *  m_dad;
     const Memory *  m_memory;
     std::vector<SectionContext>     m_data;
     MemDataPanel *  m_dataPanel;
