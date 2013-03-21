@@ -34,6 +34,7 @@ public:
 
     void            SubmitLengthField(int first, int last, int target);
     void            SubmitToken(byte t, int first, int last);
+    void            SubmitFixedLen(int first, int last);
 private:
     FormatSyn       m_format;
     Protocol *      m_protocol;

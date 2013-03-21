@@ -14,6 +14,7 @@ void AutoBreak::Initialize()
     m_debugger  = GetEngine()->GetDebugger();
     m_taint     = GetEngine()->GetTaintEngine();
     m_tracer    = GetEngine()->GetTracer();
+    m_disasm    = GetEngine()->GetDisassembler();
 }
 
 void AutoBreak::OnProcessPostLoad( ProcessPostLoadEvent &event, bool firstTime )
@@ -33,8 +34,9 @@ void AutoBreak::OnProcessPreRun( ProcessPreRunEvent &event, bool firstTime )
 {
     if (firstTime) return;
 
+    m_disasm->GetInst(event.Proc->GetEntryPoint())->Desc = "Main module entry";
+
     if (m_breakOnMainModuleEntry) {
-        //m_debugger->SetState(ProDebugger::STATE_SINGLESTEP);
         GetEngine()->BreakOnNextInst("Main module entry");
         LxInfo("AutoBreak: Main module at %08x\n", event.Proc->GetEntryPoint());
     }

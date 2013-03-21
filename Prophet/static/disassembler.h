@@ -16,6 +16,7 @@ struct Inst : public Instruction {
     char    DllName[ApiInfoSize];
     char    FuncName[ApiInfoSize];
     int     Index;
+    std::string Desc;
 
     Inst() : Eip(0), Target(-1), Entry(-1), Index(-1) {
         ZeroMemory(DllName, sizeof(DllName));
@@ -102,7 +103,7 @@ public:
     typedef std::function<void (InstSection *insts, const Processor *cpu)>    DataUpdateHandler;
     
 public:
-    Disassembler();
+    Disassembler(ProEngine *engine);
     virtual ~Disassembler();
 
     void        RegisterDataUpdateHandler(DataUpdateHandler h) {
@@ -117,6 +118,7 @@ private:
     void        RecursiveDisassemble(const Processor *cpu, u32 eip, InstSection *sec, u32 entryEip);
     void        AttachApiInfo(const Processor *cpu, u32 eip, InstSection *sec, InstPtr inst);
 private:
+    ProEngine *         m_engine;
     const Processor *   m_currProcessor;
     DataUpdateHandler   m_dataUpdateHandler;
     const Section *     m_lastSec;

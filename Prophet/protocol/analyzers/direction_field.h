@@ -19,7 +19,7 @@ public:
     void    Deserialize(Json::Value &root) override;
 
 private:
-    void    CheckMemory(PreExecuteEvent &event, const ARGTYPE &arg);
+    bool    CheckMemoryLength(PreExecuteEvent &event, const ARGTYPE &arg);
     void    CheckFlag(PreExecuteEvent &event);
 
 private:

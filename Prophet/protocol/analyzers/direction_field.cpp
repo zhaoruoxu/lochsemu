@@ -30,8 +30,17 @@ void DirectionField::OnPreExecute( PreExecuteEvent &event )
 {
     if (event.Cpu->GetCurrentModule() != 0) return;
 
-    if (IsMemoryArg(event.Inst->Main.Argument2)) {
-        CheckMemory(event, event.Inst->Main.Argument2);
+    if (IsMemoryArg(event.Inst->Main.Argument2) && event.Inst->Main.Inst.Opcode != 0x8d /* LEA */) {
+        if (!CheckMemoryLength(event, event.Inst->Main.Argument2)) {
+            // check fixed length
+            Taint1 t = m_taint->GetTaintShrink(event.Cpu, event.Inst->Main.Argument2);
+            if (t.IsAnyTainted()) {
+                int first, last;
+                GetTaintRange(t[0], &first, &last);
+                m_msgmgr->SubmitFixedLen(first, last);
+                //m_protocol->GetEngine()->BreakOnNextInst("fixed len");
+            }
+        }
     }
     if (m_useFlag) {
         CheckFlag(event);
@@ -48,20 +57,19 @@ void DirectionField::Deserialize( Json::Value &root )
     m_useFlag = root.get("use_flag", m_useFlag).asBool();
 }
 
-void DirectionField::CheckMemory( PreExecuteEvent &event, const ARGTYPE &arg )
+bool DirectionField::CheckMemoryLength( PreExecuteEvent &event, const ARGTYPE &arg )
 {
     Taint1 tReg = m_taint->GetTaintAddressingReg(arg);
-    if (!tReg.IsAnyTainted()) return;
+    if (!tReg.IsAnyTainted()) return false;
 
     Taint1 tMem = m_taint->GetTaintShrink(event.Cpu, arg);
-    if (!tMem.IsAnyTainted()) return;
+    if (!tMem.IsAnyTainted()) return false;
 
-    LxDebug("memory\n");
     int first, last, target;
     GetTaintRange(tReg[0], &first, &last);
     GetTaintRange(tMem[0], &target, NULL);
     m_msgmgr->SubmitLengthField(first, last, target);
-    //m_protocol->GetEngine()->BreakOnNextInst("memory");
+    return true;
 }
 
 void DirectionField::CheckFlag( PreExecuteEvent &event )
@@ -91,7 +99,6 @@ void DirectionField::CheckFlag( PreExecuteEvent &event )
     Taint1 tFlag = m_taint->GetTestedFlagTaint(inst);
     if (!tFlag.IsAnyTainted()) return;
 
-    LxDebug("flag\n");
     int first, last;
     GetTaintRange(tFlag[0], &first, &last);
     m_msgmgr->SubmitLengthField(first, last, -1);

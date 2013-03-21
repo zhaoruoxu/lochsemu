@@ -120,11 +120,13 @@ InstSection * InstMem::AddSection( u32 base, u32 size )
 InstPtr InstMem::GetInst( u32 addr ) const
 {
     InstSection *sec = GetSection(addr);
+    if (sec == NULL) return NULL;
     Assert(sec);
     return sec->GetInst(addr);
 }
 
-Disassembler::Disassembler()
+Disassembler::Disassembler(ProEngine *engine)
+    : m_engine(engine)
 {
     m_dataUpdateHandler = nullptr;
     m_lastSec           = NULL;
@@ -167,7 +169,8 @@ InstPtr Disassembler::Disassemble( u32 eip )
     if (m_lastSec != sec || update) {
         //if (m_dataUpdateHandler) 
         instSec->UpdateIndices();
-        m_dataUpdateHandler(instSec, m_currProcessor);
+        //m_dataUpdateHandler(instSec, m_currProcessor);
+        m_engine->UpdateCpuData(instSec, m_currProcessor);
     }
     m_lastSec = sec;
 

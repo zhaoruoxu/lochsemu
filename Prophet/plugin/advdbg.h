@@ -19,7 +19,7 @@ private:
     void    AnalyzeWinMain(PreExecuteEvent &event);
     void    MarkWinMain(u32 addr);
 private:
-    ProDebugger *     m_debugger;
+    ProDebugger *   m_debugger;
     Disassembler *  m_disasm;
 
     bool    m_breakOnWinMain;

@@ -92,3 +92,10 @@ void MessageManager::SubmitToken( byte t, int first, int last )
     m_format.SubmitToken(t, first, last);
 }
 
+void MessageManager::SubmitFixedLen( int first, int last )
+{
+    Assert(first >= 0   && first < m_message->Size());
+    Assert(last >= 0    && last < m_message->Size());
+    m_format.SubmitFixedLenField(first, last);
+}
+

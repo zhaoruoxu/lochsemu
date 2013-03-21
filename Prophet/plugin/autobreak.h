@@ -28,6 +28,7 @@ private:
     ProDebugger *   m_debugger;
     TaintEngine *   m_taint;
     ProTracer *     m_tracer;
+    Disassembler *  m_disasm;
 };
 
 

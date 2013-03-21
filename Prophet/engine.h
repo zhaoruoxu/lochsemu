@@ -63,6 +63,7 @@ public:
     void            ReportBusy(bool isBusy);
     void            Terminate();
     void            UpdateGUI();
+    void            UpdateCpuData(const InstSection *insts, const Processor *cpu);
     
 private:
     void            Intro() const;

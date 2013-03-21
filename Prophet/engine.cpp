@@ -12,7 +12,8 @@
 #include "buildver.h"
 
 ProEngine::ProEngine() 
-    : m_debugger(this), m_tracer(this), m_taint(this), m_plugins(this), m_protocol(this)
+    : m_disassembler(this), m_debugger(this), m_tracer(this), 
+    m_taint(this), m_plugins(this), m_protocol(this)
 {
     m_emulator  = NULL;
 }
@@ -188,10 +189,15 @@ void ProEngine::OnWinapiPostCall( Processor *cpu, uint apiIndex )
 void ProEngine::SetGuiFrame( ProphetFrame *frame )
 {
     m_gui = frame;
-    m_disassembler.RegisterDataUpdateHandler([this](const InstSection *insts, const Processor *cpu) {
-        this->m_gui->GetCpuPanel()->OnDataUpdate(insts, cpu);
-    });
+//     m_disassembler.RegisterDataUpdateHandler([this](const InstSection *insts, const Processor *cpu) {
+//         this->m_gui->GetCpuPanel()->OnDataUpdate(insts, cpu);
+//     });
     m_gui->GetTracePanel()->SetTracer(&m_tracer);
+}
+
+void ProEngine::UpdateCpuData( const InstSection *insts, const Processor *cpu )
+{
+    m_gui->GetCpuPanel()->OnDataUpdate(insts, cpu);
 }
 
 void ProEngine::GetInstContext(InstContext *ctx) const

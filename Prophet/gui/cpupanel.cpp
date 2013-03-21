@@ -179,7 +179,13 @@ void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const InstPtr inst, int index )
     } else {
         dc.DrawText(instr, m_widthIp, h);
     }
+
     
+    if (inst->Desc.size() > 0) {
+        dc.SetTextForeground(*wxBLACK);
+        dc.DrawText(inst->Desc, m_widthIp + m_widthDisasm, h);
+    }
+
     dc.SetTextForeground(*wxBLACK);
 }
 
@@ -278,7 +284,8 @@ void CpuPanel::OnDataUpdate( const InstSection *insts, const Processor *cpu )
         m_currSelIndex  = -1;
         m_currSelEip    = 0;
         m_currEip       = cpu->EIP;
-        m_currIndex     = m_insts->GetInst(m_currEip)->Index;
+        if (m_currEip != 0)
+            m_currIndex = m_insts->GetInst(m_currEip)->Index;
         m_height        = m_lineHeight * insts->GetCount();
     }
     SetVirtualSize(m_width, m_height);

@@ -32,6 +32,7 @@ public:
 
     void    SubmitLengthField(int first, int last, int target);
     void    SubmitToken(byte t, int first, int last);
+    void    SubmitFixedLenField(int first, int last);
 private:
     void    Synthesize();
 
@@ -46,6 +47,7 @@ private:
     int     m_weightLenFieldNoTarget;
     int     m_weightSeparator;
     int     m_weightSeparatedVar;
+    int     m_weightFixedLen;
 };
 
 #endif // __PROPHET_PROTOCOL_FORMATSYN_H__

@@ -15,11 +15,12 @@ FormatSyn::FormatSyn( MessageManager *msgmgr )
     m_msgInfo = NULL;
     m_message = NULL;
 
-    m_weightLenField = 10;
+    m_weightLenField        = 10;
     m_weightLenFieldNoTarget = 4;
-    m_weightLenFieldVar = 2;
-    m_weightSeparator = 10;
-    m_weightSeparatedVar = 5;
+    m_weightLenFieldVar     = 2;
+    m_weightSeparator       = 10;
+    m_weightSeparatedVar    = 5;
+    m_weightFixedLen        = 2;
 }
 
 FormatSyn::~FormatSyn()
@@ -52,6 +53,7 @@ void FormatSyn::Serialize( Json::Value &root ) const
     root["weight_length_field_var"]         = m_weightLenFieldVar;
     root["weight_separator"]                = m_weightSeparator;
     root["weight_separated_var"]            = m_weightSeparatedVar;
+    root["weight_fixed_len"]                = m_weightFixedLen;
 }
 
 void FormatSyn::Deserialize( Json::Value &root )
@@ -65,6 +67,7 @@ void FormatSyn::Deserialize( Json::Value &root )
     m_weightSeparator = root.get("weight_separator", m_weightSeparator).asInt();
     m_weightSeparatedVar = root.get("weight_separated_var",
         m_weightSeparatedVar).asInt();
+    m_weightFixedLen = root.get("weight_fixed_len", m_weightFixedLen).asInt();
 }
 
 void FormatSyn::SubmitLengthField( int first, int last, int target )
@@ -72,7 +75,10 @@ void FormatSyn::SubmitLengthField( int first, int last, int target )
     Assert(m_message);
     Assert(first <= last);
 
-    LxError("length field: %d-%d, %d\n", first, last, target);
+    for (int i = first; i <= last; i++) {
+        m_msgInfo[i].FormatCount[FieldFormat::FixedLen] = 0;
+        // Clear FixedLen no matter what
+    }
 
     if (target != -1 && target > last) {
         for (int i = first; i <= last; i++) {
@@ -85,6 +91,17 @@ void FormatSyn::SubmitLengthField( int first, int last, int target )
         for (int i = first; i <= last; i++) {
             m_msgInfo[i].FormatCount[FieldFormat::Length] += m_weightLenFieldNoTarget;
         }
+    }
+}
+
+void FormatSyn::SubmitFixedLenField( int first, int last )
+{
+    for (int i = first; i <= last; i++) {
+        if (m_msgInfo[i].FormatCount[FieldFormat::Length] > 0)
+            return;     // skip length field
+    }
+    for (int i = first; i <= last; i++) {
+        m_msgInfo[i].FormatCount[FieldFormat::FixedLen] += m_weightFixedLen;
     }
 }
 
@@ -127,7 +144,8 @@ void FormatSyn::Synthesize()
         }
         Assert(target > ptr);
         for (int i = ptr+1; i < target; i++) {
-            if ((*m_message)[i].Format == FieldFormat::Unknown)
+            if ((*m_message)[i].Format == FieldFormat::Unknown ||
+                (*m_message)[i].Format == FieldFormat::FixedLen)
                 (*m_message)[i].Format = FieldFormat::VariableLen;
         }
         ptr = target;
