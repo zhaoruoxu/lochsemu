@@ -35,5 +35,6 @@
 #include <wx/dataview.h>
 #include <wx/vscroll.h>
 #include <wx/dcbuffer.h>
+#include <wx/notebook.h>
 
 // TODO: reference additional headers your program requires here

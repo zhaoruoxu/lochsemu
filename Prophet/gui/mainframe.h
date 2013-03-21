@@ -23,7 +23,6 @@ public:
     void    OnProcessLoaded(LPCSTR path);
     void    OnArchiveLoaded(Archive *arc);
 
-    void    OnPreExecute(PreExecuteEvent &event);
     void    OnProcessPostRun(ProcessPostRunEvent &event);
 
     void    ShowInMemory(u32 addr);
@@ -66,7 +65,6 @@ private:
     bool            m_isProcLoaded;
     bool            m_isbusy;
     //Emulator *      m_emulator;
-    Processor *     m_currProcessor;
     ProEngine *     m_engine;
     Archive *       m_archive;
     ProTracer *     m_tracer;
@@ -82,12 +80,12 @@ private:
     MessagePanel *  m_msgPanel;
     StatPanel *     m_statPanel;
 
-    wxAuiNotebook * m_nbMain;
-    wxAuiNotebook * m_nbContext;
-    wxAuiNotebook * m_nbSections;
-    //wxAuiNotebook * m_nbTrace;
-    //wxAuiNotebook * m_nbMemory;
-    //wxAuiNotebook * m_nbStat;
+    //wxNotebook *    m_nbMain;
+    wxNotebook *    m_nbContext;
+    wxNotebook *    m_nbSections;
+    //wxNotebook *    m_nbTrace;
+    //wxNotebook *    m_nbMemory;
+    //wxNotebook *    m_nbStat;
 
     wxString        m_defaultPerspective;
     wxAuiManager    m_auiManager;

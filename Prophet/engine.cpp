@@ -51,7 +51,6 @@ void ProEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
     PreExecuteEvent event(this, cpu, inst);
 
     m_statistics.OnPreExecute(event);
-    m_gui->OnPreExecute(event);
     m_plugins.OnPreExecute(event, true);
     if (event.IsVetoed()) return;
 

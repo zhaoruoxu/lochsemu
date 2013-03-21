@@ -2,7 +2,7 @@
 #include "statpanel.h"
 
 StatPanel::StatPanel( wxWindow *parent, ProEngine *engine )
-    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(300, 300)),
+    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(200, 300)),
     m_timer(this, ID_StatTimer), m_engine(engine)
 {
     InitRender();
@@ -11,7 +11,7 @@ StatPanel::StatPanel( wxWindow *parent, ProEngine *engine )
     Bind(wxEVT_ERASE_BACKGROUND, &StatPanel::OnEraseBackground, this, wxID_ANY);
     Bind(wxEVT_SIZE, &StatPanel::OnResize, this, wxID_ANY);
 
-    m_interval = g_config.GetInt("StatPanel", "UpdateInterval", 400);
+    m_interval = g_config.GetInt("StatPanel", "UpdateInterval", 100);
     m_timer.Start(m_interval);
     Bind(wxEVT_TIMER, &StatPanel::OnTimer, this, ID_StatTimer);
     m_isbusy = false;
