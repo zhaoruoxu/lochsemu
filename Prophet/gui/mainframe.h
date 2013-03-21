@@ -50,6 +50,8 @@ private:
     void    OnPluginCheckEnable(wxCommandEvent &event);
 
     void    OnStatusTimer(wxTimerEvent &event);
+
+    void    OnAllowDND(wxAuiNotebookEvent &event);
     
 private:
     void    InitMisc();
@@ -74,6 +76,12 @@ private:
     MemDataPanel *  m_memDataPanel;
     BreakpointsPanel    *   m_bpsPanel;
     MessagePanel *  m_msgPanel;
+
+    wxAuiNotebook * m_nbMain;
+    wxAuiNotebook * m_nbContext;
+    wxAuiNotebook * m_nbSections;
+    wxAuiNotebook * m_nbTrace;
+    wxAuiNotebook * m_nbMemory;
 
     wxString        m_defaultPerspective;
     wxAuiManager    m_auiManager;

@@ -36,15 +36,15 @@ void MessagePanel::InitRender()
     m_widthDesc     = g_config.GetInt("MessagePanel", "WidthDesc", 200);
 
     m_formatBrushes[FieldFormat::Unknown] = 
-        wxBrush(wxColour(g_config.GetString("MessagePanel", "UnknownColor", "#ffffff")));
+        wxBrush(wxColour(g_config.GetString("MessagePanel", "UnknownColor",     "#ffffff")));
     m_formatBrushes[FieldFormat::Separator] = 
-        wxBrush(wxColour(g_config.GetString("MessagePanel", "SeparatorColor", "#F14D4D")));
+        wxBrush(wxColour(g_config.GetString("MessagePanel", "SeparatorColor",   "#F14D4D")));
     m_formatBrushes[FieldFormat::Keyword] = 
-        wxBrush(wxColour(g_config.GetString("MessagePanel", "KeywordColor", "#5883FF")));
+        wxBrush(wxColour(g_config.GetString("MessagePanel", "KeywordColor",     "#5883FF")));
     m_formatBrushes[FieldFormat::Length] = 
-        wxBrush(wxColour(g_config.GetString("MessagePanel", "LengthColor", "#32F28D")));
+        wxBrush(wxColour(g_config.GetString("MessagePanel", "LengthColor",      "#32F28D")));
     m_formatBrushes[FieldFormat::FixedLen] = 
-        wxBrush(wxColour(g_config.GetString("MessagePanel", "FixedLenColor", "#b0b0b0")));
+        wxBrush(wxColour(g_config.GetString("MessagePanel", "FixedLenColor",    "#b0b0b0")));
     m_formatBrushes[FieldFormat::VariableLen] = 
         wxBrush(wxColour(g_config.GetString("MessagePanel", "VariableLenColor", "#e0e0e0")));
 

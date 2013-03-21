@@ -42,6 +42,13 @@ enum {
     //ID_ToolbarToggleSkipDllEntry,
     ID_ToolbarToggleTaint,
 
+    /* notebooks */
+    ID_NbMain,
+    ID_NbContext,
+    ID_NbSections,
+    ID_NbTrace,
+    ID_NbMemory,
+
     /* cpu panel */
     ID_CpuInstList,
     ID_PopupShowCurrInst,
