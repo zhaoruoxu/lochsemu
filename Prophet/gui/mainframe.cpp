@@ -512,3 +512,15 @@ void ProphetFrame::OnProcessPostRun( ProcessPostRunEvent &event )
 {
     m_statPanel->Stop();
 }
+
+void ProphetFrame::OnRefresh()
+{
+    m_cpuPanel->Refresh();
+    m_contextPanel->Refresh();
+    m_tracePanel->Refresh();
+    m_memInfoPanel->Refresh();
+    m_memDataPanel->Refresh();
+    m_bpsPanel->Refresh();
+    m_msgPanel->Refresh();
+    m_statPanel->Refresh();
+}

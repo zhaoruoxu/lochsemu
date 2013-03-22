@@ -50,12 +50,13 @@ void ProEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
     if (!m_enabled) return;
     PreExecuteEvent event(this, cpu, inst);
 
+    m_disassembler.OnPreExecute(event);     // disassemble the instruction first no matter what
+
     m_statistics.OnPreExecute(event);
     m_plugins.OnPreExecute(event, true);
     if (event.IsVetoed()) return;
 
     m_tracer.OnPreExecute(event);
-    m_disassembler.OnPreExecute(event);
     m_debugger.OnPreExecute(event);
     m_protocol.OnPreExecute(event);
 
@@ -204,6 +205,8 @@ void ProEngine::UpdateCpuData( const InstSection *insts, const Processor *cpu )
     m_gui->GetCpuPanel()->OnDataUpdate(insts, cpu);
 }
 
+
+
 void ProEngine::GetInstContext(InstContext *ctx) const
 {
     m_disassembler.UpdateInstContext(ctx, 0);
@@ -306,6 +309,11 @@ void ProEngine::BreakOnNextInst(const char *desc)
     if (desc != NULL)
         LxInfo("Prophet break: %s\n", desc);
     m_debugger.SetState(ProDebugger::STATE_SINGLESTEP);
+}
+
+void ProEngine::RefreshGUI()
+{
+    m_gui->OnRefresh();
 }
 
 

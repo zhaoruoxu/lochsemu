@@ -65,7 +65,8 @@ public:
 
     void            ReportBusy(bool isBusy);
     void            Terminate();
-    void            UpdateGUI();
+    void            UpdateGUI();    // non-rendering part
+    void            RefreshGUI();   // rendering part
     void            UpdateCpuData(const InstSection *insts, const Processor *cpu);
     
 private:

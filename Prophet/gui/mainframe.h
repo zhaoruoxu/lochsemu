@@ -19,6 +19,7 @@ public:
     CompositeTracePanel *   GetTracePanel() const { return m_tracePanel; }
     MemInfoPanel *          GetMemInfoPanel() const { return m_memInfoPanel; }
     void    OnUpdate();
+    void    OnRefresh();
     void    ReportBusy(bool isBusy);
     void    OnProcessLoaded(LPCSTR path);
     void    OnArchiveLoaded(Archive *arc);
