@@ -60,7 +60,7 @@ LochsEmu::LxResult PeLoader::Load( LPCSTR lpFileName )
 
 LochsEmu::LxResult PeLoader::LoadModule( LPCSTR lpFileName )
 {
-    LxDebug("Loading module: %s\n", lpFileName);
+    LxInfo("Loading module: %s\n", lpFileName);
     PeModule module;
     V( module.Load(lpFileName) );
 
@@ -244,7 +244,9 @@ LochsEmu::LxResult PeLoader::LoadIAT( uint nModule )
                 // import by ordinal
                 index = GetModuleExportIndexByOrdinal(dllIndex, importIter->second[i].Ordinal);
                 if (index == (uint) -1) {
-                    LxWarning("Ordinal need fixing!\n");
+                    const ModuleInfo &dll = m_infos[dllIndex];
+                    LxWarning("Ordinal need fixing! dll = %s, ord = %d(%x)\n",
+                        dll.Name, importIter->second[i].Ordinal, importIter->second[i].Ordinal);
                     ordinalNeedFix = true;
                     break;
                 }

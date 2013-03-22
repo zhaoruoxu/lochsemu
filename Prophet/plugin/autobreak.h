@@ -12,6 +12,7 @@
 class AutoBreak : public Plugin {
 public:
     AutoBreak(ProPluginManager *manager);
+    ~AutoBreak();
 
     void    Initialize() override;
     void    OnPreExecute(PreExecuteEvent &event, bool firstTime) override;
@@ -31,6 +32,7 @@ private:
     TaintEngine *   m_taint;
     ProTracer *     m_tracer;
     Disassembler *  m_disasm;
+
 };
 
 

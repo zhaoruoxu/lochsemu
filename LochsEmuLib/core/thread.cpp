@@ -148,4 +148,13 @@ HMODULE Thread::LoadModule( LPCSTR lpFileName )
     return (HMODULE) Proc()->GetModuleInfo(nModule)->ImageBase;
 }
 
+LochsEmu::LxResult Thread::UnloadModule( HMODULE hModule )
+{
+    if (LX_IS_EMU_MODULE(hModule)) {
+        LxWarning("Trying to free an emulated module: %s\n", LxGetModuleName(hModule));
+    }
+    LxWarning("!! TODO : UnloadModule !!\n");
+    RET_SUCCESS();
+}
+
 END_NAMESPACE_LOCHSEMU()

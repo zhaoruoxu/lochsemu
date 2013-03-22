@@ -193,12 +193,22 @@ ExportTable PeModule::GetExports( Memory *mem, u32 imageBase )
     u32p pNames = (u32p) mem->GetRawData(imageBase + pExport->AddressOfNames);
     u16p pOrdinals = (u16p) mem->GetRawData(imageBase + pExport->AddressOfNameOrdinals);
 
+    bool hasZeroOrdinal = false;
     for (uint idxName = 0; idxName < numNames; idxName++) {
         const char *funcName = (const char *) mem->GetRawData(imageBase + pNames[idxName]);
         Assert(funcName);
+
         u16 ordinal = pOrdinals[idxName];
         u32 address = pFunctions[ordinal] + imageBase;
+        if (ordinal == 0) hasZeroOrdinal = true;
+
         m_exports.push_back(ExportEntry(std::string(funcName), address, ordinal));
+    }
+
+    if (hasZeroOrdinal) {
+        LxWarning("%s has zero ordinal, fixing\n", dllName);
+        for (auto &exp : m_exports) 
+            exp.Ordinal++;
     }
     
     return m_exports;

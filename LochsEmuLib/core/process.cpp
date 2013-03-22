@@ -330,4 +330,5 @@ void Process::Terminate()
     m_mainThread->CPU()->Terminate(0);
 }
 
+
 END_NAMESPACE_LOCHSEMU()

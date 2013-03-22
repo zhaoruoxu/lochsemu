@@ -170,9 +170,14 @@ LxResult Rol_D1_ext0(Processor *cpu, const Instruction *inst)
 {
     // ROL r/m32, 1
     u32 offset;
-    u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
-    Rol32(cpu, val1, 1);
-    cpu->WriteOperand32(inst, inst->Main.Argument1, offset, val1);
+    if (inst->Main.Prefix.OperandSize) {
+        RET_NOT_IMPLEMENTED();
+    } else {
+        u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
+        Rol32(cpu, val1, 1);
+        cpu->WriteOperand32(inst, inst->Main.Argument1, offset, val1);
+    }
+
     RET_SUCCESS();
 }
 
@@ -180,16 +185,36 @@ LxResult Rcl_D1_ext2(Processor *cpu, const Instruction *inst)
 {
 	// RCL r/m16, 1
 	u32 offset;
-	u16 val1 = cpu->ReadOperand16(inst, inst->Main.Argument1, &offset);
-	Rcl16(cpu, val1, 1);
-	cpu->WriteOperand16(inst, inst->Main.Argument1, offset, val1);
+
+    if (inst->Main.Prefix.OperandSize) {
+        u16 val1 = cpu->ReadOperand16(inst, inst->Main.Argument1, &offset);
+        Rcl16(cpu, val1, 1);
+        cpu->WriteOperand16(inst, inst->Main.Argument1, offset, val1);
+    } else {
+        u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
+        Rcl32(cpu, val1, 1);
+        cpu->WriteOperand32(inst, inst->Main.Argument1, offset, val1);
+    }
+
 	RET_SUCCESS();
+}
+
+LxResult Rol_D3_ext0(Processor *cpu, const Instruction *inst)
+{
+    // ROL r/m32, cl
+    if (inst->Main.Prefix.OperandSize) RET_NOT_IMPLEMENTED();
+    u32 offset;
+    u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
+    Rol32(cpu, val1, cpu->CL);
+    cpu->WriteOperand32(inst, inst->Main.Argument1, offset, val1);
+    RET_SUCCESS();
 }
 
 LxResult Rcl_D3_ext2(Processor *cpu, const Instruction *inst)
 {
     // RCL r/m32, cl
     u32 offset;
+    if (inst->Main.Prefix.OperandSize) RET_NOT_IMPLEMENTED();
     u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
     Rcl32(cpu, val1, cpu->CL);
     cpu->WriteOperand32(inst, inst->Main.Argument1, offset, val1);

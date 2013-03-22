@@ -172,7 +172,7 @@ LxResult Ext_D2(Processor *cpu, const Instruction *inst)
 LxResult Ext_D3(Processor *cpu, const Instruction *inst)
 {
     static InstHandler handlers[] = {
-        /* 0x0 */InstNotAvailable,
+        /* 0x0 */Rol_D3_ext0,
         /* 0x1 */InstNotAvailable,
         /* 0x2 */Rcl_D3_ext2,
         /* 0x3 */InstNotAvailable,

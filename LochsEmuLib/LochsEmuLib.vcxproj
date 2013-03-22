@@ -82,7 +82,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>3rdparty\BeaEngine\BeaEngine.lib;ws2_32.lib;shlwapi.lib;mscoree.lib;winmm.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>3rdparty\BeaEngine\BeaEngine.lib;Netapi32.lib;ws2_32.lib;shlwapi.lib;mscoree.lib;winmm.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>crt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <Profile>true</Profile>
@@ -107,7 +107,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>3rdparty\BeaEngine\BeaEngine.lib;ws2_32.lib;shlwapi.lib;mscoree.lib;winmm.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>3rdparty\BeaEngine\BeaEngine.lib;Netapi32.lib;ws2_32.lib;shlwapi.lib;mscoree.lib;winmm.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>crt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
@@ -212,6 +212,7 @@
     <ClCompile Include="winapi\kernel32.cpp" />
     <ClCompile Include="winapi\kernelbase.cpp" />
     <ClCompile Include="winapi\mscoree.cpp" />
+    <ClCompile Include="winapi\netapi32.cpp" />
     <ClCompile Include="winapi\ntdll.cpp" />
     <ClCompile Include="winapi\oleaut32.cpp" />
     <ClCompile Include="winapi\shell32.cpp" />

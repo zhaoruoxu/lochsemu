@@ -26,6 +26,7 @@ const char *WrappedLibraryTable[] = {
     /*  17 */ "shlwapi.dll",
     /*  18 */ "shell32.dll",
 	/*  19 */ "oleaut32.dll",
+    /*  20 */ "netapi32.dll",
 };
 
 WinAPIInfo WinAPIInfoTable[] = {
@@ -58,6 +59,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "FlsSetValue", Kernel32_FlsSetValue },
     { 01, 0, "FlushConsoleInputBuffer", Kernel32_FlushConsoleInputBuffer },
     { 01, 0, "FreeEnvironmentStringsW", Kernel32_FreeEnvironmentStringsW },
+    { 01, 0, "FreeLibrary", Kernel32_FreeLibrary },
     { 01, 0, "GetACP", Kernel32_GetACP },
 	{ 01, 0, "GetAtomNameA", Kernel32_GetAtomNameA },
     { 01, 0, "GetCPInfo", Kernel32_GetCPInfo },
@@ -307,6 +309,10 @@ WinAPIInfo WinAPIInfoTable[] = {
 	{ 19, 0x2, "SysAllocString", Oleaut32_SysAllocString },
 	{ 19, 0x96, "SysAllocStringByteLen", Oleaut32_SysAllocStringByteLen },
     { 19, 0x6, "SysFreeString", Oleaut32_SysFreeString },
+
+    /* netapi32.dll */
+    { 20, 0, "NetApiBufferFree", Netapi32_NetApiBufferFree },
+    { 20, 0, "NetStatisticsGet", Netapi32_NetStatisticsGet  },
 };
 
 uint WinAPINotAvailable(Processor *cpu)

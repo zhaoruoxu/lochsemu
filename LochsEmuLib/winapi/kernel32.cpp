@@ -269,6 +269,13 @@ uint Kernel32_FreeEnvironmentStringsW(Processor *cpu)
     RET_PARAMS(1);
 }
 
+uint Kernel32_FreeLibrary(Processor *cpu)
+{
+    V( cpu->Thr()->UnloadModule((HMODULE) PARAM(0)) );
+    RET_VALUE = (u32) TRUE;
+    RET_PARAMS(1);
+}
+
 uint Kernel32_GetACP(Processor *cpu)
 {
     RET_VALUE = (u32) GetACP();
@@ -298,29 +305,49 @@ uint Kernel32_GetCPInfo(Processor *cpu)
 uint Kernel32_GetCommandLineA(Processor *cpu)
 {
     const u32 BASE = 0x500000;
+    static bool allocated = false;
+    static u32 addr = 0;
 
-    u32 b = cpu->Mem->FindFreePages(BASE, LX_CMDLINE_SIZE);
-    Assert(b);
-    V( cpu->Mem->AllocCopy(SectionDesc("CommandLineA", cpu->GetCurrentModule()), 
-        b, LX_CMDLINE_SIZE, PAGE_READONLY, (pbyte) LxEmulator.CmdLine(), LX_CMDLINE_SIZE) );
-    cpu->EAX = b;
-    RET_PARAMS(0);
+    if (allocated) {
+        cpu->EAX = addr;
+        RET_PARAMS(0);
+    } else {
+        u32 b = cpu->Mem->FindFreePages(BASE, LX_CMDLINE_SIZE);
+        Assert(b);
+        V( cpu->Mem->AllocCopy(SectionDesc("CommandLineA", cpu->GetCurrentModule()), 
+            b, LX_CMDLINE_SIZE, PAGE_READONLY, (pbyte) LxEmulator.CmdLine(), LX_CMDLINE_SIZE) );
+        cpu->EAX = b;
+        addr = b;
+        allocated = true;
+        RET_PARAMS(0);
+    }
 }
 
 uint Kernel32_GetCommandLineW(Processor *cpu)
 {
     const u32 BASE = 0x500000;
-    const char *path = LxEmulator.CmdLine();
-    uint len = strlen(path);
-    WCHAR pathW[MAX_PATH];
-    LxByteToWide(path, pathW, len);
-    uint lenW = (wcslen(pathW) + 1) * sizeof(wchar_t);
-    u32 b = cpu->Mem->FindFreePages(BASE, lenW);
-    Assert(b);
-    V( cpu->Mem->AllocCopy(SectionDesc("CommandLineW", cpu->GetCurrentModule()), 
-        b, lenW, PAGE_READONLY, (pbyte) pathW, lenW) );
-    cpu->EAX = b;
-    RET_PARAMS(0);
+
+    static bool allocated = false;
+    static u32 addr = 0;
+
+    if (allocated) {
+        cpu->EAX = addr;
+        RET_PARAMS(0);
+    } else {
+        const char *path = LxEmulator.CmdLine();
+        uint len = strlen(path);
+        WCHAR pathW[MAX_PATH];
+        LxByteToWide(path, pathW, len);
+        uint lenW = (wcslen(pathW) + 1) * sizeof(wchar_t);
+        u32 b = cpu->Mem->FindFreePages(BASE, lenW);
+        Assert(b);
+        V( cpu->Mem->AllocCopy(SectionDesc("CommandLineW", cpu->GetCurrentModule()), 
+            b, lenW, PAGE_READONLY, (pbyte) pathW, lenW) );
+        cpu->EAX = b;
+        addr = b;
+        allocated = true;
+        RET_PARAMS(0);
+    }
 }
 
 uint Kernel32_GetConsoleMode(Processor *cpu)

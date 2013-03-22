@@ -8,6 +8,11 @@ AutoBreak::AutoBreak(ProPluginManager *manager)
     m_skipDllEntries    = true;
     m_debugger          = NULL;
     m_mainEntryFound    = false;
+
+}
+
+AutoBreak::~AutoBreak()
+{
 }
 
 void AutoBreak::Initialize()
@@ -22,6 +27,12 @@ void AutoBreak::Initialize()
 void AutoBreak::OnPreExecute( PreExecuteEvent &event, bool firstTime )
 {
     if (!firstTime) return;
+
+    InstPtr pinst = m_disasm->GetInst(event.Cpu->EIP);
+    if (strlen(pinst->DllName)) {
+        printf("%08x %s %s\n", event.Cpu->EIP, pinst->DllName, pinst->FuncName);
+    }
+
     if (m_mainEntryFound) return;
     if (event.Cpu->GetCurrentModule() == 0) {
         // come to main module for the first time

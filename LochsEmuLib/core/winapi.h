@@ -98,6 +98,7 @@ DECLARE_WINAPI_ENTRY(Kernel32_FlsSetValue);
 DECLARE_WINAPI_ENTRY(Kernel32_FlsFree);
 DECLARE_WINAPI_ENTRY(Kernel32_FlushConsoleInputBuffer);
 DECLARE_WINAPI_ENTRY(Kernel32_FreeEnvironmentStringsW);
+DECLARE_WINAPI_ENTRY(Kernel32_FreeLibrary);
 DECLARE_WINAPI_ENTRY(Kernel32_GetACP);
 DECLARE_WINAPI_ENTRY(Kernel32_GetAtomNameA);
 DECLARE_WINAPI_ENTRY(Kernel32_GetCPInfo);
@@ -375,6 +376,11 @@ DECLARE_WINAPI_ENTRY(Ws2_32_WSAStartup);
 DECLARE_WINAPI_ENTRY(Ws2_32_WSACleanup);
 DECLARE_WINAPI_ENTRY(Ws2_32_WSAGetLastError);
 
+/************************************************************************/
+/* netapi32.dll                                                         */
+/************************************************************************/
+DECLARE_WINAPI_ENTRY(Netapi32_NetStatisticsGet);
+DECLARE_WINAPI_ENTRY(Netapi32_NetApiBufferFree);
 
 END_NAMESPACE_LOCHSEMU()
 
