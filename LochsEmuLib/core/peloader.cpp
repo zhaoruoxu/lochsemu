@@ -209,9 +209,6 @@ LochsEmu::LxResult PeLoader::LoadIAT( uint nModule )
 {
     const ModuleInfo &info = m_infos[nModule];
 
-    LxDebug("Loading IAT for module %s\n", info.Name);
-
-    int funcCount = 0;
     ImportTable::const_iterator importIter = info.Imports.begin();
     for (; importIter != info.Imports.end(); importIter++) {
 
@@ -231,7 +228,6 @@ LochsEmu::LxResult PeLoader::LoadIAT( uint nModule )
 
                 }
                 V( m_memory->Write32(importIter->second[i].IATOffset, LX_MAKE_WINAPI_INDEX(index)) );
-                funcCount++;
             }
             continue;
         } 
@@ -241,14 +237,16 @@ LochsEmu::LxResult PeLoader::LoadIAT( uint nModule )
             LxFatal("DLL [%s] not loaded\n", dllName); return LX_RESULT_ERROR_LOAD_MODULE;
         }
 
+        bool ordinalNeedFix = false;
         for (uint i = 0; i < importIter->second.size(); i++) {
             uint index;
             if (importIter->second[i].Ordinal != (uint) -1) {
                 // import by ordinal
                 index = GetModuleExportIndexByOrdinal(dllIndex, importIter->second[i].Ordinal);
                 if (index == (uint) -1) {
-                    LxFatal("Exported function [ordinal: 0x%x] not found in [%s]\n", importIter->second[i].Ordinal, dllName);
-                    return LX_RESULT_ERROR_LOAD_MODULE;
+                    LxWarning("Ordinal need fixing!\n");
+                    ordinalNeedFix = true;
+                    break;
                 }
             } else {
                 const char *funcName = importIter->second[i].Name.c_str();
@@ -262,13 +260,32 @@ LochsEmu::LxResult PeLoader::LoadIAT( uint nModule )
 //             LxDebug("Loading function in library %s::%s (%d)0x%08x\n", dllName, entry.Name.c_str(),
 //                 entry.Ordinal, entry.Address);
             V( m_memory->Write32(importIter->second[i].IATOffset, entry.Address) );
-            funcCount++;
+        }
+
+        if (ordinalNeedFix) {
+            for (uint i = 0; i < importIter->second.size(); i++) {
+                uint index;
+                if (importIter->second[i].Ordinal != (uint) -1) {
+                    // import by ordinal
+                    index = GetModuleExportIndexByOrdinal(dllIndex, importIter->second[i].Ordinal - 1);
+                    if (index == (uint) -1) {
+                        LxFatal("Exported function [ordinal: 0x%x] not found in [%s]\n", importIter->second[i].Ordinal, dllName);
+                        return LX_RESULT_ERROR_LOAD_MODULE;
+                    }
+                } else {
+                    const char *funcName = importIter->second[i].Name.c_str();
+                    index = GetModuleExportIndexByName(dllIndex, funcName);
+                    if (index == (uint) -1) {
+                        LxFatal("Exported function [%s] not found in [%s]\n", funcName, dllName);
+                        return LX_RESULT_ERROR_LOAD_MODULE;
+                    }
+                }
+                const ExportEntry &entry = m_infos[dllIndex].Exports[index];
+                V( m_memory->Write32(importIter->second[i].IATOffset, entry.Address) );
+            }
         }
     }
 
-    LxDebug("Finished loading IAT for[%s], %d functions in %d DLLs\n",
-        info.Name, funcCount, info.Imports.size());
-    LxDebug("\n");
     RET_SUCCESS();
 }
 
