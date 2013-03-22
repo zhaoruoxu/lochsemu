@@ -131,7 +131,7 @@ void StatPanel::Draw( wxBufferedPaintDC &dc )
     int total = stat->GetTotal();
     const int xstart = LeftBanner;
     const int ystart = CeilingBanner;
-    uint lastVal = stat->Get(0) * 1000 / m_interval;
+    uint lastVal = stat->Get(1) * 1000 / m_interval;
 
     dc.SetPen(m_midLinePen);
     for (int i = 1; i <= 3; i++) {
@@ -139,11 +139,11 @@ void StatPanel::Draw( wxBufferedPaintDC &dc )
         dc.DrawLine(xstart, y, s.GetWidth(), y);
     }
     dc.SetPen(*wxBLUE_PEN);
-    for (int i = 1; i < total; i++) {
+    for (int i = 2; i < total; i++) {
         uint val = stat->Get(i) * 1000 / m_interval;
-        int x0 = GetX(xstart, s.GetWidth(), i-1, total-1);
+        int x0 = GetX(xstart, s.GetWidth(), i-1, total-2);
         int y0 = GetY(ystart, s.GetHeight(), lastVal, Levels[level]);
-        int x1 = GetX(xstart, s.GetWidth(), i, total-1);
+        int x1 = GetX(xstart, s.GetWidth(), i, total-2);
         int y1 = GetY(ystart, s.GetHeight(), val, Levels[level]);
         dc.DrawLine(x0, y0, x1, y1);
         lastVal = val;
