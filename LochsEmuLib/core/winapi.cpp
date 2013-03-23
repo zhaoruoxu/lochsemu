@@ -192,6 +192,7 @@ WinAPIInfo WinAPIInfoTable[] = {
 	{ 02, 0, "FillRect", User32_FillRect },
     { 02, 0, "GetActiveWindow", User32_GetActiveWindow },
     { 02, 0, "GetDC", User32_GetDC },
+    { 02, 0, "GetDesktopWindow", User32_GetDesktopWindow },
     { 02, 0, "GetDlgItem", User32_GetDlgItem },
 	{ 02, 0, "GetDlgItemInt", User32_GetDlgItemInt },
     { 02, 0, "GetDlgItemTextA",User32_GetDlgItemTextA},
@@ -427,6 +428,10 @@ void CallWindowsAPI( Processor *cpu, u32 val )
     Assert(LX_IS_WINAPI(val));
 
     uint apiIndex = LX_WINAPI_NUM(val);
+
+    if (apiIndex == 0xfe) {
+        LxInfo("debug");
+    }
 
     if (cpu->Thr()) {
         cpu->Thr()->Plugins()->OnWinapiPreCall(cpu, apiIndex);

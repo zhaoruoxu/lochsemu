@@ -357,3 +357,14 @@ void DrawTaint( wxBufferedPaintDC &dc, const Taint &t, const wxRect &rect, bool 
         dc.SetPen(*wxTRANSPARENT_PEN);
     }
 }
+
+bool GetU32FromUser( const wxString &msg, u32p val )
+{
+    wxString str = wxGetTextFromUser(msg);
+    if (str.IsEmpty()) return false;
+    if (!str.ToULong((unsigned long *)val, 16)) {
+        wxMessageBox("Invalid hex value:" + str);
+        return false;
+    }
+    return true;
+}

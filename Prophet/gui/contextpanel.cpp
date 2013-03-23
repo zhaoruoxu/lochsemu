@@ -62,19 +62,24 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
 
     dc.DrawText("Disassembly:", 0, h);
     h += m_lineHeight;
-    dc.DrawText(wxString::Format("[ %s ]", m_data.Inst->Main.CompleteInstr), 0, h);
+    wxString instr = wxString::Format("[ %s ]", m_data.Inst->Main.CompleteInstr);
+    if (m_data.Inst->Entry != -1)
+        instr += wxString::Format(" Entry:%08x", m_data.Inst->Entry);
+    if (m_data.Inst->Target != -1)
+        instr += wxString::Format(" -> %08x", m_data.Inst->Target);
+    dc.DrawText(instr, 0, h);
     h += m_lineHeight;
 
-    if (m_data.Inst->Entry != -1) {
-        dc.DrawText(wxString::Format("Entry: %08X", m_data.Inst->Entry), 0, h);
-        h += m_lineHeight;
-    }
-    if (m_data.Inst->Target != -1) {
-        dc.DrawText(wxString::Format("Target: %08X", m_data.Inst->Target), 0, h);
-        h += m_lineHeight;
-    }
-
-    h += m_lineHeight;
+//     if (m_data.Inst->Entry != -1) {
+//         dc.DrawText(wxString::Format("Entry: %08X", m_data.Inst->Entry), 0, h);
+//         h += m_lineHeight;
+//     }
+//     if (m_data.Inst->Target != -1) {
+//         dc.DrawText(wxString::Format("Target: %08X", m_data.Inst->Target), 0, h);
+//         h += m_lineHeight;
+//     }
+// 
+//     h += m_lineHeight;
 
     wxString mod = wxString::Format("Module [%s] at %08X", m_data.ModuleName, m_data.ModuleImageBase);
     dc.DrawText(mod, 0, h);

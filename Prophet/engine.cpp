@@ -20,6 +20,7 @@ ProEngine::ProEngine()
     m_protocol(this)
 {
     m_emulator  = NULL;
+    m_instExecuted = 0;
 }
 
 ProEngine::~ProEngine()
@@ -70,6 +71,8 @@ void ProEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 
 void ProEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 {
+    m_instExecuted++;
+
     if (!m_enabled) return;
     PostExecuteEvent event(this, cpu, inst);
 
@@ -93,6 +96,7 @@ void ProEngine::OnMemRead( const Processor *cpu, u32 addr, u32 nbytes, cpbyte da
     m_plugins.OnMemRead(event, true);
     if (event.IsVetoed()) return;
 
+    m_tracer.OnMemRead(event);
     // other modules
     m_protocol.OnMemRead(event);
 
@@ -107,6 +111,7 @@ void ProEngine::OnMemWrite( const Processor *cpu, u32 addr, u32 nbytes, cpbyte d
     m_plugins.OnMemWrite(event, true);
     if (event.IsVetoed()) return;
 
+    m_tracer.OnMemWrite(event);
     m_protocol.OnMemWrite(event);
 
     m_plugins.OnMemWrite(event, false);
@@ -166,6 +171,7 @@ void ProEngine::OnProcessPostLoad( const PeLoader *loader )
 
     LoadArchive(loader->GetModuleInfo(0)->Name);
     m_debugger.OnProcessPostLoad(event);
+    m_tracer.OnProcessPostLoad(event);
     m_gui->OnArchiveLoaded(&m_archive);
     m_gui->OnProcessPostLoad(event);
     m_protocol.OnProcessPostLoad(event);

@@ -68,6 +68,7 @@ public:
     void            UpdateGUI();    // non-rendering part
     void            RefreshGUI();   // rendering part
     //void            UpdateCpuData(const InstSection *insts);
+    i64             GetInstExecuted() const { return m_instExecuted; }
     
 private:
     void            Intro() const;
@@ -94,6 +95,7 @@ private:
 
     std::string     m_archivePath;
     bool            m_isArchiveLoaded;
+    i64             m_instExecuted;
 };
 
 #endif // __PROPHET_ENGINE_H__

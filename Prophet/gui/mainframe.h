@@ -12,7 +12,7 @@ public:
     ~ProphetFrame();
 
 
-    void    PreExecSingleStepCallback(const Processor *cpu, const Instruction *inst);
+    void    PreExecSingleStepCallback(const Processor *cpu);
 
     CpuPanel *              GetCpuPanel() const { return m_cpuPanel; }
     ContextPanel *          GetRegPanel() const { return m_contextPanel; }

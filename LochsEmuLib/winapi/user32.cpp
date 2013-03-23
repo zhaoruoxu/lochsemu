@@ -208,6 +208,12 @@ uint User32_GetDC(Processor *cpu)
     RET_PARAMS(1);
 }
 
+uint User32_GetDesktopWindow(Processor *cpu)
+{
+    RET_VALUE = (u32) GetDesktopWindow();
+    RET_PARAMS(0);
+}
+
 uint User32_GetDlgItem(Processor *cpu)
 {
     RET_VALUE = (u32)GetDlgItem(

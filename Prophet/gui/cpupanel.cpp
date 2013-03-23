@@ -18,7 +18,8 @@ CpuPanel::CpuPanel( wxWindow *parent, ProphetFrame *dad, ProEngine *engine ) :
     InitMenu();
     InitRender();
 
-    Bind(wxEVT_RIGHT_DOWN, &CpuPanel::OnRightDown, this, wxID_ANY);
+    Bind(wxEVT_RIGHT_DOWN,  &CpuPanel::OnRightDown,     this, wxID_ANY);
+    Bind(wxEVT_MIDDLE_DOWN, &CpuPanel::OnMiddleDown,    this, wxID_ANY);
 
     m_insts         = NULL;
     m_cpu           = NULL;
@@ -409,3 +410,7 @@ void CpuPanel::ReportBusy( bool isbusy )
     m_isbusy = isbusy;
 }
 
+void CpuPanel::OnMiddleDown( wxMouseEvent &event )
+{
+    m_dad->PreExecSingleStepCallback(m_cpu);
+}

@@ -19,7 +19,8 @@ public:
     void        OnSelectionChange() override;
     void        ReportBusy(bool isbusy);
 
-    void        OnRightDown(wxMouseEvent& event);
+    void        OnRightDown(wxMouseEvent &event);
+    void        OnMiddleDown(wxMouseEvent &event);
     void        OnPopupShowCurrInst(wxCommandEvent &event);
     void        OnPopupShowTargetInst(wxCommandEvent &event);
     void        OnPopupTaintReg(wxCommandEvent &event);

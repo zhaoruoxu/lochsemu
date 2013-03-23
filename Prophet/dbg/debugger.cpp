@@ -180,7 +180,7 @@ void ProDebugger::CheckBreakpoints( const Processor *cpu, const Instruction *ins
 void ProDebugger::DoPreExecSingleStep( const Processor *cpu, const Instruction *inst )
 {
     m_engine->ReportBusy(false);
-    m_engine->GetGUI()->PreExecSingleStepCallback(cpu, inst);
+    m_engine->GetGUI()->PreExecSingleStepCallback(cpu);
     m_semaphore.Wait();
 }
 

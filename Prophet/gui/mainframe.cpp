@@ -77,7 +77,7 @@ void ProphetFrame::InitUI()
 
     m_cpuPanel      = new CpuPanel(this, this, m_engine);
     m_contextPanel  = new ContextPanel(m_nbContext, this);
-    m_tracePanel    = new CompositeTracePanel(this, this, m_contextPanel);
+    m_tracePanel    = new CompositeTracePanel(this, this, m_contextPanel, m_cpuPanel);
     m_memDataPanel  = new MemDataPanel(this, this, m_engine);
     m_memInfoPanel  = new MemInfoPanel(m_nbSections, this, m_memDataPanel);
     m_bpsPanel      = new BreakpointsPanel(m_nbSections, this);
@@ -186,7 +186,7 @@ void ProphetFrame::InitMenu()
 
 enum StatusbarText {
     Statusbar_HelpString = 0,
-    Statusbar_Path,
+    Statusbar_InstCount,
     Statusbar_Tracing,
     Statusbar_Busy,
     Statusbar_Cpu,
@@ -196,7 +196,7 @@ enum StatusbarText {
 
 void ProphetFrame::InitStatusBar()
 {
-    static const int Widths[] = { 240, -1, 50, 40, 70, 100, 75 };
+    static const int Widths[] = { -1, 120, 50, 40, 70, 100, 75 };
     m_statusbar = CreateStatusBar(_countof(Widths));
     m_statusbar->SetStatusWidths(_countof(Widths), Widths);
 
@@ -323,7 +323,7 @@ void ProphetFrame::OnResetPerspective( wxCommandEvent &event )
 
 void ProphetFrame::OnStatusTimer( wxTimerEvent &event )
 {
-    m_statusbar->SetStatusText(m_pathText, Statusbar_Path);
+    m_statusbar->SetStatusText(wxString::Format("INSTS: %I64d", m_engine->GetInstExecuted()), Statusbar_InstCount);
     m_statusbar->SetStatusText(wxString::Format("CPU: %d%%", GetCpuUsage()), Statusbar_Cpu);
     m_statusbar->SetStatusText(wxString::Format("MEM: %d MB", GetMemUsage()), Statusbar_Mem);
     m_statusbar->SetStatusText(wxString::Format("Threads: %d", GetThreadCount()), Statusbar_Threads);
@@ -384,7 +384,7 @@ void ProphetFrame::OnRemoveBreakpoint( wxCommandEvent &event )
     m_cpuPanel->Refresh();
 }
 
-void ProphetFrame::PreExecSingleStepCallback( const Processor *cpu, const Instruction *inst )
+void ProphetFrame::PreExecSingleStepCallback( const Processor *cpu )
 {
     InstContext ctx;
     m_engine->GetInstContext(&ctx);
@@ -434,6 +434,7 @@ void ProphetFrame::ReportBusy( bool isBusy )
 void ProphetFrame::OnProcessPostLoad( ProcessPostLoadEvent &event )
 {
     m_pathText      = event.Loader->Path();
+    SetTitle(GetTitle() + " - " + m_pathText);
     m_isProcLoaded  = true;
     m_statPanel->Start();
     m_cpuPanel->OnProcessPostLoad(event);
@@ -537,7 +538,8 @@ void ProphetFrame::OnAllowDND( wxAuiNotebookEvent &event )
 
 void ProphetFrame::OnProcessPostRun( ProcessPostRunEvent &event )
 {
-    m_statPanel->Stop();
+    //m_statPanel->Stop();
+    Close(true);
 }
 
 void ProphetFrame::OnRefresh()

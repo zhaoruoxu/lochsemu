@@ -70,6 +70,11 @@ enum {
     ID_PopupTaintMemRange,
     ID_PopupTaintMemRangeAllBits,
 
+    /* trace panel */
+    ID_PopupFindFirstReg,
+    ID_PopupFindMrAddr,
+    ID_PopupFindMwAddr,
+
     ID_StatusTimer,
     ID_StatTimer,
 
@@ -118,5 +123,7 @@ void DrawTaint(wxBufferedPaintDC &dc, const Tb<N> &t, const wxRect &rect, bool h
         r.x += r.width+1;
     }
 }
+
+bool GetU32FromUser(const wxString &msg, u32p val);
 
 #endif // __PROPHET_GUI_GUI_H__

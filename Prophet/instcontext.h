@@ -50,6 +50,19 @@ struct InstContext {
         ModuleImageBase = 0;
         Inst            = NULL;
     }
+
+    void Reset() {
+        ZeroMemory(Regs, sizeof(Regs));
+        ZeroMemory(RegTaint, sizeof(RegTaint));
+        Eip         = 0;
+        EipTaint.ResetAll();
+        ZeroMemory(Flags, sizeof(Flags));
+        ZeroMemory(FlagTaint, sizeof(FlagTaint));
+        ModuleName  = "";
+        ModuleImageBase = 0;
+        Inst        = NULL;
+        JumpTaken   = false;
+    }
 };
 
 INLINE bool IsFlagTested(const Instruction *inst, int flag)

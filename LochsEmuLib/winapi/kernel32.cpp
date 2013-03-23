@@ -61,12 +61,22 @@ uint Kernel32_CreateFileA(Processor *cpu)
     LPCSTR lpFileName = (LPCSTR) cpu->GetStackParamPtr32(0);
     DWORD dwDesiredAccess = (DWORD) cpu->GetStackParam32(1);
     DWORD dwShareMode = (DWORD) cpu->GetStackParam32(2);
-    LPSECURITY_ATTRIBUTES lpSecurity = (LPSECURITY_ATTRIBUTES) cpu->GetStackParam32(3);
+    LPSECURITY_ATTRIBUTES lpSecurity = (LPSECURITY_ATTRIBUTES) cpu->GetStackParamPtr32(3);
     DWORD dwCreation = (DWORD) cpu->GetStackParam32(4);
     DWORD dwFlags = (DWORD) cpu->GetStackParam32(5);
     HANDLE hTemplate = (HANDLE) cpu->GetStackParam32(6);
 
-    cpu->EAX = (u32) CreateFileA(lpFileName, dwDesiredAccess, dwShareMode, lpSecurity,
+    SECURITY_ATTRIBUTES security;
+    if (lpSecurity != NULL) {
+        security.bInheritHandle = lpSecurity->bInheritHandle;
+        security.nLength = lpSecurity->nLength;
+        security.lpSecurityDescriptor = 
+            lpSecurity->lpSecurityDescriptor == NULL ? NULL : 
+            (LPVOID) cpu->Mem->GetRawData((u32) lpSecurity->lpSecurityDescriptor);
+    }
+
+    cpu->EAX = (u32) CreateFileA(lpFileName, dwDesiredAccess, dwShareMode, 
+        lpSecurity == NULL ? lpSecurity : &security,
         dwCreation, dwFlags, hTemplate);
     return 7;
 }

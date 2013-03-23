@@ -16,13 +16,14 @@ class CompositeTracePanel : public wxPanel {
     friend class TraceInfoPanel;
     friend class TracePanel;
 public:
-    CompositeTracePanel(wxWindow *parent, ProphetFrame *dad, ContextPanel *ctxPanel);
+    CompositeTracePanel(wxWindow *parent, ProphetFrame *dad, ContextPanel *ctxPanel, CpuPanel *cpuPanel);
     ~CompositeTracePanel();
 
     const wxFont *GetFont() const { return &m_font; }
     void        SetTracer(const ProTracer *t) { m_tracer = t; }
     void        UpdateData();
     void        OnSelectionChange(int index);
+    
 private:
     void        Init();
 private:
@@ -31,6 +32,7 @@ private:
     TracePanel *    m_tracePanel;
     TraceInfoPanel *m_infoPanel;
     ContextPanel *  m_contextPanel;
+    CpuPanel *      m_cpuPanel;
     int             m_total;
 };
 
@@ -63,10 +65,17 @@ public:
     void        UpdateData();
     void        OnSelectionChange() override;
     void        OnLeftDoubleClick(wxMouseEvent &event);
+    void        OnRightDown(wxMouseEvent &event);
+
+    void        OnPopupFindFirstReg(wxCommandEvent &event);
+    void        OnPopupFindMrAddr(wxCommandEvent &event);
+    void        OnPopupFindMwAddr(wxCommandEvent &event);
 private:
     void        InitRender();
+    void        InitMenu();
     void        Draw(wxBufferedPaintDC &dc) override;
     void        DrawTrace(wxBufferedPaintDC &dc, const TraceContext &trace, int index);
+    void        SelectIndex(int index);
 private:
     CompositeTracePanel *   m_parent;
 
@@ -74,8 +83,10 @@ private:
     wxPen       m_currSelPen;
     int         m_widthIp;
     int         m_widthDisasm;
+    int         m_widthMem;
     //int         m_widthTaint;
     int         m_width;
+    wxMenu *        m_popup;
 };
 
 #endif // __PROPHET_GUI_TRACEPANEL_H__
