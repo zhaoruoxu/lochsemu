@@ -129,7 +129,7 @@ Disassembler::Disassembler(ProEngine *engine)
     : m_engine(engine)
 {
     m_dataUpdateHandler = nullptr;
-    m_lastSec           = NULL;
+    //m_lastSec           = NULL;
     m_currProcessor     = NULL;
 }
 
@@ -154,25 +154,20 @@ InstPtr Disassembler::Disassemble( u32 eip )
     bool update = false;
     InstSection *instSec = m_instMem.CreateSection(sec->Base(), sec->Size());
 
-    {
+
+    if (!instSec->Contains(eip)) {
         SyncObjectLock lock(m_instMem);
-
-        if (!instSec->Contains(eip)) {
-            //LxDebug("Disassembling %08x...\n", eip);
-            RecursiveDisassemble(m_currProcessor, eip, instSec, eip);
-            //LxDebug("Disassemble complete, count = %d\n", instSec->GetCount());
-            //instSec->UpdateIndices();
-            update = true;
-        }
+        RecursiveDisassemble(m_currProcessor, eip, instSec, eip);
+        update = true;
     }
 
-    if (m_lastSec != sec || update) {
-        //if (m_dataUpdateHandler) 
+    if (update) {
         instSec->UpdateIndices();
-        //m_dataUpdateHandler(instSec, m_currProcessor);
-        m_engine->UpdateCpuData(instSec, m_currProcessor);
     }
-    m_lastSec = sec;
+//     if (m_lastSec != sec || update) {
+//         m_engine->UpdateCpuData(instSec);
+//     }
+//     m_lastSec = sec;
 
     return instSec->GetInst(eip);
 }
@@ -220,6 +215,7 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *se
     u32 target = 0;
     u32 opcode = inst->Main.Inst.Opcode;
     const char *mnemonic = inst->Main.Inst.Mnemonic;
+
     if (opcode == 0xff) {
         // CALL or JMP r/m32
         if (strstr(mnemonic, "jmp") == mnemonic || Instruction::IsCall(inst)) {
@@ -253,12 +249,16 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *se
 
     if (target) {
         inst->Target = target;
+//         ModuleInfo *info = cpu->Proc()->GetModuleInfoAddr(target);
+//         if (info != NULL)
+//             strncpy(inst->TargetModuleName, info->Name, sizeof(inst->TargetModuleName));
     }
 
     const ApiInfo *info = cpu->Proc()->GetApiInfoFromAddress(target);
     if (info) {
-        strncpy(inst->DllName, info->ModuleName.c_str(), sizeof(inst->DllName));
-        strncpy(inst->FuncName, info->FunctionName.c_str(), sizeof(inst->FuncName));
+        //Assert(strncmp(inst->TargetModuleName, info->ModuleName.c_str(), sizeof(inst->TargetModuleName)) == 0);
+        strncpy(inst->TargetModuleName, info->ModuleName.c_str(), sizeof(inst->TargetModuleName));
+        strncpy(inst->TargetFuncName, info->FunctionName.c_str(), sizeof(inst->TargetFuncName));
     }
 }
 
@@ -276,5 +276,12 @@ InstPtr Disassembler::GetInst( u32 eip )
     if (NULL == pinst)
         pinst = Disassemble(eip);
     return pinst;
+}
+
+const InstSection * Disassembler::GetInstSection( u32 addr )
+{
+    if (m_instMem.GetInst(addr) == NULL)
+        Disassemble(addr);
+    return m_instMem.GetSection(addr);
 }
 

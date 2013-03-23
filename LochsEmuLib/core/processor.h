@@ -124,6 +124,8 @@ enum RegXMM {
 #define LX_EXEC_WINAPI_JMP      0x2
 #define LX_EXEC_PREFIX_REP      0x4
 #define LX_EXEC_PREFIX_REPNE    0x8
+#define LX_EXEC_CALLBACK        0x16
+#define LX_EXEC_TERMINATE_EIP   0x32
 
 class LX_API Processor {
     // Simulation for x86 CPU
@@ -214,6 +216,8 @@ public:
      */
     uint            GetCurrentModule    (void) const;
     uint            GetModule           (u32 eip) const;
+
+    u32             GetPrevEip          (void) const { return m_lastEip; }
 
     LxResult        Initialize          (void);
     LxResult        Run                 (u32 entry);
@@ -372,6 +376,7 @@ protected:
     Hashtable<Instruction>  m_instCache;
     u32             m_execFlags;    // Used to represent status after execution of each instruciton 
     Section *       m_currSection;
+    u32             m_lastEip;
 }; // class CPU
 
 

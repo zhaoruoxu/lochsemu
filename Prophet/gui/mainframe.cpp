@@ -10,11 +10,14 @@
 #include "myswitch.h"
 #include "msgpanel.h"
 #include "statpanel.h"
+#include "stackpanel.h"
 
 #include "utilities.h"
 #include "engine.h"
 #include "dbg/tracer.h"
 #include "plugin/plugin.h"
+#include "event.h"
+#include "peloader.h"
 
 #include "instruction.h"
 #include "processor.h"
@@ -22,11 +25,15 @@
 #include "buildver.h"
 
 ProphetFrame::ProphetFrame(ProEngine *engine, Emulator *emu)
-    : m_engine(engine), wxFrame(NULL, wxID_ANY, 
-    wxString::Format("Prophet %x build %d", ProphetVersion, PROPHET_BUILD_VERSION), 
+    : m_engine(engine), wxFrame(NULL, wxID_ANY, "Prophet", 
     wxDefaultPosition, wxSize(850, 850), wxDEFAULT_FRAME_STYLE),
     m_statusTimer(this, ID_StatusTimer)
 {
+#ifdef NDEBUG
+    SetTitle(wxString::Format("Prophet %x (Release) build %d", ProphetVersion, PROPHET_BUILD_VERSION));
+#else
+    SetTitle(wxString::Format("Prophet %x (Debug) build %d", ProphetVersion, PROPHET_BUILD_VERSION));
+#endif
     m_archive   = m_engine->GetArchive();
     m_tracer    = m_engine->GetTracer();
     m_taint     = m_engine->GetTaintEngine();
@@ -76,11 +83,13 @@ void ProphetFrame::InitUI()
     m_bpsPanel      = new BreakpointsPanel(m_nbSections, this);
     m_msgPanel      = new MessagePanel(m_nbContext, this, m_engine);
     m_statPanel     = new StatPanel(this, this, m_engine);
+    m_stackPanel = new StackPanel(m_nbSections, this, m_engine);
 
     m_nbContext->AddPage(m_contextPanel, "Context");
     m_nbContext->AddPage(m_msgPanel, "Message");
     m_nbSections->AddPage(m_memInfoPanel, "Sections");
     m_nbSections->AddPage(m_bpsPanel, "Breakpoints");
+    m_nbSections->AddPage(m_stackPanel, "Stack");
     
     const long noteStyle = wxAUI_NB_TOP | wxAUI_NB_TAB_SPLIT | wxAUI_NB_TAB_MOVE | 
         wxAUI_NB_SCROLL_BUTTONS | wxAUI_NB_CLOSE_ON_ACTIVE_TAB | wxAUI_NB_WINDOWLIST_BUTTON | 
@@ -138,7 +147,8 @@ void ProphetFrame::InitMenu()
     m_menuDebug->Append(ID_ToggleBreakpoint, "Toggle Breakpoint\tF2");
     m_menuDebug->Append(ID_RemoveBreakpoint, "Remove Breakpoint\tF3");
     m_menuDebug->AppendSeparator();
-    m_menuDebug->Append(ID_ShowMemory, "Show memory by address\tCtrl-M");
+    m_menuDebug->Append(ID_ShowMemory, "Show memory by address...\tCtrl-M");
+    m_menuDebug->Append(ID_ShowCode, "Show code by address...\tCtrl-G");
 
     m_menuHelp = new wxMenu;
     m_menuHelp->Append(wxID_ABORT, "&About");
@@ -162,16 +172,16 @@ void ProphetFrame::InitMenu()
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnAbout,           this,   wxID_ABORT);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnLoadPerspective, this,   ID_LoadPerspective);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnSavePerspective, this,   ID_SavePerspective);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnResetPerspective,this,  ID_ResetPerspective);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnResetPerspective,this,   ID_ResetPerspective);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnStepInto,        this,   ID_StepInto);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnStepOver,        this,   ID_StepOver);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnStepOut,         this,   ID_StepOut);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnRun,             this,   ID_Run);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnRunNoBp,         this,   ID_RunNoBp);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnToggleBreakpoint,this,  ID_ToggleBreakpoint);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnRemoveBreakpoint,this,  ID_RemoveBreakpoint);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnToggleBreakpoint,this,   ID_ToggleBreakpoint);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnRemoveBreakpoint,this,   ID_RemoveBreakpoint);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnShowMemory,      this,   ID_ShowMemory);
-    
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ProphetFrame::OnShowCode,        this,   ID_ShowCode);
 }
 
 enum StatusbarText {
@@ -384,6 +394,7 @@ void ProphetFrame::PreExecSingleStepCallback( const Processor *cpu, const Instru
     m_memInfoPanel->UpdateData(cpu->Emu(), cpu->Mem);
     m_memDataPanel->Refresh();
     m_bpsPanel->UpdateData(m_engine);
+    m_stackPanel->UpdateData(cpu);
 }
 
 
@@ -417,13 +428,15 @@ void ProphetFrame::ReportBusy( bool isBusy )
     m_isbusy = isBusy;
     m_statusbar->SetStatusText(isBusy ? "Busy" : "Idle", Statusbar_Busy);
     m_statPanel->ReportBusy(isBusy);
+    m_cpuPanel->ReportBusy(isBusy);
 }
 
-void ProphetFrame::OnProcessLoaded( LPCSTR path )
+void ProphetFrame::OnProcessPostLoad( ProcessPostLoadEvent &event )
 {
-    m_pathText      = path;
+    m_pathText      = event.Loader->Path();
     m_isProcLoaded  = true;
     m_statPanel->Start();
+    m_cpuPanel->OnProcessPostLoad(event);
 }
 
 void ProphetFrame::OnToggleTraceClicked( wxCommandEvent &event )
@@ -480,6 +493,20 @@ void ProphetFrame::OnShowMemory( wxCommandEvent &event )
     ShowInMemory((u32) addr);
 }
 
+void ProphetFrame::OnShowCode( wxCommandEvent &event )
+{
+    if (m_isbusy) return;
+    wxString str = wxGetTextFromUser("Input address:");
+    if (str.IsEmpty()) return;
+
+    unsigned long addr = 0;
+    if (!str.ToULong(&addr, 16)) {
+        wxMessageBox("Invalid address: " + str);
+        return;
+    }
+    m_cpuPanel->ShowCode(addr);
+}
+
 void ProphetFrame::OnPluginCheckEnable( wxCommandEvent &event )
 {
     if (m_isbusy) return;
@@ -524,3 +551,14 @@ void ProphetFrame::OnRefresh()
     m_msgPanel->Refresh();
     m_statPanel->Refresh();
 }
+
+void ProphetFrame::OnPreExecute( PreExecuteEvent &event )
+{
+    m_cpuPanel->OnPreExecute(event);
+}
+
+void ProphetFrame::OnPostExecute( PostExecuteEvent &event )
+{
+    //m_stackPanel->OnPostExecute(event);
+}
+

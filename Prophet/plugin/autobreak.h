@@ -22,6 +22,7 @@ public:
     void    Deserialize(Json::Value &root) override;
 
 private:
+    bool    m_breakOnEntry;
     bool    m_breakOnMainModuleEntry;
     bool    m_skipDllEntries;
     bool    m_taintOriginalState;

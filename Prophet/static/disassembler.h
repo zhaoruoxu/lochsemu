@@ -13,14 +13,14 @@ struct Inst : public Instruction {
     u32     Eip;
     u32     Target;
     u32     Entry;
-    char    DllName[ApiInfoSize];
-    char    FuncName[ApiInfoSize];
+    char    TargetModuleName[ApiInfoSize];
+    char    TargetFuncName[ApiInfoSize];
     int     Index;
     std::string Desc;
 
     Inst() : Eip(0), Target(-1), Entry(-1), Index(-1) {
-        ZeroMemory(DllName, sizeof(DllName));
-        ZeroMemory(FuncName, sizeof(DllName));
+        ZeroMemory(TargetModuleName, sizeof(TargetModuleName));
+        ZeroMemory(TargetFuncName, sizeof(TargetModuleName));
     }
 };
 
@@ -114,6 +114,7 @@ public:
     InstPtr     Disassemble(u32 eip);
     void        UpdateInstContext(InstContext *ctx, u32 eip) const;
     InstPtr     GetInst(u32 eip);
+    const InstSection * GetInstSection(u32 addr);
 private:
     void        RecursiveDisassemble(const Processor *cpu, u32 eip, InstSection *sec, u32 entryEip);
     void        AttachApiInfo(const Processor *cpu, u32 eip, InstSection *sec, InstPtr inst);
@@ -121,7 +122,7 @@ private:
     ProEngine *         m_engine;
     const Processor *   m_currProcessor;
     DataUpdateHandler   m_dataUpdateHandler;
-    const Section *     m_lastSec;
+    //const Section *     m_lastSec;
     InstMem             m_instMem;
 };
 

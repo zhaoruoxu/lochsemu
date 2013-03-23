@@ -67,7 +67,7 @@ public:
     void            Terminate();
     void            UpdateGUI();    // non-rendering part
     void            RefreshGUI();   // rendering part
-    void            UpdateCpuData(const InstSection *insts, const Processor *cpu);
+    //void            UpdateCpuData(const InstSection *insts);
     
 private:
     void            Intro() const;

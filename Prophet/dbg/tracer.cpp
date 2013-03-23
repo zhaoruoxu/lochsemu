@@ -8,7 +8,7 @@
 ProTracer::ProTracer( ProEngine *engine )
     : m_engine(engine),  m_seq(-1)
 {
-    m_mainModuleOnly = true;
+    m_mainModuleOnly = false;
 }
 
 ProTracer::~ProTracer()

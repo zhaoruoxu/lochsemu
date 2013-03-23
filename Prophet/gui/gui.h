@@ -20,6 +20,7 @@ class BreakpointsPanel;
 class MessagePanel;
 class MySwitch;
 class StatPanel;
+class StackPanel;
 
 enum {
     /* view */
@@ -36,6 +37,7 @@ enum {
     ID_ToggleBreakpoint,
     ID_RemoveBreakpoint,
     ID_ShowMemory,
+    ID_ShowCode,
 
     /* toolbar */
     ID_ToolbarDebug,
@@ -55,6 +57,7 @@ enum {
     /* cpu panel */
     ID_CpuInstList,
     ID_PopupShowCurrInst,
+    ID_PopupShowTargetInst,
     ID_PopupTaintReg,
     ID_PopupTrackMemory,
 

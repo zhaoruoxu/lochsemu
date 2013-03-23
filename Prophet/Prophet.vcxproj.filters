@@ -231,6 +231,9 @@
     <ClInclude Include="gui\statpanel.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
+    <ClInclude Include="gui\stackpanel.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -360,6 +363,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\statpanel.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\stackpanel.cpp">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
   </ItemGroup>

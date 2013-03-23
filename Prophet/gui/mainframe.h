@@ -21,9 +21,12 @@ public:
     void    OnUpdate();
     void    OnRefresh();
     void    ReportBusy(bool isBusy);
-    void    OnProcessLoaded(LPCSTR path);
+    
     void    OnArchiveLoaded(Archive *arc);
 
+    void    OnPreExecute(PreExecuteEvent &event);
+    void    OnPostExecute(PostExecuteEvent &event);
+    void    OnProcessPostLoad(ProcessPostLoadEvent &event);
     void    OnProcessPostRun(ProcessPostRunEvent &event);
 
     void    ShowInMemory(u32 addr);
@@ -51,6 +54,7 @@ private:
 //     void    OnToggleSkipDllEntryClicked(wxCommandEvent &event);
     void    OnToggleTaintClicked(wxCommandEvent &event);
     void    OnShowMemory(wxCommandEvent &event);
+    void    OnShowCode(wxCommandEvent &event);
     void    OnPluginCheckEnable(wxCommandEvent &event);
 
     void    OnStatusTimer(wxTimerEvent &event);
@@ -81,6 +85,7 @@ private:
     BreakpointsPanel    *   m_bpsPanel;
     MessagePanel *  m_msgPanel;
     StatPanel *     m_statPanel;
+    StackPanel *    m_stackPanel;
 
     //wxNotebook *    m_nbMain;
     wxNotebook *    m_nbContext;

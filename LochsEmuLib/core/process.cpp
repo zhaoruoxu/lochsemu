@@ -258,6 +258,13 @@ uint Process::GetModuleFileName( HMODULE hModule, LPSTR lpBuffer, uint size )
     return len;
 }
 
+ModuleInfo * Process::GetModuleInfoAddr( u32 addr )
+{
+    Section * sec = m_memory->GetSection(addr);
+    if (sec == NULL) return NULL;
+    return GetModuleInfo(sec->Module());
+}
+
 uint Process::GetModuleFileName( HMODULE hModule, LPWSTR lpBuffer, uint size )
 {
     Assert(size < 0x4000);

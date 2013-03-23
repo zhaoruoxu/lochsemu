@@ -8,7 +8,7 @@ AutoBreak::AutoBreak(ProPluginManager *manager)
     m_skipDllEntries    = true;
     m_debugger          = NULL;
     m_mainEntryFound    = false;
-
+    m_breakOnEntry      = false;
 }
 
 AutoBreak::~AutoBreak()
@@ -28,10 +28,10 @@ void AutoBreak::OnPreExecute( PreExecuteEvent &event, bool firstTime )
 {
     if (!firstTime) return;
 
-    InstPtr pinst = m_disasm->GetInst(event.Cpu->EIP);
-    if (strlen(pinst->DllName)) {
-        printf("%08x %s %s\n", event.Cpu->EIP, pinst->DllName, pinst->FuncName);
-    }
+//     InstPtr pinst = m_disasm->GetInst(event.Cpu->EIP);
+//     if (strlen(pinst->DllName)) {
+//         printf("%08x %s %s\n", event.Cpu->EIP, pinst->DllName, pinst->FuncName);
+//     }
 
     if (m_mainEntryFound) return;
     if (event.Cpu->GetCurrentModule() == 0) {
@@ -57,11 +57,14 @@ void AutoBreak::OnProcessPostLoad( ProcessPostLoadEvent &event, bool firstTime )
     //m_debugger->SetState(m_skipDllEntries ? ProDebugger::STATE_RUNNING : ProDebugger::STATE_SINGLESTEP);
     if (m_skipDllEntries) {
         // 禁用DLL初始化时的Taint和Tracer执行
-        m_debugger->SetState(ProDebugger::STATE_SINGLESTEP);
+        //m_debugger->SetState(ProDebugger::STATE_RUNNING);
         m_taintOriginalState    = m_taint->IsEnabled();
         m_tracerOriginalState   = m_tracer->IsEnabled();
         m_taint->Enable(false);
         m_tracer->Enable(false);
+    }
+    if (m_breakOnEntry) {
+        m_debugger->SetState(ProDebugger::STATE_SINGLESTEP);
     }
 }
 
@@ -87,7 +90,8 @@ void AutoBreak::Serialize( Json::Value &root ) const
 {
     Plugin::Serialize(root);
     root["break_on_main_module_entry"] = m_breakOnMainModuleEntry;
-    root["skip_dll_entries"] = m_skipDllEntries;
+    root["skip_dll_entries"]    = m_skipDllEntries;
+    root["break_on_entry"]      = m_breakOnEntry;
 }
 
 void AutoBreak::Deserialize( Json::Value &root )
@@ -96,6 +100,7 @@ void AutoBreak::Deserialize( Json::Value &root )
     m_breakOnMainModuleEntry = root.get("break_on_main_module_entry", 
         m_breakOnMainModuleEntry).asBool();
     m_skipDllEntries = root.get("skip_dll_entries", m_skipDllEntries).asBool();
+    m_breakOnEntry = root.get("break_on_entry", m_breakOnEntry).asBool();
 }
 
 

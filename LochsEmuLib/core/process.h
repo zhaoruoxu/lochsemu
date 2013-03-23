@@ -55,6 +55,7 @@ public:
     u32             GetProcAddr(HMODULE hModule, LPCSTR lpName);
     ModuleInfo *    GetModuleInfo(uint n) { return m_loader->GetModuleInfo(n); }
     const ModuleInfo *  GetModuleInfo(uint n) const { return m_loader->GetModuleInfo(n); }
+    ModuleInfo *    GetModuleInfoAddr(u32 addr);
     uint            LoadModule(LPCSTR lpFileName);
     u32             GetEntryPoint() const;
     const ApiInfo * GetApiInfoFromAddress(u32 addr) const;

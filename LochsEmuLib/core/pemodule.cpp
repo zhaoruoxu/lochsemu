@@ -153,7 +153,7 @@ ImportTable PeModule::GetImports( Memory *mem, u32 imageBase )
             if (pOrigThunk[idxFunc].u1.AddressOfData & IMAGE_ORDINAL_FLAG) {
                 // import by ordinal
                 int ord = IMAGE_ORDINAL(pOrigThunk[idxFunc].u1.AddressOfData);
-                LxWarning("Importing by ordinal, DLL: %s, ordinal: %d\n", dllName, ord);
+                //LxWarning("Importing by ordinal, DLL: %s, ordinal: %d\n", dllName, ord);
                 funcs.push_back(ImportEntry(ord, 
                     import.FirstThunk + idxFunc * sizeof(IMAGE_THUNK_DATA) + imageBase));
             } else {

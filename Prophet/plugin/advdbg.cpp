@@ -48,7 +48,7 @@ void AdvancedDebugger::AnalyzeWinMain( PreExecuteEvent &event )
     for (u32 addr = eip + ExitBegin; addr <= eip + ExitEng; addr++) {
         InstPtr pinst = m_disasm->GetInst(addr);
         if (pinst == NULL) continue;
-        if (strstr(pinst->FuncName, "exit") != NULL) {
+        if (strstr(pinst->TargetFuncName, "exit") != NULL) {
             MarkWinMain(eip);
         }
     }

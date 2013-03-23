@@ -72,13 +72,12 @@ void Processor::Reset()
     m_inst = NULL;
     m_fpu->Reset();
     m_currSection = NULL;
+    m_lastEip = 0;
+    ClearExecFlags();
 }
 
 LxResult Processor::Step()
 {
-    // clear execution flag
-    ClearExecFlags();
-
     // look up the inst decode cache
     m_inst = m_instCache.Lookup(EIP);
 
@@ -106,6 +105,10 @@ LxResult Processor::Step()
     }
 
     Assert(EIP == TERMINATE_EIP || Mem->Contains(EIP));
+
+    // clear execution flag
+    ClearExecFlags();
+
     RET_SUCCESS();
 }
 
@@ -143,6 +146,7 @@ LxResult Processor::RunConditional( u32 entry )
 
     m_terminated = false;
     while (true) {
+        SetExecFlag(LX_EXEC_CALLBACK);
         LxResult lr = Step();
         if (LX_FAILED(lr)) { RET_FAIL(lr); }
         if (m_terminated || EIP == TERMINATE_EIP) break;
@@ -154,6 +158,7 @@ LxResult Processor::RunConditional( u32 entry )
 
 LxResult Processor::Execute( const Instruction *inst )
 {
+    m_lastEip = EIP;
     EIP += inst->Length;
 
     InstHandler h;

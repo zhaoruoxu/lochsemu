@@ -25,6 +25,7 @@ CpuPanel::CpuPanel( wxWindow *parent, ProphetFrame *dad, ProEngine *engine ) :
     m_currSelEip    = 0;
     m_currEip       = 0;
     m_currIndex     = -1;
+    m_isbusy        = false;
 }
 
 CpuPanel::~CpuPanel()
@@ -38,7 +39,7 @@ void CpuPanel::InitRender()
     m_widthInfo     = g_config.GetInt("CpuPanel", "WidthInfo", 300);
     m_width         = m_widthIp + m_widthDisasm + m_widthInfo;
 
-    m_minDistanceToBottom = g_config.GetInt("CpuPanel", "MinDistanceToBottom", 7);
+    m_minDistanceToEdge = g_config.GetInt("CpuPanel", "MinDistanceToEdge", 10);
 
     wxFont f = wxFont(g_config.GetInt("CpuPanel", "FontSize", 9), wxFONTFAMILY_DEFAULT,
         wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, 
@@ -51,15 +52,13 @@ void CpuPanel::InitRender()
     m_callRetColor  = wxColour(g_config.GetString("CpuPanel", "CallRetColor", "#f000f0"));
 
     m_showTargetNameInstead = g_config.GetInt("CpuPanel", "ShowTargetNameInsteadOfAddress", 1) != 0;
-    m_jumpLineWidthMax      = g_config.GetInt("CpuPanel", "JumpLineWidthMax", 15);
-    m_jumpLineWidthMin      = g_config.GetInt("CpuPanel", "JumpLineWidthMin", 3);
-    m_jumpLineInstDistMax   = g_config.GetInt("CpuPanel", "JumpLineInstDistanceMax", 20);
 }
 
 void CpuPanel::InitMenu()
 {
     m_popup = new wxMenu;
-    m_popup->Append(ID_PopupShowCurrInst, "&Show Current Instruction");
+    m_popup->Append(ID_PopupShowCurrInst, "Show &Current Instruction");
+    m_popup->Append(ID_PopupShowTargetInst, "Show &Target Instruction");
     m_popup->AppendSeparator();
     wxMenu *taintMenu = new wxMenu;
     taintMenu->Append(ID_PopupTaintReg, "Taint &Register...");
@@ -67,6 +66,7 @@ void CpuPanel::InitMenu()
     m_popup->Append(ID_PopupTrackMemory, "Track Memory...");
 
     Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupShowCurrInst,   this, ID_PopupShowCurrInst);
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupShowTargetInst, this, ID_PopupShowTargetInst);
     Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupTaintReg,       this, ID_PopupTaintReg); 
     Bind(wxEVT_COMMAND_MENU_SELECTED, &CpuPanel::OnPopupTrackMemory,    this, ID_PopupTrackMemory);
 }
@@ -87,6 +87,9 @@ void CpuPanel::Draw( wxBufferedPaintDC &dc )
         dc.Clear();
         return;
     }
+
+    if (m_isbusy) return;
+
     SyncObjectLock lock(*m_insts);
 
     wxPoint pv  = GetViewStart();
@@ -98,13 +101,15 @@ void CpuPanel::Draw( wxBufferedPaintDC &dc )
     /* instructions */
     int index = 0;
     for (InstPtr *inst = m_insts->Begin(); inst != m_insts->End(); inst = m_insts->Next(inst)) {
+        Assert(index == (*inst)->Index);
         if (idxStart <= index && index <= idxEnd)
             DrawInst(dc, *inst, index);
         index++;
     }
-
-    /* jump lines */
-    DrawJumpLines(dc, idxStart, idxEnd);
+    if (m_insts->IsInRange(m_currSelEip))
+        DrawJumpLine(dc, m_insts->GetInst(m_currSelEip), m_currSelIndex);
+    else if (m_insts->IsInRange(m_currEip))
+        DrawJumpLine(dc, m_insts->GetInst(m_currEip), m_currIndex);
 
     /* vertical lines */
     dc.SetPen(*wxGREY_PEN);
@@ -158,8 +163,7 @@ void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const InstPtr inst, int index )
     }
 
     // draw ip address
-    dc.DrawText(wxString::Format("%08X", inst->Eip), 0,h );
-    
+    dc.DrawText(wxString::Format("%08X", inst->Eip), 0, h);
     DrawJumpIcon(dc, inst, index);
 
     wxString instr(inst->Main.CompleteInstr);
@@ -172,15 +176,14 @@ void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const InstPtr inst, int index )
             dc.SetTextForeground(*wxBLACK);
         }
     }
-    if (strlen(inst->DllName) > 0 || strlen(inst->FuncName) > 0) {
-        wxString dll(inst->DllName);
-        dc.DrawText(wxString::Format("%s<%s:%s>", inst->Main.Inst.Mnemonic, 
-            dll.SubString(0, dll.Length()-5), inst->FuncName), m_widthIp, h);
+    if (strlen(inst->TargetModuleName) > 0 && strlen(inst->TargetFuncName) > 0) {
+        wxString dll(inst->TargetModuleName);
+        dc.DrawText(wxString::Format("%s<%s:%s>", instr, 
+            dll.SubString(0, dll.Length()-5), inst->TargetFuncName), m_widthIp, h);
     } else {
         dc.DrawText(instr, m_widthIp, h);
     }
 
-    
     if (inst->Desc.size() > 0) {
         dc.SetTextForeground(*wxBLACK);
         dc.DrawText(inst->Desc, m_widthIp + m_widthDisasm, h);
@@ -189,152 +192,83 @@ void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const InstPtr inst, int index )
     dc.SetTextForeground(*wxBLACK);
 }
 
+void CpuPanel::DrawJumpLine( wxBufferedPaintDC &dc, const InstPtr inst, int index )
+{
+    if (inst->Target == -1) return;
+    if (!m_insts->IsInRange(inst->Target)) return;
+
+    int rindex = m_insts->GetInst(inst->Target)->Index;
+    int w = m_widthIp - 7;
+    const int HalfLine = m_lineHeight / 2;
+    int h0 = index * m_lineHeight + HalfLine;
+    int h1 = rindex * m_lineHeight + HalfLine;
+    dc.SetPen(wxPen(*wxBLUE, 1, wxPENSTYLE_SOLID));
+    dc.DrawLine(w, h0, w, h1);
+    dc.DrawLine(w, h1, w+5, h1);
+}
+
 
 void CpuPanel::DrawJumpIcon( wxBufferedPaintDC &dc, const InstPtr inst, int index )
 {
     if (inst->Target == -1) return;
+    if (!m_insts->IsInRange(inst->Target)) return;
     int halfLine = m_lineHeight / 2;
     int h = inst->Target > inst->Eip ? 1 : -1;
     wxPoint pLeft(m_widthIp - 7 - h * 3, index * m_lineHeight + halfLine);
     wxPoint pRight(m_widthIp - 7 + h * 4, index * m_lineHeight + halfLine - h); 
     
     wxPoint pMid(m_widthIp - 7, index * m_lineHeight + halfLine + h * 3);
-    dc.SetPen(wxPen(*wxRED, 1, wxPENSTYLE_SOLID));
+    dc.SetPen(wxPen(*wxBLUE, 1, wxPENSTYLE_SOLID));
     dc.DrawLine(pLeft, pMid);
     dc.DrawLine(pMid, pRight);
 }
 
-
-void CpuPanel::DrawJumpLines( wxBufferedPaintDC &dc, int istart, int iend )
+void CpuPanel::OnDataUpdate( u32 addr )
 {
-    /* instruction jump lines */
-    int halfLine = m_lineHeight / 2;
-    for (auto &proc : m_procEntryEnd) {
-        if (proc.first <= iend && proc.second >= istart) {
-            int x0 = m_widthIp - 7, x1 = x0 - 5;
-            int h0 = proc.second * m_lineHeight + halfLine, 
-                h1 = proc.first * m_lineHeight + halfLine;
-            dc.SetPen(wxPen(*wxBLACK, 3, wxPENSTYLE_SOLID));
-            dc.DrawLine(x0, h0, x1, h0);
-            dc.DrawLine(x1, h0, x1, h1);
-            dc.DrawLine(x0, h1, x1, h1);
-        }
+    if (m_insts == NULL || !m_insts->IsInRange(addr)) {
+        m_insts = m_disasm->GetInstSection(addr);
     }
 
-    // draw current selected line jump
-    if (m_currSelIndex != -1 && m_insts->GetInst(m_currSelEip)->Target != -1) {
-        int rindex = -1; 
-        u32 target = m_insts->GetInst(m_currSelEip)->Target;
-        if (m_insts->IsInRange(target)) {
-            rindex = m_insts->GetInst(target)->Index;
-        }
-        if (rindex != -1 && IntersectAbs(rindex, m_currSelIndex, istart, iend)) {
-            int x0 = m_widthIp - 3, x1 = x0 - 4;
-            int h0 = m_currSelIndex * m_lineHeight + halfLine,
-                h1 = rindex * m_lineHeight + halfLine;
-            dc.SetPen(wxPen(*wxRED, 1, wxPENSTYLE_SOLID));
-            //dc.DrawLine(x0, h0, x1, h0);
-            dc.DrawLine(x1, h0, x1, h1);
-            dc.DrawLine(x0, h1, x1, h1);
-        }
-    }
-
-    if (m_currIndex != -1 && m_insts->GetInst(m_currEip)->Target != -1) {
-        int rindex = -1;
-        u32 target = m_insts->GetInst(m_currEip)->Target;
-        if (m_insts->IsInRange(target)) {
-            rindex = m_insts->GetInst(target)->Index;
-        }
-        if (rindex != -1 && IntersectAbs(rindex, m_currIndex, istart, iend)) {
-            int x0 = m_widthIp - 3, x1 = x0 - 4;
-            int h0 = m_currIndex * m_lineHeight + halfLine,
-                h1 = rindex * m_lineHeight + halfLine;
-            dc.SetPen(wxPen(wxColour("#ff0080"), 2, wxPENSTYLE_SOLID));
-            //dc.DrawLine(x0, h0, x1, h0);
-            dc.DrawLine(x1, h0, x1, h1);
-            dc.DrawLine(x0, h1, x1, h1);
-        }
-    }
-}
-
-void CpuPanel::OnDataUpdate( const InstSection *insts, const Processor *cpu )
-{
-    if (insts == NULL) return;
-    m_insts = insts;
-    m_cpu   = cpu;
-
-    {
-        SyncObjectLock lockx(*m_insts);
-
-        m_procEntryEnd.clear();
-        int prevIndex = -1, prevRindex = -1;
-        for (InstPtr *inst = m_insts->Begin(); inst != m_insts->End(); inst = m_insts->Next(inst)) {
-            int index   = (*inst)->Index;
-            u32 entry   = (*inst)->Entry;
-            if (entry == -1) continue;
-            if (entry >= (*inst)->Eip) continue;
-            Assert(m_insts->GetInst(entry));
-            int rindex  = m_insts->GetInst(entry)->Index;
-            rindex = max(prevIndex+1, rindex);
-            m_procEntryEnd[rindex] = index;
-            prevIndex   = index;
-            prevRindex  = rindex;
-        }
-
-        m_currSelIndex  = -1;
-        m_currSelEip    = 0;
-        m_currEip       = cpu->EIP;
-        if (m_currEip != 0)
-            m_currIndex = m_insts->GetInst(m_currEip)->Index;
-        m_height        = m_lineHeight * insts->GetCount();
-    }
+    m_currSelIndex  = -1;
+    m_currSelEip    = 0;
+    m_height        = m_lineHeight * m_insts->GetCount();
     SetVirtualSize(m_width, m_height);
-
-    
 }
 
 void CpuPanel::OnCurrentEipChange( u32 addr )
 {
-    Assert(m_insts->GetInst(addr));
-
-    m_currIndex = m_insts->GetInst(addr)->Index;
     m_currEip   = addr;
-
-    wxPoint p = GetViewStart();
-    wxSize cs = GetClientSize();
-    int h = cs.GetHeight() / m_lineHeight;
-    if (m_currIndex < p.y) {
-        Scroll(0, m_currIndex);
-    } else if (m_currIndex - p.y > h - m_minDistanceToBottom) {
-        Scroll(0, m_currIndex - (h - m_minDistanceToBottom));
-    }
-
+    OnDataUpdate(addr);
+    m_currIndex = m_insts->GetInst(m_currEip)->Index;
+    ScrollProperly(m_currIndex);
     Refresh();
-    //Update();
 }
 
 void CpuPanel::ShowCode( u32 addr )
 {
-    if (!m_insts->GetInst(addr)) {
-        wxMessageBox(wxString::Format("Address %08x not in current Code Section", addr), "Prophet");
-        return;
-    }
+    OnDataUpdate(addr);
     m_currSelIndex = m_insts->GetInst(addr)->Index;
-    OnSelectionChange();
+    //OnSelectionChange();
+    m_currSelEip = addr;
+    ScrollProperly(m_currSelIndex);
     Refresh();
-    Scroll(0, m_insts->GetInst(addr)->Index);
+}
+
+void CpuPanel::ScrollProperly( int index )
+{
+    wxPoint p = GetViewStart();
+    wxSize cs = GetClientSize();
+    int h = cs.GetHeight() / m_lineHeight;
+    if (index < p.y) {
+        Scroll(0, max(index - m_minDistanceToEdge, 0));
+    } else if (index - p.y > h - m_minDistanceToEdge) {
+        Scroll(0, index - (h - m_minDistanceToEdge));
+    }
 }
 
 void CpuPanel::OnSelectionChange()
 {
     m_currSelEip    = m_insts->GetEipFromIndex(m_currSelIndex);
-}
-
-int CpuPanel::CalcJumpLineWidth(int idx1, int idx2) const
-{
-    int dist = min(abs(idx1 - idx2), m_jumpLineInstDistMax);
-    return m_jumpLineWidthMin + (m_jumpLineWidthMax - m_jumpLineWidthMin) * 
-        dist / m_jumpLineInstDistMax;
 }
 
 void CpuPanel::OnRightDown( wxMouseEvent& event )
@@ -346,7 +280,22 @@ void CpuPanel::OnRightDown( wxMouseEvent& event )
 
 void CpuPanel::OnPopupShowCurrInst( wxCommandEvent &event )
 {
-    Scroll(0, m_currIndex);
+    OnCurrentEipChange(m_currEip);
+}
+
+void CpuPanel::OnPopupShowTargetInst( wxCommandEvent &event )
+{
+    u32 target = (u32) -1;
+    if (m_currSelEip != 0) {
+        target = m_disasm->GetInst(m_currSelEip)->Target;
+    } else {
+        target = m_disasm->GetInst(m_currEip)->Target;
+    }
+    if (target == (u32) -1) {
+        wxMessageBox("No target");
+        return;
+    }
+    ShowCode(target);
 }
 
 void CpuPanel::OnPopupTaintReg( wxCommandEvent &event )
@@ -443,3 +392,20 @@ void CpuPanel::TrackMemory( u32 instEip )
 
     m_dad->ShowInMemory(memAddr);
 }
+
+void CpuPanel::OnProcessPostLoad( ProcessPostLoadEvent &event )
+{
+    m_disasm = m_engine->GetDisassembler();
+}
+
+void CpuPanel::OnPreExecute( PreExecuteEvent &event )
+{
+    m_cpu = event.Cpu;
+    m_currEip = event.Cpu->EIP;
+}
+
+void CpuPanel::ReportBusy( bool isbusy )
+{
+    m_isbusy = isbusy;
+}
+

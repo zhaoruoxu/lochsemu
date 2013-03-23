@@ -14,7 +14,7 @@ bool Instruction::IsCall( const Instruction *inst )
 {
     const char *m= inst->Main.Inst.Mnemonic;
     /*return strstr(mnemonics, "call") == mnemonics;*/
-    return m[0] == 'c' && m[1] == 'a' && m[2] == 'l' && m[3] == 'l';
+    return m[0] == 'c' && m[1] == 'a' && m[2] == 'l';
 }
 
 bool Instruction::IsConditionalJump( const Instruction *inst )

@@ -5,6 +5,7 @@
 
 #include "lochsemu.h"
 #include "pemodule.h"
+#include "emulator.h"
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
@@ -19,6 +20,7 @@ public:
     LxResult            Initialize(Emulator *emu);
     LxResult            Load(LPCSTR lpFileName);
     Emulator *          Emu() { Assert(m_emu); return m_emu; }
+    LPCSTR              Path() const { Assert(m_emu); return m_emu->Path(); }
     uint                RuntimeLoad(LPCSTR lpFileName);
     ModuleInfo *        GetModuleInfo(uint n) { Assert(n < m_infos.size()); return &m_infos[n]; }
     const ModuleInfo *  GetModuleInfo(uint n) const { Assert(n < m_infos.size()); return &m_infos[n]; }

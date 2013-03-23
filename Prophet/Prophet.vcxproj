@@ -90,8 +90,7 @@
       <AdditionalLibraryDirectories>$(WXWIN)\lib\vc_lib</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(PYTHON)\python.exe prebuild.py</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -116,6 +115,7 @@
     <ClInclude Include="engine.h" />
     <ClInclude Include="event.h" />
     <ClInclude Include="gui\bpspanel.h" />
+    <ClInclude Include="gui\stackpanel.h" />
     <ClInclude Include="gui\cpupanel.h" />
     <ClInclude Include="gui\custombase.h" />
     <ClInclude Include="gui\gui.h" />
@@ -170,6 +170,7 @@
     <ClCompile Include="dbg\debugger.cpp" />
     <ClCompile Include="dbg\tracer.cpp" />
     <ClCompile Include="gui\bpspanel.cpp" />
+    <ClCompile Include="gui\stackpanel.cpp" />
     <ClCompile Include="gui\custombase.cpp" />
     <ClCompile Include="gui\mempanel.cpp" />
     <ClCompile Include="gui\msgpanel.cpp" />

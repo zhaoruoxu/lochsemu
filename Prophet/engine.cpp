@@ -12,8 +12,12 @@
 #include "buildver.h"
 
 ProEngine::ProEngine() 
-    : m_disassembler(this), m_debugger(this), m_tracer(this), 
-    m_taint(this), m_plugins(this), m_protocol(this)
+    : m_disassembler(this), 
+    m_debugger(this), 
+    m_tracer(this), 
+    m_taint(this), 
+    m_plugins(this), 
+    m_protocol(this)
 {
     m_emulator  = NULL;
 }
@@ -51,8 +55,9 @@ void ProEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
     PreExecuteEvent event(this, cpu, inst);
 
     m_disassembler.OnPreExecute(event);     // disassemble the instruction first no matter what
-
     m_statistics.OnPreExecute(event);
+    m_gui->OnPreExecute(event);
+    
     m_plugins.OnPreExecute(event, true);
     if (event.IsVetoed()) return;
 
@@ -67,6 +72,8 @@ void ProEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
 {
     if (!m_enabled) return;
     PostExecuteEvent event(this, cpu, inst);
+
+    m_gui->OnPostExecute(event);
 
     m_plugins.OnPostExecute(event, true);
     if (event.IsVetoed()) return;
@@ -159,7 +166,8 @@ void ProEngine::OnProcessPostLoad( const PeLoader *loader )
 
     LoadArchive(loader->GetModuleInfo(0)->Name);
     m_debugger.OnProcessPostLoad(event);
-    m_gui->OnProcessLoaded(m_emulator->Path());
+    m_gui->OnArchiveLoaded(&m_archive);
+    m_gui->OnProcessPostLoad(event);
     m_protocol.OnProcessPostLoad(event);
 
     m_plugins.OnProcessPostLoad(event, false);
@@ -200,12 +208,10 @@ void ProEngine::SetGuiFrame( ProphetFrame *frame )
     m_gui->GetTracePanel()->SetTracer(&m_tracer);
 }
 
-void ProEngine::UpdateCpuData( const InstSection *insts, const Processor *cpu )
-{
-    m_gui->GetCpuPanel()->OnDataUpdate(insts, cpu);
-}
-
-
+// void ProEngine::UpdateCpuData( const InstSection *insts )
+// {
+//     m_gui->GetCpuPanel()->OnDataUpdate(insts);
+// }
 
 void ProEngine::GetInstContext(InstContext *ctx) const
 {
@@ -281,8 +287,6 @@ void ProEngine::LoadArchive(const char *moduleName)
             LxFatal("Error deserializing archive file\n");
         }
     }
-
-    m_gui->OnArchiveLoaded(&m_archive);
 }
 
 void ProEngine::SaveArchive()

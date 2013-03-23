@@ -16,32 +16,41 @@ public:
 
     void        ShowCode(u32 addr);
     void        OnCurrentEipChange(u32 addr);
-    void        OnDataUpdate(const InstSection *insts, const Processor *cpu);
     void        OnSelectionChange() override;
+    void        ReportBusy(bool isbusy);
 
     void        OnRightDown(wxMouseEvent& event);
     void        OnPopupShowCurrInst(wxCommandEvent &event);
+    void        OnPopupShowTargetInst(wxCommandEvent &event);
     void        OnPopupTaintReg(wxCommandEvent &event);
     void        OnPopupTrackMemory(wxCommandEvent &event);
 
     u32         GetCurrentEip() const { return m_currEip; }
     u32         GetSelectedEip() const { return m_currSelEip; }
 
+    void        OnPreExecute(PreExecuteEvent &event);
+    void        OnProcessPostLoad(ProcessPostLoadEvent &event);
+
 private:
+    void        OnDataUpdate(u32 addr);
+    void        ScrollProperly(int index);
     void        InitRender();
     void        InitMenu();
     void        Draw(wxBufferedPaintDC &dc) override;
     void        DrawInst(wxBufferedPaintDC &dc, const InstPtr inst, int index);
+    void        DrawJumpLine(wxBufferedPaintDC &dc, const InstPtr inst, int index);
     void        DrawJumpIcon(wxBufferedPaintDC &dc, const InstPtr inst, int index);
-    void        DrawJumpLines(wxBufferedPaintDC &dc, int istart, int iend);
     wxPoint     GetCurrentScrolledPos() const;
-    int         CalcJumpLineWidth(int idx1, int idx2) const;
     void        TrackMemory(u32 instEip);
 private:
+    bool        m_isbusy;
     ProphetFrame *  m_dad;
     wxMenu *    m_popup;
     ProEngine *   m_engine;
     const Processor *   m_cpu;
+    Disassembler *  m_disasm;
+    const InstSection *     m_insts;
+
     
     /* render */
     int         m_widthIp;
@@ -49,23 +58,19 @@ private:
     int         m_widthInfo;
     int         m_width;
     int         m_height;
+
     int         m_currIndex;
     u32         m_currEip;
     u32         m_currSelEip;
-    int         m_minDistanceToBottom;
+    int         m_minDistanceToEdge;
     bool        m_showTargetNameInstead;
-    int         m_jumpLineWidthMax;
-    int         m_jumpLineWidthMin;
-    int         m_jumpLineInstDistMax;
 
     wxBrush     m_curlineBrush;
     wxBrush     m_sellineBrush;
     wxBrush     m_zerolineBrush;
     wxColour    m_callRetColor;
     wxColour    m_jumpColor;
-
-    const InstSection *     m_insts;
-    std::map<int, int>      m_procEntryEnd;
 };
+    
  
 #endif // __PROPHET_GUI_CPUPANEL_H__

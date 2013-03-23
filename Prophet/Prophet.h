@@ -30,11 +30,13 @@ PROPHET_API void LochsEmu_Process_PreLoad           (PeLoader *loader);
 PROPHET_API void LochsEmu_Process_PostLoad          (PeLoader *loader);
 PROPHET_API void LochsEmu_Winapi_PreCall            (Processor *cpu, uint apiIndex);
 PROPHET_API void LochsEmu_Winapi_PostCall           (Processor *cpu, uint apiIndex);
+
 // dbg
 class ProDebugger;
 struct TraceContext;
 class ProTracer;
 struct Breakpoint;
+class CallStack;
 
 // gui
 
