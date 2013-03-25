@@ -345,11 +345,14 @@
     <ClCompile Include="common\parallel.cpp">
       <Filter>Source Files\common</Filter>
     </ClCompile>
-    <ClCompile Include="simd\simd_xor.cpp">
-      <Filter>Source Files\simd</Filter>
-    </ClCompile>
     <ClCompile Include="winapi\netapi32.cpp">
       <Filter>Source Files\winapi</Filter>
+    </ClCompile>
+    <ClCompile Include="simd\simd_bitwise_logical.cpp">
+      <Filter>Source Files\simd</Filter>
+    </ClCompile>
+    <ClCompile Include="simd\simd_arith.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

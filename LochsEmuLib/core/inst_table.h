@@ -275,7 +275,15 @@ DECLARE_INST_HANDLER(Rdtsc_0F31);           // RDTSC
 
 DECLARE_INST_HANDLER(Movapd_66_0F28);       // MOVAPD
 DECLARE_INST_HANDLER(Xorps_0F57);           // XORPS
+DECLARE_INST_HANDLER(Punpckldq_0F62);       // PUNPCKLDQ
+DECLARE_INST_HANDLER(Pcmpgtb_0F64);         // PCMPGTB
+DECLARE_INST_HANDLER(Movd_0F6E);            // MOVD
 DECLARE_INST_HANDLER(Movdqa_0F6F);          // MOVDQA
+DECLARE_INST_HANDLER(Pshufw_0F70);          // PSHUFW
+DECLARE_INST_HANDLER(Ext_0F72); 
+DECLARE_INST_HANDLER(Psrld_0F72_ext2);      // PSRLD xmm1, imm8
+DECLARE_INST_HANDLER(Pslld_0F72_ext6);      // PSLLD xmm1, imm8
+DECLARE_INST_HANDLER(Emms_0F77);            // EMMS
 DECLARE_INST_HANDLER(Movd_0F7E);            // MOVD
 DECLARE_INST_HANDLER(Movdqa_0F7F);          // MOVDQA
 
@@ -328,8 +336,10 @@ DECLARE_INST_HANDLER(Xadd_0FC1);		//XADD r/m16/32, r16/32
 DECLARE_INST_HANDLER(Bswap_0FC8);		//BSWAP r32;
 
 DECLARE_INST_HANDLER(Movq_0FD6);        // MOVQ xmm2/m64, xmm1
+DECLARE_INST_HANDLER(Pand_0FDB);        // PAND xmm1, xmm2/m128
 
-DECLARE_INST_HANDLER(Pxor_66_0FEF);		//PXOR xmm1,xmm2/m128
+DECLARE_INST_HANDLER(Pxor_0FEF);		//PXOR xmm1,xmm2/m128
+DECLARE_INST_HANDLER(Paddb_0FFC);       // PADDB xmm1, xmm2/m128
 
 /************************************************************************/
 /* Instruction Handlers FPU                                             */

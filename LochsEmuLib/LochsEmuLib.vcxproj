@@ -206,6 +206,7 @@
     <ClCompile Include="cpu\xchg.cpp" />
     <ClCompile Include="cpu\xlat.cpp" />
     <ClCompile Include="cpu\xor.cpp" />
+    <ClCompile Include="simd\simd_arith.cpp" />
     <ClCompile Include="winapi\advapi32.cpp" />
     <ClCompile Include="winapi\comctl32.cpp" />
     <ClCompile Include="winapi\gdi32.cpp" />
@@ -240,7 +241,7 @@
     <ClCompile Include="fpu\fsub.cpp" />
     <ClCompile Include="simd\simd_misc.cpp" />
     <ClCompile Include="simd\simd_mov.cpp" />
-    <ClCompile Include="simd\simd_xor.cpp" />
+    <ClCompile Include="simd\simd_bitwise_logical.cpp" />
     <ClCompile Include="winapi\ws2_32.cpp" />
   </ItemGroup>
   <ItemGroup>

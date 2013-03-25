@@ -272,7 +272,21 @@ LxResult Ext_0F1F(Processor *cpu, const Instruction *inst)
         /* 0x7 */InstNotAvailable,
     };
     return handlers[MASK_MODRM_REG(inst->Aux.modrm)](cpu, inst);
+}
 
+LxResult Ext_0F72(Processor *cpu, const Instruction *inst)
+{
+    static InstHandler handlers[] = {
+        /* 0x0 */InstNotAvailable,
+        /* 0x1 */InstNotAvailable,
+        /* 0x2 */Psrld_0F72_ext2,
+        /* 0x3 */InstNotAvailable,
+        /* 0x4 */InstNotAvailable,
+        /* 0x5 */InstNotAvailable,
+        /* 0x6 */Pslld_0F72_ext6,
+        /* 0x7 */InstNotAvailable,
+    };
+    return handlers[MASK_MODRM_REG(inst->Aux.modrm)](cpu, inst);
 }
 
 LxResult Ext_0FAE(Processor *cpu, const Instruction *inst)

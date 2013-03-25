@@ -16,6 +16,23 @@ LxResult Movapd_66_0F28(Processor *cpu, const Instruction *inst)
     RET_SUCCESS();
 }
 
+LxResult Movd_0F6E(Processor *cpu, const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize) {
+        // MOVD xmm, r/m32
+        u32 val = cpu->ReadOperand32(inst, inst->Main.Argument2, NULL);
+        u128 r;
+        r.dat[0] = val;
+        cpu->WriteOperand128(inst, inst->Main.Argument1, 0, r);
+    } else {
+        // MOVD mm, r/m32
+        u32 val = cpu->ReadOperand32(inst, inst->Main.Argument2, NULL);
+        u64 r = val;
+        cpu->WriteOperand64(inst, inst->Main.Argument1, 0, r);
+    }
+    RET_SUCCESS();
+}
+
 LxResult Movdqa_0F6F(Processor *cpu, const Instruction *inst)
 {
     if (inst->Main.Prefix.OperandSize) {
