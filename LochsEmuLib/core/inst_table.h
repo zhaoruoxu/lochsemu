@@ -274,6 +274,24 @@ DECLARE_INST_HANDLER(Nop_0F1F_0);           // NOP
 DECLARE_INST_HANDLER(Rdtsc_0F31);           // RDTSC
 
 DECLARE_INST_HANDLER(Movapd_66_0F28);       // MOVAPD
+
+DECLARE_INST_HANDLER(Cmovo_0F40);            // OF=1,        CmovO rel8
+DECLARE_INST_HANDLER(Cmovno_0F41);           // OF=0,        CmovNO rel8
+DECLARE_INST_HANDLER(Cmovb_0F42);            // CF=1,        CmovB rel8, CmovNAE rel8
+DECLARE_INST_HANDLER(Cmovnb_0F43);           // CF=0,        CmovNB rel8, CmovNC rel8
+DECLARE_INST_HANDLER(Cmove_0F44);            // Zf=1,        CmovE rel8, CmovZ rel8
+DECLARE_INST_HANDLER(Cmovne_0F45);           // ZF=0,        CmovNE rel8, CmovNZ rel8
+DECLARE_INST_HANDLER(Cmovbe_0F46);           // CF=1|ZF=1,   CmovBE rel8, CmovNA rel8
+DECLARE_INST_HANDLER(Cmova_0F47);            // CF=0&ZF=0,   CmovA rel8, CmovNBE rel8
+DECLARE_INST_HANDLER(Cmovs_0F48);            // SF=1,        CmovS rel8
+DECLARE_INST_HANDLER(Cmovns_0F49);           // SF=0,        CmovNS rel8
+DECLARE_INST_HANDLER(Cmovp_0F4A);            // PF=1,        CmovP rel8, CmovPE rel8
+DECLARE_INST_HANDLER(Cmovnp_0F4B);           // PF=0,        CmovNP rel8, CmovPO rel8
+DECLARE_INST_HANDLER(Cmovl_0F4C);            // SF!=OF,      CmovL rel8, CmovNGE rel8
+DECLARE_INST_HANDLER(Cmovge_0F4D);           // SF=OF,       CmovGE rel8, CmovNL rel8
+DECLARE_INST_HANDLER(Cmovle_0F4E);           // ZF=1|SF!=OF, CmovLE rel8, CmovNG rel8
+DECLARE_INST_HANDLER(Cmovg_0F4F);            // ZF=0&SF=OF,  CmovG rel8, CmovNLE rel8
+
 DECLARE_INST_HANDLER(Xorps_0F57);           // XORPS
 DECLARE_INST_HANDLER(Punpckldq_0F62);       // PUNPCKLDQ
 DECLARE_INST_HANDLER(Pcmpgtb_0F64);         // PCMPGTB

@@ -136,6 +136,7 @@
   <ItemGroup>
     <ClCompile Include="common\parallel.cpp" />
     <ClCompile Include="core\instruction.cpp" />
+    <ClCompile Include="cpu\cmovcc.cpp" />
     <ClCompile Include="cpu\cmpxchg.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="core\callback.cpp">
