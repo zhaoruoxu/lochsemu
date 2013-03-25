@@ -20,6 +20,12 @@ void TaintEngine::Initialize()
 
 }
 
+void TaintEngine::Reset()
+{
+    CpuTaint.Reset();
+    MemTaint.Reset();
+}
+
 void TaintEngine::OnPostExecute( PostExecuteEvent &event )
 {
     if (!IsEnabled()) return;
@@ -38,8 +44,6 @@ void TaintEngine::OnPostExecute( PostExecuteEvent &event )
         (this->*h)(event.Cpu, event.Inst);
     }
 }
-
-
 
 void TaintEngine::UpdateInstContext( InstContext *ctx ) const
 {
@@ -569,22 +573,22 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0x3d*/ NULL,
     /*0x3e*/ NULL,
     /*0x3f*/ NULL,
-    /*0x40*/ NULL,
-    /*0x41*/ NULL,
-    /*0x42*/ NULL,
-    /*0x43*/ NULL,
-    /*0x44*/ NULL,
-    /*0x45*/ NULL,
-    /*0x46*/ NULL,
-    /*0x47*/ NULL,
-    /*0x48*/ NULL,
-    /*0x49*/ NULL,
-    /*0x4a*/ NULL,
-    /*0x4b*/ NULL,
-    /*0x4c*/ NULL,
-    /*0x4d*/ NULL,
-    /*0x4e*/ NULL,
-    /*0x4f*/ NULL,
+    /*0x40*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x41*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x42*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x43*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x44*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x45*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x46*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x47*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x48*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x49*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x4a*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x4b*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x4c*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x4d*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x4e*/ &TaintEngine::TaintPropagate_Cmovcc,
+    /*0x4f*/ &TaintEngine::TaintPropagate_Cmovcc,
     /*0x50*/ NULL,
     /*0x51*/ NULL,
     /*0x52*/ NULL,
@@ -592,7 +596,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0x54*/ NULL,
     /*0x55*/ NULL,
     /*0x56*/ NULL,
-    /*0x57*/ NULL,
+    /*0x57*/ &TaintEngine::DefaultSIMDBinopHandler,
     /*0x58*/ NULL,
     /*0x59*/ NULL,
     /*0x5a*/ NULL,
@@ -603,9 +607,9 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0x5f*/ NULL,
     /*0x60*/ NULL,
     /*0x61*/ NULL,
-    /*0x62*/ NULL,
+    /*0x62*/ &TaintEngine::Punpckldq_Handler,
     /*0x63*/ NULL,
-    /*0x64*/ NULL,
+    /*0x64*/ &TaintEngine::DefaultSIMDBinopHandler,
     /*0x65*/ NULL,
     /*0x66*/ NULL,
     /*0x67*/ NULL,
@@ -615,7 +619,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0x6b*/ NULL,
     /*0x6c*/ NULL,
     /*0x6d*/ NULL,
-    /*0x6e*/ NULL,
+    /*0x6e*/ &TaintEngine::Movd0F6E_Handler,
     /*0x6f*/ &TaintEngine::Movdqa0F6F_7F_Handler,
     /*0x70*/ NULL,
     /*0x71*/ NULL,
@@ -751,12 +755,12 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0xd3*/ NULL,
     /*0xd4*/ NULL,
     /*0xd5*/ NULL,
-    /*0xd6*/ NULL,
+    /*0xd6*/ &TaintEngine::Movq0FD6_Handler,
     /*0xd7*/ NULL,
     /*0xd8*/ NULL,
     /*0xd9*/ NULL,
     /*0xda*/ NULL,
-    /*0xdb*/ NULL,
+    /*0xdb*/ &TaintEngine::DefaultSIMDBinopHandler,
     /*0xdc*/ NULL,
     /*0xdd*/ NULL,
     /*0xde*/ NULL,
@@ -776,7 +780,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0xec*/ NULL,
     /*0xed*/ NULL,
     /*0xee*/ NULL,
-    /*0xef*/ &TaintEngine::Pxor660FEF_Handler,
+    /*0xef*/ &TaintEngine::Pxor0FEF_Handler,
     /*0xf0*/ NULL,
     /*0xf1*/ NULL,
     /*0xf2*/ NULL,
@@ -789,7 +793,7 @@ TaintEngine::TaintInstHandler TaintEngine::HandlerTwoBytes[] = {
     /*0xf9*/ NULL,
     /*0xfa*/ NULL,
     /*0xfb*/ NULL,
-    /*0xfc*/ NULL,
+    /*0xfc*/ &TaintEngine::DefaultSIMDBinopHandler,
     /*0xfd*/ NULL,
     /*0xfe*/ NULL,
     /*0xff*/ NULL,
@@ -1310,6 +1314,21 @@ void TaintEngine::Movdqa0F6F_7F_Handler(const Processor *cpu, const Instruction 
     }
 }
 
+void TaintEngine::Movd0F6E_Handler(const Processor *cpu, const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize) {
+        Taint4 s    = GetTaint<4>(cpu, ARG2);
+        Taint16 t;
+        ToTaint<4, 16>(t, s, 0);
+        SetTaint16(cpu, ARG1, t);
+    } else {
+        Taint4 s    = GetTaint<4>(cpu, ARG2);
+        Taint8 t;
+        ToTaint<4, 8>(t, s, 0);
+        SetTaint8(cpu, ARG1, t);
+    }
+}
+
 void TaintEngine::Movd0F7E_Handler(const Processor *cpu, const Instruction *inst)
 {
     if (inst->Main.Prefix.OperandSize) {
@@ -1420,19 +1439,86 @@ void TaintEngine::Bswap_Handler(const Processor *cpu, const Instruction *inst)
     SetTaint<4>(cpu, ARG1, t);
 }
 
-void TaintEngine::Pxor660FEF_Handler(const Processor *cpu, const Instruction *inst)
+void TaintEngine::Pxor0FEF_Handler(const Processor *cpu, const Instruction *inst)
 {
     if (inst->Main.Prefix.OperandSize) {
+        if (ARG1.ArgType == ARG2.ArgType) {
+            Taint16 t;
+            t.ResetAll();
+            SetTaint16(cpu, ARG1, t);
+            return;
+        }
         Taint16 t = TaintRule_Binop<16>(GetTaint16(cpu, ARG1), GetTaint16(cpu, ARG2));
         SetTaint16(cpu, ARG1, t);
     } else {
-        NOT_IMPLEMENTED();
+        if (ARG1.ArgType == ARG2.ArgType) {
+            Taint8 t;
+            t.ResetAll();
+            SetTaint8(cpu, ARG1, t);
+            return;
+        }
+        Taint8 t = TaintRule_Binop<8>(GetTaint8(cpu, ARG1), GetTaint8(cpu, ARG2));
+        SetTaint8(cpu, ARG1, t);
     }
 }
 
-void TaintEngine::Reset()
+void TaintEngine::Punpckldq_Handler(const Processor *cpu, const Instruction *inst)
 {
-    CpuTaint.Reset();
-    MemTaint.Reset();
+    if (inst->Main.Prefix.OperandSize) {
+        Taint16 t1 = GetTaint16(cpu, ARG1), t2 = GetTaint16(cpu, ARG2);
+        Taint16 r;
+        r[0] = t1[0]; r[1] = t1[1]; r[2] = t1[2]; r[3] = t1[3];
+        r[4] = t2[0]; r[5] = t2[1]; r[6] = t2[2]; r[7] = t2[3];
+        r[8] = t1[4]; r[9] = t1[5]; r[10] = t1[6]; r[11] = t1[7];
+        r[12] = t2[4]; r[13] = t2[5]; r[14] = t2[6]; r[15] = t2[7];
+        SetTaint16(cpu, ARG1, r);
+    } else {
+        Taint8 t1 = GetTaint8(cpu, ARG1), t2 = GetTaint8(cpu, ARG2);
+        Taint8 r;
+        r[0] = t1[0]; r[1] = t1[1]; r[2] = t1[2]; r[3] = t1[3];
+        r[4] = t2[0]; r[5] = t2[1]; r[6] = t2[2]; r[7] = t2[3];
+        SetTaint8(cpu, ARG1, r);
+    }
 }
 
+void TaintEngine::DefaultSIMDBinopHandler(const Processor *cpu, const Instruction *inst)
+{
+    if (ARG1.ArgSize == 64) {
+        Taint8 t = TaintRule_Binop(GetTaint8(cpu, ARG1), GetTaint8(cpu, ARG2));
+        SetTaint8(cpu, ARG1, t);
+    } else if (ARG1.ArgSize == 128) {
+        Taint16 t = TaintRule_Binop(GetTaint16(cpu, ARG1), GetTaint16(cpu, ARG2));
+        SetTaint16(cpu, ARG1, t);
+    } else {
+        LxFatal("shit\n");
+    }
+}
+
+void TaintEngine::Pshufw_Handler(const Processor *cpu, const Instruction *inst)
+{
+    Taint8 t = GetTaint8(cpu, ARG1);
+    byte n = (byte) inst->Main.Inst.Immediat;
+    Taint8 res;
+    res[0] = t[(n&3)*2]; res[1] = t[(n&3)*2+1];
+    res[2] = t[((n>>2)&3)*2]; res[3] = t[((n>>2)&3)*2+1];
+    res[4] = t[((n>>4)&3)*2]; res[5] = t[((n>>4)&3)*2+1];
+    res[6] = t[((n>>6)&3)*2]; res[7] = t[((n>>6)&3)*2+1];
+    SetTaint8(cpu, ARG1, res);
+}
+
+void TaintEngine::Movq0FD6_Handler(const Processor *cpu, const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize) {
+        Taint16 t = GetTaint16(cpu, ARG2);
+        if (IsMemoryArg(inst->Main.Argument1)) {
+            Taint8 s = FromTaint<16, 8>(t, 0);
+            SetTaint8(cpu, ARG1, s);
+        } else {
+            for (int i = 8; i < 16; i++)
+                t[i].ResetAll();
+            SetTaint16(cpu, ARG1, t);
+        }
+    } else {
+        LxFatal("shit happens\n");
+    }
+}

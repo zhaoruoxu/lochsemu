@@ -59,14 +59,19 @@ private:
     Tb<N>       TaintRule_Load(const Processor *cpu, const ARGTYPE &oper)
     {
         u32 o = cpu->Offset32(oper);
-        return MemTaint.Get<N>(o);
+        Taint1 t = GetTaintAddressingReg(oper);
+        Tb<N>  s = Extend<N>(t);
+        Tb<N>  m = MemTaint.Get<N>(o);
+        return m | s;
     }
 
     template <int N>
     void        TaintRule_Save(const Processor *cpu, const ARGTYPE &oper, const Tb<N> &t)
     {
         u32 o = cpu->Offset32(oper);
-        MemTaint.Set(o, t);
+        Taint1 r = GetTaintAddressingReg(oper);
+        Tb<N>  s = Extend<N>(r);
+        MemTaint.Set(o, t | s);
     }
 
     void        TaintRule_ConditionalEip(const Taint1 &t)
@@ -272,46 +277,16 @@ private:
         TaintRule_ConditionalEip(GetTestedFlagTaint(inst));
     }
 
-//     template <int X>
-//     void        TaintPropagate_CJmp1(const Processor *cpu, const Instruction *inst)
-//     {
-//         TaintRule_ConditionalEip(CpuTaint.Flags[X]);
-//     }
-// 
-//     template <int X, int Y>
-//     void        TaintPropagate_CJmp2(const Processor *cpu, const Instruction *inst)
-//     {
-//         TaintRule_ConditionalEip(CpuTaint.Flags[X] | CpuTaint.Flags[Y]);
-//     }
-// 
-//     template <int X, int Y, int Z>
-//     void        TaintPropagate_CJmp3(const Processor *cpu, const Instruction *inst)
-//     {
-//         TaintRule_ConditionalEip(CpuTaint.Flags[X] | CpuTaint.Flags[Y] | CpuTaint.Flags[Z]);
-//     }
-
     void        TaintPropagate_Setcc(const Processor *cpu, const Instruction *inst)
     {
         SetTaint<1>(cpu, ARG2, GetTestedFlagTaint(inst));
     }
 
-//     template <int X>
-//     void        TaintPropagate_Setcc1(const Processor *cpu, const Instruction *inst)
-//     {
-//         SetTaint<1>(cpu, ARG2, CpuTaint.Flags[X]);
-//     }
-// 
-//     template <int X, int Y>
-//     void        TaintPropagate_Setcc2(const Processor *cpu, const Instruction *inst)
-//     {
-//         SetTaint<1>(cpu, ARG2, CpuTaint.Flags[X] | CpuTaint.Flags[Y]);
-//     }
-// 
-//     template <int X, int Y, int Z>
-//     void        TaintPropagate_Setcc3(const Processor *cpu, const Instruction *inst)
-//     {
-//         SetTaint<1>(cpu, ARG2, CpuTaint.Flags[X] | CpuTaint.Flags[Y] | CpuTaint.Flags[Z]);
-//     }
+    void        TaintPropagate_Cmovcc(const Processor *cpu, const Instruction *inst)
+    {
+        if (cpu->IsJumpTaken(inst))
+            Mov_Handler(cpu, inst);
+    }
 
     template <int N>
     void        TaintPropagate_Xchg(const Processor *cpu, const Instruction *inst)
@@ -436,6 +411,7 @@ private:
 
     DECLARE_HANDLER(DebugTaintIntroduce);
     DECLARE_HANDLER(DefaultBinopHandler);
+    DECLARE_HANDLER(DefaultSIMDBinopHandler);
 
     DECLARE_HANDLER(Ext80_Handler);
     DECLARE_HANDLER(Ext81_Handler);
@@ -492,6 +468,7 @@ private:
     DECLARE_HANDLER(Bt_Handler);
     DECLARE_HANDLER(Movapd660F28_Handler);
     DECLARE_HANDLER(Movdqa0F6F_7F_Handler);
+    DECLARE_HANDLER(Movd0F6E_Handler);
     DECLARE_HANDLER(Movd0F7E_Handler);
     DECLARE_HANDLER(ClearEaxEdx_Handler);
     DECLARE_HANDLER(Cpuid_Handler);
@@ -501,7 +478,10 @@ private:
     DECLARE_HANDLER(Movsx_Handler);
     DECLARE_HANDLER(Xadd_Handler);
     DECLARE_HANDLER(Bswap_Handler);
-    DECLARE_HANDLER(Pxor660FEF_Handler);
+    DECLARE_HANDLER(Pxor0FEF_Handler);
+    DECLARE_HANDLER(Punpckldq_Handler);
+    DECLARE_HANDLER(Pshufw_Handler);
+    DECLARE_HANDLER(Movq0FD6_Handler);
 
 #undef DECLARE_HANDLER
 private:

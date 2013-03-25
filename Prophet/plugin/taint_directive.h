@@ -27,6 +27,8 @@ public:
     TaintDirective(ProPluginManager *manager) 
         : Plugin(manager, "TaintDirective", PreExecuteHandler | PostExecuteHandler | ProcessPreRunHandler) 
     {
+        m_taintAllBits = false;
+        m_lastEip = 0;
     }
 
     void    Initialize() override;
