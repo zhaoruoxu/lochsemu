@@ -360,6 +360,12 @@ uint Kernel32_GetCommandLineW(Processor *cpu)
     }
 }
 
+uint Kernel32_GetConsoleCP(Processor *cpu)
+{
+    RET_VALUE = (u32) GetConsoleCP();
+    RET_PARAMS(0);
+}
+
 uint Kernel32_GetConsoleMode(Processor *cpu)
 {
     RET_VALUE = (u32) GetConsoleMode(
@@ -485,6 +491,17 @@ uint Kernel32_GetLastError(Processor *cpu)
 {
     cpu->EAX = (u32) GetLastError();
     return 0;
+}
+
+uint Kernel32_GetLocaleInfoW(Processor *cpu)
+{
+    RET_VALUE = (u32) GetLocaleInfoW(
+        (LCID)      PARAM(0),
+        (LCTYPE)    PARAM(1),
+        (LPWSTR)    PARAM_PTR(2),
+        (int)       PARAM(3)
+        );
+    RET_PARAMS(4);
 }
 
 uint Kernel32_GetLongPathNameA(Processor *cpu)
@@ -691,6 +708,12 @@ uint Kernel32_GetTimeZoneInformation(Processor *cpu)
 		(LPTIME_ZONE_INFORMATION)	PARAM_PTR(0)
 		);
 	RET_PARAMS(1);
+}
+
+uint Kernel32_GetUserDefaultLCID(Processor *cpu)
+{
+    RET_VALUE = (u32) GetUserDefaultLCID();
+    RET_PARAMS(0);
 }
 
 uint Kernel32_GetVersion( Processor *cpu )
@@ -964,6 +987,24 @@ uint Kernel32_IsProcessorFeaturePresent(Processor *cpu)
         );
     RET_PARAMS(1);
 }
+
+uint Kernel32_IsValidCodePage(Processor *cpu)
+{
+    RET_VALUE = (u32) IsValidCodePage(
+        (UINT)      PARAM(0)
+        );
+    RET_PARAMS(1);
+}
+
+uint Kernel32_IsValidLocale(Processor *cpu)
+{
+    RET_VALUE = (u32) IsValidLocale(
+        (LCID)      PARAM(0),
+        (DWORD)     PARAM(1)
+        );
+    RET_PARAMS(2);
+}
+
 uint Kernel32_LCMapStringA(Processor *cpu)
 {
     RET_VALUE = (u32) LCMapStringA(
@@ -1149,6 +1190,29 @@ uint Kernel32_RtlUnwind(Processor *cpu)
 //         (PVOID)     PARAM_PTR(3)
 //         );
     RET_PARAMS(4);
+}
+
+uint Kernel32_SearchPathA(Processor *cpu)
+{
+    u32 bufferAddr  = (u32) PARAM(4);
+    LPSTR   lpBuffer = (LPSTR) PARAM_PTR(4);
+    LPSTR * lpPart = (LPSTR *)  PARAM_PTR(5);
+
+    RET_VALUE = (u32) SearchPathA(
+        (LPCSTR)        PARAM_PTR(0),
+        (LPCSTR)        PARAM_PTR(1),
+        (LPCSTR)        PARAM_PTR(2),
+        (DWORD)         PARAM(3),
+        lpBuffer,
+        lpPart
+        );
+
+    if (lpPart != NULL && *lpPart != NULL) {
+        LxFatal("take care of this\n");
+        *lpPart = (LPSTR) (bufferAddr + (*lpPart - lpBuffer));
+    }
+
+    RET_PARAMS(6);
 }
 
 uint Kernel32_SetFileAttributesA(Processor *cpu)

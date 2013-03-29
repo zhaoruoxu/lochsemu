@@ -21,26 +21,28 @@ ProDebugger::~ProDebugger()
 
 void ProDebugger::Initialize()
 {
-//     if (g_config.GetInt("Debugger", "BreakOnEntry", 1) != 0) {
-//         m_state     = STATE_SINGLESTEP;
-//     } else {
-//         m_state     = STATE_RUNNING;
-//     }
     m_state         = STATE_RUNNING;
     m_stepOverEip   = 0;
     m_currInst      = NULL;
     m_currProcessor = NULL;
-    m_crtEntryFound = false;
-    m_mainEntry     = 0;
 }
 
 void ProDebugger::OnPreExecute( PreExecuteEvent &event )
 {
-    m_currProcessor = event.Cpu;
+    m_currProcessor = event.Cpu;  
     m_currInst      = event.Inst;
 
-    if (m_state == STATE_RUNNING_NOBP) return; // ignore everything
+    if (m_state == STATE_RUNNING_NOBP) {
+        m_mrs.clear();
+        m_mws.clear();
+        return; // ignore everything
+    }
     
+
+    if (event.Cpu->EIP == 0x1ffc70) {
+        LxInfo("debug");
+    }
+
     CheckBreakpoints(m_currProcessor, m_currInst);
 
     switch (m_state) {
@@ -74,6 +76,9 @@ void ProDebugger::OnPreExecute( PreExecuteEvent &event )
     default:
         LxFatal("invalid Prophet Debugger state\n");
     }
+
+    m_mrs.clear();
+    m_mws.clear();
 }
 
 void ProDebugger::OnStepInto()
@@ -195,8 +200,6 @@ void ProDebugger::OnProcessPreRun( ProcessPreRunEvent &event )
 
 void ProDebugger::OnProcessPostLoad( ProcessPostLoadEvent &event )
 {
-    m_mainEntry = event.Loader->GetModuleInfo(0)->EntryPoint;
-
     // update all breakpoints' runtime info
     {
         //SyncObjectLock lock(*m_archive);
@@ -241,6 +244,9 @@ void ProDebugger::UpdateInstContext( InstContext *ctx ) const
     const ModuleInfo *minfo = m_currProcessor->Proc()->GetModuleInfo(module);
     ctx->ModuleName         = minfo->Name;
     ctx->ModuleImageBase    = minfo->ImageBase;
+
+    ctx->MRs = m_mrs;
+    ctx->MWs = m_mws;
 }
 
 void ProDebugger::UpdateTraceContext( TraceContext *ctx, u32 eip ) const
@@ -261,6 +267,9 @@ void ProDebugger::UpdateTraceContext( TraceContext *ctx, u32 eip ) const
     const ModuleInfo *minfo = m_currProcessor->Proc()->GetModuleInfo(module);
     ctx->ModuleName         = minfo->Name;
     ctx->ModuleImageBase    = minfo->ImageBase;
+
+    ctx->MRs = m_mrs;
+    ctx->MWs = m_mws;
 }
 
 // void ADebugger::AnalyzeCRTEntry( const Processor *cpu, const Instruction *inst )
@@ -311,4 +320,46 @@ void ProDebugger::SetState( State s )
 {
     if (m_state == STATE_RUNNING_NOBP) return;
     m_state = s;
+}
+
+void ProDebugger::OnMemRead( MemReadEvent &event )
+{
+    if (event.NBytes == 4) {
+        m_mrs.emplace_back(event.Addr, 4, *((u32p) event.Data));
+    } else if (event.NBytes == 1) {
+        m_mrs.emplace_back(event.Addr, 1, *((u8p)  event.Data));
+    } else if (event.NBytes == 2) {
+        m_mrs.emplace_back(event.Addr, 2, *((u16p) event.Data));
+    } else if (event.NBytes == 8) {
+        m_mrs.emplace_back(event.Addr, 4, *((u32p) event.Data));
+        m_mrs.emplace_back(event.Addr+4, 4, *((u32p) (event.Data+4)));
+    } else if (event.NBytes == 16) {
+        m_mrs.emplace_back(event.Addr, 4, *((u32p) event.Data));
+        m_mrs.emplace_back(event.Addr+4, 4, *((u32p) (event.Data+4)));
+        m_mrs.emplace_back(event.Addr+8, 4, *((u32p) (event.Data+8)));
+        m_mrs.emplace_back(event.Addr+12, 4, *((u32p) (event.Data+12)));
+    } else {
+        LxFatal("shit happens\n");
+    }
+}
+
+void ProDebugger::OnMemWrite( MemWriteEvent &event )
+{
+    if (event.NBytes == 4) {
+        m_mws.emplace_back(event.Addr, 4, *((u32p) event.Data));
+    } else if (event.NBytes == 1) {
+        m_mws.emplace_back(event.Addr, 1, *((u8p)  event.Data));
+    } else if (event.NBytes == 2) {
+        m_mws.emplace_back(event.Addr, 2, *((u16p) event.Data));
+    } else if (event.NBytes == 8) {
+        m_mws.emplace_back(event.Addr, 4, *((u32p) event.Data));
+        m_mws.emplace_back(event.Addr+4, 4, *((u32p) (event.Data+4)));
+    } else if (event.NBytes == 16) {
+        m_mws.emplace_back(event.Addr, 4, *((u32p) event.Data));
+        m_mws.emplace_back(event.Addr+4, 4, *((u32p) (event.Data+4)));
+        m_mws.emplace_back(event.Addr+8, 4, *((u32p) (event.Data+8)));
+        m_mws.emplace_back(event.Addr+12, 4, *((u32p) (event.Data+12)));
+    } else {
+        LxFatal("shit happens\n");
+    }
 }

@@ -135,7 +135,10 @@ ImportTable PeModule::GetImports( Memory *mem, u32 imageBase )
         if (import.FirstThunk == 0 && import.Name == 0 && import.OriginalFirstThunk == 0) break;
         const char *dllName = (const char *) mem->GetRawData(imageBase + import.Name);
         Assert(dllName);
+        std::string dllNameStr = dllName;
         std::vector<ImportEntry> funcs;
+        if (m_imports.find(dllNameStr) != m_imports.end())
+            funcs = m_imports[dllNameStr];
         PIMAGE_THUNK_DATA pThunk = (PIMAGE_THUNK_DATA) mem->GetRawData(imageBase + import.FirstThunk);
         Assert(pThunk);
         DWORD origThunk = import.OriginalFirstThunk;

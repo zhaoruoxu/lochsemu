@@ -258,6 +258,7 @@ LochsEmu::LxResult PeLoader::LoadIAT( uint nModule )
                     return LX_RESULT_ERROR_LOAD_MODULE;
                 }
             }
+
             const ExportEntry &entry = m_infos[dllIndex].Exports[index];
 //             LxDebug("Loading function in library %s::%s (%d)0x%08x\n", dllName, entry.Name.c_str(),
 //                 entry.Ordinal, entry.Address);

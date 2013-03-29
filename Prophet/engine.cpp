@@ -96,7 +96,7 @@ void ProEngine::OnMemRead( const Processor *cpu, u32 addr, u32 nbytes, cpbyte da
     m_plugins.OnMemRead(event, true);
     if (event.IsVetoed()) return;
 
-    m_tracer.OnMemRead(event);
+    m_debugger.OnMemRead(event);
     // other modules
     m_protocol.OnMemRead(event);
 
@@ -111,7 +111,7 @@ void ProEngine::OnMemWrite( const Processor *cpu, u32 addr, u32 nbytes, cpbyte d
     m_plugins.OnMemWrite(event, true);
     if (event.IsVetoed()) return;
 
-    m_tracer.OnMemWrite(event);
+    m_debugger.OnMemWrite(event);
     m_protocol.OnMemWrite(event);
 
     m_plugins.OnMemWrite(event, false);

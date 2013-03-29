@@ -222,8 +222,10 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *se
             if (IsMemoryArg(inst->Main.Argument1) &&
                 inst->Main.Argument1.Memory.BaseRegister == 0 &&
                 inst->Main.Argument1.Memory.IndexRegister == 0 &&
-                inst->Main.Prefix.FSPrefix == 0) {
-                target = cpu->ReadOperand32(inst, inst->Main.Argument1, NULL);
+                inst->Main.Prefix.FSPrefix == 0) 
+            {
+                if (cpu->Mem->Contains(inst->Main.Argument1.Memory.Displacement))
+                    target = cpu->ReadOperand32(inst, inst->Main.Argument1, NULL);
             }
         }
     } else if (opcode == 0xe8) {

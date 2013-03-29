@@ -27,6 +27,7 @@ const char *WrappedLibraryTable[] = {
     /*  18 */ "shell32.dll",
 	/*  19 */ "oleaut32.dll",
     /*  20 */ "netapi32.dll",
+    /*  21 */ "wldap32.dll"
 };
 
 WinAPIInfo WinAPIInfoTable[] = {
@@ -63,6 +64,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "GetACP", Kernel32_GetACP },
 	{ 01, 0, "GetAtomNameA", Kernel32_GetAtomNameA },
     { 01, 0, "GetCPInfo", Kernel32_GetCPInfo },
+    { 01, 0, "GetConsoleCP", Kernel32_GetConsoleCP },
     { 01, 0, "GetConsoleMode", Kernel32_GetConsoleMode },
     { 01, 0, "GetCommandLineA", Kernel32_GetCommandLineA },
     { 01, 0, "GetCommandLineW", Kernel32_GetCommandLineW },
@@ -80,6 +82,7 @@ WinAPIInfo WinAPIInfoTable[] = {
 	{ 01, 0, "GetFileAttributesA", Kernel32_GetFileAttributesA },
     { 01, 0, "GetFileType", Kernel32_GetFileType },
     { 01, 0, "GetLastError", Kernel32_GetLastError },
+    { 01, 0, "GetLocaleInfoW", Kernel32_GetLocaleInfoW },
     { 01, 0, "GetLongPathNameA", Kernel32_GetLongPathNameA },
     { 01, 0, "GetLongPathNameW", Kernel32_GetLongPathNameW },
     { 01, 0, "GetModuleFileNameA", Kernel32_GetModuleFileNameA },
@@ -102,6 +105,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "GetTickCount", Kernel32_GetTickCount },
     { 01, 0, "GetTickCount64", Kernel32_GetTickCount64 },
 	{ 01, 0, "GetTimeZoneInformation", Kernel32_GetTimeZoneInformation },
+    { 01, 0, "GetUserDefaultLCID", Kernel32_GetUserDefaultLCID },
     { 01, 0, "GetVersion", Kernel32_GetVersion },
     { 01, 0, "GetVersionExA", Kernel32_GetVersionExA },
     { 01, 0, "GetVersionExW", Kernel32_GetVersionExW },
@@ -131,6 +135,8 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "IsDBCSLeadByte", Kernel32_IsDBCSLeadByte },
     { 01, 0, "IsDebuggerPresent", Kernel32_IsDebuggerPresent },
     { 01, 0, "IsProcessorFeaturePresent", Kernel32_IsProcessorFeaturePresent },
+    { 01, 0, "IsValidCodePage", Kernel32_IsValidCodePage },
+    { 01, 0, "IsValidLocale", Kernel32_IsValidLocale },
     { 01, 0, "LCMapStringA", Kernel32_LCMapStringA },
     { 01, 0, "LCMapStringEx", Kernel32_LCMapStringEx },
     { 01, 0, "LCMapStringW", Kernel32_LCMapStringW },
@@ -148,6 +154,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "ReadConsoleInputA", Kernel32_ReadConsoleInputA },
     { 01, 0, "ReadFile", Kernel32_ReadFile },
     { 01, 0, "RtlUnwind", Kernel32_RtlUnwind },
+    { 01, 0, "SearchPathA", Kernel32_SearchPathA },
     { 01, 0, "SetFileAttributesA", Kernel32_SetFileAttributesA },
     { 01, 0, "SetConsoleCtrlHandler", Kernel32_SetConsoleCtrlHandler },
     { 01, 0, "SetConsoleMode", Kernel32_SetConsoleMode },
@@ -356,7 +363,7 @@ LX_API uint QueryWinAPIIndexByName( const char *dllName, const char *funcName )
         hModule = LxGetModuleHandle(dllName);
     uint idx = QueryWinAPIIndexByName(hModule, funcName);
     if (0 == idx) {
-        //LxWarning("Winapi %s::%s not found\n", dllName, funcName);
+        LxWarning("Winapi %s::%s not found\n", dllName, funcName);
     }
     return idx;
 }

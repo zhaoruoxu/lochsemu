@@ -46,48 +46,6 @@ void ProTracer::OnPostExecute( PostExecuteEvent &event )
     AddTrace(m_currTrace);
 }
 
-void ProTracer::OnMemRead( MemReadEvent &event )
-{
-    if (event.NBytes == 4) {
-        m_currTrace.MRs.emplace_back(event.Addr, 4, *((u32p) event.Data));
-    } else if (event.NBytes == 1) {
-        m_currTrace.MRs.emplace_back(event.Addr, 1, *((u8p)  event.Data));
-    } else if (event.NBytes == 2) {
-        m_currTrace.MRs.emplace_back(event.Addr, 2, *((u16p) event.Data));
-    } else if (event.NBytes == 8) {
-        m_currTrace.MRs.emplace_back(event.Addr, 4, *((u32p) event.Data));
-        m_currTrace.MRs.emplace_back(event.Addr+4, 4, *((u32p) (event.Data+4)));
-    } else if (event.NBytes == 16) {
-        m_currTrace.MRs.emplace_back(event.Addr, 4, *((u32p) event.Data));
-        m_currTrace.MRs.emplace_back(event.Addr+4, 4, *((u32p) (event.Data+4)));
-        m_currTrace.MRs.emplace_back(event.Addr+8, 4, *((u32p) (event.Data+8)));
-        m_currTrace.MRs.emplace_back(event.Addr+12, 4, *((u32p) (event.Data+12)));
-    } else {
-        LxFatal("shit happens\n");
-    }
-}
-
-void ProTracer::OnMemWrite( MemWriteEvent &event )
-{
-    if (event.NBytes == 4) {
-        m_currTrace.MWs.emplace_back(event.Addr, 4, *((u32p) event.Data));
-    } else if (event.NBytes == 1) {
-        m_currTrace.MWs.emplace_back(event.Addr, 1, *((u8p)  event.Data));
-    } else if (event.NBytes == 2) {
-        m_currTrace.MWs.emplace_back(event.Addr, 2, *((u16p) event.Data));
-    } else if (event.NBytes == 8) {
-        m_currTrace.MWs.emplace_back(event.Addr, 4, *((u32p) event.Data));
-        m_currTrace.MWs.emplace_back(event.Addr+4, 4, *((u32p) (event.Data+4)));
-    } else if (event.NBytes == 16) {
-        m_currTrace.MWs.emplace_back(event.Addr, 4, *((u32p) event.Data));
-        m_currTrace.MWs.emplace_back(event.Addr+4, 4, *((u32p) (event.Data+4)));
-        m_currTrace.MWs.emplace_back(event.Addr+8, 4, *((u32p) (event.Data+8)));
-        m_currTrace.MWs.emplace_back(event.Addr+12, 4, *((u32p) (event.Data+12)));
-    } else {
-        LxFatal("shit happens\n");
-    }
-}
-
 void ProTracer::AddTrace( const TraceContext &t )
 {
     SyncObjectLock lock(*this);

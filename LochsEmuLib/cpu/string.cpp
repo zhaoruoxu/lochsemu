@@ -42,7 +42,7 @@ LxResult Movs_A5(Processor *cpu, const Instruction *inst)
     RET_SUCCESS();
 }
 
-LxResult CMPSB_A6(Processor *cpu, const Instruction *inst)
+LxResult Cmpsb_A6(Processor *cpu, const Instruction *inst)
 {
 	if (inst->Main.Prefix.AddressSize) RET_NOT_IMPLEMENTED();
 	
@@ -51,12 +51,40 @@ LxResult CMPSB_A6(Processor *cpu, const Instruction *inst)
 	u8 tmp = tmp1 - tmp2;
 	cpu->SetFlagsArith8(tmp, PROMOTE_U16(tmp1) - PROMOTE_U16(tmp2),
 		PROMOTE_I16(tmp1) - PROMOTE_I16(tmp2));
-	if(cpu->DF == 0) {
+	if (cpu->DF == 0) {
 		cpu->ESI++; cpu->EDI++;
 	} else {
 		cpu->ESI--; cpu->EDI--;
 	}
 	RET_SUCCESS();
+}
+
+LxResult Cmpsd_A7(Processor *cpu, const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize) {
+        u16 tmp1 = cpu->MemRead16(cpu->ESI, LX_REG_DS);
+        u16 tmp2 = cpu->MemRead16(cpu->EDI, LX_REG_ES);
+        u16 tmp = tmp1 - tmp2;
+        cpu->SetFlagsArith16(tmp, PROMOTE_U32(tmp1) - PROMOTE_U32(tmp2),
+            PROMOTE_I32(tmp1) - PROMOTE_I32(tmp2));
+        if (cpu->DF == 0) {
+            cpu->ESI += 2; cpu->EDI += 2;
+        } else {
+            cpu->ESI -= 2; cpu->EDI -= 2;
+        }
+    } else {
+        u32 tmp1 = cpu->MemRead32(cpu->ESI, LX_REG_DS);
+        u32 tmp2 = cpu->MemRead32(cpu->EDI, LX_REG_ES);
+        u32 tmp = tmp1 - tmp2;
+        cpu->SetFlagsArith32(tmp, PROMOTE_U64(tmp1) - PROMOTE_U64(tmp2),
+            PROMOTE_I64(tmp1) - PROMOTE_I64(tmp2));
+        if (cpu->DF == 0) {
+            cpu->ESI += 4; cpu->EDI += 4;
+        } else {
+            cpu->ESI -= 4; cpu->EDI -= 4;
+        }
+    }
+    RET_SUCCESS();
 }
 
 LxResult Stos_AA(Processor *cpu, const Instruction *inst)

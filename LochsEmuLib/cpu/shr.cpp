@@ -35,6 +35,21 @@ static INLINE void Shr8(Processor *cpu, u8 &a, u8 b)
     }
 }
 
+static INLINE void Shr16(Processor *cpu, u16 &a, u8 b)
+{
+    u16 r = a;
+    b &= COUNT_MASK;
+    if (b > 0) {
+        cpu->CF = (r & (1 << (b-1))) ? 1 : 0;
+        r >>= b;
+        if (b == 1) {
+            cpu->OF = (a & 0x8000) ? 1 : 0;
+        }
+        a = r;
+        cpu->SetFlagsShift16(r);
+    }
+}
+
 LxResult Shr_C0_ext5(Processor *cpu, const Instruction *inst)
 {
     /**
@@ -54,10 +69,13 @@ LxResult Shr_C1_ext5(Processor *cpu, const Instruction *inst)
      * SHR r/m16, imm8
      * SHR r/m32, imm8
      */
+    u32 offset;
     if (inst->Main.Prefix.OperandSize) {
-        return LX_RESULT_NOT_IMPLEMENTED;
+        u16 val1 = cpu->ReadOperand16(inst, inst->Main.Argument1, &offset);
+        u8 val2 = (u8) inst->Main.Inst.Immediat;
+        Shr16(cpu, val1, val2);
+        cpu->WriteOperand16(inst, inst->Main.Argument1, offset, val1);
     } else {
-        u32 offset;
         u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
         u8 val2 = (u8) inst->Main.Inst.Immediat;
         Shr32(cpu, val1, val2);
@@ -84,10 +102,12 @@ LxResult Shr_D1_ext5(Processor *cpu, const Instruction *inst)
      * SHR r/m16, 1
      * SHR r/m32, 1
      */
+    u32 offset;
     if (inst->Main.Prefix.OperandSize) {
-        return LX_RESULT_NOT_IMPLEMENTED;
+        u16 val1 = cpu->ReadOperand16(inst, inst->Main.Argument1, &offset);
+        Shr16(cpu, val1, 1);
+        cpu->WriteOperand16(inst, inst->Main.Argument1, offset, val1);
     } else {
-        u32 offset;
         u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
         Shr32(cpu, val1, 1);
         cpu->WriteOperand32(inst, inst->Main.Argument1, offset, val1);
@@ -115,7 +135,9 @@ LxResult Shr_D3_ext5(Processor *cpu, const Instruction *inst)
      */
     u32 offset;
     if (inst->Main.Prefix.OperandSize) {
-        return LX_RESULT_NOT_IMPLEMENTED;
+        u16 val1 = cpu->ReadOperand16(inst, inst->Main.Argument1, &offset);
+        Shr16(cpu, val1, cpu->CL);
+        cpu->WriteOperand16(inst, inst->Main.Argument1, offset, val1);
     } else {
         u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
         Shr32(cpu, val1, cpu->CL);

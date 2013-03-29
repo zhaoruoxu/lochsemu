@@ -54,6 +54,7 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
 {
     MutexCSLock lock(m_mutex);
     int h = 0;
+    const int HalfLine = m_lineHeight / 2;
 
     dc.DrawText(wxString::Format("----  %s  ----", m_dataDesc), 0, 0);
     h += m_lineHeight;
@@ -70,37 +71,30 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
     dc.DrawText(instr, 0, h);
     h += m_lineHeight;
 
-//     if (m_data.Inst->Entry != -1) {
-//         dc.DrawText(wxString::Format("Entry: %08X", m_data.Inst->Entry), 0, h);
-//         h += m_lineHeight;
-//     }
-//     if (m_data.Inst->Target != -1) {
-//         dc.DrawText(wxString::Format("Target: %08X", m_data.Inst->Target), 0, h);
-//         h += m_lineHeight;
-//     }
-// 
-//     h += m_lineHeight;
-
     wxString mod = wxString::Format("Module [%s] at %08X", m_data.ModuleName, m_data.ModuleImageBase);
     dc.DrawText(mod, 0, h);
-    h += m_lineHeight * 2;
+    h += m_lineHeight + HalfLine;
+
+    wxSize mySize = GetSize();
+    dc.DrawLine(0, h, mySize.GetWidth(), h);
+    h += HalfLine;
 
     for (int i = 0; i < InstContext::RegCount; i++) {
         dc.DrawText(InstContext::RegNames[i], 0, h);
         dc.DrawText(wxString::Format("%08X", m_data.Regs[i]), m_widthRegName, h);
         int w = m_widthRegName + m_widthRegValue;
         DrawTaint(dc, m_data.RegTaint[i], wxRect(w, h, m_widthTaint, m_lineHeight));
-
         h += m_lineHeight;
     }
-
-
-    h += m_lineHeight;
     dc.DrawText("Eip", 0, h);
     dc.DrawText(wxString::Format("%08X", m_data.Inst->Eip), m_widthRegName, h);
     DrawTaint(dc, m_data.EipTaint, wxRect(m_widthRegName + m_widthRegValue,
         h, m_widthTaint, m_lineHeight));
-    h += m_lineHeight * 2;
+    h += m_lineHeight;
+    dc.SetPen(*wxBLACK_PEN);
+    h += HalfLine;
+    dc.DrawLine(0, h, mySize.GetWidth(), h);
+    h += HalfLine;
 
     dc.DrawText("  TE MO RE SE", m_widthRegName, h);
     h += m_lineHeight;
@@ -115,7 +109,35 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
             wxRect(m_widthRegName + m_widthFlagValue, h, m_widthTaint, m_lineHeight));
         h += m_lineHeight;
     }
-    h += m_lineHeight;
+    h += HalfLine;
+    dc.SetPen(*wxBLACK_PEN);
+    dc.DrawLine(0, h, mySize.GetWidth(), h);
+    h += HalfLine;
+
+    if (m_data.MRs.size() > 0) {
+        dc.DrawText("Memory Read:", 0, h);
+        h += m_lineHeight;
+        for (uint i = 0; i < m_data.MRs.size(); i++) {
+            dc.DrawText(wxString::Format("%08x[%2d]: %08x", m_data.MRs[i].Addr, 
+                m_data.MRs[i].Len, m_data.MRs[i].Val), 0, h);
+            h += m_lineHeight;
+        }
+    }
+
+    if (m_data.MWs.size() > 0) {
+        dc.DrawText("Memory Written:", 0, h);
+        h += m_lineHeight;
+        for (uint i = 0; i < m_data.MWs.size(); i++) {
+            dc.DrawText(wxString::Format("%08x[%2d]: %08x", m_data.MWs[i].Addr, 
+                m_data.MWs[i].Len, m_data.MWs[i].Val), 0, h);
+            h += m_lineHeight;
+        }
+    }
+
+    h += HalfLine;
+    dc.SetPen(*wxBLACK_PEN);
+    dc.DrawLine(0, h, mySize.GetWidth(), h);
+    h += HalfLine;
 
     if (Instruction::IsConditionalJump(m_data.Inst)) {
         dc.DrawText(m_data.JumpTaken ? "Jump is taken" : "Jump is NOT taken", 0, h);

@@ -7,6 +7,7 @@
 #include "parallel.h"
 #include "utilities.h"
 #include "breakpoint.h"
+#include "instcontext.h"
 
 class ProDebugger : public ISerializable {
 public:
@@ -26,6 +27,8 @@ public:
     void        OnPreExecute(PreExecuteEvent &event);
     void        OnProcessPreRun(ProcessPreRunEvent &event);
     void        OnProcessPostLoad(ProcessPostLoadEvent &event);
+    void        OnMemRead(MemReadEvent &event);
+    void        OnMemWrite(MemWriteEvent &event);
     void        OnStepInto();
     void        OnStepOver();
     void        OnStepOut();
@@ -53,18 +56,15 @@ private:
 private:
     State               m_state;
     u32                 m_stepOverEip;
-
     ProEngine *         m_engine;
     Archive *           m_archive;
-
     Semaphore           m_semaphore;
-
     const Processor *   m_currProcessor;
     const Instruction * m_currInst;
-    bool                m_crtEntryFound;
-    u32                 m_mainEntry;
 
     std::vector<Breakpoint>     m_breakpoints;
+    std::vector<MemAccess>      m_mrs;
+    std::vector<MemAccess>      m_mws;
 };
 
 #endif // __PROPHET_DEBUGGER_H__

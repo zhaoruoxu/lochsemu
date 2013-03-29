@@ -7,6 +7,14 @@
 #include "taint/taint.h"
 #include "static/disassembler.h"
 
+struct MemAccess {
+    u32     Addr;
+    u32     Len;
+    u32     Val;
+
+    MemAccess(u32 addr, u32 len, u32 val)
+        : Addr(addr), Len(len), Val(val) {}
+};
 
 struct InstContext {
     enum Flag {
@@ -44,6 +52,9 @@ struct InstContext {
     InstPtr             Inst;
     bool                JumpTaken;
 
+    std::vector<MemAccess>  MRs;
+    std::vector<MemAccess>  MWs;
+
     InstContext() {
         ZeroMemory(Regs, sizeof(Regs));
         ZeroMemory(Flags, sizeof(Flags));
@@ -62,6 +73,8 @@ struct InstContext {
         ModuleImageBase = 0;
         Inst        = NULL;
         JumpTaken   = false;
+        MRs.clear();
+        MWs.clear();
     }
 };
 

@@ -9,19 +9,8 @@
 #include "instcontext.h"
 #include "utilities.h"
 
-struct MemAccess {
-    u32     Addr;
-    u32     Len;
-    u32     Val;
-
-    MemAccess(u32 addr, u32 len, u32 val)
-        : Addr(addr), Len(len), Val(val) {}
-};
-
 struct TraceContext : public InstContext {
     i64     Seq;
-    std::vector<MemAccess>  MRs;
-    std::vector<MemAccess>  MWs;
 
     TraceContext() : Seq(-1) 
     {
@@ -30,8 +19,6 @@ struct TraceContext : public InstContext {
     void    Reset() {
         InstContext::Reset();
         Seq = 0;
-        MRs.clear();
-        MWs.clear();
     }
 };
 
@@ -44,8 +31,6 @@ public:
     void            OnProcessPostLoad(ProcessPostLoadEvent &event);
     void            OnPreExecute(PreExecuteEvent &event);
     void            OnPostExecute(PostExecuteEvent &event);
-    void            OnMemRead(MemReadEvent &event);
-    void            OnMemWrite(MemWriteEvent &event);
 
     int             GetCount() const { return m_count; }
     const TraceContext &    GetTrace(int n) const;
