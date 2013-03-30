@@ -2,7 +2,7 @@
 #include "autobreak.h"
 
 AutoBreak::AutoBreak(ProPluginManager *manager) 
-    : Plugin(manager, "AutoBreak", ProcessPreRunHandler | ProcessPostLoadHandler | PreExecuteHandler) 
+    : Plugin(manager, true, "AutoBreak", ProcessPreRunHandler | ProcessPostLoadHandler | PreExecuteHandler) 
 {
     m_breakOnMainModuleEntry = true;
     m_skipDllEntries    = true;

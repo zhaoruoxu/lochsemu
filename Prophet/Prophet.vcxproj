@@ -132,6 +132,7 @@
     <ClInclude Include="plugin\advdbg.h" />
     <ClInclude Include="plugin\autobreak.h" />
     <ClInclude Include="plugin\plugin.h" />
+    <ClInclude Include="plugin\syncdiff.h" />
     <ClInclude Include="plugin\taint_directive.h" />
     <ClInclude Include="plugin\vulnerability_detector.h" />
     <ClInclude Include="prophet.h" />
@@ -195,6 +196,7 @@
     <ClCompile Include="plugin\advdbg.cpp" />
     <ClCompile Include="plugin\autobreak.cpp" />
     <ClCompile Include="plugin\plugin.cpp" />
+    <ClCompile Include="plugin\syncdiff.cpp" />
     <ClCompile Include="plugin\taint_directive.cpp" />
     <ClCompile Include="plugin\vulnerability_detector.cpp" />
     <ClCompile Include="prophet.cpp" />

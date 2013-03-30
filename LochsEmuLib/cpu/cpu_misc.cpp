@@ -69,8 +69,10 @@ LxResult Cpuid_0FA2(Processor *cpu, const Instruction *inst)
      */
     u32 a, b, c, d;
     u32 emuEax = cpu->EAX;
+    u32 emuEcx = cpu->ECX;
     __asm {
         mov eax, emuEax
+        mov ecx, emuEcx
         cpuid
         mov a, eax
         mov b, ebx

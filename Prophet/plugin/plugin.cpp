@@ -6,9 +6,10 @@
 #include "autobreak.h"
 #include "taint_directive.h"
 #include "vulnerability_detector.h"
+#include "syncdiff.h"
 
-Plugin::Plugin(ProPluginManager *manager, const std::string name, uint ovd)
-    : m_manager(manager), m_name(name), m_enabled(true), m_ovdFlag(ovd)
+Plugin::Plugin(ProPluginManager *manager, bool initialEnable, const std::string name, uint ovd)
+    : m_manager(manager), m_name(name), m_enabled(initialEnable), m_ovdFlag(ovd)
 {
 }
 
@@ -54,6 +55,7 @@ void ProPluginManager::Initialize()
     RegisterPlugin(new AutoBreak(this));
     RegisterPlugin(new TaintDirective(this));
     RegisterPlugin(new VulnerabilityDetector(this));
+    RegisterPlugin(new SyncDiff(this));
 
     for (int i = 0; i < m_totalPlugins; i++) 
         m_plugins[i]->Initialize();

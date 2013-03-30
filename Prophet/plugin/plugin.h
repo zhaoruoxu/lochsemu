@@ -9,7 +9,7 @@
 
 class Plugin : public ISerializable {
 public:
-    Plugin(ProPluginManager *manager, const std::string name, uint ovd);
+    Plugin(ProPluginManager *manager, bool initialEnable, const std::string name, uint ovd);
     virtual ~Plugin() {}
 
     std::string     GetName() const { return m_name; }

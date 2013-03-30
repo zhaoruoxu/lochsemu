@@ -318,6 +318,7 @@ void ProEngine::BreakOnNextInst(const char *desc)
 {
     if (desc != NULL)
         LxInfo("Prophet break: %s\n", desc);
+    MessageBeep(MB_ICONASTERISK);
     m_debugger.SetState(ProDebugger::STATE_SINGLESTEP);
 }
 

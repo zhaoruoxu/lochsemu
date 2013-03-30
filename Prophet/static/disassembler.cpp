@@ -196,7 +196,7 @@ void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, InstSect
         if (addrValue != 0) {
             if (IsConstantArg(inst->Main.Argument1)) {
                 Section *s = cpu->Mem->GetSection(addrValue);
-                if (s != NULL) {
+                if (s != NULL && s->Description() != "heap") {
                     u32 nextEntry = Instruction::IsCall(inst) ? addrValue : entryEip;
                     InstSection *jumpSec = m_instMem.CreateSection(s->Base(), s->Size());
                     RecursiveDisassemble(cpu, addrValue, jumpSec, nextEntry);
@@ -232,7 +232,7 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *se
         target = (u32) inst->Main.Inst.AddrValue;
         
         Section *sect = cpu->Mem->GetSection(target);
-        if (sect) {
+        if (sect && sect->Description() != "heap") {
             InstSection *callSec = m_instMem.CreateSection(sect->Base(), sect->Size());
             RecursiveDisassemble(cpu, target, callSec, target);
 

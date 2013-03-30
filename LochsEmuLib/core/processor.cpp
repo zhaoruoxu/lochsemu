@@ -180,13 +180,17 @@ LxResult Processor::Execute( const Instruction *inst )
     // quick hack for 'rep ret' instructions; thanks to damn AMD
     bool isRet = inst->Main.Inst.BranchType == RetType;
 
+    const u32 opcode = inst->Main.Inst.Opcode;
     // Thanks to shitty MOVQ_F30F7E
-    if (inst->Main.Prefix.RepPrefix && !isRet && inst->Main.Inst.Opcode != 0x0f7e) {
+    if (inst->Main.Prefix.RepPrefix && !isRet && opcode != 0x0f7e) {
         while (ECX != 0) {
             if (LX_FAILED( h(this, inst) ))
                 LxFatal("REP execution failed at %08x\n", EIP - inst->Length);
             ECX--;
             if (ECX == 0) break;
+
+            bool isRepe = opcode == 0xa6 || opcode == 0xa7 || opcode == 0xae || opcode == 0xaf;
+            if (isRepe && ZF == 0) break;
         }
         SetExecFlag(LX_EXEC_PREFIX_REP);
     } else if (inst->Main.Prefix.RepnePrefix) {

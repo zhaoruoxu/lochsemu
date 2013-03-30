@@ -20,6 +20,7 @@ public:
     LxResult            Initialize(Emulator *emu);
     LxResult            Load(LPCSTR lpFileName);
     Emulator *          Emu() { Assert(m_emu); return m_emu; }
+    const Emulator *    Emu() const { Assert(m_emu); return m_emu; }
     LPCSTR              Path() const { Assert(m_emu); return m_emu->Path(); }
     uint                RuntimeLoad(LPCSTR lpFileName);
     ModuleInfo *        GetModuleInfo(uint n) { Assert(n < m_infos.size()); return &m_infos[n]; }

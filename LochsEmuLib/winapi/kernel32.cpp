@@ -799,7 +799,7 @@ uint Kernel32_HeapCreate(Processor *cpu)
     u32 initSize = PARAM(1);
     u32 maxSize = PARAM(2);
 
-    if (maxSize == 0) maxSize = 0x100000;
+    if (maxSize == 0) maxSize = 0x10000000;
     
     HeapID heapId = LxEmulator.Proc()->CreateHeap(maxSize, initSize, flags);
     RET_VALUE = (u32) heapId;
@@ -946,6 +946,7 @@ uint Kernel32_InterlockedExchange(Processor *cpu)
 
 uint Kernel32_InterlockedIncrement(Processor *cpu)
 {
+
     RET_VALUE = (u32) InterlockedIncrement(
         (LONG volatile *)   PARAM_PTR(0)
         );
