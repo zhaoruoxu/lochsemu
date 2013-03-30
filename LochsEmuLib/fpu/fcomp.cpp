@@ -41,6 +41,34 @@ void Processor::Fpu_Fucompp_DAE9(const Instruction *inst)
 	
 }
 
+void Processor::Fpu_Fucomi_DBE8(const Instruction *inst)
+{
+    int i = inst->Aux.opcode - 0xe8;
+    FPU()->RestoreContext();
+
+    switch (i) {
+    case 0: __asm fucomi st, st(0); 
+        break;
+    case 1: __asm fucomi st, st(1); 
+        break;
+    case 2: __asm fucomi st, st(2); 
+        break;
+    case 3: __asm fucomi st, st(3); 
+        break;
+    case 4: __asm fucomi st, st(4); 
+        break;
+    case 5: __asm fucomi st, st(5); 
+        break;
+    case 6: __asm fucomi st, st(6); 
+        break;
+    case 7: __asm fucomi st, st(7); 
+        break;
+    default: Assert(0);
+    }
+
+    FPU()->SaveContext();
+}
+
 void Processor::Fpu_Fcom_DC_2(const Instruction *inst)
 {
     // FCOM m64fp

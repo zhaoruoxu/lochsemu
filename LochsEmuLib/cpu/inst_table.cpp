@@ -527,8 +527,9 @@ Processor::InstHandler Processor::InstTableTwoBytes[] =
 
 void Processor::InstNotAvailable(const Instruction *inst)
 {
-    LxFatal("Instruction unavailable: [THRD %x][%06x] %s\n", m_thread->ID, 
+    LxError("Instruction unavailable: [THRD %x][%06x] %s\n", m_thread->ID, 
         inst->Main.Inst.Opcode, inst->Main.CompleteInstr);
+    LxFatal("FIX THIS\n");
 }
 
 END_NAMESPACE_LOCHSEMU()

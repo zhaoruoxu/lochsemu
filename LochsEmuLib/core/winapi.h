@@ -367,23 +367,35 @@ DECLARE_WINAPI_ENTRY(Oleaut32_SysFreeString);
 /************************************************************************/
 /* ws2_32.dll                                                           */
 /************************************************************************/
+DECLARE_WINAPI_ENTRY(Ws2_32___WSAFDIsSet);
 DECLARE_WINAPI_ENTRY(Ws2_32_accept);
 DECLARE_WINAPI_ENTRY(Ws2_32_bind);
 DECLARE_WINAPI_ENTRY(Ws2_32_closesocket);
 DECLARE_WINAPI_ENTRY(Ws2_32_connect);
 DECLARE_WINAPI_ENTRY(Ws2_32_freeaddrinfo);
 DECLARE_WINAPI_ENTRY(Ws2_32_getaddrinfo);
+DECLARE_WINAPI_ENTRY(Ws2_32_gethostname);
+DECLARE_WINAPI_ENTRY(Ws2_32_getpeername);
+DECLARE_WINAPI_ENTRY(Ws2_32_getsockname);
+DECLARE_WINAPI_ENTRY(Ws2_32_getsockopt);
 DECLARE_WINAPI_ENTRY(Ws2_32_htonl);
 DECLARE_WINAPI_ENTRY(Ws2_32_htons);
 DECLARE_WINAPI_ENTRY(Ws2_32_inet_addr);
+DECLARE_WINAPI_ENTRY(Ws2_32_ioctlsocket);
 DECLARE_WINAPI_ENTRY(Ws2_32_listen);
+DECLARE_WINAPI_ENTRY(Ws2_32_ntohs);
 DECLARE_WINAPI_ENTRY(Ws2_32_recv);
+DECLARE_WINAPI_ENTRY(Ws2_32_recvfrom);
 DECLARE_WINAPI_ENTRY(Ws2_32_send);
+DECLARE_WINAPI_ENTRY(Ws2_32_sendto);
+DECLARE_WINAPI_ENTRY(Ws2_32_select);
+DECLARE_WINAPI_ENTRY(Ws2_32_setsockopt);
 DECLARE_WINAPI_ENTRY(Ws2_32_shutdown);
 DECLARE_WINAPI_ENTRY(Ws2_32_socket);
-DECLARE_WINAPI_ENTRY(Ws2_32_WSAStartup);
 DECLARE_WINAPI_ENTRY(Ws2_32_WSACleanup);
 DECLARE_WINAPI_ENTRY(Ws2_32_WSAGetLastError);
+DECLARE_WINAPI_ENTRY(Ws2_32_WSASetLastError);
+DECLARE_WINAPI_ENTRY(Ws2_32_WSAStartup);
 
 /************************************************************************/
 /* netapi32.dll                                                         */

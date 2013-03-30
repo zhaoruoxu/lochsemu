@@ -4,6 +4,15 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
+uint Ws2_32___WSAFDIsSet(Processor *cpu)
+{
+    RET_VALUE = (u32) __WSAFDIsSet(
+        (SOCKET)        PARAM(0),
+        (fd_set *)      PARAM_PTR(1)
+        );
+    RET_PARAMS(2);
+}
+
 uint Ws2_32_accept(Processor *cpu)
 {
     RET_VALUE = (u32) accept(
@@ -116,6 +125,47 @@ uint Ws2_32_getaddrinfo(Processor *cpu)
     RET_PARAMS(4);
 }
 
+uint Ws2_32_gethostname(Processor *cpu)
+{
+    RET_VALUE = (u32) gethostname(
+        (char *)        PARAM_PTR(0),
+        (int)           PARAM(1)
+        );
+    RET_PARAMS(2);
+}
+
+uint Ws2_32_getpeername(Processor *cpu)
+{
+    RET_VALUE = (u32) getpeername(
+        (SOCKET)        PARAM(0),
+        (sockaddr *)    PARAM_PTR(1),
+        (int *)         PARAM_PTR(2)
+        );
+    RET_PARAMS(3);
+}
+
+uint Ws2_32_getsockname(Processor *cpu)
+{
+    RET_VALUE = (u32) getsockname(
+        (SOCKET)        PARAM(0),
+        (sockaddr *)    PARAM_PTR(1),
+        (int *)         PARAM_PTR(2)
+        );
+    RET_PARAMS(3);
+}
+
+uint Ws2_32_getsockopt(Processor *cpu)
+{
+    RET_VALUE = (u32) getsockopt(
+        (SOCKET)        PARAM(0),
+        (int)           PARAM(1),
+        (int)           PARAM(2),
+        (char *)        PARAM_PTR(3),
+        (int *)         PARAM_PTR(4)
+        );
+    RET_PARAMS(5);
+}
+
 uint Ws2_32_htonl(Processor *cpu)
 {
     Assert(sizeof(u_long) == 4);
@@ -142,6 +192,16 @@ uint Ws2_32_inet_addr(Processor *cpu)
     RET_PARAMS(1);
 }
 
+uint Ws2_32_ioctlsocket(Processor *cpu)
+{
+    RET_VALUE = (u32) ioctlsocket(
+        (SOCKET)        PARAM(0),
+        (long)          PARAM(1),
+        (u_long *)      PARAM_PTR(2)
+        );
+    RET_PARAMS(3);
+}
+
 uint Ws2_32_listen(Processor *cpu)
 {
     RET_VALUE = (u32) listen(
@@ -149,6 +209,14 @@ uint Ws2_32_listen(Processor *cpu)
         (int)           PARAM(1)
         );
     RET_PARAMS(2);
+}
+
+uint Ws2_32_ntohs(Processor *cpu)
+{
+    RET_VALUE = (u32) ntohs(
+        (u_short)       PARAM(0)
+        );
+    RET_PARAMS(1);
 }
 
 uint Ws2_32_recv(Processor *cpu)
@@ -162,6 +230,31 @@ uint Ws2_32_recv(Processor *cpu)
     RET_PARAMS(4);
 }
 
+uint Ws2_32_recvfrom(Processor *cpu)
+{
+    RET_VALUE = (u32) recvfrom(
+        (SOCKET)        PARAM(0),
+        (char *)        PARAM_PTR(1),
+        (int)           PARAM(2),
+        (int)           PARAM(3),
+        (sockaddr *)    PARAM_PTR(4),
+        (int *)         PARAM_PTR(5)
+        );
+    RET_PARAMS(6);
+}
+
+uint Ws2_32_select(Processor *cpu)
+{
+    RET_VALUE = (u32) select(
+        (int)           PARAM(0),
+        (fd_set *)      PARAM_PTR(1),
+        (fd_set *)      PARAM_PTR(2),
+        (fd_set *)      PARAM_PTR(3),
+        (const timeval *)   PARAM_PTR(4)
+        );
+    RET_PARAMS(5);
+}
+
 uint Ws2_32_send(Processor *cpu)
 {
     RET_VALUE = (u32) send(
@@ -171,6 +264,31 @@ uint Ws2_32_send(Processor *cpu)
         (int)           PARAM(3)
         );
     RET_PARAMS(4);
+}
+
+uint Ws2_32_sendto(Processor *cpu)
+{
+    RET_VALUE = (u32) sendto(
+        (SOCKET)        PARAM(0),
+        (const char *)  PARAM_PTR(1),
+        (int)           PARAM(2),
+        (int)           PARAM(3),
+        (const sockaddr *)  PARAM_PTR(4),
+        (int)           PARAM(5)
+        );
+    RET_PARAMS(6);
+}
+
+uint Ws2_32_setsockopt(Processor *cpu)
+{
+    RET_VALUE = (u32) setsockopt(
+        (SOCKET)        PARAM(0),
+        (int)           PARAM(1),
+        (int)           PARAM(2),
+        (const char *)  PARAM_PTR(3),
+        (int)           PARAM(4)
+        );
+    RET_PARAMS(5);
 }
 
 uint Ws2_32_shutdown(Processor *cpu)
@@ -211,6 +329,14 @@ uint Ws2_32_WSAGetLastError(Processor *cpu)
 {
     RET_VALUE = (u32) WSAGetLastError();
     RET_PARAMS(0);
+}
+
+uint Ws2_32_WSASetLastError(Processor *cpu)
+{
+    WSASetLastError(
+        (int)       PARAM(0)
+        );
+    RET_PARAMS(1);
 }
 
 END_NAMESPACE_LOCHSEMU()
