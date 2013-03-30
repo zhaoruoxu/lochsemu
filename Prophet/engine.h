@@ -33,8 +33,8 @@ public:
     void            OnMemWrite          (const Processor *cpu, u32 addr, u32 nbytes, cpbyte data);
     void            OnProcessPreRun     (const Process *proc, const Processor *cpu);
     void            OnProcessPostRun    (const Process *proc);
-    void            OnProcessPreLoad    (const PeLoader *loader);
-    void            OnProcessPostLoad   (const PeLoader *loader);
+    void            OnProcessPreLoad    (PeLoader *loader);
+    void            OnProcessPostLoad   (PeLoader *loader);
     void            OnWinapiPreCall     (Processor *cpu, uint apiIndex);
     void            OnWinapiPostCall    (Processor *cpu, uint apiIndex);
 

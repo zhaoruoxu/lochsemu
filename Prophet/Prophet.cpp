@@ -48,7 +48,7 @@ PROPHET_API void LochsEmu_Process_PreLoad( PeLoader *loader )
     g_engine.OnProcessPreLoad(loader);
 }
 
-PROPHET_API void LochsEmu_Process_PostLoad           (PeLoader *loader)
+PROPHET_API void LochsEmu_Process_PostLoad(PeLoader *loader)
 {
     g_engine.OnProcessPostLoad(loader);
 }

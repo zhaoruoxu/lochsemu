@@ -98,18 +98,18 @@ public:
 
 class ProcessPreLoadEvent : public Event {
 public:
-    ProcessPreLoadEvent(void *sender, const PeLoader *loader)
+    ProcessPreLoadEvent(void *sender, PeLoader *loader)
         : Event(sender), Loader(loader) {}
 
-    const PeLoader * const  Loader;
+    PeLoader * const        Loader;
 };
 
 class ProcessPostLoadEvent : public Event {
 public:
-    ProcessPostLoadEvent(void *sender, const PeLoader *loader)
+    ProcessPostLoadEvent(void *sender, PeLoader *loader)
         : Event(sender), Loader(loader) {}
     
-    const PeLoader * const  Loader;
+    PeLoader * const        Loader;
 };
 
 class WinapiPreCallEvent : public Event {

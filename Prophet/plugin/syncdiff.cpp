@@ -8,6 +8,7 @@
 #include "process.h"
 #include "stack.h"
 #include "coprocessor.h"
+#include "emulator.h"
 
 SyncDiff::SyncDiff( ProPluginManager *manager )
     : Plugin(manager, false, "SyncDiff", PreExecuteHandler | PostExecuteHandler | 

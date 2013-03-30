@@ -225,7 +225,7 @@ public:
     LxResult        Step                (void);
     LxResult        Execute             (const Instruction *inst);
     void            Reset               (void);
-    INLINE void     Terminate           (uint nCode);
+    void            Terminate           (uint nCode);
     void            PushContext         (void);
     void            PopContext          (void);
     u32             GetEflags           (void) const;
@@ -579,15 +579,6 @@ INLINE u8   & Processor::GP_Reg8( uint num, int pos )
 
 INLINE void Processor::SetCallbackEntry(uint callbackId, u32 entry) {
     Assert(callbackId < LX_CALLBACKS); m_callbackTable[callbackId] = entry;
-}
-
-INLINE u32 Processor::GetCallbackEntry(uint callbackId) const { 
-    Assert(callbackId < LX_CALLBACKS);  return m_callbackTable[callbackId]; 
-}
-
-INLINE void Processor::Terminate(uint nCode) { 
-    LxInfo("Process terminating with exit code 0x%x\n", nCode);
-    m_terminated = true; 
 }
 
 INLINE u32 Processor::Offset32( const ARGTYPE &oper ) const

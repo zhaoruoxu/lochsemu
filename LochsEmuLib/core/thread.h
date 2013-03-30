@@ -41,6 +41,7 @@ public:
     LxResult        Initialize(const ThreadInfo &info);
     LxResult        Run();
     LxResult        RunAt(u32 entry);
+    void            Exit(u32 code);
     HMODULE         LoadModule(LPCSTR lpFileName);
     LxResult        UnloadModule(HMODULE hModule);
     LxResult        RunModuleEntry(uint nModule, LoadReason reason, LoadMethod method);
@@ -57,6 +58,7 @@ public:
 public:
     ThreadID        ID;
     HANDLE          Handle;
+    u32             ExitCode;
 protected:
     void            InitStack();
     void            InitTEB();
@@ -69,8 +71,6 @@ protected:
     Stack *         m_stack;
     u32             m_TebAddress;
     std::vector<uint>   m_moduleLoadOrder;  /* Record module load order for module unloading */
-
-    //LxResult        m_runResult;
 };
 
 DWORD LxThreadRoutine(LPVOID lpParams);

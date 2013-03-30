@@ -111,7 +111,11 @@ LxResult Processor::Run(u32 entry)
     while (true) {
         LxResult lr = Step();
         if (LX_FAILED(lr)) { RET_FAIL(lr); }
-        if (m_terminated || EIP == TERMINATE_EIP) break;
+        if (m_terminated) { break; }
+        if (EIP == TERMINATE_EIP) {
+            m_thread->ExitCode = EAX;
+            break;
+        }
     }
 
     LxDebug("Thread [%x] terminated\n", m_thread->ID);
@@ -667,6 +671,29 @@ bool Processor::IsJumpTaken( const Instruction *inst ) const
     }
     Assert(t != NULL);
     return (this->*t)();
+}
+
+INLINE u32 Processor::GetCallbackEntry( uint callbackId ) const
+{
+    Assert(callbackId < LX_CALLBACKS);  
+    u32 entry = m_callbackTable[callbackId]; 
+
+    if (entry == 0 && callbackId == LX_CALLBACK_FLS) {
+        // Fls related hack
+        // When a thread exits, this FLS callback is invoked
+        // However, its entry is registered in main thread's callback table
+        // So retrieve it from main processor
+        entry = m_emulator->GetProcessorMain()->GetCallbackEntry(callbackId);
+    }
+
+    return entry;
+}
+
+void Processor::Terminate( uint nCode )
+{
+    LxInfo("Processor [%x] terminating with exit code 0x%x\n", m_thread->ID, nCode);
+    m_terminated = true; 
+    m_thread->ExitCode = nCode;
 }
 
 END_NAMESPACE_LOCHSEMU()

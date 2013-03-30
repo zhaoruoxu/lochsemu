@@ -398,6 +398,7 @@ LX_API std::string LxModulePath( const char *name )
 
 LX_API void LxReset()
 {
+    LxFatal("don't use this\n");
     LxEmulator.Reset();
 }
 

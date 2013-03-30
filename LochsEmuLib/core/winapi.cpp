@@ -51,6 +51,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "EncodePointer", Kernel32_EncodePointer },
     { 01, 0, "EnterCriticalSection", Kernel32_EnterCriticalSection },
     { 01, 0, "ExitProcess", Kernel32_ExitProcess },
+    { 01, 0, "ExitThread", Kernel32_ExitThread },
     { 01, 0, "FindActCtxSectionStringW", Kernel32_FindActCtxSectionStringW },
 	{ 01, 0, "FindAtomA", Kernel32_FindAtomA },
 	{ 01, 0, "FindClose", Kernel32_FindClose },

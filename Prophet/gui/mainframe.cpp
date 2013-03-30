@@ -22,6 +22,7 @@
 
 #include "instruction.h"
 #include "processor.h"
+#include "emulator.h"
 
 #include "buildver.h"
 

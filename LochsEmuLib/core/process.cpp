@@ -29,7 +29,6 @@ Process::~Process()
         SAFE_DELETE(m_threads[i]);
 
     for (uint i = 0; i < m_heaps.size(); i++) {
-        //SAFE_DELETE(m_heaps[i]);
         Mem()->DestroyHeap(m_heaps[i]);
     }
     m_heaps.clear();
@@ -206,6 +205,22 @@ Thread * Process::ThreadCreate( const ThreadInfo &ti )
     return m_threads[id];
 }
 
+
+void Process::ThreadExit( ThreadID id, u32 code )
+{
+    SyncObjectLock lock(*this);
+
+    LxInfo("Exiting thread [%x] with exit code %d\n", id, code);
+    int i = 1;
+    for (i = 0; i < MaximumThreads; i++)
+        if (m_threads[i]->ID == id) break;
+    if (i == MaximumThreads) {
+        LxFatal("No thread has ID [%x]\n", id);
+    }
+    m_threads[i]->Exit(code);
+}
+
+
 HMODULE Process::GetModule( LPCWSTR lpName )
 {
     if (lpName == NULL) return GetModule((LPCSTR) NULL);
@@ -305,7 +320,6 @@ void Process::ProcessProlog()
 
 void Process::ProcessEpilog()
 {
-
 }
 
 u32 Process::GetEntryPoint() const
@@ -369,6 +383,17 @@ Thread * Process::GetThreadRealID( ThreadID id ) const
         if (m_threads[i] != NULL && m_threads[i]->ID == id)
             return m_threads[i];
     return NULL;
+}
+
+void Process::ThreadDelete( ThreadID id )
+{
+
+    for (int i = 0; i < MaximumThreads; i++) {
+        if (m_threads[i] != NULL && m_threads[i]->ID == id) {
+            LxDebug("Deleting thread [%x]\n", id);
+            SAFE_DELETE(m_threads[i]);
+        }
+    }
 }
 
 

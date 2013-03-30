@@ -73,9 +73,10 @@ INT_PTR CALLBACK LxDlgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 
 VOID NTAPI LxFlsCallbackFunction( PVOID lpFlsData )
 {
+    return;
     DWORD id = GetCurrentThreadId();
-    //Processor *p = LxEmulator.GetProcessorByThreadID(id);
-    Processor *p = LxEmulator.GetProcessorMain();
+    Processor *p = LxEmulator.GetProcessorByThreadID(id);
+    //Processor *p = LxEmulator.GetProcessorMain();
     if (p == NULL) return;
     p->PushContext();
     p->Push32((u32) lpFlsData);

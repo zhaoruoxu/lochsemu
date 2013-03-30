@@ -18,6 +18,7 @@ Thread::Thread( Process *proc, ThreadID id, HANDLE hThread)
     m_plugins       = proc->Plugins();
     m_stack         = NULL; 
     m_TebAddress    = 0;
+    ExitCode        = 0;
 }
 
 Thread::~Thread()
@@ -156,20 +157,27 @@ LochsEmu::LxResult Thread::UnloadModule( HMODULE hModule )
     RET_SUCCESS();
 }
 
+void Thread::Exit( u32 code )
+{
+    m_cpu.Terminate(code);
+}
+
 DWORD LxThreadRoutine( LPVOID lpParams )
 {
     Thread *t = (Thread *) lpParams;
-    //HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, TRUE, t->ID);
-
-    //Assert(t->Handle == hThread);
 
     t->CPU()->Push32(t->GetThreadInfo()->ParamPtr);
     t->CPU()->Push32((u32) TERMINATE_EIP);
     t->Run();
+    u32 code = t->ExitCode;
 
-    //CloseHandle(hThread);
+    ThreadID id = GetCurrentThreadId();
+    Assert(id == t->ID);
 
-    return t->CPU()->EAX;
+    CloseHandle(t->Handle);
+    LxEmulator.Proc()->ThreadDelete(id);
+
+    return code;
 }
 
 END_NAMESPACE_LOCHSEMU()

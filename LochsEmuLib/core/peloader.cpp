@@ -337,4 +337,9 @@ uint PeLoader::GetModuleExportIndexByOrdinal( uint nModule, uint ordinal )
     return (uint) -1;
 }
 
+LPCSTR PeLoader::Path() const
+{
+    Assert(m_emu); return m_emu->Path();
+}
+
 END_NAMESPACE_LOCHSEMU()

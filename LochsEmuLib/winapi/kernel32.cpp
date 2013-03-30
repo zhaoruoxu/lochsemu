@@ -209,6 +209,16 @@ uint Kernel32_ExitProcess( Processor *cpu )
     return 0;
 }
 
+uint Kernel32_ExitThread(Processor *cpu)
+{
+    ThreadID id = GetCurrentThreadId();
+
+    u32 exitCode = (u32) PARAM(0);
+
+    cpu->Proc()->ThreadExit(id, exitCode);
+    RET_PARAMS(1);
+}
+
 uint Kernel32_FindActCtxSectionStringW(Processor *cpu)
 {
     RET_VALUE = (u32) FindActCtxSectionStringW(

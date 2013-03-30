@@ -9,6 +9,7 @@
 
 #include "instruction.h"
 #include "processor.h"
+#include "emulator.h"
 #include "process.h"
 #include "buildver.h"
 
@@ -149,7 +150,7 @@ void ProEngine::OnProcessPostRun( const Process *proc )
     m_plugins.OnProcessPostRun(event, false);
 }
 
-void ProEngine::OnProcessPreLoad( const PeLoader *loader )
+void ProEngine::OnProcessPreLoad( PeLoader *loader )
 {
     if (!m_enabled) return;
     ProcessPreLoadEvent event(this, loader);
@@ -162,7 +163,7 @@ void ProEngine::OnProcessPreLoad( const PeLoader *loader )
     m_plugins.OnProcessPreLoad(event, false);
 }
 
-void ProEngine::OnProcessPostLoad( const PeLoader *loader )
+void ProEngine::OnProcessPostLoad( PeLoader *loader )
 {
     if (!m_enabled) return;
     ProcessPostLoadEvent event(this, loader);

@@ -88,6 +88,7 @@ DECLARE_WINAPI_ENTRY(Kernel32_DisableThreadLibraryCalls);
 DECLARE_WINAPI_ENTRY(Kernel32_EncodePointer);
 DECLARE_WINAPI_ENTRY(Kernel32_EnterCriticalSection);
 DECLARE_WINAPI_ENTRY(Kernel32_ExitProcess);
+DECLARE_WINAPI_ENTRY(Kernel32_ExitThread);
 DECLARE_WINAPI_ENTRY(Kernel32_FindActCtxSectionStringW);
 DECLARE_WINAPI_ENTRY(Kernel32_FindAtomA);
 DECLARE_WINAPI_ENTRY(Kernel32_FindClose);

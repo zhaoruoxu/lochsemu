@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "processor.h"
+#include "thread.h"
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
@@ -526,7 +527,8 @@ Processor::InstHandler Processor::InstTableTwoBytes[] =
 
 void Processor::InstNotAvailable(const Instruction *inst)
 {
-    LxFatal("Instruction unavailable: [%06x] %s\n", inst->Main.Inst.Opcode, inst->Main.CompleteInstr);
+    LxFatal("Instruction unavailable: [THRD %x][%06x] %s\n", m_thread->ID, 
+        inst->Main.Inst.Opcode, inst->Main.CompleteInstr);
 }
 
 END_NAMESPACE_LOCHSEMU()

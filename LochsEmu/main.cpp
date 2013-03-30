@@ -14,7 +14,7 @@ int _tmain(int argc, _TCHAR* argv[])
         return 0;
     } else {
         LxRun(argc - 1, argv + 1);
-        LxReset();
+        //LxReset();
     }
 
 	return 0;

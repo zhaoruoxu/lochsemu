@@ -5,7 +5,6 @@
 
 #include "lochsemu.h"
 #include "peloader.h"
-#include "emulator.h"
 #include "thread.h"
 #include "parallel.h"
 
@@ -35,6 +34,8 @@ public:
     void            Terminate();
 
     Thread *        ThreadCreate(const ThreadInfo &ti);
+    void            ThreadExit(ThreadID id, u32 code);
+    void            ThreadDelete(ThreadID id);
 
     HeapID          CreateHeap(u32 reserve, u32 commit, uint flags);
     bool            DestroyHeap(HeapID id);
@@ -70,9 +71,6 @@ protected:
     PluginManager * m_plugins;
 
     Thread *        m_threads[MaximumThreads];  // main thread is always m_threads[0]
-    //std::vector<Thread *>   m_threads;
-    //std::map<ThreadID, Thread *>     m_threads;
-    //Thread *        m_mainThread;       /* also contained in m_threads */
     std::vector<Heap *>     m_heaps; /* [0] is process main heap */
     u32             m_PebAddress;
 
