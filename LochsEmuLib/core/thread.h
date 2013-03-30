@@ -4,7 +4,7 @@
 #define __CORE_THREAD_H__
 
 #include "lochsemu.h"
-#include "process.h"
+#include "processor.h"
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
@@ -21,9 +21,21 @@ struct ThreadInfo {
     }
 };
 
+enum LoadMethod {
+    LX_LOAD_DYNAMIC = NULL,
+    LX_LOAD_STATIC  = !(NULL),
+};
+
+enum LoadReason {
+    LX_LOAD_PROCESS_DETACH  = DLL_PROCESS_DETACH,
+    LX_LOAD_PROCESS_ATTACH  = DLL_PROCESS_ATTACH,
+    LX_LOAD_THREAD_ATTACH   = DLL_THREAD_ATTACH,
+    LX_LOAD_THREAD_DETACH   = DLL_THREAD_DETACH,
+};
+
 class LX_API Thread {
 public:
-    Thread(ThreadID id, Process *proc);
+    Thread(Process *proc, ThreadID id = 0, HANDLE hThread = INVALID_HANDLE_VALUE);
     virtual ~Thread();
 
     LxResult        Initialize(const ThreadInfo &info);
@@ -36,18 +48,20 @@ public:
     Stack *         GetStack() const { Assert(m_stack); return m_stack; }
     Memory *        Mem() const { Assert(m_memory); return m_memory; }
     Process *       Proc() const { Assert(m_process); return m_process; }
-    Processor *     CPU() const { Assert(m_cpu); return m_cpu; }
+    const Processor *     CPU() const { return &m_cpu; }
+    Processor *     CPU() { return &m_cpu; }
     PluginManager * Plugins() const { Assert(m_plugins); return m_plugins; }
     u32             GetTEBAddress() const { return m_TebAddress; }
     std::vector<uint>   GetModuleLoadOrder() const { return m_moduleLoadOrder; }
     const ThreadInfo *  GetThreadInfo() const { return &m_initInfo; }
 public:
-    const ThreadID  THREAD_ID;
+    ThreadID        ID;
+    HANDLE          Handle;
 protected:
-    LxResult        InitStack();
-    LxResult        InitTEB();
+    void            InitStack();
+    void            InitTEB();
 protected:
-    Processor *     m_cpu;
+    Processor       m_cpu;
     Process *       m_process;
     Memory *        m_memory;
     PluginManager * m_plugins;
@@ -58,6 +72,8 @@ protected:
 
     //LxResult        m_runResult;
 };
+
+DWORD LxThreadRoutine(LPVOID lpParams);
 
 END_NAMESPACE_LOCHSEMU()
 

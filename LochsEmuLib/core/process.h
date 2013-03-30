@@ -6,29 +6,20 @@
 #include "lochsemu.h"
 #include "peloader.h"
 #include "emulator.h"
+#include "thread.h"
+#include "parallel.h"
 
 BEGIN_NAMESPACE_LOCHSEMU()
-
-enum LoadMethod {
-    LX_LOAD_DYNAMIC = NULL,
-    LX_LOAD_STATIC = !(NULL),
-};
-
-enum LoadReason {
-    LX_LOAD_PROCESS_DETACH = DLL_PROCESS_DETACH,
-    LX_LOAD_PROCESS_ATTACH = DLL_PROCESS_ATTACH,
-    LX_LOAD_THREAD_ATTACH = DLL_THREAD_ATTACH,
-    LX_LOAD_THREAD_DETACH = DLL_THREAD_DETACH,
-};
 
 struct ApiInfo {
     std::string ModuleName;
     std::string FunctionName;
 };
 
-class LX_API Process {
+class LX_API Process : public MutexSyncObject {
 public:
     static const uint   ProcessHeapStart = 0x1000;
+    static const int    MaximumThreads = 256;
 
 public:
     Process();
@@ -43,9 +34,12 @@ public:
     LxResult        Run();
     void            Terminate();
 
+    Thread *        ThreadCreate(const ThreadInfo &ti);
+
     HeapID          CreateHeap(u32 reserve, u32 commit, uint flags);
     bool            DestroyHeap(HeapID id);
-    INLINE Thread * GetThread(ThreadID id) const;
+    Thread *        GetThread(ThreadID id) const { Assert(id < MaximumThreads); return m_threads[id]; }
+    Thread *        GetThreadRealID(ThreadID id) const;
     Heap *          GetHeap(uint id) const { return m_heaps[id - ProcessHeapStart]; }
     u32             GetPEBAddress() const { return m_PebAddress; }
     HMODULE         GetModule(LPCSTR lpName);
@@ -67,14 +61,18 @@ protected:
     void            ProcessProlog();
     void            ProcessEpilog();
     void            LoadApiInfo();
+    ThreadID        FindNextThreadId() const;
 
 protected:
     Emulator *      m_emu;
     Memory *        m_memory;
     PeLoader *      m_loader;
     PluginManager * m_plugins;
-    std::map<ThreadID, Thread *>     m_threads;
-    Thread *        m_mainThread;       /* also contained in m_threads */
+
+    Thread *        m_threads[MaximumThreads];  // main thread is always m_threads[0]
+    //std::vector<Thread *>   m_threads;
+    //std::map<ThreadID, Thread *>     m_threads;
+    //Thread *        m_mainThread;       /* also contained in m_threads */
     std::vector<Heap *>     m_heaps; /* [0] is process main heap */
     u32             m_PebAddress;
 
@@ -83,12 +81,6 @@ protected:
      */
     std::map<u32, ApiInfo> m_addressApiInfo;  
 };
-
-INLINE Thread *Process::GetThread(ThreadID id) const {
-    std::map<ThreadID, Thread *>::const_iterator iter = m_threads.find(id);
-    if (iter == m_threads.end()) return NULL;
-    return iter->second;
-}
 
 END_NAMESPACE_LOCHSEMU()
 

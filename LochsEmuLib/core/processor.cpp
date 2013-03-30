@@ -8,30 +8,14 @@
 #include "pluginmgr.h"
 #include "coprocessor.h"
 #include "winapi.h"
+#include "process.h"
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
 Processor::Processor(Thread *thread)
-: PROCESSOR_ID(thread->THREAD_ID)
 {
     Assert(thread);
     m_thread = thread;
-    Mem = m_thread->Mem();
-    m_process = m_thread->Proc();
-    m_emulator = m_process->Emu();
-    m_fpu = new Coprocessor();
-    Reset();
-}
-
-Processor::Processor()
-: PROCESSOR_ID(0)
-{
-    m_thread = NULL;
-    Mem = NULL;
-    m_process = NULL;
-    m_emulator = NULL;
-    m_fpu = new Coprocessor();
-    Reset();
 }
 
 Processor::~Processor()
@@ -44,6 +28,12 @@ Processor::~Processor()
 
 LxResult Processor::Initialize()
 {
+    Mem = m_thread->Mem();
+    m_process = m_thread->Proc();
+    m_emulator = m_process->Emu();
+    m_fpu = new Coprocessor();
+    Reset();
+
     ESP = m_thread->GetStack()->Top();
     V( m_fpu->Initialize() );
     SIMD.Initialize();
@@ -116,16 +106,16 @@ LxResult Processor::Run(u32 entry)
 {
     EIP = entry; 
 
-    LxInfo("Running Thread[%x] at EIP[0x%08x] ESP[0x%08X]\n", PROCESSOR_ID, EIP, ESP);
+    LxInfo("Running Thread[%x] at EIP[0x%08x] ESP[0x%08X]\n", m_thread->ID, EIP, ESP);
 
     m_terminated = false;
     while (true) {
         LxResult lr = Step();
         if (LX_FAILED(lr)) { RET_FAIL(lr); }
-        if (m_terminated) break;
+        if (m_terminated || EIP == TERMINATE_EIP) break;
     }
 
-    LxDebug("Thread [%x] terminated\n", PROCESSOR_ID);
+    LxDebug("Thread [%x] terminated\n", m_thread->ID);
     RET_SUCCESS();
 }
 
@@ -271,6 +261,114 @@ void Processor::Pop( u32 nBytes, pbyte content )
 
     memcpy(content, Mem->GetRawData(ESP), nBytes);
     ESP += nBytes;
+}
+
+
+/************************************************************************/
+/* TODO : segment register, exception handling                          */
+/************************************************************************/
+INLINE u8 Processor::MemRead8( u32 address, RegSeg seg ) const
+{
+    u8 val = INIT_8;
+    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
+    Mem->Read8(address, &val); 
+    if (Thr()) {
+        Thr()->Plugins()->OnProcessorMemRead(this, address, 1, (cpbyte) &val);
+    }
+    return val;
+}
+
+INLINE u16 Processor::MemRead16( u32 address, RegSeg seg ) const
+{
+    u16 val = INIT_16;
+    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
+    Mem->Read16(address, &val);
+    if (Thr()) {
+        Thr()->Plugins()->OnProcessorMemRead(this, address, 2, (cpbyte) &val);
+    }
+    return val;
+}
+
+INLINE u32 Processor::MemRead32( u32 address, RegSeg seg ) const
+{
+    u32 val = INIT_32;
+    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
+    Mem->Read32(address, &val);
+    if (Thr()) {
+        Thr()->Plugins()->OnProcessorMemRead(this, address, 4, (cpbyte) &val);
+    }
+    return val;
+}
+
+INLINE u64 Processor::MemRead64( u32 address, RegSeg seg ) const
+{
+    u64 val = INIT_64;
+    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
+    Mem->Read64(address, &val);
+    if (Thr()) {
+        Thr()->Plugins()->OnProcessorMemRead(this, address, 8, (cpbyte) &val);
+    }
+    return val;
+}
+
+INLINE u128 Processor::MemRead128( u32 address, RegSeg seg ) const
+{
+    u128 val;
+    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
+    Mem->Read128(address, &val);
+    if (Thr()) {
+        Thr()->Plugins()->OnProcessorMemRead(this, address, 16, (cpbyte) &val);
+    }
+    return val;
+}
+
+INLINE void Processor::MemWrite8( u32 address, u8 val, RegSeg seg )
+{
+    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
+    Mem->Write8(address, val);
+    if (Thr()) {
+        Thr()->Plugins()->OnProcessorMemWrite(this, address, 1, (cpbyte) &val);
+    }
+}
+
+INLINE void Processor::MemWrite16( u32 address, u16 val, RegSeg seg )
+{
+    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
+    Mem->Write16(address, val);
+    if (Thr()) {
+        Thr()->Plugins()->OnProcessorMemWrite(this, address, 2, (cpbyte) &val);
+    }
+}
+
+INLINE void Processor::MemWrite32( u32 address, u32 val, RegSeg seg )
+{
+    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
+    Mem->Write32(address, val);
+    if (Thr()) {
+        Thr()->Plugins()->OnProcessorMemWrite(this, address, 4, (cpbyte) &val);
+    }
+}
+
+INLINE void Processor::MemWrite64( u32 address, u64 val, RegSeg seg )
+{
+    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
+    Mem->Write64(address, val);
+    if (Thr()) {
+        Thr()->Plugins()->OnProcessorMemWrite(this, address, 8, (cpbyte) &val);
+    }
+}
+
+INLINE void Processor::MemWrite128( u32 address, const u128 &val, RegSeg seg )
+{
+    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
+    Mem->Write128(address, val);
+    if (Thr()) {
+        Thr()->Plugins()->OnProcessorMemWrite(this, address, 16, (cpbyte) &val);
+    }
+}
+
+u32 Processor::GetFSOffset(u32 addr) const {
+    return m_thread->GetTEBAddress() + addr;
 }
 
 u32 Processor::GetEflags() const

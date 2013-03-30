@@ -20,6 +20,7 @@ public:
     LxResult        LoadModule(int argc, LPSTR argv[]);
     void            Run();
     void            Reset();
+    Processor *     GetProcessorMain();
     Processor *     GetProcessorByThreadID(ThreadID id);
 
 public:

@@ -141,6 +141,7 @@ LX_API Heap * Memory::CreateHeap( u32 base, u32 reserve, u32 commit, uint nModul
 LX_API bool Memory::DestroyHeap( Heap *heap )
 {
     Assert(heap);
+
     if (m_heaps.find(heap) == m_heaps.end())
         return false;
     m_heaps.erase(heap);
@@ -164,6 +165,7 @@ LX_API Stack * Memory::CreateStack( u32 base, u32 reserve, u32 commit, uint nMod
 LX_API bool Memory::DestroyStack( Stack *stack )
 {
     Assert(stack);
+
     if (m_stacks.find(stack) == m_stacks.end())
         return false;
     m_stacks.erase(stack);
@@ -175,6 +177,7 @@ LX_API bool Memory::Overlaps( u32 address, u32 size ) const
 {
     Assert(PAGE_LOW(address) == 0);
     Assert(PAGE_LOW(size) == 0);
+
     uint pageBegin = PAGE_NUM(address);
     uint pageEnd = PAGE_NUM(address + size);
     for (uint i = pageBegin; i < pageEnd; i++) {
@@ -245,31 +248,31 @@ LX_API u32 Memory::FindFreePages( u32 base, u32 size )
     }
     return 0;
 }   
-
-u32 Memory::FindMaxFreePages( u32 base, u32 maxSize )
-{
-    u32 actualSize = RoundUp(maxSize);
-    u32 addr = base;
-    while (addr < base + actualSize) {
-        Section *s = GetSection(addr + LX_PAGE_SIZE);
-        if (s) break;
-        addr += LX_PAGE_SIZE;
-    }
-    return addr - base;
-}
-
-
-u32 Memory::FindMaxFreePagesReverse( u32 top, u32 maxSize )
-{
-    u32 actualSize = RoundUp(maxSize);
-    u32 addr = top - LX_PAGE_SIZE;
-    while (addr > top - maxSize) {
-        Section *s = GetSection(addr);
-        if (s) break;
-        addr -= LX_PAGE_SIZE;
-    }
-    return top - addr;
-}
+// 
+// u32 Memory::FindMaxFreePages( u32 base, u32 maxSize )
+// {
+//     u32 actualSize = RoundUp(maxSize);
+//     u32 addr = base;
+//     while (addr < base + actualSize) {
+//         Section *s = GetSection(addr + LX_PAGE_SIZE);
+//         if (s) break;
+//         addr += LX_PAGE_SIZE;
+//     }
+//     return addr - base;
+// }
+// 
+// 
+// u32 Memory::FindMaxFreePagesReverse( u32 top, u32 maxSize )
+// {
+//     u32 actualSize = RoundUp(maxSize);
+//     u32 addr = top - LX_PAGE_SIZE;
+//     while (addr > top - maxSize) {
+//         Section *s = GetSection(addr);
+//         if (s) break;
+//         addr -= LX_PAGE_SIZE;
+//     }
+//     return top - addr;
+// }
 
 std::vector<SectionInfo> Memory::GetMemoryInfo() const
 {

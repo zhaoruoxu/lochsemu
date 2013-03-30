@@ -64,6 +64,8 @@ LochsEmu::LxResult PeLoader::LoadModule( LPCSTR lpFileName )
     PeModule module;
     V( module.Load(lpFileName) );
 
+    SyncObjectLock lock(*m_memory);
+
     /*
      * First load each section to memory
      */

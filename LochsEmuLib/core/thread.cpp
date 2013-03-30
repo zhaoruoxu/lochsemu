@@ -9,22 +9,19 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-Thread::Thread( ThreadID id, Process *proc )
-: THREAD_ID(id)
+Thread::Thread( Process *proc, ThreadID id, HANDLE hThread)
+: ID(id), Handle(hThread), m_cpu(this)
 {
     Assert(proc);
     m_process       = proc;
     m_memory        = proc->Mem();
     m_plugins       = proc->Plugins();
-    m_cpu           = NULL;
     m_stack         = NULL; 
     m_TebAddress    = 0;
-    //m_runResult     = LX_RESULT_THREAD_FAILED;
 }
 
 Thread::~Thread()
 {
-    SAFE_DELETE(m_cpu);
     B( Mem()->DestroyStack(m_stack) );
     m_memory    = NULL;
     m_plugins   = NULL;
@@ -32,33 +29,39 @@ Thread::~Thread()
 
 LochsEmu::LxResult Thread::Initialize(const ThreadInfo &info)
 {
-    LxDebug("Initializing Thread ID[%x]\n", THREAD_ID);
+    LxDebug("Initializing Thread ID[%x]\n", ID);
     memcpy(&m_initInfo, &info, sizeof(ThreadInfo));
 
     LxResult lr;
-    B( m_cpu = new Processor(this) );
-    V_RETURN( InitStack() );
-    V_RETURN( InitTEB() );
-    V_RETURN( m_cpu->Initialize() );
+    InitStack();
+    InitTEB();
+    V_RETURN( m_cpu.Initialize() );
 
     RET_SUCCESS();
 }
 
-LochsEmu::LxResult Thread::InitStack()
+void Thread::InitStack()
 {
+    SyncObjectLock lock(*m_memory);
+
     u32 base = Proc()->Emu()->InquireStackBase();
-    u32 actualSize = m_memory->FindMaxFreePagesReverse(base, m_initInfo.StackSize);
-    LxInfo("Allocated stack size: %08x, reserved: %08x\n", actualSize, m_initInfo.StackSize);
+    if (m_initInfo.StackSize == 0)
+        m_initInfo.StackSize = 0x1000000;       // 1MB
+    base = m_memory->FindFreePages(base, m_initInfo.StackSize);
 
-    LxDebug("Initializing Stack for thread[%x], size 0x%x\n", THREAD_ID, actualSize);
-    m_stack = Mem()->CreateStack(base - actualSize, actualSize, actualSize, m_initInfo.Module);
-    if (m_stack == NULL) return LX_RESULT_ERROR_INIT_STACK;
-    RET_SUCCESS();
+    LxInfo("Initializing Stack for thread[%x], base %08x, size 0x%x\n", ID, 
+        base, m_initInfo.StackSize);
+    m_stack = Mem()->CreateStack(base, m_initInfo.StackSize, m_initInfo.StackSize, 
+        m_initInfo.Module);
+    if (m_stack == NULL) 
+        LxFatal("Create stack failed\n");
 }
 
-LochsEmu::LxResult Thread::InitTEB()
+void Thread::InitTEB()
 {
-    LxDebug("Initializing TEB for thread[%x]\n", THREAD_ID);
+    SyncObjectLock lock(*m_memory);
+
+    LxDebug("Initializing TEB for thread[%x]\n", ID);
     WIN32_TEB *pTeb = GetTEBPtr();
     // current TEB is initialized on top of stack
     const u32 size = sizeof(WIN32_TEB);
@@ -66,23 +69,20 @@ LochsEmu::LxResult Thread::InitTEB()
     Assert(m_TebAddress != 0);
     LxDebug("Allocating memory for TEB at [0x%08x]\n", m_TebAddress);
     char desc[64];
-    sprintf(desc, "TEB (%x)", THREAD_ID);
+    sprintf(desc, "TEB (%x)", ID);
     V( m_memory->AllocCopy(SectionDesc(desc, m_initInfo.Module), m_TebAddress, size, PAGE_READWRITE, (pbyte) pTeb, size));
     WIN32_TEB *pThreadPeb = (WIN32_TEB *) m_memory->GetRawData(m_TebAddress);
     pThreadPeb->TIB.StackBase = m_stack->Top();
     pThreadPeb->TIB.StackLimit = m_stack->Bottom();
     pThreadPeb->TIB.Self = m_TebAddress;
-    // TODO : refine teb
-
     pThreadPeb->PEB_Ptr = m_process->GetPEBAddress();
-    
-    RET_SUCCESS();
+    // TODO : refine teb
 }
 
 
 LochsEmu::LxResult Thread::Run()
 {
-    V( m_cpu->Run(m_initInfo.EntryPoint) );
+    V( m_cpu.Run(m_initInfo.EntryPoint) );
     RET_SUCCESS();
 }
 
@@ -96,7 +96,6 @@ LochsEmu::LxResult Thread::RunModuleEntry( uint nModule, LoadReason reason, Load
     /*
      * Calling DllMain
      */
-    Assert(m_cpu);
     ModuleInfo *info = Proc()->GetModuleInfo(nModule);
     Assert(info);
     if (reason == LX_LOAD_PROCESS_ATTACH) {
@@ -126,15 +125,15 @@ LochsEmu::LxResult Thread::RunModuleEntry( uint nModule, LoadReason reason, Load
         m_moduleLoadOrder.push_back(nModule);
     }
 
-    m_cpu->Push32((u32) method);    // LPVOID lpvReserved
-    m_cpu->Push32((u32) reason);    // DWORD fdwReason
-    m_cpu->Push32(info->ImageBase); // HINSTANCE hinstDLL, = base address of DLL
-    m_cpu->Push32(TERMINATE_EIP);   // Termination condition
+    m_cpu.Push32((u32) method);    // LPVOID lpvReserved
+    m_cpu.Push32((u32) reason);    // DWORD fdwReason
+    m_cpu.Push32(info->ImageBase); // HINSTANCE hinstDLL, = base address of DLL
+    m_cpu.Push32(TERMINATE_EIP);   // Termination condition
 
     LxInfo("Calling %s::DllMain(hInstance=%x, reason=%d, reserved=%d)\n",
         info->Name, info->ImageBase, reason, method);
-    V( m_cpu->RunConditional(info->EntryPoint) );
-    BOOL okay =  m_cpu->EAX;
+    V( m_cpu.RunConditional(info->EntryPoint) );
+    BOOL okay =  m_cpu.EAX;
     if (!okay) { RET_FAIL(LX_RESULT_ERROR_LOAD_MODULE); }
 
     info->Initialized = true;
@@ -155,6 +154,22 @@ LochsEmu::LxResult Thread::UnloadModule( HMODULE hModule )
     }
     LxWarning("!! TODO : UnloadModule !!\n");
     RET_SUCCESS();
+}
+
+DWORD LxThreadRoutine( LPVOID lpParams )
+{
+    Thread *t = (Thread *) lpParams;
+    //HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, TRUE, t->ID);
+
+    //Assert(t->Handle == hThread);
+
+    t->CPU()->Push32(t->GetThreadInfo()->ParamPtr);
+    t->CPU()->Push32((u32) TERMINATE_EIP);
+    t->Run();
+
+    //CloseHandle(hThread);
+
+    return t->CPU()->EAX;
 }
 
 END_NAMESPACE_LOCHSEMU()

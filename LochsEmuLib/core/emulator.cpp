@@ -96,9 +96,15 @@ void Emulator::Reset()
 Processor * Emulator::GetProcessorByThreadID( ThreadID id )
 {
     if (m_process == NULL) return NULL;
-    Thread *th = m_process->GetThread(id);
+    Thread *th = m_process->GetThreadRealID(id);
+    Assert(th);
     if (th == NULL) return NULL;
     return th->CPU();
+}
+
+Processor * Emulator::GetProcessorMain()
+{
+    return m_process->GetThread(0)->CPU();
 }
 
 u32 Emulator::InquireStackBase( void )

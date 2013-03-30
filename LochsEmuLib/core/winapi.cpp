@@ -2,6 +2,7 @@
 #include "winapi.h"
 #include "processor.h"
 #include "debug.h"
+#include "process.h"
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
@@ -42,6 +43,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "CreateFileW", Kernel32_CreateFileW },
 	{ 01, 0, "CreateProcessA", kernel32_CreateProcessA },
 	{ 01, 0, "CreateSemaphoreA", Kernel32_CreateSemaphoreA },
+    { 01, 0, "CreateThread", Kernel32_CreateThread },
     { 01, 0, "DecodePointer", Kernel32_DecodePointer },
     { 01, 0, "DeleteCriticalSection", Kernel32_DeleteCriticalSection },
     { 01, 0, "DeleteFileA", Kernel32_DeleteFileA },

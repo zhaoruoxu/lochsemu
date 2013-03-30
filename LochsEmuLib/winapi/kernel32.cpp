@@ -39,12 +39,14 @@ uint Kernel32_CloseHandle(Processor *cpu)
 {
     HANDLE h = (HANDLE) cpu->GetStackParam32(0);
     cpu->EAX = (u32) CloseHandle(h);
+
+    LxWarning("CloseHandle() is called\n");
+
     return 1;
 }
 
 uint Kernel32_CompareStringW(Processor *cpu)
 {
-
 	RET_VALUE = (u32) CompareStringW(
 		(LCID)		PARAM(0),
 		(DWORD)		PARAM(1),
@@ -131,6 +133,27 @@ uint Kernel32_CreateSemaphoreA(Processor *cpu)
 		);
 	RET_PARAMS(4);
 }
+
+uint Kernel32_CreateThread(Processor *cpu)
+{
+    LPSECURITY_ATTRIBUTES lpAttrs = (LPSECURITY_ATTRIBUTES) PARAM_PTR(0);
+    if (lpAttrs != NULL)
+        LxFatal("SecurityAttributes in CreateThread() is non-NULL!\n");
+
+    ThreadInfo ti;
+    ti.StackSize    = (u32) PARAM(1);
+    ti.EntryPoint   = (u32) PARAM(2);
+    ti.ParamPtr     = (u32) PARAM(3);
+    ti.Flags        = (u32) PARAM(4);
+    ti.Module       = cpu->GetCurrentModule();
+
+    Thread *t = cpu->Proc()->ThreadCreate(ti);
+    LPDWORD lpId = (LPDWORD) PARAM_PTR(5);
+    if (lpId) *lpId = t->ID;
+    RET_VALUE = (u32) t->Handle;
+    RET_PARAMS(6);
+}
+
 uint Kernel32_DecodePointer(Processor *cpu)
 {
     RET_VALUE = (u32) DecodePointer(
@@ -322,6 +345,8 @@ uint Kernel32_GetCommandLineA(Processor *cpu)
         cpu->EAX = addr;
         RET_PARAMS(0);
     } else {
+        SyncObjectLock lock(*cpu->Mem);
+
         u32 b = cpu->Mem->FindFreePages(BASE, LX_CMDLINE_SIZE);
         Assert(b);
         V( cpu->Mem->AllocCopy(SectionDesc("CommandLineA", cpu->GetCurrentModule()), 
@@ -349,6 +374,8 @@ uint Kernel32_GetCommandLineW(Processor *cpu)
         WCHAR pathW[MAX_PATH];
         LxByteToWide(path, pathW, len);
         uint lenW = (wcslen(pathW) + 1) * sizeof(wchar_t);
+
+        SyncObjectLock lock(*cpu->Mem);
         u32 b = cpu->Mem->FindFreePages(BASE, lenW);
         Assert(b);
         V( cpu->Mem->AllocCopy(SectionDesc("CommandLineW", cpu->GetCurrentModule()), 
@@ -407,13 +434,15 @@ uint Kernel32_GetCurrentProcessId(Processor *cpu)
 
 uint Kernel32_GetCurrentThreadId(Processor *cpu)
 {
-    RET_VALUE = (u32) GetCurrentThreadId();
+//    RET_VALUE = (u32) GetCurrentThreadId();
+    RET_VALUE = (u32) cpu->Thr()->ID;
     RET_PARAMS(0);
 }
 
 uint Kernel32_GetCurrentThread(Processor *cpu)
 {
-    RET_VALUE = (u32) GetCurrentThread();
+    //RET_VALUE = (u32) GetCurrentThread();
+    RET_VALUE = (u32) cpu->Thr()->Handle;
     RET_PARAMS(0);
 }
 
@@ -430,6 +459,7 @@ uint Kernel32_GetEnvironmentStrings(Processor *cpu)
 #undef GetEnvironmentStrings
 #endif
     // TODO
+    SyncObjectLock lock(*cpu->Mem);
     const u32 BASE = 0x500000;
     LPCSTR ptr = GetEnvironmentStrings();
     uint len = LxNNStrLen(ptr) + 1;
@@ -444,6 +474,7 @@ uint Kernel32_GetEnvironmentStrings(Processor *cpu)
 uint Kernel32_GetEnvironmentStringsW(Processor *cpu)
 {
     // TODO
+    SyncObjectLock lock(*cpu->Mem);
     const u32 BASE = 0x500000;
     LPCWSTR ptr = GetEnvironmentStringsW();
     uint len = LxNNStrLen(ptr) + sizeof(wchar_t);
@@ -754,6 +785,9 @@ uint Kernel32_GetVolumeInformationA(Processor *cpu)
 uint Kernel32_GlobalAlloc(Processor *cpu)
 {
 	LxWarning("Kernel32::GlobalAlloc()\n");
+
+    SyncObjectLock lock(*cpu->Mem);
+
 	Heap *heap = LxEmulator.Proc()->GetHeap(Process::ProcessHeapStart);
 	Assert(heap);
 	DWORD dwFlag = (DWORD) PARAM(0);
@@ -766,6 +800,9 @@ uint Kernel32_GlobalAlloc(Processor *cpu)
 uint Kernel32_GlobalFree(Processor *cpu)
 {
 	LxWarning("Kernel32::GlobalFree()\n");
+
+    SyncObjectLock lock(*cpu->Mem);
+
 	HGLOBAL hg = (HGLOBAL) PARAM(0);
 	Heap *heap = LxEmulator.Proc()->GetHeap(Process::ProcessHeapStart);
 	Assert(heap);
@@ -784,6 +821,8 @@ uint Kernel32_GlobalMemoryStatus(Processor *cpu)
 
 uint Kernel32_HeapAlloc( Processor *cpu )
 {
+    SyncObjectLock lock(*cpu->Mem);
+
     HANDLE hHeap = (HANDLE) cpu->GetStackParam32(0);
     DWORD dwFlag = (DWORD) cpu->GetStackParam32(1);
     SIZE_T dwBytes = (SIZE_T) cpu->GetStackParam32(2);
@@ -799,8 +838,9 @@ uint Kernel32_HeapCreate(Processor *cpu)
     u32 initSize = PARAM(1);
     u32 maxSize = PARAM(2);
 
+    SyncObjectLock lock(*cpu->Mem);
+
     if (maxSize == 0) maxSize = 0x10000000;
-    
     HeapID heapId = LxEmulator.Proc()->CreateHeap(maxSize, initSize, flags);
     RET_VALUE = (u32) heapId;
     RET_PARAMS(3);
@@ -809,6 +849,9 @@ uint Kernel32_HeapCreate(Processor *cpu)
 uint Kernel32_HeapDestroy(Processor *cpu)
 {
     HANDLE hHeap = (HANDLE) PARAM(0);
+
+    SyncObjectLock lock(*cpu->Mem);
+
     RET_VALUE = (u32) LxEmulator.Proc()->DestroyHeap((HeapID) hHeap);
     RET_PARAMS(1);
 }
@@ -818,6 +861,8 @@ uint Kernel32_HeapFree( Processor *cpu )
     HANDLE  hHeap   = (HANDLE) PARAM(0);
     DWORD   dwFlag  = (DWORD)  PARAM(1);
     LPVOID  lpMem   = (LPVOID) PARAM(2);
+
+    SyncObjectLock lock(*cpu->Mem);
 
     Heap *h = LxEmulator.Proc()->GetHeap((u32) hHeap);
     Assert(h);
@@ -832,6 +877,8 @@ uint Kernel32_HeapReAlloc(Processor *cpu)
     u32 lpMem = PARAM(2);
     u32 size = PARAM(3);
 
+    SyncObjectLock lock(*cpu->Mem);
+
     Heap *h = LxEmulator.Proc()->GetHeap(hHeap);
     Assert(h);
     RET_VALUE = h->HeapRealloc(lpMem, size, dwFlag, cpu);
@@ -840,6 +887,8 @@ uint Kernel32_HeapReAlloc(Processor *cpu)
 
 uint Kernel32_HeapValidate(Processor *cpu)
 {
+    SyncObjectLock lock(*cpu->Mem);
+
 	RET_VALUE = (u32) HeapValidate(
 		(HANDLE)PARAM(0), (DWORD)PARAM(1), (LPCVOID)PARAM_PTR(2));
 	RET_PARAMS(3);
@@ -906,7 +955,11 @@ uint Kernel32_InitializeSListHead(Processor *cpu)
 
 uint Kernel32_InitOnceExecuteOnce(Processor *cpu)
 {
-    PINIT_ONCE_FN p = (PINIT_ONCE_FN) PARAM(1);
+    PINIT_ONCE_FN p     = (PINIT_ONCE_FN) PARAM(1);
+    PINIT_ONCE InitOnce = (PINIT_ONCE) PARAM_PTR(0);
+    PVOID Parameter     = (PVOID) PARAM_PTR(2);
+    LPVOID *Context     = (LPVOID *)    PARAM_PTR(3);
+
     cpu->SetCallbackEntry(LX_CALLBACK_INITONCE, (u32) p);
     RET_VALUE = (u32) InitOnceExecuteOnce(
         (PINIT_ONCE)        PARAM_PTR(0),
@@ -1296,6 +1349,7 @@ uint Kernel32_SetUnhandledExceptionFilter(Processor *cpu)
 //     RET_VALUE = (u32) SetUnhandledExceptionFilter(
 //         LxTopLevelExceptionFilter
 //         );
+    LxError("SetUnhandledExceptionFilter()\n");
     RET_VALUE = 0;
     RET_PARAMS(1);
 }
@@ -1363,20 +1417,23 @@ uint Kernel32_UnhandledExceptionFilter(Processor *cpu)
 //     RET_VALUE = (u32) UnhandledExceptionFilter(
 //         (struct _EXCEPTION_POINTERS *)  PARAM_PTR(0)
 //         );
-    LxWarning("UnhandledExceptionFilter not implemented\n");
+    LxError("UnhandledExceptionFilter not implemented\n");
     RET_VALUE = EXCEPTION_EXECUTE_HANDLER;
     RET_PARAMS(1);
 }
 
 uint Kernel32_VirtualAlloc(Processor *cpu)
 {
-    LPVOID lpAddress = (LPVOID) cpu->GetStackParam32(0); // Don't need pointer convertion
-    SIZE_T s = (SIZE_T) cpu->GetStackParam32(1);
-    DWORD dwType = (DWORD) cpu->GetStackParam32(2);
-    DWORD dwProtect = (DWORD) cpu->GetStackParam32(3);
+    LPVOID lpAddress    = (LPVOID) cpu->GetStackParam32(0); // Don't need pointer convertion
+    SIZE_T s            = (SIZE_T) cpu->GetStackParam32(1);
+    DWORD dwType        = (DWORD) cpu->GetStackParam32(2);
+    DWORD dwProtect     = (DWORD) cpu->GetStackParam32(3);
 
     LxResult lr;
     u32 result;
+
+    SyncObjectLock lock(*cpu->Mem);
+
     switch (dwType) {
         case MEM_RESERVE:
             {
@@ -1421,6 +1478,8 @@ uint Kernel32_VirtualFree(Processor *cpu)
     DWORD dwSize = (DWORD) cpu->GetStackParam32(1);
     DWORD dwType = (DWORD) cpu->GetStackParam32(2);
     
+    SyncObjectLock lock(*cpu->Mem);
+
     LxResult lr;
     switch (dwType) {
         case MEM_DECOMMIT:
@@ -1447,8 +1506,10 @@ uint Kernel32_VirtualFree(Processor *cpu)
 
 uint Kernel32_WaitForSingleObject(Processor *cpu)
 {
+    HANDLE hObj = (HANDLE) PARAM(0);
+
 	RET_VALUE = (u32) WaitForSingleObject(
-		(HANDLE)	PARAM(0),
+		hObj,
 		(DWORD)		PARAM(1)
 		);
 	RET_PARAMS(2);

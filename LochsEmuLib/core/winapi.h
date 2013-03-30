@@ -80,6 +80,7 @@ DECLARE_WINAPI_ENTRY(Kernel32_CreateFileA);
 DECLARE_WINAPI_ENTRY(Kernel32_CreateFileW);
 DECLARE_WINAPI_ENTRY(kernel32_CreateProcessA);
 DECLARE_WINAPI_ENTRY(Kernel32_CreateSemaphoreA);
+DECLARE_WINAPI_ENTRY(Kernel32_CreateThread);
 DECLARE_WINAPI_ENTRY(Kernel32_DecodePointer);
 DECLARE_WINAPI_ENTRY(Kernel32_DeleteCriticalSection);
 DECLARE_WINAPI_ENTRY(Kernel32_DeleteFileA);

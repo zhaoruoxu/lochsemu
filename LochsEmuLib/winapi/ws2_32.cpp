@@ -47,7 +47,7 @@ uint Ws2_32_freeaddrinfo(Processor *cpu)
 //     freeaddrinfo(
 //         (PADDRINFOA)    PARAM_PTR(0)
 //         );
-    LxDebug("TODO: freeaddrinfo()\n");
+    LxError("TODO: freeaddrinfo()\n");
     RET_PARAMS(1);
 }
 
@@ -73,6 +73,9 @@ uint Ws2_32_getaddrinfo(Processor *cpu)
 
     s = RoundUp(s);
 
+    SyncObjectLock lock(*cpu->Mem);
+
+    Base = cpu->Mem->FindFreePages(Base, s);
     V( cpu->Mem->Alloc(SectionDesc("ADDRINFO_linked_list", cpu->GetCurrentModule()),
         Base, s, PAGE_READWRITE) );
     LxDebug("Allocated memory for getaddrinfo() at %08x, size %08x\n", Base, s);

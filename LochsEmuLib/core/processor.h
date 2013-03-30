@@ -8,7 +8,6 @@
 #include "instruction.h"
 #include "callback.h"
 #include "win32.h"
-#include "thread.h"
 #include "debug.h"
 #include "pluginmgr.h"
 #include "hashtable.h"
@@ -131,14 +130,12 @@ class LX_API Processor {
     // Simulation for x86 CPU
 public:
     Processor(Thread *thread);
-    Processor();    // For test purpose only
     virtual ~Processor();
 
 public:
     /************************************************************************/
     /* Members                                                              */
     /************************************************************************/
-    const uint PROCESSOR_ID;
     Memory *Mem;
 
     // General-Purpose Registers
@@ -540,10 +537,6 @@ INLINE u8   & Processor::GP_Reg8( uint num, int pos )
 }
 
 
-INLINE u32 Processor::GetFSOffset(u32 addr) const {
-    return m_thread->GetTEBAddress() + addr;
-}
-
 INLINE void Processor::SetCallbackEntry(uint callbackId, u32 entry) {
     Assert(callbackId < LX_CALLBACKS); m_callbackTable[callbackId] = entry;
 }
@@ -624,109 +617,6 @@ INLINE void Processor::SetFlagOF16( u16 val, i32 val32 )
 INLINE void Processor::SetFlagOF32( u32 val, const i64 &val64 )
 {
     OF = (val64 < MIN_INT32 || val64 > MAX_INT32 || val64 != PROMOTE_I64(val));
-}
-
-/************************************************************************/
-/* TODO : segment register, exception handling                          */
-/************************************************************************/
-INLINE u8 Processor::MemRead8( u32 address, RegSeg seg ) const
-{
-    u8 val = INIT_8;
-    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
-    Mem->Read8(address, &val); 
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemRead(this, address, 1, (cpbyte) &val);
-    }
-    return val;
-}
-
-INLINE u16 Processor::MemRead16( u32 address, RegSeg seg ) const
-{
-    u16 val = INIT_16;
-    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
-    Mem->Read16(address, &val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemRead(this, address, 2, (cpbyte) &val);
-    }
-    return val;
-}
-
-INLINE u32 Processor::MemRead32( u32 address, RegSeg seg ) const
-{
-    u32 val = INIT_32;
-    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
-    Mem->Read32(address, &val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemRead(this, address, 4, (cpbyte) &val);
-    }
-    return val;
-}
-
-INLINE u64 Processor::MemRead64( u32 address, RegSeg seg ) const
-{
-    u64 val = INIT_64;
-    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
-    Mem->Read64(address, &val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemRead(this, address, 8, (cpbyte) &val);
-    }
-    return val;
-}
-
-INLINE u128 Processor::MemRead128( u32 address, RegSeg seg ) const
-{
-    u128 val;
-    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
-    Mem->Read128(address, &val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemRead(this, address, 16, (cpbyte) &val);
-    }
-    return val;
-}
-
-INLINE void Processor::MemWrite8( u32 address, u8 val, RegSeg seg )
-{
-    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
-    Mem->Write8(address, val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemWrite(this, address, 1, (cpbyte) &val);
-    }
-}
-
-INLINE void Processor::MemWrite16( u32 address, u16 val, RegSeg seg )
-{
-    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
-    Mem->Write16(address, val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemWrite(this, address, 2, (cpbyte) &val);
-    }
-}
-
-INLINE void Processor::MemWrite32( u32 address, u32 val, RegSeg seg )
-{
-    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
-    Mem->Write32(address, val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemWrite(this, address, 4, (cpbyte) &val);
-    }
-}
-
-INLINE void Processor::MemWrite64( u32 address, u64 val, RegSeg seg )
-{
-    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
-    Mem->Write64(address, val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemWrite(this, address, 8, (cpbyte) &val);
-    }
-}
-
-INLINE void Processor::MemWrite128( u32 address, const u128 &val, RegSeg seg )
-{
-    if (seg == LX_REG_FS) { address = GetFSOffset(address); }
-    Mem->Write128(address, val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemWrite(this, address, 16, (cpbyte) &val);
-    }
 }
 
 INLINE void Processor::SetFlagsArith8( u8 val, u16 uv16, i16 iv16 )

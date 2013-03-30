@@ -17,18 +17,16 @@ Process::Process()
     m_emu           = NULL;
     m_memory        = NULL;
     m_loader        = NULL;
-    m_mainThread    = NULL;
     m_PebAddress    = 0;
     m_plugins       = NULL;
+
+    ZeroMemory(m_threads, sizeof(m_threads));
 }
 
 Process::~Process()
 {
-    std::map<ThreadID, Thread *>::iterator tIter = m_threads.begin();
-    for (; tIter != m_threads.end(); tIter++) {
-        SAFE_DELETE(tIter->second);
-    }
-    m_threads.clear();
+    for (int i = 0; i < MaximumThreads; i++)
+        SAFE_DELETE(m_threads[i]);
 
     for (uint i = 0; i < m_heaps.size(); i++) {
         //SAFE_DELETE(m_heaps[i]);
@@ -39,7 +37,6 @@ Process::~Process()
     m_emu           = NULL;
     m_memory        = NULL;
     m_loader        = NULL;
-    m_mainThread    = NULL;
     m_plugins       = NULL;
     m_PebAddress    = 0;
 }
@@ -51,7 +48,6 @@ LochsEmu::LxResult Process::Initialize(Emulator *emu)
     m_memory    = emu->Mem();
     m_loader    = emu->Loader();
     m_plugins   = emu->Plugins();
-    m_mainThread = NULL;
     Assert(m_memory);
     Assert(m_loader);
     LxDebug("Initializing main emulated process\n");
@@ -82,6 +78,8 @@ LochsEmu::LxResult Process::InitHeap()
 
 LochsEmu::LxResult Process::InitPEB()
 {
+    SyncObjectLock lock(*m_memory);
+
     LxDebug("Initializing main process PEB\n");
     WIN32_PEB *pPeb = GetPEBPtr();
     u32 BASE = Emu()->InquirePebAddress();
@@ -110,6 +108,7 @@ u32 Process::DetermineHeapBase(u32 base, u32 reserve)
 
 HeapID Process::CreateHeap( u32 reserve, u32 commit, uint flags )
 {
+    SyncObjectLock lock(*m_memory);
     HeapID id = (HeapID) m_heaps.size() + ProcessHeapStart;
 
     uint base = LxConfig.GetUint("Process", "DefaultHeapBase", 0x1000000);
@@ -139,9 +138,10 @@ bool Process::DestroyHeap( HeapID id )
 
 LochsEmu::LxResult Process::InitMainThread()
 {
-    ThreadID id = (ThreadID) GetCurrentThreadId();
-    B( m_mainThread = new Thread(id, this) );
-    m_threads[id] = m_mainThread;
+    const ThreadID ID = (ThreadID) 0; //GetCurrentThreadId();
+    ThreadID realId = GetCurrentThreadId();
+    HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, realId);
+    m_threads[ID]   = new Thread(this, realId, hThread);
 
     ThreadInfo info;
     info.EntryPoint = GetModuleInfo(0)->EntryPoint;
@@ -151,7 +151,9 @@ LochsEmu::LxResult Process::InitMainThread()
     info.Module     = LX_MAIN_MODULE;
 
     LxResult lr;
-    V_RETURN( m_mainThread->Initialize(info) );
+    V_RETURN( m_threads[0]->Initialize(info) );
+
+    CloseHandle(hThread);
     RET_SUCCESS();
 }
 
@@ -161,19 +163,18 @@ LochsEmu::LxResult Process::Run()
 
     /* Run each DllMain */
     for (uint i = m_loader->GetNumOfModules() - 1; i >= 1; i--) {
-        V( m_mainThread->RunModuleEntry(i, LX_LOAD_PROCESS_ATTACH, LX_LOAD_STATIC) );
+        V( m_threads[0]->RunModuleEntry(i, LX_LOAD_PROCESS_ATTACH, LX_LOAD_STATIC) );
     }
-    moduleLoad = m_mainThread->GetModuleLoadOrder();
+    moduleLoad = m_threads[0]->GetModuleLoadOrder();
     Assert(moduleLoad.size() == m_loader->GetNumOfModules() - 1);
 
     /* Prolog */
     ProcessProlog();
 
-    V( Plugins()->OnProcessPreRun(this, m_mainThread->CPU()) );
+    V( Plugins()->OnProcessPreRun(this, m_threads[0]->CPU()) );
     
     /* Run main thread */
-    Assert( m_threads.size() == 1); /* There should be only 1 thread at the beginning */
-    V( m_mainThread->Run() );
+    V( m_threads[0]->Run() );
 
     /* Epilog */
     ProcessEpilog();
@@ -182,10 +183,27 @@ LochsEmu::LxResult Process::Run()
 
     /* Run each DllMain */
     for (int i = (int)moduleLoad.size() - 1; i >= 0; i--) {
-        V( m_mainThread->RunModuleEntry(moduleLoad[i], LX_LOAD_PROCESS_DETACH, LX_LOAD_STATIC) );
+        V( m_threads[0]->RunModuleEntry(moduleLoad[i], LX_LOAD_PROCESS_DETACH, LX_LOAD_STATIC) );
     }
 
     RET_SUCCESS();
+}
+
+Thread * Process::ThreadCreate( const ThreadInfo &ti )
+{
+    SyncObjectLock lock(*this);
+
+    ThreadID id = FindNextThreadId();
+    m_threads[id] = new Thread(this);
+
+    V( m_threads[id]->Initialize(ti) );
+
+    HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) &LxThreadRoutine, 
+        m_threads[id], ti.Flags, NULL);
+
+    m_threads[id]->Handle   = hThread;
+    m_threads[id]->ID = GetThreadId(hThread);
+    return m_threads[id];
 }
 
 HMODULE Process::GetModule( LPCWSTR lpName )
@@ -281,8 +299,8 @@ uint Process::LoadModule( LPCSTR lpFileName )
 
 void Process::ProcessProlog()
 {
-    m_mainThread->CPU()->Push32(0);
-    m_mainThread->CPU()->Push32(m_PebAddress);
+    m_threads[0]->CPU()->Push32(0);
+    m_threads[0]->CPU()->Push32(m_PebAddress);
 }
 
 void Process::ProcessEpilog()
@@ -292,7 +310,7 @@ void Process::ProcessEpilog()
 
 u32 Process::GetEntryPoint() const
 {
-    return m_mainThread->GetThreadInfo()->EntryPoint;
+    return m_threads[0]->GetThreadInfo()->EntryPoint;
 }
 
 const LochsEmu::ApiInfo *Process::GetApiInfoFromAddress( u32 addr ) const
@@ -334,7 +352,23 @@ void Process::LoadApiInfo()
 
 void Process::Terminate()
 {
-    m_mainThread->CPU()->Terminate(0);
+    m_threads[0]->CPU()->Terminate(0);
+}
+
+ThreadID Process::FindNextThreadId() const
+{
+    for (int i = 1; i < MaximumThreads; i++)
+        if (m_threads[i] == NULL) return i;
+    LxFatal("Cannot find valid thread ID\n");
+    return -1;
+}
+
+Thread * Process::GetThreadRealID( ThreadID id ) const
+{
+    for (int i = 0; i < MaximumThreads; i++)
+        if (m_threads[i] != NULL && m_threads[i]->ID == id)
+            return m_threads[i];
+    return NULL;
 }
 
 

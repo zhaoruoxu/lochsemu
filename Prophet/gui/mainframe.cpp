@@ -18,6 +18,7 @@
 #include "plugin/plugin.h"
 #include "event.h"
 #include "peloader.h"
+#include "process.h"
 
 #include "instruction.h"
 #include "processor.h"

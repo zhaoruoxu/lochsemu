@@ -5,6 +5,7 @@
 #include "cpupanel.h"
 #include "mainframe.h"
 #include "stack.h"
+#include "process.h"
 
 StackPanel::StackPanel( wxWindow *parent, ProphetFrame *dad, ProEngine *engine )
     : SelectableScrolledControl(parent, wxSize(200, 200)), m_dad(dad), m_engine(engine)

@@ -7,6 +7,7 @@
 #include "pemodule.h"
 #include "breakpoint.h"
 #include "event.h"
+#include "process.h"
 
 #include "gui/mainframe.h"
 

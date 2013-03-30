@@ -6,6 +6,7 @@
 #include "processor.h"
 #include "instruction.h"
 #include "memory.h"
+#include "process.h"
 
 
 InstSection::InstSection( InstMem *mem, InstPool &pool, u32 base, u32 size )

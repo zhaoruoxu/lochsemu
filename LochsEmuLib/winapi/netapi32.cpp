@@ -27,8 +27,13 @@ uint Netapi32_NetStatisticsGet(Processor *cpu)
         bufptr
         );
 
+    SyncObjectLock lock(*cpu->Mem);
+
     static u32 Base = 0x900000;
     const u32 BufferSize = RoundUp(sizeof(STAT_WORKSTATION_0));
+
+    Base = cpu->Mem->FindFreePages(Base, BufferSize);
+
     V( cpu->Mem->Alloc(SectionDesc("NetApi_Buffer", cpu->GetCurrentModule()),
         Base, BufferSize, PAGE_READWRITE) );
     LxInfo("Allocated memory for NetStatisticsGet() at %08x, size %08x\n",

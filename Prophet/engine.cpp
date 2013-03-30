@@ -9,6 +9,7 @@
 
 #include "instruction.h"
 #include "processor.h"
+#include "process.h"
 #include "buildver.h"
 
 ProEngine::ProEngine() 

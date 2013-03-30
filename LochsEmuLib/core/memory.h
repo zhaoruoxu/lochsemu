@@ -6,10 +6,11 @@
 #include "lochsemu.h"
 #include "section.h"
 #include "debug.h"
+#include "parallel.h"
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-class LX_API Memory {
+class LX_API Memory : public MutexSyncObject {
     // Simulate x86 RAM
     // A naive implementation; may optimize this
     friend class Processor;
@@ -86,8 +87,8 @@ public:
      * Find maximum continuous empty pages
      * return: actual size
      */
-    u32             FindMaxFreePages        (u32 base, u32 maxSize);
-    u32             FindMaxFreePagesReverse (u32 top, u32 maxSize);
+//     u32             FindMaxFreePages        (u32 base, u32 maxSize);
+//     u32             FindMaxFreePagesReverse (u32 top, u32 maxSize);
 
     bool            Contains        (u32 address) const { return GetSection(address) != NULL; }
     bool            Overlaps        (u32 address, u32 size) const;
