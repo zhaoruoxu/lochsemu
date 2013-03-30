@@ -174,7 +174,7 @@ DWORD LxThreadRoutine( LPVOID lpParams )
     ThreadID id = GetCurrentThreadId();
     Assert(id == t->ID);
 
-    CloseHandle(t->Handle);
+    //CloseHandle(t->Handle);
     LxEmulator.Proc()->ThreadDelete(id);
 
     return code;

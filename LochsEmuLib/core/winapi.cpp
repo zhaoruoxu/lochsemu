@@ -169,6 +169,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "SetLastError", Kernel32_SetLastError },
     { 01, 0, "SetUnhandledExceptionFilter", Kernel32_SetUnhandledExceptionFilter },
     { 01, 0, "Sleep", Kernel32_Sleep },
+    { 01, 0, "SleepEx", Kernel32_SleepEx },
     { 01, 0, "TerminateProcess", Kernel32_TerminateProcess },
     { 01, 0, "TlsAlloc", Kernel32_TlsAlloc },
     { 01, 0, "TlsFree", Kernel32_TlsFree },

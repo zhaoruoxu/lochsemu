@@ -1372,6 +1372,15 @@ uint Kernel32_Sleep(Processor *cpu)
     RET_PARAMS(1);
 }
 
+uint Kernel32_SleepEx(Processor *cpu)
+{
+    RET_VALUE = (u32) SleepEx(
+        (DWORD)     PARAM(0),
+        (BOOL)      PARAM(1)
+        );
+    RET_PARAMS(2);
+}
+
 uint Kernel32_TerminateProcess(Processor *cpu)
 {
     HANDLE hCurrProc = GetCurrentProcess();

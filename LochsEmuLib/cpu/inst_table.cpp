@@ -23,7 +23,7 @@ Processor::InstHandler Processor::InstTableOneByte[] =
     /*0x0e*/ &Processor::InstNotAvailable,
     /*0x0f*/ &Processor::InstNotAvailable,
     /*0x10*/ &Processor::InstNotAvailable,
-    /*0x11*/ &Processor::InstNotAvailable,
+    /*0x11*/ &Processor::Adc_11,
     /*0x12*/ &Processor::Adc_12,
     /*0x13*/ &Processor::Adc_13,
     /*0x14*/ &Processor::InstNotAvailable,
