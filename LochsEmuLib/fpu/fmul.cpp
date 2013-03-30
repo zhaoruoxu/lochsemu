@@ -4,11 +4,11 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult Fpu_Fmul_D8C8(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fmul_D8C8(const Instruction *inst)
 {
     // FMUL ST(0), ST(i)
     int i = inst->Aux.opcode - 0xc8;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     switch (i) {
         case 0: __asm fmul st, st(0); 
             break;
@@ -28,26 +28,26 @@ LxResult Fpu_Fmul_D8C8(Processor *cpu, const Instruction *inst)
             break;
         default: Assert(0);
     }
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 
 }
 
-LxResult Fpu_Fmul_DC_1(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fmul_DC_1(const Instruction *inst)
 {
     // FMUL m64fp
-    u64 val = cpu->ReadOperand64(inst, inst->Main.Argument2, NULL);
-    cpu->FPU()->RestoreContext();
+    u64 val = ReadOperand64(inst, inst->Main.Argument2, NULL);
+    FPU()->RestoreContext();
     __asm fmul  val;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fmul_DCC8(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fmul_DCC8(const Instruction *inst)
 {
     // FMUL ST(i), ST(0)
     int i = inst->Aux.opcode - 0xc8;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     switch (i) {
         case 0: __asm fmul st(0), st; 
             break;
@@ -67,15 +67,15 @@ LxResult Fpu_Fmul_DCC8(Processor *cpu, const Instruction *inst)
             break;
         default: Assert(0);
     }
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fmulp_DEC8(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fmulp_DEC8(const Instruction *inst)
 {
     // FMUL st(i), st(0)
     int i = inst->Aux.opcode - 0xC8;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     switch (i) {
         case 0: __asm fmulp st(0), st; 
             break;
@@ -95,8 +95,8 @@ LxResult Fpu_Fmulp_DEC8(Processor *cpu, const Instruction *inst)
             break;
         default: Assert(0);
     }
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 
 }
 

@@ -4,11 +4,11 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult Fpu_Fxch_D9C8(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fxch_D9C8(const Instruction *inst)
 {
     // FXCH ST(i)
     int i = inst->Aux.opcode - 0xC8;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     switch (i) {
         case 0: __asm fxch st(0); 
             break;
@@ -28,8 +28,8 @@ LxResult Fpu_Fxch_D9C8(Processor *cpu, const Instruction *inst)
             break;
         default: Assert(0);
     }
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
 END_NAMESPACE_LOCHSEMU()

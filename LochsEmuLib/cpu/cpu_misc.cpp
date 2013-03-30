@@ -3,31 +3,31 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult Bound_62(Processor *cpu, const Instruction *inst)
+void Processor::Bound_62(const Instruction *inst)
 {
     // do nothing for now
-    RET_SUCCESS();
+    
 }
 
-LxResult Sahf_9E(Processor *cpu, const Instruction *inst)
+void Processor::Sahf_9E(const Instruction *inst)
 {
     // SAHF
-    u16 ah = cpu->AH;
-    cpu->CF =    (ah & 1);
-    cpu->PF =    (ah >> 2) & 1;
-    cpu->AF =    (ah >> 4) & 1;
-    cpu->ZF =    (ah >> 6) & 1;
-    cpu->SF =    (ah >> 7) & 1;
-    RET_SUCCESS();
+    u16 ah = AH;
+    CF =    (ah & 1);
+    PF =    (ah >> 2) & 1;
+    AF =    (ah >> 4) & 1;
+    ZF =    (ah >> 6) & 1;
+    SF =    (ah >> 7) & 1;
+    
 }
 
-LxResult Nop_90(Processor *cpu, const Instruction *inst)
+void Processor::Nop_90(const Instruction *inst)
 {
     // NOP
-    RET_SUCCESS();
+    
 }
 
-LxResult Xgetbv_0F01(Processor *cpu, const Instruction *inst)
+void Processor::Xgetbv_0F01(const Instruction *inst)
 {
     // XGETBV
     u32 a, d;
@@ -37,18 +37,18 @@ LxResult Xgetbv_0F01(Processor *cpu, const Instruction *inst)
         mov a, eax
         mov d, edx
     }
-    cpu->EAX = a;
-    cpu->EDX = d;
-    RET_SUCCESS();
+    EAX = a;
+    EDX = d;
+    
 }
 
-LxResult Nop_0F1F_0(Processor *cpu, const Instruction *inst)
+void Processor::Nop_0F1F_0(const Instruction *inst)
 {
     // NOP
-    RET_SUCCESS();
+    
 }
 
-LxResult Rdtsc_0F31(Processor *cpu, const Instruction *inst)
+void Processor::Rdtsc_0F31(const Instruction *inst)
 {
     // RDTSC
     u32 a, d;
@@ -57,19 +57,19 @@ LxResult Rdtsc_0F31(Processor *cpu, const Instruction *inst)
         mov a, eax
         mov d, edx
     }
-    cpu->EAX = a;
-    cpu->EDX = d;
-    RET_SUCCESS();
+    EAX = a;
+    EDX = d;
+    
 }
 
-LxResult Cpuid_0FA2(Processor *cpu, const Instruction *inst)
+void Processor::Cpuid_0FA2(const Instruction *inst)
 {
     /**
      * CPUID
      */
     u32 a, b, c, d;
-    u32 emuEax = cpu->EAX;
-    u32 emuEcx = cpu->ECX;
+    u32 emuEax = EAX;
+    u32 emuEcx = ECX;
     __asm {
         mov eax, emuEax
         mov ecx, emuEcx
@@ -80,15 +80,15 @@ LxResult Cpuid_0FA2(Processor *cpu, const Instruction *inst)
         mov d, edx
     }
 
-//     if (cpu->EAX == 1) {
+//     if (EAX == 1) {
 //         d &= 0xf97fffff;
 //     }
 
-    cpu->EAX = a;
-    cpu->EBX = b;
-    cpu->ECX = c;
-    cpu->EDX = d;
-    RET_SUCCESS();
+    EAX = a;
+    EBX = b;
+    ECX = c;
+    EDX = d;
+    
 }
 
 END_NAMESPACE_LOCHSEMU()

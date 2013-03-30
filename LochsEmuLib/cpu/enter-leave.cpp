@@ -3,30 +3,30 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult Enter_C8(Processor *cpu, const Instruction *inst)
+void Processor::Enter_C8(const Instruction *inst)
 {
     /**
      * ENTER
      */
-    cpu->Push32(cpu->EBP);
+    Push32(EBP);
     u8 nest = (u8) inst->Aux.op2.immediate;
-    u32 frameTemp = cpu->ESP;
+    u32 frameTemp = ESP;
     if (nest > 0) {
-        RET_NOT_IMPLEMENTED();
+        NOT_IMPLEMENTED();
     }
-    cpu->EBP = frameTemp;
-    cpu->ESP -= (u16) inst->Aux.op1.immediate;
-    RET_SUCCESS();
+    EBP = frameTemp;
+    ESP -= (u16) inst->Aux.op1.immediate;
+    
 }
 
-LxResult Leave_C9(Processor *cpu, const Instruction *inst)
+void Processor::Leave_C9(const Instruction *inst)
 {
     /**
      * LEAVE
      */
-    cpu->ESP = cpu->EBP;
-    cpu->EBP = cpu->Pop32();
-    RET_SUCCESS();
+    ESP = EBP;
+    EBP = Pop32();
+    
 }
 
 END_NAMESPACE_LOCHSEMU()

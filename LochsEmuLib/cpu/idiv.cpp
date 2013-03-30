@@ -4,20 +4,20 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult Idiv_F7_ext7(Processor *cpu, const Instruction *inst)
+void Processor::Idiv_F7_ext7(const Instruction *inst)
 {
     /*
      * IDIV r/m32
      */
-    if (inst->Main.Prefix.OperandSize) RET_NOT_IMPLEMENTED();
+    if (inst->Main.Prefix.OperandSize) NOT_IMPLEMENTED();
 
-    u32 regEax = cpu->EAX;
-    u32 regEdx = cpu->EDX;
-    u32 val = cpu->ReadOperand32(inst, inst->Main.Argument2, NULL);
+    u32 regEax = EAX;
+    u32 regEdx = EDX;
+    u32 val = ReadOperand32(inst, inst->Main.Argument2, NULL);
     if (val == 0) {
         // division by zero
-        cpu->Exception.Raise(STATUS_INTEGER_DIVIDE_BY_ZERO);
-        RET_SUCCESS();
+        Exception.Raise(STATUS_INTEGER_DIVIDE_BY_ZERO);
+        
     }
     __asm {
         mov eax, regEax
@@ -26,9 +26,9 @@ LxResult Idiv_F7_ext7(Processor *cpu, const Instruction *inst)
         mov regEax, eax
         mov regEdx, edx
     }
-    cpu->EAX = regEax;
-    cpu->EDX = regEdx;
-    RET_SUCCESS();
+    EAX = regEax;
+    EDX = regEdx;
+    
 }
 
 END_NAMESPACE_LOCHSEMU()

@@ -126,6 +126,8 @@ enum RegXMM {
 #define LX_EXEC_CALLBACK        0x16
 #define LX_EXEC_TERMINATE_EIP   0x32
 
+
+
 class LX_API Processor {
     // Simulation for x86 CPU
 public:
@@ -360,6 +362,44 @@ public:
     bool            IsJumpTaken_Jecxz() const { return ECX == 0; }
     bool            IsJumpTaken_Loop() const  { return ECX != 0; }
     bool            IsJumpTaken     (const Instruction *inst) const;
+
+public:
+        typedef void    (Processor::*InstHandler)(const Instruction *inst);
+private:
+    static InstHandler      InstTableOneByte[];
+    static InstHandler      InstTableTwoBytes[];
+
+    static InstHandler      Fpu_Ext_D8_Handlers[];
+    static InstHandler      Fpu_Ext_D9_Handlers[];
+    static InstHandler      Fpu_Ext_DA_Handlers[];
+    static InstHandler      Fpu_Ext_DB_Handlers[];
+    static InstHandler      Fpu_Ext_DC_Handlers[];
+    static InstHandler      Fpu_Ext_DD_Handlers[];
+    static InstHandler      Fpu_Ext_DE_Handlers[];
+    static InstHandler      Fpu_Ext_DF_Handlers[];
+    static InstHandler *    Fpu_Handlers[];
+
+#include "inst_table.h"
+
+    void        Shr8(u8 &a, u8 b);
+    void        Shr16(u16 &a, u8 b);
+    void        Shr32(u32 &a, u8 b);
+    void Shl8(u8 &a, u8 b);
+    void Shl16(u16 &a, u8 b);
+    void Shl32(u32 &a, u8 b);
+    void Sar8(u8 &a, u8 b);
+    void Sar16(u16 &a, u8 b);
+    void Sar32(u32 &a, u8 b);
+    void Rcl8(u8 &a, u8 b);
+    void Rcl16(u16 &a, u16 b);
+    void Rcl32(u32 &a, u8 b);
+    void Rol32(u32 &a, u8 b);
+    void Rol8(u8 &a, u8 b);
+    void Ror8(u8 &a, u8 b);
+    void Ror32(u32 &a, u8 b);
+    void SetByte(const Instruction *inst, bool cond);
+    void JumpRel8(const Instruction *inst);
+    void JumpRel32(const Instruction *inst);
 
 protected:
     Thread *        m_thread;

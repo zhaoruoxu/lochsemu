@@ -206,8 +206,6 @@ enum LogLevel {
     LOG_LEVEL_FATAL     = 3,
 };
 
-typedef LxResult (*InstHandler)(Processor *cpu, const Instruction *inst);
-
 /************************************************************************/
 /* Log stuff                                                            */
 /************************************************************************/

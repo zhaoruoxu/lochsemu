@@ -4,76 +4,76 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult Fpu_Fchs_D9E0(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fchs_D9E0(const Instruction *inst)
 {
     // FCHS
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     __asm fchs;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fabs_D9E1(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fabs_D9E1(const Instruction *inst)
 {
     // FABS
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     __asm fabs;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fyl2x_D9F1(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fyl2x_D9F1(const Instruction *inst)
 {
     // FYL2X
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     __asm fyl2x;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fptan_D9F2(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fptan_D9F2(const Instruction *inst)
 {
     // FPTAN
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     __asm fptan;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fprem1_D9F5(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fprem1_D9F5(const Instruction *inst)
 {
     // FPREM1
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     __asm fprem1;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fprem_D9F8(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fprem_D9F8(const Instruction *inst)
 {
     // FPREM
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     __asm fprem;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fsqrt_D9FA(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fsqrt_D9FA(const Instruction *inst)
 {
     // FSQRT
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     __asm fsqrt;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Frndint_D9FC(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Frndint_D9FC(const Instruction *inst)
 {
     // FRNDINT
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     __asm frndint;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
 END_NAMESPACE_LOCHSEMU()

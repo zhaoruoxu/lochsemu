@@ -4,74 +4,68 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-
-LxResult Fpu_Fstcw_D9_7(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fstcw_D9_7(const Instruction *inst)
 {
     // FSTCW m2byte
-    u32 offset = cpu->Offset32(inst->Main.Argument1);
+    u32 offset = Offset32(inst->Main.Argument1);
     u16 ctrl;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     __asm fstcw     ctrl;
-    cpu->FPU()->SaveContext();
-    cpu->MemWrite16(offset, ctrl, LX_REG_DS);
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    MemWrite16(offset, ctrl, LX_REG_DS);
 }
 
-LxResult Fpu_Fstsw_DFE0(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fstsw_DFE0(const Instruction *inst)
 {
     // FSTSW AX
     u16 status;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     __asm {
         fstsw ax
         mov status, ax
     }
-    cpu->FPU()->SaveContext();
-    cpu->AX = status;
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    AX = status;
 }
 
-LxResult Fpu_Fst64fp_DD_2(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fst64fp_DD_2(const Instruction *inst)
 {
     // FST m64fp
-    u32 offset = cpu->Offset32(inst->Main.Argument1);
+    u32 offset = Offset32(inst->Main.Argument1);
     u64 val;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     __asm fst   val;
-    cpu->FPU()->SaveContext();
-    cpu->WriteOperand64(inst, inst->Main.Argument1, offset, val);
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    WriteOperand64(inst, inst->Main.Argument1, offset, val);
 }
 
-LxResult Fpu_Fstp64fp_DD_3(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fstp64fp_DD_3(const Instruction *inst)
 {
     // FSTP m64fp
-    u32 offset = cpu->Offset32(inst->Main.Argument1);
+    u32 offset = Offset32(inst->Main.Argument1);
     u64 val;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     __asm fstp  val;
-    cpu->FPU()->SaveContext();
-    cpu->WriteOperand64(inst, inst->Main.Argument1, offset, val);
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    WriteOperand64(inst, inst->Main.Argument1, offset, val);
 }
 
-LxResult Fpu_Fstsw_DD_7(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fstsw_DD_7(const Instruction *inst)
 {
     // FSTSW m2byte
-    u32 offset = cpu->Offset32(inst->Main.Argument1);
+    u32 offset = Offset32(inst->Main.Argument1);
     u16 status;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     __asm fstsw     status;
-    cpu->FPU()->SaveContext();
-    cpu->MemWrite16(offset, status);
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    MemWrite16(offset, status);
 }
 
-LxResult Fpu_Fstp_DDD8(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fstp_DDD8(const Instruction *inst)
 {
     // FSTP ST(i)
     int i = inst->Aux.opcode - 0xd8;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     switch (i) {
         case 0: __asm fstp st(0); 
             break;
@@ -91,33 +85,29 @@ LxResult Fpu_Fstp_DDD8(Processor *cpu, const Instruction *inst)
             break;
         default: Assert(0);
     }
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
 }
 
-LxResult Fpu_Fistp32_DB_3(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fistp32_DB_3(const Instruction *inst)
 {
 	// FISTP m32int
-	u32 offset = cpu->Offset32(inst->Main.Argument1);
+	u32 offset = Offset32(inst->Main.Argument1);
 	u32 val;
-	cpu->FPU()->RestoreContext();
+	FPU()->RestoreContext();
 	__asm fistp val;
-	cpu->FPU()->SaveContext();
-	cpu->WriteOperand32(inst, inst->Main.Argument1, offset, val);
-	RET_SUCCESS();
+	FPU()->SaveContext();
+	WriteOperand32(inst, inst->Main.Argument1, offset, val);
 }
 
-LxResult Fpu_Fistp64int_DF_7(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fistp64int_DF_7(const Instruction *inst)
 {
     // FISTP m64int
-    u32 offset = cpu->Offset32(inst->Main.Argument1);
+    u32 offset = Offset32(inst->Main.Argument1);
     u64 val;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     __asm fistp val;
-    cpu->FPU()->SaveContext();
-    cpu->WriteOperand64(inst, inst->Main.Argument1, offset, val);
-
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    WriteOperand64(inst, inst->Main.Argument1, offset, val);
 }
 
 END_NAMESPACE_LOCHSEMU()

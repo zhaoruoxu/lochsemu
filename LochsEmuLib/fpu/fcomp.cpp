@@ -4,11 +4,11 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult Fpu_Fcom_D8D0(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fcom_D8D0(const Instruction *inst)
 {
     // FCOM ST(0), ST(i)
     int i = inst->Aux.opcode - 0xd0;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     switch (i) {
     case 0: __asm fcom st(0); 
         break;
@@ -28,37 +28,37 @@ LxResult Fpu_Fcom_D8D0(Processor *cpu, const Instruction *inst)
         break;
     default: Assert(0);
     }
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fucompp_DAE9(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fucompp_DAE9(const Instruction *inst)
 {
 	// FUCOMPP
-	cpu->FPU()->RestoreContext();
+	FPU()->RestoreContext();
 	__asm fucompp;
-	cpu->FPU()->SaveContext();
-	RET_SUCCESS();
+	FPU()->SaveContext();
+	
 }
 
-LxResult Fpu_Fcom_DC_2(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fcom_DC_2(const Instruction *inst)
 {
     // FCOM m64fp
-    u64 val = cpu->ReadOperand64(inst, inst->Main.Argument2, NULL);
-    cpu->FPU()->RestoreContext();
+    u64 val = ReadOperand64(inst, inst->Main.Argument2, NULL);
+    FPU()->RestoreContext();
     __asm fcom      val;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fcomp_DC_3(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fcomp_DC_3(const Instruction *inst)
 {
     // FCOMP m64fp
-    u64 val = cpu->ReadOperand64(inst, inst->Main.Argument2, NULL);
-    cpu->FPU()->RestoreContext();
+    u64 val = ReadOperand64(inst, inst->Main.Argument2, NULL);
+    FPU()->RestoreContext();
     __asm fcomp     val;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
 END_NAMESPACE_LOCHSEMU()

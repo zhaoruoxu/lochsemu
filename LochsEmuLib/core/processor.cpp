@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "processor.h"
 #include "pemodule.h"
-#include "inst_table.h"
 #include "emulator.h"
 #include "thread.h"
 #include "stack.h"
@@ -174,8 +173,7 @@ LxResult Processor::Execute( const Instruction *inst )
     // Thanks to shitty MOVQ_F30F7E
     if (inst->Main.Prefix.RepPrefix && !isRet && opcode != 0x0f7e) {
         while (ECX != 0) {
-            if (LX_FAILED( h(this, inst) ))
-                LxFatal("REP execution failed at %08x\n", EIP - inst->Length);
+            (this->*h)(inst);
             ECX--;
             if (ECX == 0) break;
 
@@ -185,17 +183,16 @@ LxResult Processor::Execute( const Instruction *inst )
         SetExecFlag(LX_EXEC_PREFIX_REP);
     } else if (inst->Main.Prefix.RepnePrefix) {
         while (ECX != 0) {
-            if (LX_FAILED( h(this, inst) ))
-                LxFatal("REPNE execution failed at %08x\n", EIP - inst->Length);
+            (this->*h)(inst);
             ECX--;
             if (ECX == 0) break;
             if (ZF == 1) break;
         }
         SetExecFlag(LX_EXEC_PREFIX_REPNE);
     } else {
-        if (LX_FAILED(h(this, inst)))
-            LxFatal("Execution failed at %08x\n", EIP - inst->Length);
+        (this->*h)(inst);
     }
+
     RET_SUCCESS();
 }
 

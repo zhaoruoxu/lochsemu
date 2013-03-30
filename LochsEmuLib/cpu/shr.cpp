@@ -5,65 +5,65 @@ BEGIN_NAMESPACE_LOCHSEMU()
 
 #define COUNT_MASK      0x1f
 
-static INLINE void Shr32(Processor *cpu, u32 &a, u8 b)
+void Processor::Shr32(u32 &a, u8 b)
 {
     u32 r = a;
     b &= COUNT_MASK;
     if (b > 0) {
-        cpu->CF = (r & (1 << (b-1))) ? 1 : 0;
+        CF = (r & (1 << (b-1))) ? 1 : 0;
         r >>= b;
         if (b == 1) {
-            cpu->OF = (a & 0x80000000) ? 1 : 0;
+            OF = (a & 0x80000000) ? 1 : 0;
         }
         a = r;
-        cpu->SetFlagsShift32(r);
+        SetFlagsShift32(r);
     }
 }
 
-static INLINE void Shr8(Processor *cpu, u8 &a, u8 b)
+void Processor::Shr8(u8 &a, u8 b)
 {
     u8 r = a;
     b &= COUNT_MASK;
     if (b > 0) {
-        cpu->CF = (r & (1 << (b-1))) ? 1 : 0;
+        CF = (r & (1 << (b-1))) ? 1 : 0;
         r >>= b;
         if (b == 1) {
-            cpu->OF = (a & 0x80) ? 1 : 0;
+            OF = (a & 0x80) ? 1 : 0;
         }
         a = r;
-        cpu->SetFlagsShift8(r);
+        SetFlagsShift8(r);
     }
 }
 
-static INLINE void Shr16(Processor *cpu, u16 &a, u8 b)
+void Processor::Shr16(u16 &a, u8 b)
 {
     u16 r = a;
     b &= COUNT_MASK;
     if (b > 0) {
-        cpu->CF = (r & (1 << (b-1))) ? 1 : 0;
+        CF = (r & (1 << (b-1))) ? 1 : 0;
         r >>= b;
         if (b == 1) {
-            cpu->OF = (a & 0x8000) ? 1 : 0;
+            OF = (a & 0x8000) ? 1 : 0;
         }
         a = r;
-        cpu->SetFlagsShift16(r);
+        SetFlagsShift16(r);
     }
 }
 
-LxResult Shr_C0_ext5(Processor *cpu, const Instruction *inst)
+void Processor::Shr_C0_ext5(const Instruction *inst)
 {
     /**
      * SHR r/m8, imm8
      */
     u32 offset;
-    u8 val1 = cpu->ReadOperand8(inst, inst->Main.Argument1, &offset);
+    u8 val1 = ReadOperand8(inst, inst->Main.Argument1, &offset);
     u8 val2 = (u8) inst->Main.Inst.Immediat;
-    Shr8(cpu, val1, val2);
-    cpu->WriteOperand8(inst, inst->Main.Argument1, offset, val1);
-    RET_SUCCESS();
+    Shr8(val1, val2);
+    WriteOperand8(inst, inst->Main.Argument1, offset, val1);
+    
 }
 
-LxResult Shr_C1_ext5(Processor *cpu, const Instruction *inst)
+void Processor::Shr_C1_ext5(const Instruction *inst)
 {
     /**
      * SHR r/m16, imm8
@@ -71,32 +71,32 @@ LxResult Shr_C1_ext5(Processor *cpu, const Instruction *inst)
      */
     u32 offset;
     if (inst->Main.Prefix.OperandSize) {
-        u16 val1 = cpu->ReadOperand16(inst, inst->Main.Argument1, &offset);
+        u16 val1 = ReadOperand16(inst, inst->Main.Argument1, &offset);
         u8 val2 = (u8) inst->Main.Inst.Immediat;
-        Shr16(cpu, val1, val2);
-        cpu->WriteOperand16(inst, inst->Main.Argument1, offset, val1);
+        Shr16(val1, val2);
+        WriteOperand16(inst, inst->Main.Argument1, offset, val1);
     } else {
-        u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
+        u32 val1 = ReadOperand32(inst, inst->Main.Argument1, &offset);
         u8 val2 = (u8) inst->Main.Inst.Immediat;
-        Shr32(cpu, val1, val2);
-        cpu->WriteOperand32(inst, inst->Main.Argument1, offset, val1);
+        Shr32(val1, val2);
+        WriteOperand32(inst, inst->Main.Argument1, offset, val1);
     }
-    RET_SUCCESS();
+    
 }
 
-LxResult Shr_D0_ext5(Processor *cpu, const Instruction *inst)
+void Processor::Shr_D0_ext5(const Instruction *inst)
 {
     /**
      * SHR r/m8, 1
      */
     u32 offset;
-    u8 val1 = cpu->ReadOperand8(inst, inst->Main.Argument1, &offset);
-    Shr8(cpu, val1, 1);
-    cpu->WriteOperand8(inst, inst->Main.Argument1, offset, val1);
-    RET_SUCCESS();
+    u8 val1 = ReadOperand8(inst, inst->Main.Argument1, &offset);
+    Shr8(val1, 1);
+    WriteOperand8(inst, inst->Main.Argument1, offset, val1);
+    
 }
 
-LxResult Shr_D1_ext5(Processor *cpu, const Instruction *inst)
+void Processor::Shr_D1_ext5(const Instruction *inst)
 {
     /**
      * SHR r/m16, 1
@@ -104,30 +104,30 @@ LxResult Shr_D1_ext5(Processor *cpu, const Instruction *inst)
      */
     u32 offset;
     if (inst->Main.Prefix.OperandSize) {
-        u16 val1 = cpu->ReadOperand16(inst, inst->Main.Argument1, &offset);
-        Shr16(cpu, val1, 1);
-        cpu->WriteOperand16(inst, inst->Main.Argument1, offset, val1);
+        u16 val1 = ReadOperand16(inst, inst->Main.Argument1, &offset);
+        Shr16(val1, 1);
+        WriteOperand16(inst, inst->Main.Argument1, offset, val1);
     } else {
-        u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
-        Shr32(cpu, val1, 1);
-        cpu->WriteOperand32(inst, inst->Main.Argument1, offset, val1);
+        u32 val1 = ReadOperand32(inst, inst->Main.Argument1, &offset);
+        Shr32(val1, 1);
+        WriteOperand32(inst, inst->Main.Argument1, offset, val1);
     }
-    RET_SUCCESS();
+    
 }
 
-LxResult Shr_D2_ext5(Processor *cpu, const Instruction *inst)
+void Processor::Shr_D2_ext5(const Instruction *inst)
 {
     /**
      * SHR r/m8, CL
      */
     u32 offset;
-    u8 val1 = cpu->ReadOperand8(inst, inst->Main.Argument1, &offset);
-    Shr8(cpu, val1, cpu->CL);
-    cpu->WriteOperand8(inst, inst->Main.Argument1, offset, val1);
-    RET_SUCCESS();
+    u8 val1 = ReadOperand8(inst, inst->Main.Argument1, &offset);
+    Shr8(val1, CL);
+    WriteOperand8(inst, inst->Main.Argument1, offset, val1);
+    
 }
 
-LxResult Shr_D3_ext5(Processor *cpu, const Instruction *inst)
+void Processor::Shr_D3_ext5(const Instruction *inst)
 {
     /**
      * SHR r/m16, CL
@@ -135,30 +135,30 @@ LxResult Shr_D3_ext5(Processor *cpu, const Instruction *inst)
      */
     u32 offset;
     if (inst->Main.Prefix.OperandSize) {
-        u16 val1 = cpu->ReadOperand16(inst, inst->Main.Argument1, &offset);
-        Shr16(cpu, val1, cpu->CL);
-        cpu->WriteOperand16(inst, inst->Main.Argument1, offset, val1);
+        u16 val1 = ReadOperand16(inst, inst->Main.Argument1, &offset);
+        Shr16(val1, CL);
+        WriteOperand16(inst, inst->Main.Argument1, offset, val1);
     } else {
-        u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
-        Shr32(cpu, val1, cpu->CL);
-        cpu->WriteOperand32(inst, inst->Main.Argument1, offset, val1);
+        u32 val1 = ReadOperand32(inst, inst->Main.Argument1, &offset);
+        Shr32(val1, CL);
+        WriteOperand32(inst, inst->Main.Argument1, offset, val1);
     }
-    RET_SUCCESS();
+    
 }
 
-LxResult Shrd_0FAC(Processor *cpu, const Instruction *inst)
+void Processor::Shrd_0FAC(const Instruction *inst)
 {
     // SHRD r/m32, r32, imm8
-    if (inst->Main.Prefix.OperandSize) RET_NOT_IMPLEMENTED();
+    if (inst->Main.Prefix.OperandSize) NOT_IMPLEMENTED();
     u32 offset;
-    u32 val1    = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
-    u32 val2    = cpu->ReadOperand32(inst, inst->Main.Argument2, NULL);
+    u32 val1    = ReadOperand32(inst, inst->Main.Argument1, &offset);
+    u32 val2    = ReadOperand32(inst, inst->Main.Argument2, NULL);
     u8 cnt      = (u8) inst->Main.Inst.Immediat;
     
     cnt %= 0x1f;
-    if (cnt == 0) RET_SUCCESS();
+    if (cnt == 0) 
     Assert(cnt < 32);
-    cpu->CF     = (val1 >> (cnt-1)) & 0x1;
+    CF     = (val1 >> (cnt-1)) & 0x1;
 
     u32 r;
     __asm {
@@ -169,27 +169,27 @@ LxResult Shrd_0FAC(Processor *cpu, const Instruction *inst)
         mov     r, eax
     }
 
-    cpu->SetFlagsShift32(r);
+    SetFlagsShift32(r);
     if (cnt == 1) {
-        cpu->OF = MSB32(val1) == MSB32(r) ? 0 : 1;
+        OF = MSB32(val1) == MSB32(r) ? 0 : 1;
     }
-    cpu->WriteOperand32(inst, inst->Main.Argument1, offset, r);
-    RET_SUCCESS();
+    WriteOperand32(inst, inst->Main.Argument1, offset, r);
+    
 }
 
-LxResult Shrd_0FAD(Processor *cpu, const Instruction *inst)
+void Processor::Shrd_0FAD(const Instruction *inst)
 {
     // SHRD r/m32, r32, imm8
-    if (inst->Main.Prefix.OperandSize) RET_NOT_IMPLEMENTED();
+    if (inst->Main.Prefix.OperandSize) NOT_IMPLEMENTED();
     u32 offset;
-    u32 val1    = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
-    u32 val2    = cpu->ReadOperand32(inst, inst->Main.Argument2, NULL);
-    u8 cnt      = cpu->CL;
+    u32 val1    = ReadOperand32(inst, inst->Main.Argument1, &offset);
+    u32 val2    = ReadOperand32(inst, inst->Main.Argument2, NULL);
+    u8 cnt      = CL;
 
     cnt %= 0x1f;
-    if (cnt == 0) RET_SUCCESS();
+    if (cnt == 0) 
     Assert(cnt < 32);
-    cpu->CF     = (val1 >> (cnt-1)) & 0x1;
+    CF     = (val1 >> (cnt-1)) & 0x1;
 
     u32 r;
     __asm {
@@ -200,12 +200,12 @@ LxResult Shrd_0FAD(Processor *cpu, const Instruction *inst)
         mov     r, eax
     }
 
-    cpu->SetFlagsShift32(r);
+    SetFlagsShift32(r);
     if (cnt == 1) {
-        cpu->OF = MSB32(val1) == MSB32(r) ? 0 : 1;
+        OF = MSB32(val1) == MSB32(r) ? 0 : 1;
     }
-    cpu->WriteOperand32(inst, inst->Main.Argument1, offset, r);
-    RET_SUCCESS();
+    WriteOperand32(inst, inst->Main.Argument1, offset, r);
+    
 }
 
 END_NAMESPACE_LOCHSEMU()

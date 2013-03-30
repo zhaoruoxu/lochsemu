@@ -3,157 +3,157 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult Movsb_A4(Processor *cpu, const Instruction *inst)
+void Processor::Movsb_A4(const Instruction *inst)
 {
     // MOVSB
-    if (inst->Main.Prefix.AddressSize) RET_NOT_IMPLEMENTED();
+    if (inst->Main.Prefix.AddressSize) NOT_IMPLEMENTED();
 
-    u8 temp = cpu->MemRead8(cpu->ESI, LX_REG_DS);
-    cpu->MemWrite8(cpu->EDI, temp, LX_REG_ES);
-    if (cpu->DF == 0) {
-        cpu->EDI++; cpu->ESI++;
+    u8 temp = MemRead8(ESI, LX_REG_DS);
+    MemWrite8(EDI, temp, LX_REG_ES);
+    if (DF == 0) {
+        EDI++; ESI++;
     } else {
-        cpu->EDI--; cpu->ESI--;
+        EDI--; ESI--;
     }
-    RET_SUCCESS();
+    
 }
 
-LxResult Movs_A5(Processor *cpu, const Instruction *inst)
+void Processor::Movs_A5(const Instruction *inst)
 {
-    if (inst->Main.Prefix.AddressSize) RET_NOT_IMPLEMENTED();
+    if (inst->Main.Prefix.AddressSize) NOT_IMPLEMENTED();
 
     if (inst->Main.Prefix.OperandSize) { // 16-bit mode
-        u16 temp = cpu->MemRead16(cpu->ESI, LX_REG_DS);
-        cpu->MemWrite16(cpu->EDI, temp, LX_REG_ES);
-        if (cpu->DF == 0) {
-            cpu->EDI += 2; cpu->ESI += 2;
+        u16 temp = MemRead16(ESI, LX_REG_DS);
+        MemWrite16(EDI, temp, LX_REG_ES);
+        if (DF == 0) {
+            EDI += 2; ESI += 2;
         } else {
-            cpu->EDI -= 2; cpu->EDI -= 2;
+            EDI -= 2; EDI -= 2;
         }
     } else { // 32-bit mode
-        u32 temp = cpu->MemRead32(cpu->ESI, LX_REG_DS);
-        cpu->MemWrite32(cpu->EDI, temp, LX_REG_ES);
-        if (cpu->DF == 0) {
-            cpu->EDI += 4; cpu->ESI += 4;
+        u32 temp = MemRead32(ESI, LX_REG_DS);
+        MemWrite32(EDI, temp, LX_REG_ES);
+        if (DF == 0) {
+            EDI += 4; ESI += 4;
         } else {
-            cpu->EDI -= 4; cpu->EDI -= 4;
+            EDI -= 4; EDI -= 4;
         }
     }
-    RET_SUCCESS();
+    
 }
 
-LxResult Cmpsb_A6(Processor *cpu, const Instruction *inst)
+void Processor::Cmpsb_A6(const Instruction *inst)
 {
-	if (inst->Main.Prefix.AddressSize) RET_NOT_IMPLEMENTED();
+	if (inst->Main.Prefix.AddressSize) NOT_IMPLEMENTED();
 	
-	u8 tmp1 = cpu->MemRead8(cpu->ESI, LX_REG_DS);
-	u8 tmp2 = cpu->MemRead8(cpu->EDI, LX_REG_ES);   // used to be a terrible bug
+	u8 tmp1 = MemRead8(ESI, LX_REG_DS);
+	u8 tmp2 = MemRead8(EDI, LX_REG_ES);   // used to be a terrible bug
 	u8 tmp = tmp1 - tmp2;
-	cpu->SetFlagsArith8(tmp, PROMOTE_U16(tmp1) - PROMOTE_U16(tmp2),
+	SetFlagsArith8(tmp, PROMOTE_U16(tmp1) - PROMOTE_U16(tmp2),
 		PROMOTE_I16(tmp1) - PROMOTE_I16(tmp2));
-	if (cpu->DF == 0) {
-		cpu->ESI++; cpu->EDI++;
+	if (DF == 0) {
+		ESI++; EDI++;
 	} else {
-		cpu->ESI--; cpu->EDI--;
+		ESI--; EDI--;
 	}
-	RET_SUCCESS();
+	
 }
 
-LxResult Cmpsd_A7(Processor *cpu, const Instruction *inst)
+void Processor::Cmpsd_A7(const Instruction *inst)
 {
     if (inst->Main.Prefix.OperandSize) {
-        u16 tmp1 = cpu->MemRead16(cpu->ESI, LX_REG_DS);
-        u16 tmp2 = cpu->MemRead16(cpu->EDI, LX_REG_ES);
+        u16 tmp1 = MemRead16(ESI, LX_REG_DS);
+        u16 tmp2 = MemRead16(EDI, LX_REG_ES);
         u16 tmp = tmp1 - tmp2;
-        cpu->SetFlagsArith16(tmp, PROMOTE_U32(tmp1) - PROMOTE_U32(tmp2),
+        SetFlagsArith16(tmp, PROMOTE_U32(tmp1) - PROMOTE_U32(tmp2),
             PROMOTE_I32(tmp1) - PROMOTE_I32(tmp2));
-        if (cpu->DF == 0) {
-            cpu->ESI += 2; cpu->EDI += 2;
+        if (DF == 0) {
+            ESI += 2; EDI += 2;
         } else {
-            cpu->ESI -= 2; cpu->EDI -= 2;
+            ESI -= 2; EDI -= 2;
         }
     } else {
-        u32 tmp1 = cpu->MemRead32(cpu->ESI, LX_REG_DS);
-        u32 tmp2 = cpu->MemRead32(cpu->EDI, LX_REG_ES);
+        u32 tmp1 = MemRead32(ESI, LX_REG_DS);
+        u32 tmp2 = MemRead32(EDI, LX_REG_ES);
         u32 tmp = tmp1 - tmp2;
-        cpu->SetFlagsArith32(tmp, PROMOTE_U64(tmp1) - PROMOTE_U64(tmp2),
+        SetFlagsArith32(tmp, PROMOTE_U64(tmp1) - PROMOTE_U64(tmp2),
             PROMOTE_I64(tmp1) - PROMOTE_I64(tmp2));
-        if (cpu->DF == 0) {
-            cpu->ESI += 4; cpu->EDI += 4;
+        if (DF == 0) {
+            ESI += 4; EDI += 4;
         } else {
-            cpu->ESI -= 4; cpu->EDI -= 4;
+            ESI -= 4; EDI -= 4;
         }
     }
-    RET_SUCCESS();
+    
 }
 
-LxResult Stos_AA(Processor *cpu, const Instruction *inst)
+void Processor::Stos_AA(const Instruction *inst)
 {
-    if (inst->Main.Prefix.AddressSize) RET_NOT_IMPLEMENTED();
-    if (inst->Main.Prefix.OperandSize) RET_NOT_IMPLEMENTED();
+    if (inst->Main.Prefix.AddressSize) NOT_IMPLEMENTED();
+    if (inst->Main.Prefix.OperandSize) NOT_IMPLEMENTED();
 
-    cpu->MemWrite8(cpu->EDI, cpu->AL, LX_REG_ES);
-    cpu->DF == 0 ? cpu->EDI++ : cpu->EDI--;
-    RET_SUCCESS();
+    MemWrite8(EDI, AL, LX_REG_ES);
+    DF == 0 ? EDI++ : EDI--;
+    
 }
 
-LxResult Stos_AB(Processor *cpu, const Instruction *inst)
+void Processor::Stos_AB(const Instruction *inst)
 {
     // STOS
-    if (inst->Main.Prefix.AddressSize) RET_NOT_IMPLEMENTED();
+    if (inst->Main.Prefix.AddressSize) NOT_IMPLEMENTED();
     if (inst->Main.Prefix.OperandSize) {
-        cpu->MemWrite16(cpu->EDI, cpu->AX, LX_REG_ES);
-        cpu->DF == 0 ? cpu->EDI += 2 : cpu->EDI -= 2;
+        MemWrite16(EDI, AX, LX_REG_ES);
+        DF == 0 ? EDI += 2 : EDI -= 2;
     } else {
-        cpu->MemWrite32(cpu->EDI, cpu->EAX, LX_REG_ES);
-        cpu->DF == 0 ? cpu->EDI += 4 : cpu->EDI -= 4;
+        MemWrite32(EDI, EAX, LX_REG_ES);
+        DF == 0 ? EDI += 4 : EDI -= 4;
     }
-    RET_SUCCESS();
+    
 }
 
-LxResult Lodsb_AC(Processor *cpu, const Instruction *inst)
+void Processor::Lodsb_AC(const Instruction *inst)
 {
     // LODSB
-    if (inst->Main.Prefix.AddressSize) RET_NOT_IMPLEMENTED();
-    cpu->AL = cpu->MemRead8(cpu->ESI);
-    cpu->DF == 0 ? cpu->ESI++ : cpu->ESI--;
-    RET_SUCCESS();
+    if (inst->Main.Prefix.AddressSize) NOT_IMPLEMENTED();
+    AL = MemRead8(ESI);
+    DF == 0 ? ESI++ : ESI--;
+    
 }
 
-LxResult Lodsd_AD(Processor *cpu, const Instruction *inst)
+void Processor::Lodsd_AD(const Instruction *inst)
 {
     /**
      * mov EAX,DS:ESI
 	 then IF(DF=0)esi¡ûesi+4
 	 else esi¡ûesi-4; 
      */
-    if (inst->Main.Prefix.AddressSize) RET_NOT_IMPLEMENTED();
-    if (inst->Main.Prefix.OperandSize) RET_NOT_IMPLEMENTED();
+    if (inst->Main.Prefix.AddressSize) NOT_IMPLEMENTED();
+    if (inst->Main.Prefix.OperandSize) NOT_IMPLEMENTED();
 
-    cpu->EAX = cpu->MemRead32(cpu->ESI);
-	if (!cpu->DF) 
-        cpu->ESI += 4;
+    EAX = MemRead32(ESI);
+	if (!DF) 
+        ESI += 4;
 	else 
-        cpu->ESI -= 4;
-    RET_SUCCESS();
+        ESI -= 4;
+    
 }
 
 
-LxResult Scasb_AE(Processor *cpu, const Instruction *inst)
+void Processor::Scasb_AE(const Instruction *inst)
 {
     // SCASB
-    if (inst->Main.Prefix.AddressSize) RET_NOT_IMPLEMENTED();
-    u8 val1 = cpu->AL;
-    u8 val2 = cpu->MemRead8(cpu->EDI, LX_REG_ES);
+    if (inst->Main.Prefix.AddressSize) NOT_IMPLEMENTED();
+    u8 val1 = AL;
+    u8 val2 = MemRead8(EDI, LX_REG_ES);
     u8 r = val1 - val2;
-    cpu->SetFlagsArith8(r, PROMOTE_U16(val1) - PROMOTE_U16(val2),
+    SetFlagsArith8(r, PROMOTE_U16(val1) - PROMOTE_U16(val2),
         PROMOTE_I16(val1) - PROMOTE_I16(val2));
-    if (cpu->DF == 0) {
-        cpu->EDI++; 
+    if (DF == 0) {
+        EDI++; 
     } else {
-        cpu->EDI--;
+        EDI--;
     }
-    RET_SUCCESS();
+    
 }
 
 

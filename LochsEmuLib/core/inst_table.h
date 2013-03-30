@@ -1,16 +1,6 @@
-#pragma once
 
-#ifndef __CORE_INST_TABLE_H__
-#define __CORE_INST_TABLE_H__
+#define DECLARE_INST_HANDLER(x)     void    x(const Instruction *inst)
 
-#include "lochsemu.h"
-
-#define DECLARE_INST_HANDLER(x)     LxResult    x(Processor *, const Instruction *inst)
-
-BEGIN_NAMESPACE_LOCHSEMU()
-
-extern InstHandler InstTableOneByte[];
-extern InstHandler InstTableTwoBytes[];
 
 /************************************************************************/
 /* Instruction Handlers 1-byte                                          */
@@ -165,8 +155,6 @@ DECLARE_INST_HANDLER(Scasb_AE);         // SCASB
 
 DECLARE_INST_HANDLER(Mov_B0X);           // MOV r8, imm8
 DECLARE_INST_HANDLER(Mov_B8X);           // MOV r16/32, imm16/32
-
-DECLARE_INST_HANDLER(Jecxz_E3);         // JECXZ rel8
 
 DECLARE_INST_HANDLER(Ext_C0);
 DECLARE_INST_HANDLER(Rol_C0_ext0);      // ROL r/m8, imm8
@@ -445,6 +433,4 @@ DECLARE_INST_HANDLER(Fpu_Fild16_DF_0);		// FILD m16int
 DECLARE_INST_HANDLER(Fpu_Fild64_DF_5);		// FILD m64int
 DECLARE_INST_HANDLER(Fpu_Fistp64int_DF_7);  // FISTP m64int
 DECLARE_INST_HANDLER(Fpu_Fstsw_DFE0);       // FSTSW AX
-END_NAMESPACE_LOCHSEMU()
 
-#endif // __CORE_INST_TABLE_H__

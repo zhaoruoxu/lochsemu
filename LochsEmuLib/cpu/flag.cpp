@@ -3,64 +3,64 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult Cmc_F5(Processor *cpu, const Instruction *inst)
+void Processor::Cmc_F5(const Instruction *inst)
 {
     /**
      * CLD
      */
-    cpu->CF = 1-cpu->CF;
-    RET_SUCCESS();
+    CF = 1-CF;
+    
 }
 
-LxResult Clc_F8(Processor *cpu, const Instruction *inst)
+void Processor::Clc_F8(const Instruction *inst)
 {
     /**
      * CLD
      */
-    cpu->CF = 0;
-    RET_SUCCESS();
+    CF = 0;
+    
 }
-LxResult Stc_F9(Processor *cpu, const Instruction *inst)
+void Processor::Stc_F9(const Instruction *inst)
 {
     /**
      * CLD
      */
-    cpu->CF = 1;
-    RET_SUCCESS();
+    CF = 1;
+    
 }
 
-LxResult Cli_FA(Processor *cpu, const Instruction *inst)
+void Processor::Cli_FA(const Instruction *inst)
 {
     // CLI
     LxWarning("CLI is not implemented\n");
-    cpu->IF = 0;
-    RET_SUCCESS();
+    IF = 0;
+    
 }
 
-LxResult Sti_FB(Processor *cpu, const Instruction *inst)
+void Processor::Sti_FB(const Instruction *inst)
 {
     // STI
     LxWarning("STI is not implemented\n");
-    cpu->IF = 1;
-    RET_SUCCESS();
+    IF = 1;
+    
 }
 
-LxResult Cld_FC(Processor *cpu, const Instruction *inst)
+void Processor::Cld_FC(const Instruction *inst)
 {
     /**
      * CLD
      */
-    cpu->DF = 0;
-    RET_SUCCESS();
+    DF = 0;
+    
 }
 
-LxResult Std_FD(Processor *cpu, const Instruction *inst)
+void Processor::Std_FD(const Instruction *inst)
 {
     /**
      * STD
      */
-    cpu->DF = 1;
-    RET_SUCCESS();
+    DF = 1;
+    
 }
 
 

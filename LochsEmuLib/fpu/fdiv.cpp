@@ -4,21 +4,21 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult Fpu_Fdiv32fp_D8_6(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fdiv32fp_D8_6(const Instruction *inst)
 {
     // FDIV m32fp
-    u32 val = cpu->ReadOperand32(inst, inst->Main.Argument2, NULL);
-    cpu->FPU()->RestoreContext();
+    u32 val = ReadOperand32(inst, inst->Main.Argument2, NULL);
+    FPU()->RestoreContext();
     __asm fdiv  val;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fdiv_D8F0(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fdiv_D8F0(const Instruction *inst)
 {
     // FDIV st(0), st(i)
     int i = inst->Aux.opcode - 0xf0;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     switch (i) {
         case 0: __asm fdiv st, st(0); 
             break;
@@ -38,57 +38,57 @@ LxResult Fpu_Fdiv_D8F0(Processor *cpu, const Instruction *inst)
             break;
         default: Assert(0);
     }
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 
 }
 
-LxResult Fpu_Fidiv_DA_6(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fidiv_DA_6(const Instruction *inst)
 {
     // FIDIV m32int
-    u32 val = cpu->ReadOperand32(inst, inst->Main.Argument2, NULL);
-    cpu->FPU()->RestoreContext();
+    u32 val = ReadOperand32(inst, inst->Main.Argument2, NULL);
+    FPU()->RestoreContext();
     __asm fidiv     val;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fidiv_DE_6(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fidiv_DE_6(const Instruction *inst)
 {
     // FIDIV m64int
-    u16 val = cpu->ReadOperand16(inst, inst->Main.Argument2, NULL);
-    cpu->FPU()->RestoreContext();
+    u16 val = ReadOperand16(inst, inst->Main.Argument2, NULL);
+    FPU()->RestoreContext();
     __asm fidiv     val;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fdiv_DC_6(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fdiv_DC_6(const Instruction *inst)
 {
     // FDIV m64fp
-    u64 val = cpu->ReadOperand64(inst, inst->Main.Argument2, NULL);
-    cpu->FPU()->RestoreContext();
+    u64 val = ReadOperand64(inst, inst->Main.Argument2, NULL);
+    FPU()->RestoreContext();
     __asm fdiv  val;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fdivr_DC_7(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fdivr_DC_7(const Instruction *inst)
 {
     // FDIVR m64fp
-    u64 val = cpu->ReadOperand64(inst, inst->Main.Argument2, NULL);
-    cpu->FPU()->RestoreContext();
+    u64 val = ReadOperand64(inst, inst->Main.Argument2, NULL);
+    FPU()->RestoreContext();
     __asm fdivr     val;
-    cpu->FPU()->SaveContext();
+    FPU()->SaveContext();
 
-    RET_SUCCESS();
+    
 }
 
-LxResult Fpu_Fdivr_DCF0(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fdivr_DCF0(const Instruction *inst)
 {
     // FDIVR st(i), st(0)
     int i = inst->Aux.opcode - 0xF0;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     switch (i) {
         case 0: __asm fdivr st(0), st; 
             break;
@@ -108,15 +108,15 @@ LxResult Fpu_Fdivr_DCF0(Processor *cpu, const Instruction *inst)
             break;
         default: Assert(0);
     }
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fdiv_DCF8(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fdiv_DCF8(const Instruction *inst)
 {
     // FDIV st(i), st(0)
     int i = inst->Aux.opcode - 0xF8;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     switch (i) {
         case 0: __asm fdiv st(0), st; 
             break;
@@ -136,16 +136,16 @@ LxResult Fpu_Fdiv_DCF8(Processor *cpu, const Instruction *inst)
             break;
         default: Assert(0);
     }
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 
 }
 
-LxResult Fpu_Fdivp_DEF8(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fdivp_DEF8(const Instruction *inst)
 {
     // FDIVP st(i), st(0)
     int i = inst->Aux.opcode - 0xF8;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     switch (i) {
         case 0: __asm fdivp st(0), st; 
             break;
@@ -165,8 +165,8 @@ LxResult Fpu_Fdivp_DEF8(Processor *cpu, const Instruction *inst)
             break;
         default: Assert(0);
     }
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 
 }
 

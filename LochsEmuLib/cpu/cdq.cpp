@@ -3,18 +3,18 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult Cdq_99(Processor *cpu, const Instruction *inst)
+void Processor::Cdq_99(const Instruction *inst)
 {
     /*
      * CDQ
      */
     if (inst->Main.Prefix.OperandSize)
-        RET_NOT_IMPLEMENTED();
-    u32 val1 = cpu->EAX;
+        NOT_IMPLEMENTED();
+    u32 val1 = EAX;
     u64 r = SIGN_EXTEND(32, 64, val1);
-    cpu->EAX = (u32) r;
-    cpu->EDX = (u32) (r >> 32);
-    RET_SUCCESS();
+    EAX = (u32) r;
+    EDX = (u32) (r >> 32);
+    
 }
 
 END_NAMESPACE_LOCHSEMU()

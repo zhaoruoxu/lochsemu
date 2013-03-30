@@ -3,132 +3,132 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-static void SetByte(Processor *cpu, const Instruction *inst, bool cond)
+void Processor::SetByte(const Instruction *inst, bool cond)
 {
-    cpu->WriteOperand8(inst, inst->Main.Argument2, cpu->Offset32(inst->Main.Argument2), cond ? 1 : 0);
+    WriteOperand8(inst, inst->Main.Argument2, Offset32(inst->Main.Argument2), cond ? 1 : 0);
 }
 
-LxResult Seto_0F90(Processor *cpu, const Instruction *inst)
+void Processor::Seto_0F90(const Instruction *inst)
 {
     /*
      * SETO r/m8
      */
-    SetByte(cpu, inst, cpu->OF == 1);
-    RET_SUCCESS();
+    SetByte(inst, OF == 1);
+    
 }
 
-LxResult Setno_0F91(Processor *cpu, const Instruction *inst)
+void Processor::Setno_0F91(const Instruction *inst)
 {
     /*
      * SETNO r/m8
      */
-    SetByte(cpu, inst, cpu->OF == 0);
-    RET_SUCCESS();
+    SetByte(inst, OF == 0);
+    
 }
 
-LxResult Setc_0F92(Processor *cpu, const Instruction *inst)
+void Processor::Setc_0F92(const Instruction *inst)
 {
     /*
      * SETC r/m8
      */
-    SetByte(cpu, inst, cpu->CF == 1);
-    RET_SUCCESS();
+    SetByte(inst, CF == 1);
+    
 }
 
-LxResult Setnb_0F93(Processor *cpu, const Instruction *inst)
+void Processor::Setnb_0F93(const Instruction *inst)
 {
-    SetByte(cpu, inst, cpu->CF == 0);
-    RET_SUCCESS();
+    SetByte(inst, CF == 0);
+    
 }
 
-LxResult Setz_0F94(Processor *cpu, const Instruction *inst)
+void Processor::Setz_0F94(const Instruction *inst)
 {
     /**
      * SETZ r/m8
      */
-    SetByte(cpu, inst, cpu->ZF == 1);
-    RET_SUCCESS();
+    SetByte(inst, ZF == 1);
+    
 }
 
-LxResult Setnz_0F95(Processor *cpu, const Instruction *inst)
+void Processor::Setnz_0F95(const Instruction *inst)
 {
     /**
      * SETNE r/m8
      */
-    SetByte(cpu, inst, cpu->ZF == 0);
-    RET_SUCCESS();
+    SetByte(inst, ZF == 0);
+    
 }
 
-LxResult Setna_0F96(Processor *cpu, const Instruction *inst)
+void Processor::Setna_0F96(const Instruction *inst)
 {
-    SetByte(cpu, inst, cpu->CF == 1 || cpu->ZF == 1);
-    RET_SUCCESS();
+    SetByte(inst, CF == 1 || ZF == 1);
+    
 }
 
-LxResult Seta_0F97(Processor *cpu, const Instruction *inst)
+void Processor::Seta_0F97(const Instruction *inst)
 {
 	/** 
 	  *SETNBE r/m8
 	  */
-	SetByte(cpu, inst, cpu->CF == 0 && cpu->ZF == 0);
-	RET_SUCCESS();
+	SetByte(inst, CF == 0 && ZF == 0);
+	
 }
 
-LxResult Sets_0F98(Processor *cpu, const Instruction *inst)
+void Processor::Sets_0F98(const Instruction *inst)
 {
-    SetByte(cpu, inst, cpu->SF == 1);
-    RET_SUCCESS();
+    SetByte(inst, SF == 1);
+    
 }
 
-LxResult Setns_0F99(Processor *cpu, const Instruction *inst)
+void Processor::Setns_0F99(const Instruction *inst)
 {
-    SetByte(cpu, inst, cpu->SF == 0);
-    RET_SUCCESS();
+    SetByte(inst, SF == 0);
+    
 }
 
-LxResult Setp_0F9A(Processor *cpu, const Instruction *inst)
+void Processor::Setp_0F9A(const Instruction *inst)
 {
-    SetByte(cpu, inst, cpu->PF == 1);
-    RET_SUCCESS();
+    SetByte(inst, PF == 1);
+    
 }
 
-LxResult Setpo_0F9B(Processor *cpu, const Instruction *inst)
+void Processor::Setpo_0F9B(const Instruction *inst)
 {
-    SetByte(cpu, inst, cpu->PF == 0);
-    RET_SUCCESS();
+    SetByte(inst, PF == 0);
+    
 }
 
-LxResult Setl_0F9C(Processor *cpu, const Instruction *inst)
+void Processor::Setl_0F9C(const Instruction *inst)
 {
-    SetByte(cpu, inst, cpu->SF != cpu->OF);
-    RET_SUCCESS();
+    SetByte(inst, SF != OF);
+    
 }
 
-LxResult Setnl_0F9D(Processor *cpu, const Instruction *inst)
+void Processor::Setnl_0F9D(const Instruction *inst)
 {
     /*
      * SETNL r/m8
      */
-    SetByte(cpu, inst, cpu->SF == cpu->OF);
-    RET_SUCCESS();
+    SetByte(inst, SF == OF);
+    
 }
 
-LxResult Setng_0F9E(Processor *cpu, const Instruction *inst)
+void Processor::Setng_0F9E(const Instruction *inst)
 {
     /**
      * SETLE r/m8
      */
-    SetByte(cpu, inst, cpu->ZF == 1 || cpu->SF != cpu->OF);
-    RET_SUCCESS();
+    SetByte(inst, ZF == 1 || SF != OF);
+    
 }
 
-LxResult Setnle_0F9F(Processor *cpu, const Instruction *inst)
+void Processor::Setnle_0F9F(const Instruction *inst)
 {
     /*
      * SETNLE r/m8
      */
-    SetByte(cpu, inst, cpu->ZF == 0 && cpu->SF == cpu->OF);
-    RET_SUCCESS();
+    SetByte(inst, ZF == 0 && SF == OF);
+    
 }
 
 

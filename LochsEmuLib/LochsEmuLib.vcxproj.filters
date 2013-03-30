@@ -351,11 +351,11 @@
     <ClCompile Include="simd\simd_bitwise_logical.cpp">
       <Filter>Source Files\simd</Filter>
     </ClCompile>
-    <ClCompile Include="simd\simd_arith.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cpu\cmovcc.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\cpu</Filter>
+    </ClCompile>
+    <ClCompile Include="simd\simd_arith.cpp">
+      <Filter>Source Files\simd</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

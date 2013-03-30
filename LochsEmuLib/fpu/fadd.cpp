@@ -4,21 +4,21 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult Fpu_Fadd32fp_D8_0(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fadd32fp_D8_0(const Instruction *inst)
 {
 	// FADD m32fp
-	u32 val = cpu->ReadOperand32(inst, inst->Main.Argument2, NULL);
-	cpu->FPU()->RestoreContext();
+	u32 val = ReadOperand32(inst, inst->Main.Argument2, NULL);
+	FPU()->RestoreContext();
 	__asm fadd val;
-	cpu->FPU()->SaveContext();
-	RET_SUCCESS();
+	FPU()->SaveContext();
+	
 }
 
-LxResult Fpu_Fadd_D8C0(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fadd_D8C0(const Instruction *inst)
 {
     // FADD ST(0), ST(i)
     int i = inst->Aux.opcode - 0xc0;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     switch (i) {
         case 0: __asm fadd st, st(0); 
             break;
@@ -38,25 +38,25 @@ LxResult Fpu_Fadd_D8C0(Processor *cpu, const Instruction *inst)
             break;
         default: Assert(0);
     }
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fadd_DC_0(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fadd_DC_0(const Instruction *inst)
 {
     // FADD m64fp
-    u64 val = cpu->ReadOperand64(inst, inst->Main.Argument2, NULL);
-    cpu->FPU()->RestoreContext();
+    u64 val = ReadOperand64(inst, inst->Main.Argument2, NULL);
+    FPU()->RestoreContext();
     __asm fadd  val;
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }
 
-LxResult Fpu_Fadd_DCC0(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Fadd_DCC0(const Instruction *inst)
 {
     // FADD ST(i), ST(0)
     int i = inst->Aux.opcode - 0xc0;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     switch (i) {
         case 0: __asm fadd st(0), st; 
             break;
@@ -76,16 +76,16 @@ LxResult Fpu_Fadd_DCC0(Processor *cpu, const Instruction *inst)
             break;
         default: Assert(0);
     }
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 
 }
 
-LxResult Fpu_Faddp_DEC0(Processor *cpu, const Instruction *inst)
+void Processor::Fpu_Faddp_DEC0(const Instruction *inst)
 {
     // FADDP ST(i), ST(0)
     int i = inst->Aux.opcode - 0xc0;
-    cpu->FPU()->RestoreContext();
+    FPU()->RestoreContext();
     switch (i) {
         case 0: __asm faddp st(0), st; 
             break;
@@ -105,8 +105,8 @@ LxResult Fpu_Faddp_DEC0(Processor *cpu, const Instruction *inst)
             break;
         default: Assert(0);
     }
-    cpu->FPU()->SaveContext();
-    RET_SUCCESS();
+    FPU()->SaveContext();
+    
 }   
 
 END_NAMESPACE_LOCHSEMU()

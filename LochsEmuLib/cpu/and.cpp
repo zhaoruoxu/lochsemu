@@ -3,21 +3,21 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult And_20(Processor *cpu, const Instruction *inst)
+void Processor::And_20(const Instruction *inst)
 {
     /**
      * AND r/m8, r8
      */
     u32 offset;
-    u8 val1 = cpu->ReadOperand8(inst, inst->Main.Argument1, &offset);
-    u8 val2 = cpu->ReadOperand8(inst, inst->Main.Argument2, NULL);
+    u8 val1 = ReadOperand8(inst, inst->Main.Argument1, &offset);
+    u8 val2 = ReadOperand8(inst, inst->Main.Argument2, NULL);
     u8 r = val1 & val2;
-    cpu->SetFlagsLogic8(r);
-    cpu->WriteOperand8(inst, inst->Main.Argument1, offset, r);
-    RET_SUCCESS();
+    SetFlagsLogic8(r);
+    WriteOperand8(inst, inst->Main.Argument1, offset, r);
+    
 }
 
-LxResult And_21(Processor *cpu, const Instruction *inst)
+void Processor::And_21(const Instruction *inst)
 {
     /**
      * AND r/m16, r16
@@ -25,101 +25,101 @@ LxResult And_21(Processor *cpu, const Instruction *inst)
      */
     u32 offset;
     if (inst->Main.Prefix.OperandSize) {
-		u16 val1 = cpu->ReadOperand16(inst, inst->Main.Argument1, &offset);
-		u16 val2 = cpu->ReadOperand16(inst, inst->Main.Argument2, NULL);
+		u16 val1 = ReadOperand16(inst, inst->Main.Argument1, &offset);
+		u16 val2 = ReadOperand16(inst, inst->Main.Argument2, NULL);
 		u16 r = val1 & val2;
-		cpu->SetFlagsLogic16(r);
-		cpu->WriteOperand16(inst, inst->Main.Argument1, offset, r);    
+		SetFlagsLogic16(r);
+		WriteOperand16(inst, inst->Main.Argument1, offset, r);    
 	} else {
         u32 offset;
-        u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
-        u32 val2 = cpu->ReadOperand32(inst, inst->Main.Argument2, NULL);
+        u32 val1 = ReadOperand32(inst, inst->Main.Argument1, &offset);
+        u32 val2 = ReadOperand32(inst, inst->Main.Argument2, NULL);
         u32 r = val1 & val2;
-        cpu->SetFlagsLogic32(r);
-        cpu->WriteOperand32(inst, inst->Main.Argument1, offset, r);
+        SetFlagsLogic32(r);
+        WriteOperand32(inst, inst->Main.Argument1, offset, r);
     }
-    RET_SUCCESS();
+    
 }
 
-LxResult And_22(Processor *cpu, const Instruction *inst)
+void Processor::And_22(const Instruction *inst)
 {
     /**
      * AND r8, r/m8
      */
-    u8 val1 = cpu->ReadOperand8(inst, inst->Main.Argument1, NULL);
-    u8 val2 = cpu->ReadOperand8(inst, inst->Main.Argument2, NULL);
+    u8 val1 = ReadOperand8(inst, inst->Main.Argument1, NULL);
+    u8 val2 = ReadOperand8(inst, inst->Main.Argument2, NULL);
     u8 r = val1 & val2;
-    cpu->SetFlagsLogic8(r);
-    cpu->WriteOperand8(inst, inst->Main.Argument1, 0, r);
-    RET_SUCCESS();
+    SetFlagsLogic8(r);
+    WriteOperand8(inst, inst->Main.Argument1, 0, r);
+    
 }
 
-LxResult And_23(Processor *cpu, const Instruction *inst)
+void Processor::And_23(const Instruction *inst)
 {
     /**
      * AND r16, r/m16
      * AND r32, r/m32
      */
     if (inst->Main.Prefix.OperandSize) {
-		u16 val1 = cpu->ReadOperand16(inst, inst->Main.Argument1, NULL);
-		u16 val2 = cpu->ReadOperand16(inst, inst->Main.Argument2, NULL);
+		u16 val1 = ReadOperand16(inst, inst->Main.Argument1, NULL);
+		u16 val2 = ReadOperand16(inst, inst->Main.Argument2, NULL);
 		u16 r = val1 & val2;
-		cpu->SetFlagsLogic16(r);
-		cpu->WriteOperand16(inst, inst->Main.Argument1, 0, r);
+		SetFlagsLogic16(r);
+		WriteOperand16(inst, inst->Main.Argument1, 0, r);
     } else {
-        u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, NULL);
-        u32 val2 = cpu->ReadOperand32(inst, inst->Main.Argument2, NULL);
+        u32 val1 = ReadOperand32(inst, inst->Main.Argument1, NULL);
+        u32 val2 = ReadOperand32(inst, inst->Main.Argument2, NULL);
         u32 r = val1 & val2;
-        cpu->SetFlagsLogic32(r);
-        cpu->WriteOperand32(inst, inst->Main.Argument1, 0, r);
+        SetFlagsLogic32(r);
+        WriteOperand32(inst, inst->Main.Argument1, 0, r);
     }
-    RET_SUCCESS();
+    
 }
 
-LxResult And_24(Processor *cpu, const Instruction *inst)
+void Processor::And_24(const Instruction *inst)
 {
     // AND AL, imm8
     u8 val2 = (u8) inst->Main.Inst.Immediat;
-    u8 r = cpu->AL & val2;
-    cpu->SetFlagsLogic8(r);
-    cpu->AL = r;
-    RET_SUCCESS();
+    u8 r = AL & val2;
+    SetFlagsLogic8(r);
+    AL = r;
+    
 }
 
-LxResult And_25(Processor *cpu, const Instruction *inst)
+void Processor::And_25(const Instruction *inst)
 {
     /**
      * AND EAX, r/m32
      */
 	if (inst->Main.Prefix.OperandSize){
-		u16 val2 = cpu->ReadOperand16(inst, inst->Main.Argument2, NULL);
-		u16 r = cpu->AX & val2;
-		cpu->SetFlagsLogic16(r);
-		cpu->AX = r;
+		u16 val2 = ReadOperand16(inst, inst->Main.Argument2, NULL);
+		u16 r = AX & val2;
+		SetFlagsLogic16(r);
+		AX = r;
 	} else {
-		u32 val2 = cpu->ReadOperand32(inst, inst->Main.Argument2, NULL);
-		u32 r = cpu->EAX & val2;
-		cpu->SetFlagsLogic32(r);
-		cpu->EAX = r;
+		u32 val2 = ReadOperand32(inst, inst->Main.Argument2, NULL);
+		u32 r = EAX & val2;
+		SetFlagsLogic32(r);
+		EAX = r;
 	}
-    RET_SUCCESS();
+    
 }
 
-LxResult And_80_ext4(Processor *cpu, const Instruction *inst)
+void Processor::And_80_ext4(const Instruction *inst)
 {
     /**
      * AND r/m8, imm8
      */
     u32 offset;
-    u8 val1 = cpu->ReadOperand8(inst, inst->Main.Argument1, &offset);
+    u8 val1 = ReadOperand8(inst, inst->Main.Argument1, &offset);
     u8 val2 = (u8) inst->Main.Inst.Immediat;
     u8 r = val1 & val2;
-    cpu->SetFlagsLogic8(r);
-    cpu->WriteOperand8(inst, inst->Main.Argument1, offset, r);
-    RET_SUCCESS();
+    SetFlagsLogic8(r);
+    WriteOperand8(inst, inst->Main.Argument1, offset, r);
+    
 }
 
-LxResult And_81_ext4(Processor *cpu, const Instruction *inst)
+void Processor::And_81_ext4(const Instruction *inst)
 {
     /**
      * AND r/m16, imm16
@@ -127,22 +127,22 @@ LxResult And_81_ext4(Processor *cpu, const Instruction *inst)
      */
     u32 offset;
     if (inst->Main.Prefix.OperandSize) {
-        u16 val1 = cpu->ReadOperand16(inst, inst->Main.Argument1, &offset);
+        u16 val1 = ReadOperand16(inst, inst->Main.Argument1, &offset);
         u16 val2 = (u16) inst->Main.Inst.Immediat;
         u16 r = val1 & val2;
-        cpu->SetFlagsLogic16(r);
-        cpu->WriteOperand16(inst, inst->Main.Argument1, offset, r);
+        SetFlagsLogic16(r);
+        WriteOperand16(inst, inst->Main.Argument1, offset, r);
     } else {
-        u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
+        u32 val1 = ReadOperand32(inst, inst->Main.Argument1, &offset);
         u32 val2 = (u32) inst->Main.Inst.Immediat;
         u32 r = val1 & val2;
-        cpu->SetFlagsLogic32(r);
-        cpu->WriteOperand32(inst, inst->Main.Argument1, offset, r);
+        SetFlagsLogic32(r);
+        WriteOperand32(inst, inst->Main.Argument1, offset, r);
     }
-    RET_SUCCESS();
+    
 }
 
-LxResult And_83_ext4(Processor *cpu, const Instruction *inst)
+void Processor::And_83_ext4(const Instruction *inst)
 {
     /**
      * AND r/m16, imm8
@@ -150,20 +150,20 @@ LxResult And_83_ext4(Processor *cpu, const Instruction *inst)
      */
 	u32 offset;
     if (inst->Main.Prefix.OperandSize) {
-		u16 val1 = cpu->ReadOperand16(inst, inst->Main.Argument1, &offset);
+		u16 val1 = ReadOperand16(inst, inst->Main.Argument1, &offset);
 		u16 val2 = SIGN_EXTEND(8, 16, inst->Main.Inst.Immediat);
 		u16 r = val1 & val2;
-		cpu->SetFlagsLogic16(r);
-		cpu->WriteOperand16(inst, inst->Main.Argument1, offset, r);
+		SetFlagsLogic16(r);
+		WriteOperand16(inst, inst->Main.Argument1, offset, r);
     } else {
         u32 offset;
-        u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
+        u32 val1 = ReadOperand32(inst, inst->Main.Argument1, &offset);
         u32 val2 = SIGN_EXTEND(8, 32, inst->Main.Inst.Immediat);
         u32 r = val1 & val2;
-        cpu->SetFlagsLogic32(r);
-        cpu->WriteOperand32(inst, inst->Main.Argument1, offset, r);
+        SetFlagsLogic32(r);
+        WriteOperand32(inst, inst->Main.Argument1, offset, r);
     }
-    RET_SUCCESS();
+    
 }
 
 END_NAMESPACE_LOCHSEMU()

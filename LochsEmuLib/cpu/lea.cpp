@@ -3,7 +3,7 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult Lea_8D(Processor *cpu, const Instruction *inst)
+void Processor::Lea_8D(const Instruction *inst)
 {
     /**
      * LEA r16, m
@@ -11,13 +11,13 @@ LxResult Lea_8D(Processor *cpu, const Instruction *inst)
      */
 
     if (inst->Main.Prefix.OperandSize) {
-        u16 val2 = (u16) cpu->Offset32(inst->Main.Argument2);
-        cpu->WriteOperand16(inst, inst->Main.Argument1, 0, val2);
+        u16 val2 = (u16) Offset32(inst->Main.Argument2);
+        WriteOperand16(inst, inst->Main.Argument1, 0, val2);
     } else {
-        u32 val2 = cpu->Offset32(inst->Main.Argument2);
-        cpu->WriteOperand32(inst, inst->Main.Argument1, 0, val2);
+        u32 val2 = Offset32(inst->Main.Argument2);
+        WriteOperand32(inst, inst->Main.Argument1, 0, val2);
     }
-    RET_SUCCESS();
+    
 }
 
 END_NAMESPACE_LOCHSEMU()

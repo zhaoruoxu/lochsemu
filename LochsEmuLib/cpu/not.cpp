@@ -3,33 +3,35 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-LxResult Not_F6_ext2(Processor *cpu, const Instruction *inst)
+void Processor::Not_F6_ext2(const Instruction *inst)
 {
     /**
      * NOT r/m8
      */
     u32 offset;
-    u8 val1 = cpu->ReadOperand8(inst, inst->Main.Argument1, &offset);
+    u8 val1 = ReadOperand8(inst, inst->Main.Argument1, &offset);
     u8 r = ~val1;
-    cpu->WriteOperand8(inst, inst->Main.Argument1, offset, r);
-    RET_SUCCESS();
+    WriteOperand8(inst, inst->Main.Argument1, offset, r);
+    
 }
 
-LxResult Not_F7_ext2(Processor *cpu, const Instruction *inst)
+void Processor::Not_F7_ext2(const Instruction *inst)
 {
     /**
      * NOT r/m16
      * NOT r/m32
      */
+    u32 offset;
     if (inst->Main.Prefix.OperandSize) {
-        return LX_RESULT_NOT_IMPLEMENTED;
+        u16 val1 = ReadOperand16(inst, inst->Main.Argument1, &offset);
+        u16 r = ~val1;
+        WriteOperand16(inst, inst->Main.Argument1, offset, r);
     } else {
-        u32 offset;
-        u32 val1 = cpu->ReadOperand32(inst, inst->Main.Argument1, &offset);
+        u32 val1 = ReadOperand32(inst, inst->Main.Argument1, &offset);
         u32 r = ~val1;
-        cpu->WriteOperand32(inst, inst->Main.Argument1, offset, r);
+        WriteOperand32(inst, inst->Main.Argument1, offset, r);
     }
-    RET_SUCCESS();
+    
 }
 
 END_NAMESPACE_LOCHSEMU()
