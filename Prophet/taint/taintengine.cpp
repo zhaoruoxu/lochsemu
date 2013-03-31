@@ -22,13 +22,16 @@ void TaintEngine::Initialize()
 
 void TaintEngine::Reset()
 {
-    CpuTaint.Reset();
+    for (int i = 0; i < MaxCpus; i++)
+        CpuTaint[i].Reset();
     MemTaint.Reset();
 }
 
 void TaintEngine::OnPostExecute( PostExecuteEvent &event )
 {
     if (!IsEnabled()) return;
+
+    SyncObjectLock lock(*this);
 
     TaintInstHandler h = NULL;
     u32 opcode = event.Inst->Main.Inst.Opcode;
@@ -45,13 +48,13 @@ void TaintEngine::OnPostExecute( PostExecuteEvent &event )
     }
 }
 
-void TaintEngine::UpdateInstContext( InstContext *ctx ) const
+void TaintEngine::UpdateInstContext( const Processor *cpu, InstContext *ctx ) const
 {
     for (int i = 0; i < InstContext::RegCount; i++)
-        ctx->RegTaint[i]    = CpuTaint.GPRegs[i];
-    ctx->EipTaint           = CpuTaint.Eip;
+        ctx->RegTaint[i]    = CpuTaint[cpu->IntID].GPRegs[i];
+    ctx->EipTaint           = CpuTaint[cpu->IntID].Eip;
     for (int i = 0; i < InstContext::FlagCount; i++)
-        ctx->FlagTaint[i]   = CpuTaint.Flags[i];
+        ctx->FlagTaint[i]   = CpuTaint[cpu->IntID].Flags[i];
 }
 
 
@@ -77,14 +80,14 @@ void TaintEngine::DefaultBinopHandler(const Processor *cpu, const Instruction *i
     }
 }
 
-Taint1 TaintEngine::GetTaintAddressingReg( const ARGTYPE &oper ) const
+Taint1 TaintEngine::GetTaintAddressingReg( const Processor *cpu, const ARGTYPE &oper ) const
 {
     Taint1 t;
     if (oper.Memory.BaseRegister) {
-        t |= Shrink(CpuTaint.GPRegs[TranslateReg(oper.Memory.BaseRegister)]);
+        t |= Shrink(CpuTaint[cpu->IntID].GPRegs[TranslateReg(oper.Memory.BaseRegister)]);
     }
     if (oper.Memory.IndexRegister) {
-        t |= Shrink(CpuTaint.GPRegs[TranslateReg(oper.Memory.IndexRegister)]);
+        t |= Shrink(CpuTaint[cpu->IntID].GPRegs[TranslateReg(oper.Memory.IndexRegister)]);
     }
     return t;
 }
@@ -107,9 +110,9 @@ void TaintEngine::Enable( bool isEnabled )
 }
 
 
-Taint1 TaintEngine::GetTestedFlagTaint( const Instruction *inst ) const
+Taint1 TaintEngine::GetTestedFlagTaint( const Processor *cpu, const Instruction *inst ) const
 {
-    typedef     Taint1 (TaintEngine::*FlagTaintGetter)(void) const;
+    typedef     Taint1 (TaintEngine::*FlagTaintGetter)(const Processor *cpu) const;
     // For one byte cjmp:   0x70~0x7f
     // For two bytes cjmp:  0x0f80~0x0f8f
     // For two bytes setcc: 0x0f90~0x0f9f
@@ -147,7 +150,7 @@ Taint1 TaintEngine::GetTestedFlagTaint( const Instruction *inst ) const
         Assert(0);  // shouldn't be used for other instructions
     }
 
-    if (g != NULL) return (this->*g)();
+    if (g != NULL) return (this->*g)(cpu);
     return Taint1();
 }
 
@@ -174,7 +177,7 @@ Taint8 TaintEngine::GetTaint8( const Processor *cpu, const ARGTYPE &oper )
 {
     Assert(oper.ArgSize == 64);
     if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & MMX_REG)) {
-        return CpuTaint.MM[TranslateReg(oper)];
+        return CpuTaint[cpu->IntID].MM[TranslateReg(oper)];
     } else if (IsMemoryArg(oper)) {
         return TaintRule_Load<8>(cpu, oper);
     } else {
@@ -187,7 +190,7 @@ Taint16 TaintEngine::GetTaint16( const Processor *cpu, const ARGTYPE &oper )
 {
     Assert(oper.ArgSize == 128);
     if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & SSE_REG)) {
-        return CpuTaint.XMM[TranslateReg(oper)];
+        return CpuTaint[cpu->IntID].XMM[TranslateReg(oper)];
     } else if (IsMemoryArg(oper)) {
         return TaintRule_Load<16>(cpu, oper);
     } else {
@@ -200,7 +203,7 @@ void TaintEngine::SetTaint8( const Processor *cpu, const ARGTYPE &oper, const Ta
 {
     Assert(oper.ArgSize == 64);
     if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & MMX_REG)) {
-        CpuTaint.MM[TranslateReg(oper)] = t;
+        CpuTaint[cpu->IntID].MM[TranslateReg(oper)] = t;
     } else if (IsMemoryArg(oper)) {
         return TaintRule_Save<8>(cpu, oper, t);
     } else {
@@ -212,7 +215,7 @@ void TaintEngine::SetTaint16( const Processor *cpu, const ARGTYPE &oper, const T
 {
     Assert(oper.ArgSize == 128);
     if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & SSE_REG)) {
-        CpuTaint.XMM[TranslateReg(oper)] = t;
+        CpuTaint[cpu->IntID].XMM[TranslateReg(oper)] = t;
     } else if (IsMemoryArg(oper)) {
         return TaintRule_Save<16>(cpu, oper, t);
     } else {
@@ -1196,17 +1199,17 @@ DEFINE_CUSTOM_BINOP_HANDLER(Xadd_Handler,           TaintPropagate_Xadd)
 
 void TaintEngine::ImulF6_MulF6_Handler(const Processor *cpu, const Instruction *inst)
 {
-    Taint1 t = TaintRule_Binop(FromTaint<4, 1>(CpuTaint.GPRegs[LX_REG_EAX]), GetTaint<1>(cpu, ARG2));
-    ToTaint<2, 4>(CpuTaint.GPRegs[LX_REG_EAX], Extend<2>(t), 0);
-    SetFlagTaint<1>(inst, t);
+    Taint1 t = TaintRule_Binop(FromTaint<4, 1>(CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX]), GetTaint<1>(cpu, ARG2));
+    ToTaint<2, 4>(CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX], Extend<2>(t), 0);
+    SetFlagTaint<1>(cpu, inst, t);
 }
 
 void TaintEngine::ImulF7_MulF7_Handler(const Processor *cpu, const Instruction *inst)
 {
-    Taint4 t = TaintRule_Binop<4>(CpuTaint.GPRegs[LX_REG_EAX], GetTaint<4>(cpu, ARG2));
-    CpuTaint.GPRegs[LX_REG_EAX] = t;
-    CpuTaint.GPRegs[LX_REG_EDX] = t;
-    SetFlagTaint<4>(inst, t);
+    Taint4 t = TaintRule_Binop<4>(CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX], GetTaint<4>(cpu, ARG2));
+    CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX] = t;
+    CpuTaint[cpu->IntID].GPRegs[LX_REG_EDX] = t;
+    SetFlagTaint<4>(cpu, inst, t);
 }
 
 // void TaintEngine::LoopE2_JecxzE3_Handler(const Processor *cpu, const Instruction *inst)
@@ -1216,7 +1219,7 @@ void TaintEngine::ImulF7_MulF7_Handler(const Processor *cpu, const Instruction *
 
 void TaintEngine::Cbw_Handler(const Processor *cpu, const Instruction *inst)
 {
-    Taint4 &eax = CpuTaint.GPRegs[LX_REG_EAX];
+    Taint4 &eax = CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX];
     if (inst->Main.Prefix.OperandSize) {
         eax[1] = eax[0];
     } else {
@@ -1230,39 +1233,39 @@ void TaintEngine::Cdq_Handler(const Processor *cpu, const Instruction *inst)
 {
     if (inst->Main.Prefix.OperandSize)
         NOT_IMPLEMENTED();
-    CpuTaint.GPRegs[LX_REG_EDX] = CpuTaint.GPRegs[LX_REG_EAX];
+    CpuTaint[cpu->IntID].GPRegs[LX_REG_EDX] = CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX];
 }
 
 void TaintEngine::Sahf_Handler(const Processor *cpu, const Instruction *inst)
 {
-    Taint1 t = FromTaint<4, 1>(CpuTaint.GPRegs[LX_REG_EAX], 1);   // AH
-    CpuTaint.Flags[InstContext::CF] = t;
-    CpuTaint.Flags[InstContext::PF] = t;
-    CpuTaint.Flags[InstContext::AF] = t;
-    CpuTaint.Flags[InstContext::ZF] = t;
-    CpuTaint.Flags[InstContext::SF] = t;
+    Taint1 t = FromTaint<4, 1>(CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX], 1);   // AH
+    CpuTaint[cpu->IntID].Flags[InstContext::CF] = t;
+    CpuTaint[cpu->IntID].Flags[InstContext::PF] = t;
+    CpuTaint[cpu->IntID].Flags[InstContext::AF] = t;
+    CpuTaint[cpu->IntID].Flags[InstContext::ZF] = t;
+    CpuTaint[cpu->IntID].Flags[InstContext::SF] = t;
 }
 
 void TaintEngine::Ret_Handler(const Processor *cpu, const Instruction *inst)
 {
     u32 imm         = (u32) inst->Main.Inst.Immediat;
     Taint4 t        = MemTaint.Get<4>(cpu->ESP - 4 - imm);
-    CpuTaint.Eip    = Shrink(t);
+    CpuTaint[cpu->IntID].Eip    = Shrink(t);
 }
 
 void TaintEngine::CallAbs_Handler(const Processor *cpu, const Instruction *inst)
 {
     if (cpu->HasExecFlag(LX_EXEC_WINAPI_CALL)) return;
-    Taint4 t        = Extend<4>(CpuTaint.Eip);
+    Taint4 t        = Extend<4>(CpuTaint[cpu->IntID].Eip);
     MemTaint.Set<4>(cpu->ESP, t);
     Taint4 newT     = GetTaint<4>(cpu, ARG1);
-    CpuTaint.Eip    = Shrink(newT);
+    CpuTaint[cpu->IntID].Eip    = Shrink(newT);
 }
 
 void TaintEngine::CallRel_handler(const Processor *cpu, const Instruction *inst)
 {
     Assert(IsConstantArg(ARG1));
-    Taint4 t        = Extend<4>(CpuTaint.Eip);
+    Taint4 t        = Extend<4>(CpuTaint[cpu->IntID].Eip);
     MemTaint.Set<4>(cpu->ESP, t);
     // Doesn't affect Eip
 }
@@ -1271,7 +1274,7 @@ void TaintEngine::JmpAbs_Handler(const Processor *cpu, const Instruction *inst)
 {
     if (cpu->HasExecFlag(LX_EXEC_WINAPI_JMP)) return;
     Taint4 t        = GetTaint<4>(cpu, ARG1);
-    CpuTaint.Eip    = Shrink(t);
+    CpuTaint[cpu->IntID].Eip    = Shrink(t);
 }
 
 void TaintEngine::JmpRel_Handler(const Processor *cpu, const Instruction *inst)
@@ -1285,11 +1288,11 @@ void TaintEngine::DivF7_IdivF7_Handler(const Processor *cpu, const Instruction *
     if (inst->Main.Prefix.OperandSize) 
         NOT_IMPLEMENTED();
 
-    Taint4 t1       = CpuTaint.GPRegs[LX_REG_EAX] | CpuTaint.GPRegs[LX_REG_EDX];
+    Taint4 t1       = CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX] | CpuTaint[cpu->IntID].GPRegs[LX_REG_EDX];
     Taint4 t2       = GetTaint<4>(cpu, ARG2);
     Taint4 t        = TaintRule_Binop(t1, t2);
-    CpuTaint.GPRegs[LX_REG_EAX] = t;
-    CpuTaint.GPRegs[LX_REG_EDX] = t;
+    CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX] = t;
+    CpuTaint[cpu->IntID].GPRegs[LX_REG_EDX] = t;
 }
 
 
@@ -1344,16 +1347,16 @@ void TaintEngine::Movd0F7E_Handler(const Processor *cpu, const Instruction *inst
 
 void TaintEngine::ClearEaxEdx_Handler(const Processor *cpu, const Instruction *inst)
 {
-    CpuTaint.GPRegs[LX_REG_EAX].ResetAll();
-    CpuTaint.GPRegs[LX_REG_EDX].ResetAll();
+    CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX].ResetAll();
+    CpuTaint[cpu->IntID].GPRegs[LX_REG_EDX].ResetAll();
 }
 
 void TaintEngine::Cpuid_Handler(const Processor *cpu, const Instruction *inst)
 {
-    CpuTaint.GPRegs[LX_REG_EAX].ResetAll();
-    CpuTaint.GPRegs[LX_REG_ECX].ResetAll();
-    CpuTaint.GPRegs[LX_REG_EDX].ResetAll();
-    CpuTaint.GPRegs[LX_REG_EBX].ResetAll();
+    CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX].ResetAll();
+    CpuTaint[cpu->IntID].GPRegs[LX_REG_ECX].ResetAll();
+    CpuTaint[cpu->IntID].GPRegs[LX_REG_EDX].ResetAll();
+    CpuTaint[cpu->IntID].GPRegs[LX_REG_EBX].ResetAll();
 }
 
 void TaintEngine::Shld_Shrd_Handler(const Processor *cpu, const Instruction *inst)
@@ -1361,11 +1364,11 @@ void TaintEngine::Shld_Shrd_Handler(const Processor *cpu, const Instruction *ins
     if (inst->Main.Prefix.OperandSize) NOT_IMPLEMENTED();
     Taint4 t = TaintRule_Binop(GetTaint<4>(cpu, ARG1), GetTaint<4>(cpu, ARG2));
     if (!IsConstantArg(ARG3)) {
-        t |= Extend<4>(FromTaint<4, 1>(CpuTaint.GPRegs[LX_REG_ECX], 0));
+        t |= Extend<4>(FromTaint<4, 1>(CpuTaint[cpu->IntID].GPRegs[LX_REG_ECX], 0));
     }
 
     SetTaint<4>(cpu, ARG1, t);
-    SetFlagTaint<4>(inst, t);
+    SetFlagTaint<4>(cpu, inst, t);
 }
 
 void TaintEngine::Cmpxchg0FB1_Handler(const Processor *cpu, const Instruction *inst)
@@ -1373,23 +1376,23 @@ void TaintEngine::Cmpxchg0FB1_Handler(const Processor *cpu, const Instruction *i
     if (inst->Main.Prefix.OperandSize) {
         Taint2 t1 = GetTaint<2>(cpu, ARG1);
         Taint2 t2 = GetTaint<2>(cpu, ARG2);
-        Taint2 ax = FromTaint<4, 2>(CpuTaint.GPRegs[LX_REG_EAX], 0);
+        Taint2 ax = FromTaint<4, 2>(CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX], 0);
         if (cpu->ZF == 1) {
             SetTaint<2>(cpu, ARG1, t2);
         } else {
-            ToTaint<2, 4>(CpuTaint.GPRegs[LX_REG_EAX], t1);
+            ToTaint<2, 4>(CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX], t1);
         }
-        CpuTaint.Flags[InstContext::ZF] = Shrink(TaintRule_Binop(ax, t1));
+        CpuTaint[cpu->IntID].Flags[InstContext::ZF] = Shrink(TaintRule_Binop(ax, t1));
     } else {
         Taint4 t1 = GetTaint<4>(cpu, ARG1);
         Taint4 t2 = GetTaint<4>(cpu, ARG2);
-        Taint4 eax = CpuTaint.GPRegs[LX_REG_EAX];
+        Taint4 eax = CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX];
         if (cpu->ZF == 1) {
             SetTaint<4>(cpu, ARG1, t2);
         } else {
-            CpuTaint.GPRegs[LX_REG_EAX] = t1;
+            CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX] = t1;
         }
-        CpuTaint.Flags[InstContext::ZF] = Shrink(TaintRule_Binop(eax, t1));
+        CpuTaint[cpu->IntID].Flags[InstContext::ZF] = Shrink(TaintRule_Binop(eax, t1));
     }
 }
 

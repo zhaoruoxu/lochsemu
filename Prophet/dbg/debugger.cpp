@@ -30,6 +30,8 @@ void ProDebugger::Initialize()
 
 void ProDebugger::OnPreExecute( PreExecuteEvent &event )
 {
+    if (event.Cpu->IntID != 0) return;  // ignore other threads
+
     m_currProcessor = event.Cpu;  
     m_currInst      = event.Inst;
 
@@ -38,12 +40,8 @@ void ProDebugger::OnPreExecute( PreExecuteEvent &event )
         m_mws.clear();
         return; // ignore everything
     }
-    
 
-    if (event.Cpu->EIP == 0x1ffc70) {
-        LxInfo("debug");
-    }
-
+    m_engine->GetGUI()->OnPreExecute(event);
     CheckBreakpoints(m_currProcessor, m_currInst);
 
     switch (m_state) {
@@ -86,6 +84,7 @@ void ProDebugger::OnStepInto()
 {
     Assert(m_state == STATE_SINGLESTEP);
     m_semaphore.Post();
+    
     m_engine->ReportBusy(true);
 }
 
@@ -192,10 +191,6 @@ void ProDebugger::DoPreExecSingleStep( const Processor *cpu, const Instruction *
 
 void ProDebugger::OnProcessPreRun( ProcessPreRunEvent &event )
 {
-//     if (g_config.GetInt("Debugger", "BreakOnMainModuleEntry", 1) != 0) {
-//         m_state = STATE_SINGLESTEP;
-//         LxInfo("Main module entry encountered\n");
-//     }
     m_engine->ReportBusy(true);
 }
 
@@ -364,3 +359,14 @@ void ProDebugger::OnMemWrite( MemWriteEvent &event )
         LxFatal("shit happens\n");
     }
 }
+
+void ProDebugger::OnThreadCreate( ThreadCreateEvent &event )
+{
+    LxInfo("Thread created: %d %08x\n", event.Thrd->IntID, event.Thrd->ExtID);
+}
+
+void ProDebugger::OnThreadExit( ThreadExitEvent &event )
+{
+    LxInfo("Thread exited: %d %08x\n", event.Thrd->IntID, event.Thrd->ExtID);
+}
+ 

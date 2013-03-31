@@ -59,7 +59,7 @@ void ProEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 
     m_disassembler.OnPreExecute(event);     // disassemble the instruction first no matter what
     m_statistics.OnPreExecute(event);
-    m_gui->OnPreExecute(event);
+    //m_gui->OnPreExecute(event);
     
     m_plugins.OnPreExecute(event, true);
     if (event.IsVetoed()) return;
@@ -78,7 +78,7 @@ void ProEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
     if (!m_enabled) return;
     PostExecuteEvent event(this, cpu, inst);
 
-    m_gui->OnPostExecute(event);
+    //m_gui->OnPostExecute(event);
 
     m_plugins.OnPostExecute(event, true);
     if (event.IsVetoed()) return;
@@ -207,6 +207,32 @@ void ProEngine::OnWinapiPostCall( Processor *cpu, uint apiIndex )
     m_plugins.OnWinapiPostCall(event, false);
 }
 
+void ProEngine::OnThreadCreate( Thread *thrd )
+{
+    if (!m_enabled) return;
+    ThreadCreateEvent event(this, thrd);
+
+    m_plugins.OnThreadCreate(event, true);
+    if (event.IsVetoed()) return;
+
+    m_debugger.OnThreadCreate(event);
+
+    m_plugins.OnThreadCreate(event, false);
+}
+
+void ProEngine::OnThreadExit( Thread *thrd )
+{
+    if (!m_enabled) return;
+    ThreadExitEvent event(this, thrd);
+
+    m_plugins.OnThreadExit(event, true);
+    if (event.IsVetoed()) return;
+
+    m_debugger.OnThreadExit(event);
+
+    m_plugins.OnThreadExit(event, false);
+}
+
 void ProEngine::SetGuiFrame( ProphetFrame *frame )
 {
     m_gui = frame;
@@ -221,18 +247,18 @@ void ProEngine::SetGuiFrame( ProphetFrame *frame )
 //     m_gui->GetCpuPanel()->OnDataUpdate(insts);
 // }
 
-void ProEngine::GetInstContext(InstContext *ctx) const
+void ProEngine::GetInstContext(const Processor *cpu, InstContext *ctx) const
 {
     m_disassembler.UpdateInstContext(ctx, 0);
     m_debugger.UpdateInstContext(ctx);
-    m_taint.UpdateInstContext(ctx);
+    m_taint.UpdateInstContext(cpu, ctx);
 }
 
-void ProEngine::GetTraceContext( TraceContext *ctx, u32 eip ) const
+void ProEngine::GetTraceContext( const Processor *cpu, TraceContext *ctx, u32 eip ) const
 {
     m_debugger.UpdateTraceContext(ctx, eip);
     m_disassembler.UpdateInstContext(ctx, eip);
-    m_taint.UpdateInstContext(ctx);
+    m_taint.UpdateInstContext(cpu, ctx);
 }
 
 void ProEngine::ReportBusy( bool isBusy )

@@ -389,7 +389,7 @@ void ProphetFrame::OnRemoveBreakpoint( wxCommandEvent &event )
 void ProphetFrame::PreExecSingleStepCallback( const Processor *cpu )
 {
     InstContext ctx;
-    m_engine->GetInstContext(&ctx);
+    m_engine->GetInstContext(cpu, &ctx);
     m_contextPanel->UpdateData(&ctx, "Dynamic Execution");
     m_cpuPanel->OnCurrentEipChange(cpu->EIP);
     m_tracePanel->UpdateData();
@@ -561,8 +561,8 @@ void ProphetFrame::OnPreExecute( PreExecuteEvent &event )
     m_cpuPanel->OnPreExecute(event);
 }
 
-void ProphetFrame::OnPostExecute( PostExecuteEvent &event )
-{
-    //m_stackPanel->OnPostExecute(event);
-}
+// void ProphetFrame::OnPostExecute( PostExecuteEvent &event )
+// {
+//     //m_stackPanel->OnPostExecute(event);
+// }
 

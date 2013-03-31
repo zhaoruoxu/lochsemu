@@ -26,6 +26,8 @@ struct LoadedPluginInfo {
     LochsEmu_Process_PostLoad       ProcessPostLoad;
     LochsEmu_Winapi_PreCall         WinapiPreCall;
     LochsEmu_Winapi_PostCall        WinapiPostCall;
+    LochsEmu_Thread_Create          ThreadCreate;
+    LochsEmu_Thread_Exit            ThreadExit;
 
     LoadedPluginInfo() {
         Handle                      = (HMODULE) 0;
@@ -41,6 +43,8 @@ struct LoadedPluginInfo {
         ProcessPostLoad             = NULL;
         WinapiPreCall               = NULL;
         WinapiPostCall              = NULL;
+        ThreadCreate                = NULL;
+        ThreadExit                  = NULL;
     }
 };
 
@@ -61,6 +65,8 @@ public:
     LxResult OnProcessPostLoad      (PeLoader *loader);
     LxResult OnWinapiPreCall        (Processor *cpu, uint apiIndex);
     LxResult OnWinapiPostCall       (Processor *cpu, uint apiIndex);
+    LxResult OnThreadCreate         (Thread *thrd);
+    LxResult OnThreadExit           (Thread *thrd);
 
 private:
     bool            FindPluginDirectory();

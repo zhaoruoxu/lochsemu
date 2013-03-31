@@ -35,7 +35,7 @@ enum LoadReason {
 
 class LX_API Thread {
 public:
-    Thread(Process *proc, ThreadID id = 0, HANDLE hThread = INVALID_HANDLE_VALUE);
+    Thread(Process *proc, int intId, ThreadID extId = 0, HANDLE hThread = INVALID_HANDLE_VALUE);
     virtual ~Thread();
 
     LxResult        Initialize(const ThreadInfo &info);
@@ -56,7 +56,8 @@ public:
     std::vector<uint>   GetModuleLoadOrder() const { return m_moduleLoadOrder; }
     const ThreadInfo *  GetThreadInfo() const { return &m_initInfo; }
 public:
-    ThreadID        ID;
+    int             IntID;
+    ThreadID        ExtID;
     HANDLE          Handle;
     u32             ExitCode;
 protected:

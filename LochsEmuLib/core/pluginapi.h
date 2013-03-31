@@ -36,6 +36,8 @@ typedef void (* LochsEmu_Process_PreLoad)       (PeLoader *loader);
 typedef void (* LochsEmu_Process_PostLoad)      (PeLoader *loader);
 typedef void (* LochsEmu_Winapi_PreCall)        (Processor *cpu, uint apiIndex);
 typedef void (* LochsEmu_Winapi_PostCall)       (Processor *cpu, uint apiIndex);
+typedef void (* LochsEmu_Thread_Create)         (Thread *thrd);
+typedef void (* LochsEmu_Thread_Exit)           (Thread *thrd);
 
 
 END_NAMESPACE_LOCHSEMU()

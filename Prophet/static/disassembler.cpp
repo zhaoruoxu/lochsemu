@@ -152,23 +152,14 @@ InstPtr Disassembler::Disassemble( u32 eip )
 
     Section *sec = m_currProcessor->Mem->GetSection(eip);
 
-    bool update = false;
     InstSection *instSec = m_instMem.CreateSection(sec->Base(), sec->Size());
 
 
     if (!instSec->Contains(eip)) {
         SyncObjectLock lock(m_instMem);
         RecursiveDisassemble(m_currProcessor, eip, instSec, eip);
-        update = true;
-    }
-
-    if (update) {
         instSec->UpdateIndices();
     }
-//     if (m_lastSec != sec || update) {
-//         m_engine->UpdateCpuData(instSec);
-//     }
-//     m_lastSec = sec;
 
     return instSec->GetInst(eip);
 }
@@ -192,6 +183,8 @@ void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, InstSect
             inst->Entry = entryEip;
             return;
         }
+
+        if (opcode == 0xcc || opcode == 0xcd) return;
 
         u32 addrValue = (u32) inst->Main.Inst.AddrValue;
         if (addrValue != 0) {

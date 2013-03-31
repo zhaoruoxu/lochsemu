@@ -37,6 +37,8 @@ public:
     void            OnProcessPostLoad   (PeLoader *loader);
     void            OnWinapiPreCall     (Processor *cpu, uint apiIndex);
     void            OnWinapiPostCall    (Processor *cpu, uint apiIndex);
+    void            OnThreadCreate      (Thread *thrd);
+    void            OnThreadExit        (Thread *thrd);
 
     Emulator *      GetEmulator() { return m_emulator; }
     ProDebugger *   GetDebugger() { return &m_debugger; }
@@ -58,8 +60,8 @@ public:
     const Protocol *    GetProtocol() const { return &m_protocol; }
     const Statistics *  GetStatistics() const { return &m_statistics; }
 
-    void            GetInstContext(InstContext *ctx) const;
-    void            GetTraceContext(TraceContext *ctx, u32 eip) const;
+    void            GetInstContext(const Processor *cpu, InstContext *ctx) const;
+    void            GetTraceContext(const Processor *cpu, TraceContext *ctx, u32 eip) const;
 
     void            BreakOnNextInst(const char *desc);
 

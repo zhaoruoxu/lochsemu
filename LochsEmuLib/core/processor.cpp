@@ -11,7 +11,7 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-Processor::Processor(Thread *thread)
+Processor::Processor(int id, Thread *thread) : IntID(id)
 {
     Assert(thread);
     m_thread = thread;
@@ -21,7 +21,6 @@ Processor::~Processor()
 {
     Mem = NULL;
     m_emulator = NULL;
-    SAFE_DELETE(m_fpu);
 }
 
 
@@ -30,11 +29,11 @@ LxResult Processor::Initialize()
     Mem = m_thread->Mem();
     m_process = m_thread->Proc();
     m_emulator = m_process->Emu();
-    m_fpu = new Coprocessor();
+    m_plugins = m_thread->Plugins();
     Reset();
 
     ESP = m_thread->GetStack()->Top();
-    V( m_fpu->Initialize() );
+    V( m_fpu.Initialize() );
     SIMD.Initialize();
     Exception.Initialize(this);
     RET_SUCCESS();
@@ -59,7 +58,7 @@ void Processor::Reset()
     m_terminated = true;
     ZeroMemory(m_callbackTable, sizeof(u32) * LX_CALLBACKS);
     m_inst = NULL;
-    m_fpu->Reset();
+    m_fpu.Reset();
     m_currSection = NULL;
     m_lastEip = 0;
     ClearExecFlags();
@@ -83,15 +82,11 @@ LxResult Processor::Step()
     /*
      * let plugins do their work
      */
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorPreExecute(this, m_inst);
-    }
+    m_plugins->OnProcessorPreExecute(this, m_inst);
 
     V( Execute(m_inst) );
 
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorPostExecute(this, m_inst);
-    }
+    m_plugins->OnProcessorPostExecute(this, m_inst);
 
     Assert(EIP == TERMINATE_EIP || Mem->Contains(EIP));
 
@@ -105,7 +100,7 @@ LxResult Processor::Run(u32 entry)
 {
     EIP = entry; 
 
-    LxInfo("Running Thread[%x] at EIP[0x%08x] ESP[0x%08X]\n", m_thread->ID, EIP, ESP);
+    LxInfo("Running Thread[%x] at EIP[0x%08x] ESP[0x%08X]\n", m_thread->ExtID, EIP, ESP);
 
     m_terminated = false;
     while (true) {
@@ -118,7 +113,7 @@ LxResult Processor::Run(u32 entry)
         }
     }
 
-    LxDebug("Thread [%x] terminated\n", m_thread->ID);
+    LxDebug("Thread [%x] terminated\n", m_thread->ExtID);
     RET_SUCCESS();
 }
 
@@ -273,9 +268,7 @@ INLINE u8 Processor::MemRead8( u32 address, RegSeg seg ) const
     u8 val = INIT_8;
     if (seg == LX_REG_FS) { address = GetFSOffset(address); }
     Mem->Read8(address, &val); 
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemRead(this, address, 1, (cpbyte) &val);
-    }
+    m_plugins->OnProcessorMemRead(this, address, 1, (cpbyte) &val);
     return val;
 }
 
@@ -284,9 +277,7 @@ INLINE u16 Processor::MemRead16( u32 address, RegSeg seg ) const
     u16 val = INIT_16;
     if (seg == LX_REG_FS) { address = GetFSOffset(address); }
     Mem->Read16(address, &val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemRead(this, address, 2, (cpbyte) &val);
-    }
+    m_plugins->OnProcessorMemRead(this, address, 2, (cpbyte) &val);
     return val;
 }
 
@@ -295,9 +286,7 @@ INLINE u32 Processor::MemRead32( u32 address, RegSeg seg ) const
     u32 val = INIT_32;
     if (seg == LX_REG_FS) { address = GetFSOffset(address); }
     Mem->Read32(address, &val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemRead(this, address, 4, (cpbyte) &val);
-    }
+    m_plugins->OnProcessorMemRead(this, address, 4, (cpbyte) &val);
     return val;
 }
 
@@ -306,9 +295,7 @@ INLINE u64 Processor::MemRead64( u32 address, RegSeg seg ) const
     u64 val = INIT_64;
     if (seg == LX_REG_FS) { address = GetFSOffset(address); }
     Mem->Read64(address, &val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemRead(this, address, 8, (cpbyte) &val);
-    }
+    m_plugins->OnProcessorMemRead(this, address, 8, (cpbyte) &val);
     return val;
 }
 
@@ -317,9 +304,7 @@ INLINE u128 Processor::MemRead128( u32 address, RegSeg seg ) const
     u128 val;
     if (seg == LX_REG_FS) { address = GetFSOffset(address); }
     Mem->Read128(address, &val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemRead(this, address, 16, (cpbyte) &val);
-    }
+    m_plugins->OnProcessorMemRead(this, address, 16, (cpbyte) &val);
     return val;
 }
 
@@ -327,45 +312,35 @@ INLINE void Processor::MemWrite8( u32 address, u8 val, RegSeg seg )
 {
     if (seg == LX_REG_FS) { address = GetFSOffset(address); }
     Mem->Write8(address, val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemWrite(this, address, 1, (cpbyte) &val);
-    }
+    m_plugins->OnProcessorMemWrite(this, address, 1, (cpbyte) &val);
 }
 
 INLINE void Processor::MemWrite16( u32 address, u16 val, RegSeg seg )
 {
     if (seg == LX_REG_FS) { address = GetFSOffset(address); }
     Mem->Write16(address, val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemWrite(this, address, 2, (cpbyte) &val);
-    }
+    m_plugins->OnProcessorMemWrite(this, address, 2, (cpbyte) &val);
 }
 
 INLINE void Processor::MemWrite32( u32 address, u32 val, RegSeg seg )
 {
     if (seg == LX_REG_FS) { address = GetFSOffset(address); }
     Mem->Write32(address, val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemWrite(this, address, 4, (cpbyte) &val);
-    }
+    m_plugins->OnProcessorMemWrite(this, address, 4, (cpbyte) &val);
 }
 
 INLINE void Processor::MemWrite64( u32 address, u64 val, RegSeg seg )
 {
     if (seg == LX_REG_FS) { address = GetFSOffset(address); }
     Mem->Write64(address, val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemWrite(this, address, 8, (cpbyte) &val);
-    }
+    m_plugins->OnProcessorMemWrite(this, address, 8, (cpbyte) &val);
 }
 
 INLINE void Processor::MemWrite128( u32 address, const u128 &val, RegSeg seg )
 {
     if (seg == LX_REG_FS) { address = GetFSOffset(address); }
     Mem->Write128(address, val);
-    if (Thr()) {
-        Thr()->Plugins()->OnProcessorMemWrite(this, address, 16, (cpbyte) &val);
-    }
+    m_plugins->OnProcessorMemWrite(this, address, 16, (cpbyte) &val);
 }
 
 u32 Processor::GetFSOffset(u32 addr) const {
@@ -691,7 +666,7 @@ INLINE u32 Processor::GetCallbackEntry( uint callbackId ) const
 
 void Processor::Terminate( uint nCode )
 {
-    LxInfo("Processor [%x] terminating with exit code 0x%x\n", m_thread->ID, nCode);
+    LxInfo("Processor [%x] terminating with exit code 0x%x\n", m_thread->ExtID, nCode);
     m_terminated = true; 
     m_thread->ExitCode = nCode;
 }

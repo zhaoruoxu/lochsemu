@@ -15,7 +15,7 @@ BEGIN_NAMESPACE_LOCHSEMU()
 
 #define LX_CMDLINE_SIZE 1024
 
-class LX_API Emulator {
+class LX_API Emulator : public MutexSyncObject {
 public:
     Emulator();
     virtual ~Emulator();

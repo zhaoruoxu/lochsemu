@@ -41,7 +41,7 @@ void ProTracer::OnPostExecute( PostExecuteEvent &event )
     if (m_mainModuleOnly && event.Cpu->GetCurrentModule() != 0)
         return; // skip DLLs
 
-    m_engine->GetTraceContext(&m_currTrace, m_currEip);
+    m_engine->GetTraceContext(event.Cpu, &m_currTrace, m_currEip);
     m_currTrace.Seq     = m_seq;
     AddTrace(m_currTrace);
 }

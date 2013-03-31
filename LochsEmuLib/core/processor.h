@@ -13,18 +13,19 @@
 #include "hashtable.h"
 #include "simd.h"
 #include "exception.h"
+#include "coprocessor.h"
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-    enum Reg8 {
-        LX_REG_AL = 0,
-        LX_REG_CL,
-        LX_REG_DL,
-        LX_REG_BL,
-        LX_REG_AH,
-        LX_REG_CH,
-        LX_REG_DH,
-        LX_REG_BH,
+enum Reg8 {
+    LX_REG_AL = 0,
+    LX_REG_CL,
+    LX_REG_DL,
+    LX_REG_BL,
+    LX_REG_AH,
+    LX_REG_CH,
+    LX_REG_DH,
+    LX_REG_BH,
 };
 
 enum Reg16 {
@@ -131,7 +132,7 @@ enum RegXMM {
 class LX_API Processor {
     // Simulation for x86 CPU
 public:
-    Processor(Thread *thread);
+    Processor(int intid, Thread *thread);
     virtual ~Processor();
 
 public:
@@ -139,6 +140,7 @@ public:
     /* Members                                                              */
     /************************************************************************/
     Memory *Mem;
+    const int   IntID;
 
     // General-Purpose Registers
     union {
@@ -203,10 +205,12 @@ public:
     /************************************************************************/
     /* Member Functions                                                     */
     /************************************************************************/
-    Thread *        Thr                 (void) const { return m_thread; }
+    Thread *        Thr                 (void)       { return m_thread; }
+    const Thread *  Thr                 (void) const { return m_thread; }
     Process *       Proc                (void) const { Assert(m_process); return m_process; }
     Emulator *      Emu                 (void) const { Assert(m_emulator); return m_emulator; }
-    Coprocessor *   FPU                 (void) const { Assert(m_fpu); return m_fpu; }
+    const Coprocessor *   FPU           (void) const { return &m_fpu; }
+    Coprocessor *   FPU                 (void)       { return &m_fpu; }
     const Instruction * CurrentInst     (void) const { return m_inst; }
     Section *       CurrentSection      (void) const { return m_currSection; }
 
@@ -384,28 +388,29 @@ private:
     void        Shr8(u8 &a, u8 b);
     void        Shr16(u16 &a, u8 b);
     void        Shr32(u32 &a, u8 b);
-    void Shl8(u8 &a, u8 b);
-    void Shl16(u16 &a, u8 b);
-    void Shl32(u32 &a, u8 b);
-    void Sar8(u8 &a, u8 b);
-    void Sar16(u16 &a, u8 b);
-    void Sar32(u32 &a, u8 b);
-    void Rcl8(u8 &a, u8 b);
-    void Rcl16(u16 &a, u16 b);
-    void Rcl32(u32 &a, u8 b);
-    void Rol32(u32 &a, u8 b);
-    void Rol8(u8 &a, u8 b);
-    void Ror8(u8 &a, u8 b);
-    void Ror32(u32 &a, u8 b);
-    void SetByte(const Instruction *inst, bool cond);
-    void JumpRel8(const Instruction *inst);
-    void JumpRel32(const Instruction *inst);
+    void        Shl8(u8 &a, u8 b);
+    void        Shl16(u16 &a, u8 b);
+    void        Shl32(u32 &a, u8 b);
+    void        Sar8(u8 &a, u8 b);
+    void        Sar16(u16 &a, u8 b);
+    void        Sar32(u32 &a, u8 b);
+    void        Rcl8(u8 &a, u8 b);
+    void        Rcl16(u16 &a, u16 b);
+    void        Rcl32(u32 &a, u8 b);
+    void        Rol32(u32 &a, u8 b);
+    void        Rol8(u8 &a, u8 b);
+    void        Ror8(u8 &a, u8 b);
+    void        Ror32(u32 &a, u8 b);
+    void        SetByte(const Instruction *inst, bool cond);
+    void        JumpRel8(const Instruction *inst);
+    void        JumpRel32(const Instruction *inst);
 
 protected:
     Thread *        m_thread;
     Process *       m_process;
     Emulator *      m_emulator;
-    Coprocessor *   m_fpu;
+    Coprocessor     m_fpu;
+    PluginManager * m_plugins;
     std::stack<u32> m_stack;
     Instruction *   m_inst;
     bool            m_terminated;

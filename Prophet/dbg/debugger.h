@@ -8,6 +8,7 @@
 #include "utilities.h"
 #include "breakpoint.h"
 #include "instcontext.h"
+#include "event.h"
 
 class ProDebugger : public ISerializable {
 public:
@@ -29,6 +30,8 @@ public:
     void        OnProcessPostLoad(ProcessPostLoadEvent &event);
     void        OnMemRead(MemReadEvent &event);
     void        OnMemWrite(MemWriteEvent &event);
+    void        OnThreadCreate(ThreadCreateEvent &event);
+    void        OnThreadExit(ThreadExitEvent &event);
     void        OnStepInto();
     void        OnStepOver();
     void        OnStepOut();

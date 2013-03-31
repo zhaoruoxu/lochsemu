@@ -25,7 +25,7 @@ public:
     void    OnArchiveLoaded(Archive *arc);
 
     void    OnPreExecute(PreExecuteEvent &event);
-    void    OnPostExecute(PostExecuteEvent &event);
+    //void    OnPostExecute(PostExecuteEvent &event);
     void    OnProcessPostLoad(ProcessPostLoadEvent &event);
     void    OnProcessPostRun(ProcessPostRunEvent &event);
 

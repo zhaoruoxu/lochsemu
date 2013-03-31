@@ -113,6 +113,10 @@ void PluginManager::LoadAPIAddrs( LoadedPluginInfo *plugin )
         GetProcAddress(plugin->Handle, "LochsEmu_Winapi_PreCall");
     plugin->WinapiPostCall = (LochsEmu_Winapi_PostCall)
         GetProcAddress(plugin->Handle, "LochsEmu_Winapi_PostCall");
+    plugin->ThreadCreate = (LochsEmu_Thread_Create)
+        GetProcAddress(plugin->Handle, "LochsEmu_Thread_Create");
+    plugin->ThreadExit = (LochsEmu_Thread_Exit)
+        GetProcAddress(plugin->Handle, "LochsEmu_Thread_Exit");
 }
 
 
@@ -239,6 +243,26 @@ LxResult PluginManager::OnWinapiPostCall( Processor *cpu, uint apiIndex )
     for (auto plugin : m_plugins) {
         if (plugin.WinapiPostCall)
             plugin.WinapiPostCall(cpu, apiIndex);
+    }
+    RET_SUCCESS();
+}
+
+LochsEmu::LxResult PluginManager::OnThreadCreate( Thread *thrd )
+{
+    if (!m_enablePlugins) RET_SUCCESS();
+    for (auto plugin : m_plugins) {
+        if (plugin.ThreadCreate)
+            plugin.ThreadCreate(thrd);
+    }
+    RET_SUCCESS();
+}
+
+LochsEmu::LxResult PluginManager::OnThreadExit( Thread *thrd )
+{
+    if (!m_enablePlugins) RET_SUCCESS();
+    for (auto plugin : m_plugins) {
+        if (plugin.ThreadExit)
+            plugin.ThreadExit(thrd);
     }
     RET_SUCCESS();
 }

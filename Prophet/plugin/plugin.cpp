@@ -171,6 +171,26 @@ void ProPluginManager::OnWinapiPostCall( WinapiPostCallEvent &event, bool firstT
     }
 }
 
+void ProPluginManager::OnThreadCreate( ThreadCreateEvent &event, bool firstTime )
+{
+    if (!m_enabled) return;
+    for (int i = 0; i < m_totalPlugins; i++) {
+        Plugin *p = m_plugins[i];
+        if (p->IsEnabled() && p->HasOverrideFlag(ThreadCreateHandler))
+            p->OnThreadCreate(event, firstTime);
+    }
+}
+
+void ProPluginManager::OnThreadExit( ThreadExitEvent &event, bool firstTime )
+{
+    if (!m_enabled) return;
+    for (int i = 0; i < m_totalPlugins; i++) {
+        Plugin *p = m_plugins[i];
+        if (p->IsEnabled() && p->HasOverrideFlag(ThreadExitHandler))
+            p->OnThreadExit(event, firstTime);
+    }
+}
+
 void ProPluginManager::Serialize( Json::Value &root ) const 
 {
     root["enabled"] = m_enabled;

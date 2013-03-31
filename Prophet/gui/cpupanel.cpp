@@ -25,7 +25,6 @@ CpuPanel::CpuPanel( wxWindow *parent, ProphetFrame *dad, ProEngine *engine ) :
     m_cpu           = NULL;
     m_currSelEip    = 0;
     m_currEip       = 0;
-    m_currIndex     = -1;
     m_isbusy        = false;
 }
 
@@ -99,18 +98,20 @@ void CpuPanel::Draw( wxBufferedPaintDC &dc )
     const int idxStart = pv.y;
     const int idxEnd = idxStart + cs.GetHeight() / m_lineHeight;
 
+    int currIndex = m_insts->GetInst(m_currEip)->Index;
+
     /* instructions */
     int index = 0;
     for (InstPtr *inst = m_insts->Begin(); inst != m_insts->End(); inst = m_insts->Next(inst)) {
         Assert(index == (*inst)->Index);
         if (idxStart <= index && index <= idxEnd)
-            DrawInst(dc, *inst, index);
+            DrawInst(dc, *inst, index, currIndex);
         index++;
     }
     if (m_insts->IsInRange(m_currSelEip))
         DrawJumpLine(dc, m_insts->GetInst(m_currSelEip), m_currSelIndex);
     else if (m_insts->IsInRange(m_currEip))
-        DrawJumpLine(dc, m_insts->GetInst(m_currEip), m_currIndex);
+        DrawJumpLine(dc, m_insts->GetInst(m_currEip), currIndex);
 
     /* vertical lines */
     dc.SetPen(*wxGREY_PEN);
@@ -123,14 +124,14 @@ void CpuPanel::Draw( wxBufferedPaintDC &dc )
     dc.DrawLine(lineX, lineY0, lineX, lineY1);
 }
 
-void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const InstPtr inst, int index )
+void CpuPanel::DrawInst( wxBufferedPaintDC &dc, const InstPtr inst, int index, int currIndex )
 {
     wxRect rectToDraw(0, m_lineHeight * index, m_width, m_lineHeight);
 
     dc.SetPen(*wxTRANSPARENT_PEN);
 
     u32 opcode = inst->Main.Inst.Opcode;
-    if (index == m_currIndex) {
+    if (index == currIndex) {
         // highlight current line
         dc.SetBrush(m_curlineBrush);
         dc.DrawRectangle(rectToDraw);
@@ -240,8 +241,8 @@ void CpuPanel::OnCurrentEipChange( u32 addr )
 {
     m_currEip   = addr;
     OnDataUpdate(addr);
-    m_currIndex = m_insts->GetInst(m_currEip)->Index;
-    ScrollProperly(m_currIndex);
+    int currIndex = m_insts->GetInst(m_currEip)->Index;
+    ScrollProperly(currIndex);
     Refresh();
 }
 
@@ -311,17 +312,19 @@ void CpuPanel::OnPopupTaintReg( wxCommandEvent &event )
     wxString val = wxGetTextFromUser("Set Taint value (binary) for " + Regs[reg], "Taint");
     if (val.IsEmpty()) return; // Cancelled
     
-    TaintEngine *te = m_engine->GetTaintEngine();
-    {
-        SyncObjectLock lock(*te);
-        if (reg < 8) {
-            te->CpuTaint.GPRegs[reg][0] = Taint::FromBinString(val.ToStdString());
-        } else if (reg == 8) {
-            te->CpuTaint.Eip[0] = Taint::FromBinString(val.ToStdString());
-        } else {
-            Assert(0);
-        }
-    }
+    NOT_IMPLEMENTED();
+
+//     TaintEngine *te = m_engine->GetTaintEngine();
+//     {
+//         SyncObjectLock lock(*te);
+//         if (reg < 8) {
+//             te->CpuTaint.GPRegs[reg][0] = Taint::FromBinString(val.ToStdString());
+//         } else if (reg == 8) {
+//             te->CpuTaint.Eip[0] = Taint::FromBinString(val.ToStdString());
+//         } else {
+//             Assert(0);
+//         }
+//     }
 
 }
 

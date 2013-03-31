@@ -149,7 +149,7 @@ uint Kernel32_CreateThread(Processor *cpu)
 
     Thread *t = cpu->Proc()->ThreadCreate(ti);
     LPDWORD lpId = (LPDWORD) PARAM_PTR(5);
-    if (lpId) *lpId = t->ID;
+    if (lpId) *lpId = t->ExtID;
     RET_VALUE = (u32) t->Handle;
     RET_PARAMS(6);
 }
@@ -445,7 +445,7 @@ uint Kernel32_GetCurrentProcessId(Processor *cpu)
 uint Kernel32_GetCurrentThreadId(Processor *cpu)
 {
 //    RET_VALUE = (u32) GetCurrentThreadId();
-    RET_VALUE = (u32) cpu->Thr()->ID;
+    RET_VALUE = (u32) cpu->Thr()->ExtID;
     RET_PARAMS(0);
 }
 

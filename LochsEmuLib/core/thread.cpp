@@ -9,8 +9,8 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-Thread::Thread( Process *proc, ThreadID id, HANDLE hThread)
-: ID(id), Handle(hThread), m_cpu(this)
+Thread::Thread( Process *proc, int intId, ThreadID extId, HANDLE hThread)
+: ExtID(extId), IntID(intId), Handle(hThread), m_cpu(intId, this)
 {
     Assert(proc);
     m_process       = proc;
@@ -30,7 +30,7 @@ Thread::~Thread()
 
 LochsEmu::LxResult Thread::Initialize(const ThreadInfo &info)
 {
-    LxDebug("Initializing Thread ID[%x]\n", ID);
+    LxDebug("Initializing Thread ID[%x]\n", ExtID);
     memcpy(&m_initInfo, &info, sizeof(ThreadInfo));
 
     LxResult lr;
@@ -50,7 +50,7 @@ void Thread::InitStack()
         m_initInfo.StackSize = 0x1000000;       // 1MB
     base = m_memory->FindFreePages(base, m_initInfo.StackSize);
 
-    LxInfo("Initializing Stack for thread[%x], base %08x, size 0x%x\n", ID, 
+    LxInfo("Initializing Stack for thread[%x], base %08x, size 0x%x\n", ExtID, 
         base, m_initInfo.StackSize);
     m_stack = Mem()->CreateStack(base, m_initInfo.StackSize, m_initInfo.StackSize, 
         m_initInfo.Module);
@@ -62,7 +62,7 @@ void Thread::InitTEB()
 {
     SyncObjectLock lock(*m_memory);
 
-    LxDebug("Initializing TEB for thread[%x]\n", ID);
+    LxDebug("Initializing TEB for thread[%x]\n", ExtID);
     WIN32_TEB *pTeb = GetTEBPtr();
     // current TEB is initialized on top of stack
     const u32 size = sizeof(WIN32_TEB);
@@ -70,7 +70,7 @@ void Thread::InitTEB()
     Assert(m_TebAddress != 0);
     LxDebug("Allocating memory for TEB at [0x%08x]\n", m_TebAddress);
     char desc[64];
-    sprintf(desc, "TEB (%x)", ID);
+    sprintf(desc, "TEB (%x)", ExtID);
     V( m_memory->AllocCopy(SectionDesc(desc, m_initInfo.Module), m_TebAddress, size, PAGE_READWRITE, (pbyte) pTeb, size));
     WIN32_TEB *pThreadPeb = (WIN32_TEB *) m_memory->GetRawData(m_TebAddress);
     pThreadPeb->TIB.StackBase = m_stack->Top();
@@ -172,9 +172,9 @@ DWORD LxThreadRoutine( LPVOID lpParams )
     u32 code = t->ExitCode;
 
     ThreadID id = GetCurrentThreadId();
-    Assert(id == t->ID);
+    Assert(id == t->ExtID);
 
-    //CloseHandle(t->Handle);
+    LxEmulator.Plugins()->OnThreadExit(t);
     LxEmulator.Proc()->ThreadDelete(id);
 
     return code;

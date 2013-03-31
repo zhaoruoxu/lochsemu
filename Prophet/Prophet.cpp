@@ -98,6 +98,16 @@ PROPHET_API bool LochsEmu_Plugin_Cleanup( void )
     return true;
 }
 
+PROPHET_API void LochsEmu_Thread_Create( Thread *thrd )
+{
+    g_engine.OnThreadCreate(thrd);
+}
+
+PROPHET_API void LochsEmu_Thread_Exit( Thread *thrd )
+{
+    g_engine.OnThreadExit(thrd);
+}
+
 
 
 

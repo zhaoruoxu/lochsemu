@@ -140,7 +140,7 @@ LochsEmu::LxResult Process::InitMainThread()
     const ThreadID ID = (ThreadID) 0; //GetCurrentThreadId();
     ThreadID realId = GetCurrentThreadId();
     HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, realId);
-    m_threads[ID]   = new Thread(this, realId, hThread);
+    m_threads[ID]   = new Thread(this, ID, realId, hThread);
 
     ThreadInfo info;
     info.EntryPoint = GetModuleInfo(0)->EntryPoint;
@@ -151,6 +151,8 @@ LochsEmu::LxResult Process::InitMainThread()
 
     LxResult lr;
     V_RETURN( m_threads[0]->Initialize(info) );
+
+    m_plugins->OnThreadCreate(m_threads[0]);
 
     CloseHandle(hThread);
     RET_SUCCESS();
@@ -185,6 +187,8 @@ LochsEmu::LxResult Process::Run()
         V( m_threads[0]->RunModuleEntry(moduleLoad[i], LX_LOAD_PROCESS_DETACH, LX_LOAD_STATIC) );
     }
 
+    m_plugins->OnThreadExit(m_threads[0]);
+
     RET_SUCCESS();
 }
 
@@ -193,7 +197,7 @@ Thread * Process::ThreadCreate( const ThreadInfo &ti )
     SyncObjectLock lock(*this);
 
     ThreadID id = FindNextThreadId();
-    m_threads[id] = new Thread(this);
+    m_threads[id] = new Thread(this, id);
 
     V( m_threads[id]->Initialize(ti) );
 
@@ -201,7 +205,10 @@ Thread * Process::ThreadCreate( const ThreadInfo &ti )
         m_threads[id], ti.Flags, NULL);
 
     m_threads[id]->Handle   = hThread;
-    m_threads[id]->ID = GetThreadId(hThread);
+    m_threads[id]->ExtID = GetThreadId(hThread);
+
+    m_plugins->OnThreadCreate(m_threads[id]);
+
     return m_threads[id];
 }
 
@@ -213,7 +220,7 @@ void Process::ThreadExit( ThreadID id, u32 code )
     LxInfo("Exiting thread [%x] with exit code %d\n", id, code);
     int i = 1;
     for (i = 0; i < MaximumThreads; i++)
-        if (m_threads[i]->ID == id) break;
+        if (m_threads[i]->ExtID == id) break;
     if (i == MaximumThreads) {
         LxFatal("No thread has ID [%x]\n", id);
     }
@@ -380,7 +387,7 @@ ThreadID Process::FindNextThreadId() const
 Thread * Process::GetThreadRealID( ThreadID id ) const
 {
     for (int i = 0; i < MaximumThreads; i++)
-        if (m_threads[i] != NULL && m_threads[i]->ID == id)
+        if (m_threads[i] != NULL && m_threads[i]->ExtID == id)
             return m_threads[i];
     return NULL;
 }
@@ -389,7 +396,7 @@ void Process::ThreadDelete( ThreadID id )
 {
 
     for (int i = 0; i < MaximumThreads; i++) {
-        if (m_threads[i] != NULL && m_threads[i]->ID == id) {
+        if (m_threads[i] != NULL && m_threads[i]->ExtID == id) {
             LxDebug("Deleting thread [%x]\n", id);
             SAFE_DELETE(m_threads[i]);
         }

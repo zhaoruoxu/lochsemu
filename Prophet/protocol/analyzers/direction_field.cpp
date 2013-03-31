@@ -59,7 +59,7 @@ void DirectionField::Deserialize( Json::Value &root )
 
 bool DirectionField::CheckMemoryLength( PreExecuteEvent &event, const ARGTYPE &arg )
 {
-    Taint1 tReg = m_taint->GetTaintAddressingReg(arg);
+    Taint1 tReg = m_taint->GetTaintAddressingReg(event.Cpu, arg);
     if (!tReg.IsAnyTainted()) return false;
 
     Taint1 tMem = m_taint->GetTaintShrink(event.Cpu, arg);
@@ -96,7 +96,7 @@ void DirectionField::CheckFlag( PreExecuteEvent &event )
 
     m_inloop.erase(eip);
 
-    Taint1 tFlag = m_taint->GetTestedFlagTaint(inst);
+    Taint1 tFlag = m_taint->GetTestedFlagTaint(event.Cpu, inst);
     if (!tFlag.IsAnyTainted()) return;
 
     int first, last;

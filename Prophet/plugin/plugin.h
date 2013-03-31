@@ -35,6 +35,8 @@ public:
     virtual void    OnProcessPostLoad   (ProcessPostLoadEvent   &event, bool firstTime) {}
     virtual void    OnWinapiPreCall     (WinapiPreCallEvent     &event, bool firstTime) {}
     virtual void    OnWinapiPostCall    (WinapiPostCallEvent    &event, bool firstTime) {}
+    virtual void    OnThreadCreate      (ThreadCreateEvent      &event, bool firstTime) {}
+    virtual void    OnThreadExit        (ThreadExitEvent        &event, bool firstTime) {}
     
 private:
     std::string     m_name;
@@ -72,6 +74,8 @@ public:
     void            OnProcessPostLoad   (ProcessPostLoadEvent   &event, bool firstTime);
     void            OnWinapiPreCall     (WinapiPreCallEvent     &event, bool firstTime);
     void            OnWinapiPostCall    (WinapiPostCallEvent    &event, bool firstTime);
+    void            OnThreadCreate      (ThreadCreateEvent      &event, bool firstTime);
+    void            OnThreadExit        (ThreadExitEvent        &event, bool firstTime);
 
 private:
     void            RegisterPlugin(Plugin *plugin);

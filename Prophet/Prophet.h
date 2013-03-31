@@ -30,6 +30,8 @@ PROPHET_API void LochsEmu_Process_PreLoad           (PeLoader *loader);
 PROPHET_API void LochsEmu_Process_PostLoad          (PeLoader *loader);
 PROPHET_API void LochsEmu_Winapi_PreCall            (Processor *cpu, uint apiIndex);
 PROPHET_API void LochsEmu_Winapi_PostCall           (Processor *cpu, uint apiIndex);
+PROPHET_API void LochsEmu_Thread_Create             (Thread *thrd);
+PROPHET_API void LochsEmu_Thread_Exit               (Thread *thrd);
 
 // dbg
 class ProDebugger;

@@ -38,7 +38,7 @@ private:
     void        InitRender();
     void        InitMenu();
     void        Draw(wxBufferedPaintDC &dc) override;
-    void        DrawInst(wxBufferedPaintDC &dc, const InstPtr inst, int index);
+    void        DrawInst(wxBufferedPaintDC &dc, const InstPtr inst, int index, int currIndex);
     void        DrawJumpLine(wxBufferedPaintDC &dc, const InstPtr inst, int index);
     void        DrawJumpIcon(wxBufferedPaintDC &dc, const InstPtr inst, int index);
     wxPoint     GetCurrentScrolledPos() const;
@@ -60,7 +60,6 @@ private:
     int         m_width;
     int         m_height;
 
-    int         m_currIndex;
     u32         m_currEip;
     u32         m_currSelEip;
     int         m_minDistanceToEdge;

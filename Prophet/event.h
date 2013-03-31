@@ -37,6 +37,8 @@ enum EventHandlerFlag : uint {
     WinapiPostCallHandler   = 1 << 10,
     MessageBeginHandler     = 1 << 11,
     MessageEndHandler       = 1 << 12,
+    ThreadCreateHandler     = 1 << 13,
+    ThreadExitHandler       = 1 << 14,
 };
 
 class PreExecuteEvent : public Event {
@@ -128,6 +130,22 @@ public:
     
     Processor * const       Cpu;
     const uint              ApiIndex;
+};
+
+class ThreadCreateEvent : public Event {
+public:
+    ThreadCreateEvent(void *sender, Thread *thrd)
+        : Event(sender), Thrd(thrd) {}
+
+    Thread * const          Thrd;
+};
+
+class ThreadExitEvent : public Event {
+public:
+    ThreadExitEvent(void *sender, Thread *thrd)
+        : Event(sender), Thrd(thrd) {}
+
+    Thread * const          Thrd;
 };
 
 

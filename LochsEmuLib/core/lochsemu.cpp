@@ -128,6 +128,8 @@ void LxLogInternal(LogLevel level, const char *format, va_list args)
     char dtBuffer[256];
     char buffer[1024];
 
+    SyncObjectLock lock(LxEmulator);
+
     LxGetDateTime(dtBuffer);
     vsprintf(buffer, format, args);
 
