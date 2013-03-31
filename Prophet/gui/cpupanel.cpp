@@ -99,7 +99,7 @@ void CpuPanel::Draw( wxBufferedPaintDC &dc )
     const int idxStart = pv.y;
     const int idxEnd = idxStart + cs.GetHeight() / m_lineHeight;
 
-    int currIndex = m_insts->GetInst(m_currEip)->Index;
+    int currIndex = m_currEip == 0 ? -1 : m_insts->GetInst(m_currEip)->Index;
 
     /* instructions */
     int index = 0;
@@ -249,6 +249,7 @@ void CpuPanel::OnCurrentEipChange( u32 addr )
 
 void CpuPanel::ShowCode( u32 addr )
 {
+    m_currEip = 0;
     OnDataUpdate(addr);
     m_currSelIndex = m_insts->GetInst(addr)->Index;
     //OnSelectionChange();

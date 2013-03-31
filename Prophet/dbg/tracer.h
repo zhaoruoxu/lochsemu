@@ -48,7 +48,7 @@ private:
     void            AddTrace(const TraceContext &t);
 private:
     TraceContext    m_currTrace;
-    u32             m_currEip;
+    //u32             m_currEip;
     i64             m_seq;
     bool            m_enabled;
     bool            m_mainModuleOnly;

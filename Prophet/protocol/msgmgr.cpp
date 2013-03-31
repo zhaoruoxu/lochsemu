@@ -15,7 +15,7 @@ MessageManager::MessageManager( Protocol *protocol )
 
 MessageManager::~MessageManager()
 {
-
+    SAFE_DELETE(m_message);
 }
 
 void MessageManager::Initialize()

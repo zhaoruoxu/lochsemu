@@ -28,7 +28,7 @@ void ProTracer::OnProcessPostLoad( ProcessPostLoadEvent &event )
 
 void ProTracer::OnPreExecute( PreExecuteEvent &event )
 {
-    m_currEip   = event.Cpu->EIP;
+    //m_currEip   = event.Cpu->EIP;
     if (!IsEnabled()) return;
     m_currTrace.Reset();
 }
@@ -41,7 +41,7 @@ void ProTracer::OnPostExecute( PostExecuteEvent &event )
     if (m_mainModuleOnly && event.Cpu->GetCurrentModule() != 0)
         return; // skip DLLs
 
-    m_engine->GetTraceContext(event.Cpu, &m_currTrace, m_currEip);
+    m_engine->GetTraceContext(event.Cpu, &m_currTrace, event.Cpu->GetPrevEip());
     m_currTrace.Seq     = m_seq;
     AddTrace(m_currTrace);
 }
