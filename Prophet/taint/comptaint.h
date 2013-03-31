@@ -19,22 +19,25 @@ struct ProcessorTaint {
 
 class MemoryTaint {
 
-    class PageTaint { 
-    public:
-        PageTaint();
-        ~PageTaint();
-
+    struct PageTaint { 
         Taint   Get(u32 offset);
         void    Set(u32 offset, const Taint &t);
         void    Reset();
+
+        PageTaint();
+        ~PageTaint();
+
     private:
-        Taint           m_data[LX_PAGE_SIZE];
+        Taint *     m_data[LX_PAGE_SIZE];
+        //FilePool<Taint> &   m_pool;
     };
 
 
 public:
     MemoryTaint();
     ~MemoryTaint();
+
+    //void        Init(const char *pool);
 
     template <int N>
     Tb<N>       Get(u32 addr);
@@ -47,7 +50,8 @@ private:
     PageTaint *  GetPage(u32 addr);
 
 private:
-    PageTaint *  m_pagetable[LX_PAGE_COUNT];
+    PageTaint * m_pagetable[LX_PAGE_COUNT];
+    //FilePool<Taint>    m_pool;
 };
 
 template <int N>

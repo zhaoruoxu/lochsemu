@@ -17,7 +17,8 @@ TaintEngine::~TaintEngine()
 
 void TaintEngine::Initialize()
 {
-
+    //std::string pfile = g_config.GetString("General", "TaintPoolFile", "\\prophet_taint_pool");
+    //MemTaint.Init(pfile.c_str());
 }
 
 void TaintEngine::Reset()
