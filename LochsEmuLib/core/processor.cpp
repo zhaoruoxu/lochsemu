@@ -641,6 +641,8 @@ bool Processor::IsJumpTaken( const Instruction *inst ) const
         t = &Processor::IsJumpTaken_Jecxz;
     } else if (opcode == 0xe2) {
         t = &Processor::IsJumpTaken_Loop;
+    } else if (opcode >= 0x0f40 && opcode < 0x0f50) {
+        t = Testers[opcode - 0x0f40];       // CMOVcc
     } else {
         Assert(0);  // shouldn't be used for other instructions
     }
@@ -669,6 +671,17 @@ void Processor::Terminate( uint nCode )
     LxInfo("Processor [%x] terminating with exit code 0x%x\n", m_thread->ExtID, nCode);
     m_terminated = true; 
     m_thread->ExitCode = nCode;
+}
+
+u32 Processor::GetValidEip( void ) const
+{
+    if (HasExecFlag(LX_EXEC_WINAPI_CALL) || HasExecFlag(LX_EXEC_WINAPI_JMP) ||
+        HasExecFlag(LX_EXEC_PREFIX_REP) || HasExecFlag(LX_EXEC_PREFIX_REPNE))
+    {
+        return GetPrevEip();
+    } else {
+        return EIP;
+    }
 }
 
 END_NAMESPACE_LOCHSEMU()

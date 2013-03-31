@@ -36,6 +36,7 @@ void ProEngine::Initialize(Emulator *emu)
     m_emulator      = emu;
     m_statistics.Initialize();
     m_debugger.Initialize();
+    m_disassembler.Initialize();
     m_taint.Initialize();
     m_protocol.Initialize();
     m_plugins.Initialize();
@@ -139,13 +140,13 @@ void ProEngine::OnProcessPostRun( const Process *proc )
     if (!m_enabled) return;
     ProcessPostRunEvent event(this, proc);
 
-    m_gui->OnProcessPostRun(event);
-
     m_plugins.OnProcessPostRun(event, true);
     if (event.IsVetoed()) return;
 
     m_protocol.OnProcessPostRun(event);
     SaveArchive();
+
+    m_gui->OnProcessPostRun(event);
 
     m_plugins.OnProcessPostRun(event, false);
 }
@@ -249,7 +250,7 @@ void ProEngine::SetGuiFrame( ProphetFrame *frame )
 
 void ProEngine::GetInstContext(const Processor *cpu, InstContext *ctx) const
 {
-    m_disassembler.UpdateInstContext(ctx, cpu->EIP);
+    m_disassembler.UpdateInstContext(ctx, cpu->GetValidEip());
     m_debugger.UpdateInstContext(cpu, ctx);
     m_taint.UpdateInstContext(cpu, ctx);
 }

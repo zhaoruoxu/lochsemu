@@ -17,13 +17,15 @@ public:
     void    Initialize() override;
     void    OnPreExecute(PreExecuteEvent &event, bool firstTime) override;
     void    OnProcessPostLoad(ProcessPostLoadEvent &event, bool firstTime) override;
-    void    OnProcessPreRun(ProcessPreRunEvent &event, bool firstTime) override;
     void    Serialize(Json::Value &root) const override;
     void    Deserialize(Json::Value &root) override;
+private:
+    bool    IsExit(PreExecuteEvent &event);
 
 private:
     bool    m_breakOnEntry;
     bool    m_breakOnMainModuleEntry;
+    bool    m_fakeMessageEnd;
     bool    m_skipDllEntries;
     bool    m_taintOriginalState;
     bool    m_tracerOriginalState;

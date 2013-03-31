@@ -68,7 +68,7 @@ void StackPanel::Draw( wxBufferedPaintDC &dc )
 void StackPanel::DrawItem( wxBufferedPaintDC &dc, Stack *s, int index )
 {
     u32 addr = m_cpu->ESP + index * 4;
-    u32 val = m_cpu->MemRead32(addr);
+    u32 val = *((u32p) m_cpu->Mem->GetRawData(addr));
 
     int h = m_lineHeight * index;
     wxRect rectToDraw(0, h, m_width, m_lineHeight);
@@ -128,19 +128,4 @@ void StackPanel::OnLeftDoubleClick( wxMouseEvent &event )
     }
 
     m_dad->GetCpuPanel()->ShowCode(addr);
-}
-
-void StackPanel::OnPostExecute( PostExecuteEvent &event )
-{
-//     m_isPrevCall = Instruction::IsCall(event.Inst);
-//     m_prevEsp = event.Cpu->ESP;
-//     if (!m_isPrevCall) return;
-//     InstPtr pinst = m_engine->GetDisassembler()->GetInst(event.Cpu->GetPrevEip());
-//     u32 target = pinst->Target;
-//     if (target == (u32) -1) return;
-//     StackCallInfo scinfo;
-//     scinfo.Module = pinst->TargetModuleName;
-//     scinfo.Func = pinst->TargetFuncName;
-//     m_callinfo[m_prevEsp] = scinfo;
-    
 }

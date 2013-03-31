@@ -36,11 +36,14 @@ void SeparatorKeyword::OnPostExecute( PostExecuteEvent &event )
     if (!IsConstantArg(event.Inst->Main.Argument2)) return;
     if (event.Inst->Main.Argument2.ArgSize != 8) return;
 
+    byte token = static_cast<byte>(event.Inst->Main.Inst.Immediat);
+
     // only cmp XXX, YY is supported, where YY is a constant byte
     Taint1 t = m_taint->GetTaintShrink(event.Cpu, event.Inst->Main.Argument1);
     if (!t.IsAnyTainted()) return;
 
-    byte token = static_cast<byte>(event.Inst->Main.Inst.Immediat);
+
+
     m_tokenTable[token] |= t[0];
 
     if (event.Cpu->ZF != 0) {

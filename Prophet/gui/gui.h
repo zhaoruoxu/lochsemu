@@ -21,6 +21,7 @@ class MessagePanel;
 class MySwitch;
 class StatPanel;
 class StackPanel;
+class ThreadPanel;
 
 enum {
     /* view */
@@ -47,12 +48,10 @@ enum {
     ID_ToolbarToggleTaint,
 
     /* notebooks */
-    ID_NbMain,
     ID_NbContext,
     ID_NbSections,
     ID_NbTrace,
-    ID_NbMemory,
-    ID_NbStat,
+    ID_NbStack,
 
     /* cpu panel */
     ID_CpuInstList,

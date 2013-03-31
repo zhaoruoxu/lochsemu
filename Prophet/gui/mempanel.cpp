@@ -52,6 +52,7 @@ MemDataPanel::MemDataPanel( wxWindow *parent, ProphetFrame *dad, ProEngine *engi
 
 MemDataPanel::~MemDataPanel()
 {
+    SAFE_DELETE(m_popup);
 }
 
 void MemDataPanel::InitRender()

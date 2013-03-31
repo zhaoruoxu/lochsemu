@@ -16,7 +16,7 @@ TracePanel::TracePanel( CompositeTracePanel *parent )
 
 TracePanel::~TracePanel()
 {
-
+    SAFE_DELETE(m_popup);
 }
 
 void TracePanel::InitRender()

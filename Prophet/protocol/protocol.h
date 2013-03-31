@@ -11,7 +11,7 @@
 #include "msgmgr.h"
 
 class Protocol : public ISerializable {
-
+public:
     enum State {
         Idle,
         ProcessingMessage,
@@ -43,6 +43,7 @@ public:
 
     void        Serialize(Json::Value &root) const override;
     void        Deserialize(Json::Value &root) override;
+    State       GetState() const { return m_state; }
 
     ProEngine *         GetEngine() { return m_engine; }
     const ProEngine *   GetEngine() const { return m_engine; }

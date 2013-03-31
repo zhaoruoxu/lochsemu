@@ -221,6 +221,7 @@ public:
     uint            GetModule           (u32 eip) const;
 
     u32             GetPrevEip          (void) const { return m_lastEip; }
+    u32             GetValidEip         (void) const;
 
     LxResult        Initialize          (void);
     LxResult        Run                 (u32 entry);

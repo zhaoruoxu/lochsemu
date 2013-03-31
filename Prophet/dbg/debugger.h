@@ -23,6 +23,8 @@ public:
         STATE_STEPOUT,
         STATE_TERMINATED,
     };
+
+    static const char *StateText[];
 public:
     ProDebugger(ProEngine *engine);
     ~ProDebugger();
@@ -41,11 +43,14 @@ public:
     void        OnRun();
     void        OnRunNoBp();
     void        SetCurrentThread(int tid);
-    Thread *    GetCurrentThread() { Assert(m_threads[m_currTid]); return m_threads[m_currTid]; }
-    const Thread *  GetCurrentThread() const { Assert(m_threads[m_currTid]); return m_threads[m_currTid]; }
+    Thread *    GetCurrentThread();
+    const Thread *  GetCurrentThread() const;
+    Thread *    GetThread(int tid);
+    const Thread *  GetThread(int tid) const;
     int         GetCurrentThreadId() const { return m_currTid; }
+    int         GetThreadCount() const;
     void        SetState(int tid, State s);
-    State       GetState(int tid) const { Assert(m_threads[tid] != NULL); return m_state[tid]; }
+    State       GetState(int tid) const;
     void        AddBreakpoint(u32 eip, const std::string &desc);
     void        ToggleBreakpoint(u32 eip);
     void        RemoveBreakpoint(u32 eip);

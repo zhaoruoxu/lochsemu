@@ -30,6 +30,7 @@ CpuPanel::CpuPanel( wxWindow *parent, ProphetFrame *dad, ProEngine *engine ) :
 
 CpuPanel::~CpuPanel()
 {
+    SAFE_DELETE(m_popup);
 }
 
 void CpuPanel::InitRender()

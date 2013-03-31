@@ -92,7 +92,7 @@ void ApiProcessor::Deserialize( Json::Value &root )
 
 void ApiProcessor::SerializeApi( Json::Value &root, int index, bool isPreCallApi ) const
 {
-    root["index"]   = index;
+    //root["index"]   = index;
     root["dll"]     = LxGetWinAPIModuleName(index);
     root["name"]    = LxGetWinAPIName(index);
     root["enabled"] = isPreCallApi ? m_isHandlerEnabledPreCall[index] 
@@ -101,10 +101,16 @@ void ApiProcessor::SerializeApi( Json::Value &root, int index, bool isPreCallApi
 
 void ApiProcessor::DeserializeApi( Json::Value &root, bool isPreCallApi )
 {
-    int index = root["index"].asInt();
+    const char *dllName = root["dll"].asCString();
+    const char *funcName = root["name"].asCString();
+
+    uint index = QueryWinAPIIndexByName(dllName, funcName);
+
     if (index == 0) {
-        LxFatal("Deserialize Api failed\n");
+        LxError("ApiProcessor: WinApi not found %s.%s\n", dllName, funcName);
+        return;
     }
+
     bool enabled = root["enabled"].asBool();
     if (isPreCallApi)
         m_isHandlerEnabledPreCall[index]    = enabled;

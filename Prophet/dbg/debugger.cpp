@@ -17,6 +17,9 @@ ProDebugger::ProDebugger(ProEngine *engine) : m_engine(engine)
     m_archive = m_engine->GetArchive();
     m_currTid = 0;  // Main thread
     m_switchThreadOnBreak = true;
+
+    ZeroMemory(m_threads, sizeof(m_threads));
+
 }
 
 ProDebugger::~ProDebugger()
@@ -414,18 +417,63 @@ void ProDebugger::SetCurrentThread( int tid )
 {
     Assert(m_threads[tid] != NULL);
     m_currTid = tid;
-    bool isSingleStep = m_state[tid] == STATE_SINGLESTEP;
+    //bool isSingleStep = m_state[tid] == STATE_SINGLESTEP;
     m_state[tid] = STATE_SINGLESTEP;
 
     LxInfo("--- DEBUGGER: Current Thread is %d ---\n", tid);
 
     m_engine->ReportBusy(false);
-    if (isSingleStep) {
+    //if (isSingleStep) {
         m_engine->GetGUI()->OnPreExecSingleStep(m_cpu[tid]);
-    }
+    //}
 //     else {
 //         m_engine->GetGUI()->OnRefresh();
 //     }
     //
+}
+
+Thread * ProDebugger::GetCurrentThread()
+{
+    Assert(m_threads[m_currTid]); 
+    return m_threads[m_currTid];
+}
+
+const Thread * ProDebugger::GetCurrentThread() const
+{
+    Assert(m_threads[m_currTid]); 
+    return m_threads[m_currTid];
+}
+
+ProDebugger::State ProDebugger::GetState( int tid ) const
+{
+    Assert(m_threads[tid] != NULL); 
+    return m_state[tid];
+}
+
+Thread * ProDebugger::GetThread( int tid )
+{
+    return m_threads[tid];
+}
+
+const Thread * ProDebugger::GetThread( int tid ) const
+{
+    return m_threads[tid];
+}
+
+const char * ProDebugger::StateText[] = {
+    "Running",
+    "Running(NoBreak)",
+    "SingleStep",
+    "StepOver",
+    "StepOut",
+    "Terminated",
+};
+
+int ProDebugger::GetThreadCount() const
+{
+    int count = 0; 
+    for (int i = 0; i < MaxThreads; i++)
+        if (m_threads[i] != NULL) count++;
+    return count;
 }
 

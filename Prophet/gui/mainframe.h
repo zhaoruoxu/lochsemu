@@ -87,10 +87,13 @@ private:
     MessagePanel *  m_msgPanel;
     StatPanel *     m_statPanel;
     StackPanel *    m_stackPanel;
+    ThreadPanel *   m_threadPanel;
 
     //wxNotebook *    m_nbMain;
     wxNotebook *    m_nbContext;
     wxNotebook *    m_nbSections;
+    wxNotebook *    m_nbTrace;
+    wxNotebook *    m_nbStack;
     //wxNotebook *    m_nbTrace;
     //wxNotebook *    m_nbMemory;
     //wxNotebook *    m_nbStat;

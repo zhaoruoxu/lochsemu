@@ -11,6 +11,7 @@
 #include "msgpanel.h"
 #include "statpanel.h"
 #include "stackpanel.h"
+#include "threadpanel.h"
 
 #include "utilities.h"
 #include "engine.h"
@@ -72,26 +73,41 @@ void ProphetFrame::InitUI()
     //m_nbMain        = new wxNotebook(this, ID_NbMain,    wxDefaultPosition, wxSize(400, 400));
     m_nbContext     = new wxNotebook(this, ID_NbContext, wxDefaultPosition, wxSize(200, 400));
     m_nbSections    = new wxNotebook(this, ID_NbSections, wxDefaultPosition, wxSize(400, 200));
+    m_nbTrace       = new wxNotebook(this, ID_NbTrace, wxDefaultPosition, wxSize(400, 200));
+    m_nbStack       = new wxNotebook(this, ID_NbStack, wxDefaultPosition, wxSize(400, 200));
     //m_nbTrace       = new wxNotebook(this, ID_NbTrace,   wxDefaultPosition, wxSize(200, 200));
     //m_nbMemory      = new wxNotebook(this, ID_NbMemory,  wxDefaultPosition, wxSize(400, 200));
     //m_nbStat        = new wxNotebook(this, ID_NbStat,    wxDefaultPosition, wxSize(200, 200));
 
 
     m_cpuPanel      = new CpuPanel(this, this, m_engine);
+
     m_contextPanel  = new ContextPanel(m_nbContext, this);
-    m_tracePanel    = new CompositeTracePanel(this, this, m_contextPanel, m_cpuPanel);
-    m_memDataPanel  = new MemDataPanel(this, this, m_engine);
-    m_memInfoPanel  = new MemInfoPanel(m_nbSections, this, m_memDataPanel);
-    m_bpsPanel      = new BreakpointsPanel(m_nbSections, this);
     m_msgPanel      = new MessagePanel(m_nbContext, this, m_engine);
+
+    m_tracePanel    = new CompositeTracePanel(m_nbTrace, this, m_contextPanel, m_cpuPanel);
+    m_memDataPanel  = new MemDataPanel(m_nbTrace, this, m_engine);
+
+    m_memInfoPanel  = new MemInfoPanel(m_nbSections, this, m_memDataPanel);
+    m_bpsPanel      = new BreakpointsPanel(m_nbStack, this);
+    
     m_statPanel     = new StatPanel(this, this, m_engine);
-    m_stackPanel = new StackPanel(m_nbSections, this, m_engine);
+    m_stackPanel    = new StackPanel(m_nbStack, this, m_engine);
+    m_threadPanel   = new ThreadPanel(m_nbSections, this);
 
     m_nbContext->AddPage(m_contextPanel, "Context");
     m_nbContext->AddPage(m_msgPanel, "Message");
+
     m_nbSections->AddPage(m_memInfoPanel, "Sections");
-    m_nbSections->AddPage(m_bpsPanel, "Breakpoints");
-    m_nbSections->AddPage(m_stackPanel, "Stack");
+    m_nbSections->AddPage(m_threadPanel, "Threads");
+    //m_nbSections->AddPage(m_bpsPanel, "Breakpoints");
+    //m_nbSections->AddPage(m_stackPanel, "Stack");
+
+    m_nbStack->AddPage(m_stackPanel, "Stack");
+    m_nbStack->AddPage(m_bpsPanel, "Breakpoints");
+
+    m_nbTrace->AddPage(m_tracePanel, "Trace");
+    m_nbTrace->AddPage(m_memDataPanel, "Memory");
     
     const long noteStyle = wxAUI_NB_TOP | wxAUI_NB_TAB_SPLIT | wxAUI_NB_TAB_MOVE | 
         wxAUI_NB_SCROLL_BUTTONS | wxAUI_NB_CLOSE_ON_ACTIVE_TAB | wxAUI_NB_WINDOWLIST_BUTTON | 
@@ -110,9 +126,9 @@ void ProphetFrame::InitUI()
 
     m_auiManager.AddPane(m_cpuPanel, wxAuiPaneInfo().Name("Main").CenterPane());
     m_auiManager.AddPane(m_nbContext, wxAuiPaneInfo().Name("Context").Right());
-    m_auiManager.AddPane(m_nbSections, wxAuiPaneInfo().Name("Sections").Bottom().Position(0).Row(1));
-    m_auiManager.AddPane(m_tracePanel, wxAuiPaneInfo().Name("Trace").Caption("Trace").Bottom().Position(1).Row(1));
-    m_auiManager.AddPane(m_memDataPanel, wxAuiPaneInfo().Name("Memory").Caption("Memory").Bottom().Position(0).Row(0));
+    m_auiManager.AddPane(m_nbTrace, wxAuiPaneInfo().Name("Trace").Bottom().Position(0).Row(1));
+    m_auiManager.AddPane(m_nbStack, wxAuiPaneInfo().Name("Stack").Bottom().Position(1).Row(1));
+    m_auiManager.AddPane(m_nbSections, wxAuiPaneInfo().Name("Sections").Bottom().Position(0).Row(0));
     m_auiManager.AddPane(m_statPanel, wxAuiPaneInfo().Name("Stat").Caption("Stat").Bottom().Position(2).Row(0));
     //m_auiManager.AddPane(m_bpsPanel);
     
@@ -391,12 +407,13 @@ void ProphetFrame::OnPreExecSingleStep( const Processor *cpu )
     InstContext ctx;
     m_engine->GetInstContext(cpu, &ctx);
     m_contextPanel->UpdateData(&ctx, "Dynamic Execution");
-    m_cpuPanel->OnCurrentEipChange(cpu->EIP);
+    m_cpuPanel->OnCurrentEipChange(cpu->GetValidEip());
     m_tracePanel->UpdateData();
     m_memInfoPanel->UpdateData(cpu->Emu(), cpu->Mem);
     m_memDataPanel->Refresh();
     m_bpsPanel->UpdateData(m_engine);
     m_stackPanel->UpdateData(cpu);
+    m_threadPanel->UpdateData(m_engine);
 }
 
 
@@ -563,7 +580,8 @@ void ProphetFrame::OnPreExecute( PreExecuteEvent &event )
 
 void ProphetFrame::OnThreadStateChange( const Thread *thrd )
 {
-    LxWarning("Thread state change: %d\n", thrd->IntID);
+    //LxWarning("Thread state change: %d\n", thrd->IntID);
+    m_threadPanel->UpdateData(m_engine);
 }
 
 // void ProphetFrame::OnPostExecute( PostExecuteEvent &event )

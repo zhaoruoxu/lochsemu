@@ -18,7 +18,6 @@ public:
     ~StackPanel();
 
     void        UpdateData(const Processor *cpu);
-    void        OnPostExecute(PostExecuteEvent &event);
 
     void        OnLeftDoubleClick(wxMouseEvent &event);
 private:

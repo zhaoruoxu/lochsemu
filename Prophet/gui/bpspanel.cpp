@@ -40,7 +40,7 @@ void BreakpointsPanel::InitRender()
     UpdateFont(f);
 
     m_widthAddress      = g_config.GetInt("BpsPanel", "WidthAddress", 75);
-    m_widthModuleName   = g_config.GetInt("BpsPanel", "WidthModuleName", 100);
+    m_widthModuleName   = g_config.GetInt("BpsPanel", "WidthModuleName", 150);
     m_widthDisasm       = g_config.GetInt("BpsPanel", "WidthDisasm", 300);
     m_widthDesc         = g_config.GetInt("BpsPanel", "WdithDesc", 120);
     m_width             = m_widthAddress + m_widthModuleName + m_widthDisasm + m_widthDesc;

@@ -237,6 +237,9 @@
     <ClInclude Include="plugin\syncdiff.h">
       <Filter>Header Files\plugin</Filter>
     </ClInclude>
+    <ClInclude Include="gui\threadpanel.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -373,6 +376,9 @@
     </ClCompile>
     <ClCompile Include="plugin\syncdiff.cpp">
       <Filter>Source Files\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\threadpanel.cpp">
+      <Filter>Source Files\gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

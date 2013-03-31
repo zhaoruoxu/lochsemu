@@ -126,6 +126,7 @@
     <ClInclude Include="gui\msgpanel.h" />
     <ClInclude Include="gui\myswitch.h" />
     <ClInclude Include="gui\statpanel.h" />
+    <ClInclude Include="gui\threadpanel.h" />
     <ClInclude Include="gui\tracepanel.h" />
     <ClInclude Include="instcontext.h" />
     <ClInclude Include="memory.h" />
@@ -177,6 +178,7 @@
     <ClCompile Include="gui\msgpanel.cpp" />
     <ClCompile Include="gui\myswitch.cpp" />
     <ClCompile Include="gui\statpanel.cpp" />
+    <ClCompile Include="gui\threadpanel.cpp" />
     <ClCompile Include="gui\tracepanel.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
