@@ -46,20 +46,12 @@ void AdvancedDebugger::AnalyzeWinMain( PreExecuteEvent &event )
     static const u32 ExitEng    = 0x19;
 
     for (u32 addr = eip + ExitBegin; addr <= eip + ExitEng; addr++) {
-        InstPtr pinst = m_disasm->GetInst(addr);
+        InstPtr pinst = m_disasm->GetInst(event.Cpu, addr);
         if (pinst == NULL) continue;
         if (strstr(pinst->TargetFuncName, "exit") != NULL) {
-            MarkWinMain(eip);
+            m_disasm->GetInst(event.Cpu, eip)->Desc = "WinMain";
+            LxInfo("WinMain() found at %08x\n", eip);
+            GetEngine()->BreakOnNextInst("WinMain");
         }
     }
-}
-
-void AdvancedDebugger::MarkWinMain( u32 addr )
-{
-    m_disasm->GetInst(addr)->Desc = "WinMain";
-    LxInfo("WinMain() found at %08x\n", addr);
-//     if (m_debugger->GetBreakpoint(addr) == NULL) {
-//         m_debugger->AddBreakpoint(addr, "winmain");
-//     }
-    GetEngine()->BreakOnNextInst("WinMain");
 }

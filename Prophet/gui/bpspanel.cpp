@@ -20,6 +20,7 @@ BreakpointsPanel::BreakpointsPanel( wxWindow *parent, ProphetFrame *dad )
 
 BreakpointsPanel::~BreakpointsPanel()
 {
+    SAFE_DELETE(m_popup);
 }
 
 void BreakpointsPanel::UpdateData( ProEngine *eng )

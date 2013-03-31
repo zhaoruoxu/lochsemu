@@ -7,6 +7,7 @@
 #include "instruction.h"
 #include "memory.h"
 #include "process.h"
+#include "emulator.h"
 
 
 InstSection::InstSection( InstMem *mem, InstPool &pool, u32 base, u32 size )
@@ -129,9 +130,6 @@ InstPtr InstMem::GetInst( u32 addr ) const
 Disassembler::Disassembler(ProEngine *engine)
     : m_engine(engine)
 {
-    m_dataUpdateHandler = nullptr;
-    //m_lastSec           = NULL;
-    m_currProcessor     = NULL;
 }
 
 Disassembler::~Disassembler()
@@ -139,25 +137,26 @@ Disassembler::~Disassembler()
 
 }
 
-void Disassembler::OnPreExecute( PreExecuteEvent &event )
+void Disassembler::Initialize()
 {
-    m_currProcessor = event.Cpu;
-
-    Disassemble(m_currProcessor->EIP);
+    m_debugger = m_engine->GetDebugger();
 }
 
-InstPtr Disassembler::Disassemble( u32 eip )
+void Disassembler::OnPreExecute( PreExecuteEvent &event )
 {
-    Assert(m_currProcessor != NULL);
+    Disassemble(event.Cpu, event.Cpu->EIP);
+}
 
-    Section *sec = m_currProcessor->Mem->GetSection(eip);
+InstPtr Disassembler::Disassemble( const Processor *cpu, u32 eip )
+{
+    Section *sec = LxEmulator.Mem()->GetSection(eip);
 
     InstSection *instSec = m_instMem.CreateSection(sec->Base(), sec->Size());
 
 
     if (!instSec->Contains(eip)) {
         SyncObjectLock lock(m_instMem);
-        RecursiveDisassemble(m_currProcessor, eip, instSec, eip);
+        RecursiveDisassemble(cpu, eip, instSec, eip);
         instSec->UpdateIndices();
     }
 
@@ -174,7 +173,7 @@ void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, InstSect
         if (sec->Contains(eip)) return;     // already disassembled
 
         InstPtr inst = sec->Alloc(eip);
-        LxDecode(cpu->Mem->GetRawData(eip), (Instruction *) inst, eip);
+        LxDecode(LxEmulator.Mem()->GetRawData(eip), (Instruction *) inst, eip);
         AttachApiInfo(cpu, eip, sec, inst);
 
         u32 opcode = inst->Main.Inst.Opcode;
@@ -250,7 +249,7 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *se
 //             strncpy(inst->TargetModuleName, info->Name, sizeof(inst->TargetModuleName));
     }
 
-    const ApiInfo *info = cpu->Proc()->GetApiInfoFromAddress(target);
+    const ApiInfo *info = LxEmulator.Proc()->GetApiInfoFromAddress(target);
     if (info) {
         //Assert(strncmp(inst->TargetModuleName, info->ModuleName.c_str(), sizeof(inst->TargetModuleName)) == 0);
         strncpy(inst->TargetModuleName, info->ModuleName.c_str(), sizeof(inst->TargetModuleName));
@@ -260,24 +259,41 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *se
 
 void Disassembler::UpdateInstContext( InstContext *ctx, u32 eip ) const
 {
-    Assert(m_currProcessor);
-
-    InstPtr inst    = m_instMem.GetInst(eip == 0 ? m_currProcessor->EIP : eip);
+    InstPtr inst    = m_instMem.GetInst(eip);
     ctx->Inst       = inst;
 }
 
 InstPtr Disassembler::GetInst( u32 eip )
 {
     InstPtr pinst = m_instMem.GetInst(eip);
+
+    const Processor *cpu = m_debugger->GetCurrentThread()->CPU();
+    if (cpu == NULL) {
+        LxFatal("Current processor is NULL\n");
+    }
+
     if (NULL == pinst)
-        pinst = Disassemble(eip);
+        pinst = Disassemble(cpu, eip);
+    return pinst;
+}
+
+InstPtr Disassembler::GetInst( const Processor *cpu, u32 eip )
+{
+    InstPtr pinst = m_instMem.GetInst(eip);
+    if (NULL == pinst)
+        pinst = Disassemble(cpu, eip);
     return pinst;
 }
 
 const InstSection * Disassembler::GetInstSection( u32 addr )
 {
-    if (m_instMem.GetInst(addr) == NULL)
-        Disassemble(addr);
+    if (m_instMem.GetInst(addr) == NULL) {
+        const Processor *cpu = m_debugger->GetCurrentThread()->CPU();
+        if (cpu == NULL) {
+            LxFatal("Current processor is NULL\n");
+        }
+        Disassemble(cpu, addr);
+    }
     return m_instMem.GetSection(addr);
 }
 

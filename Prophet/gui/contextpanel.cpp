@@ -73,6 +73,8 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
 
     wxString mod = wxString::Format("Module [%s] at %08X", m_data.ModuleName, m_data.ModuleImageBase);
     dc.DrawText(mod, 0, h);
+    h += m_lineHeight;
+    dc.DrawText(wxString::Format("Thread Int[%d] Ext[%x]", m_data.Tid, m_data.ExternalTid), 0, h);
     h += m_lineHeight + HalfLine;
 
     wxSize mySize = GetSize();

@@ -386,7 +386,7 @@ void ProphetFrame::OnRemoveBreakpoint( wxCommandEvent &event )
     m_cpuPanel->Refresh();
 }
 
-void ProphetFrame::PreExecSingleStepCallback( const Processor *cpu )
+void ProphetFrame::OnPreExecSingleStep( const Processor *cpu )
 {
     InstContext ctx;
     m_engine->GetInstContext(cpu, &ctx);
@@ -558,7 +558,12 @@ void ProphetFrame::OnRefresh()
 
 void ProphetFrame::OnPreExecute( PreExecuteEvent &event )
 {
-    m_cpuPanel->OnPreExecute(event);
+    //m_cpuPanel->OnPreExecute(event);
+}
+
+void ProphetFrame::OnThreadStateChange( const Thread *thrd )
+{
+    LxWarning("Thread state change: %d\n", thrd->IntID);
 }
 
 // void ProphetFrame::OnPostExecute( PostExecuteEvent &event )

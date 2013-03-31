@@ -29,7 +29,7 @@ public:
     u32         GetCurrentEip() const { return m_currEip; }
     u32         GetSelectedEip() const { return m_currSelEip; }
 
-    void        OnPreExecute(PreExecuteEvent &event);
+    //void        OnPreExecute(PreExecuteEvent &event);
     void        OnProcessPostLoad(ProcessPostLoadEvent &event);
 
 private:
@@ -44,11 +44,12 @@ private:
     wxPoint     GetCurrentScrolledPos() const;
     void        TrackMemory(u32 instEip);
 private:
-    bool        m_isbusy;
+    bool            m_isbusy;
     ProphetFrame *  m_dad;
-    wxMenu *    m_popup;
-    ProEngine *   m_engine;
-    const Processor *   m_cpu;
+    wxMenu *        m_popup;
+    ProEngine *     m_engine;
+    ProDebugger *   m_debugger;
+    //const Processor *   m_cpu;
     Disassembler *  m_disasm;
     const InstSection *     m_insts;
 

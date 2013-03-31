@@ -55,6 +55,9 @@ struct InstContext {
     std::vector<MemAccess>  MRs;
     std::vector<MemAccess>  MWs;
 
+    int                 Tid;
+    ThreadID            ExternalTid;
+
     InstContext() {
         ZeroMemory(Regs, sizeof(Regs));
         ZeroMemory(Flags, sizeof(Flags));

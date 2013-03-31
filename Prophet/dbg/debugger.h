@@ -9,8 +9,11 @@
 #include "breakpoint.h"
 #include "instcontext.h"
 #include "event.h"
+#include "process.h"
 
 class ProDebugger : public ISerializable {
+public:
+    static const int MaxThreads = Process::MaximumThreads;
 public:
     enum State {
         STATE_RUNNING,
@@ -37,8 +40,12 @@ public:
     void        OnStepOut();
     void        OnRun();
     void        OnRunNoBp();
-    void        SetState(State s);
-    State       GetState() const { return m_state; }
+    void        SetCurrentThread(int tid);
+    Thread *    GetCurrentThread() { Assert(m_threads[m_currTid]); return m_threads[m_currTid]; }
+    const Thread *  GetCurrentThread() const { Assert(m_threads[m_currTid]); return m_threads[m_currTid]; }
+    int         GetCurrentThreadId() const { return m_currTid; }
+    void        SetState(int tid, State s);
+    State       GetState(int tid) const { Assert(m_threads[tid] != NULL); return m_state[tid]; }
     void        AddBreakpoint(u32 eip, const std::string &desc);
     void        ToggleBreakpoint(u32 eip);
     void        RemoveBreakpoint(u32 eip);
@@ -47,27 +54,32 @@ public:
     int         GetNumBreakpoints() const { return (int) m_breakpoints.size(); }
     void        OnTerminate();
 
-    void        UpdateInstContext(InstContext *ctx) const;
-    void        UpdateTraceContext(TraceContext *ctx, u32 eip) const;
+    void        UpdateInstContext(const Processor *cpu, InstContext *ctx) const;
+    void        UpdateTraceContext(const Processor *cpu, TraceContext *ctx, u32 eip) const;
 
     void        Serialize(Json::Value &root) const override;
     void        Deserialize(Json::Value &root) override;
 private:
     void        DoPreExecSingleStep(const Processor *cpu, const Instruction *inst);
     void        CheckBreakpoints(const Processor *cpu, const Instruction *inst);
-    //void        AnalyzeCRTEntry(const Processor *cpu, const Instruction *inst);
 private:
-    State               m_state;
-    u32                 m_stepOverEip;
     ProEngine *         m_engine;
     Archive *           m_archive;
-    Semaphore           m_semaphore;
-    const Processor *   m_currProcessor;
-    const Instruction * m_currInst;
+
+    Thread *            m_threads[MaxThreads];
+
+    State               m_state[MaxThreads];
+    u32                 m_stepOverEip[MaxThreads];
+    Semaphore *         m_semaphore[MaxThreads];
+    const Processor *   m_cpu[MaxThreads];
+    const Instruction * m_currInst[MaxThreads];
 
     std::vector<Breakpoint>     m_breakpoints;
-    std::vector<MemAccess>      m_mrs;
-    std::vector<MemAccess>      m_mws;
+    std::vector<MemAccess>      m_mrs[MaxThreads];
+    std::vector<MemAccess>      m_mws[MaxThreads];
+
+    int                 m_currTid;  // Current thread id
+    bool                m_switchThreadOnBreak;
 };
 
 #endif // __PROPHET_DEBUGGER_H__

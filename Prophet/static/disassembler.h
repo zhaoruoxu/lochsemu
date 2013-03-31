@@ -100,28 +100,26 @@ private:
 
 class Disassembler {
 public:
-    typedef std::function<void (InstSection *insts, const Processor *cpu)>    DataUpdateHandler;
+    //typedef std::function<void (InstSection *insts, const Processor *cpu)>    DataUpdateHandler;
     
 public:
     Disassembler(ProEngine *engine);
     virtual ~Disassembler();
 
-    void        RegisterDataUpdateHandler(DataUpdateHandler h) {
-        m_dataUpdateHandler = h;
-    }
-
+    void        Initialize();
     void        OnPreExecute(PreExecuteEvent &event);
-    InstPtr     Disassemble(u32 eip);
+    InstPtr     Disassemble(const Processor *cpu, u32 eip);
     void        UpdateInstContext(InstContext *ctx, u32 eip) const;
     InstPtr     GetInst(u32 eip);
+    InstPtr     GetInst(const Processor *cpu, u32 eip);
     const InstSection * GetInstSection(u32 addr);
 private:
     void        RecursiveDisassemble(const Processor *cpu, u32 eip, InstSection *sec, u32 entryEip);
     void        AttachApiInfo(const Processor *cpu, u32 eip, InstSection *sec, InstPtr inst);
 private:
     ProEngine *         m_engine;
-    const Processor *   m_currProcessor;
-    DataUpdateHandler   m_dataUpdateHandler;
+    ProDebugger *       m_debugger;
+    //DataUpdateHandler   m_dataUpdateHandler;
     //const Section *     m_lastSec;
     InstMem             m_instMem;
 };

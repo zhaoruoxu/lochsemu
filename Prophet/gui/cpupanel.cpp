@@ -22,7 +22,7 @@ CpuPanel::CpuPanel( wxWindow *parent, ProphetFrame *dad, ProEngine *engine ) :
     Bind(wxEVT_MIDDLE_DOWN, &CpuPanel::OnMiddleDown,    this, wxID_ANY);
 
     m_insts         = NULL;
-    m_cpu           = NULL;
+    //m_cpu           = NULL;
     m_currSelEip    = 0;
     m_currEip       = 0;
     m_isbusy        = false;
@@ -282,6 +282,7 @@ void CpuPanel::OnRightDown( wxMouseEvent& event )
 
 void CpuPanel::OnPopupShowCurrInst( wxCommandEvent &event )
 {
+    //Assert(m_cpu);
     OnCurrentEipChange(m_currEip);
 }
 
@@ -330,7 +331,6 @@ void CpuPanel::OnPopupTaintReg( wxCommandEvent &event )
 
 void CpuPanel::OnPopupTrackMemory( wxCommandEvent &event )
 {
-    if (m_cpu == NULL) return;
     if (GetSelectedEip() != 0) {
         TrackMemory(GetSelectedEip());
     } else if (GetCurrentEip() != 0) {
@@ -357,21 +357,22 @@ void CpuPanel::TrackMemory( u32 instEip )
     if (ch == -1) return;
 
     u32 memAddr = 0;
+    const Processor *cpu = m_debugger->GetCurrentThread()->CPU();
     switch (ch) {
     case 0:
         {
             if (IsMemoryArg(inst->Main.Argument1))
-                memAddr = m_cpu->Offset32(inst->Main.Argument1);
+                memAddr = cpu->Offset32(inst->Main.Argument1);
         } break;
     case 1:
         {
             if (IsMemoryArg(inst->Main.Argument2)) 
-                memAddr = m_cpu->Offset32(inst->Main.Argument2);
+                memAddr = cpu->Offset32(inst->Main.Argument2);
         } break;
     case 2:
         {
             if (IsMemoryArg(inst->Main.Argument3))
-                memAddr = m_cpu->Offset32(inst->Main.Argument3);
+                memAddr = cpu->Offset32(inst->Main.Argument3);
         } break;
     case 3:
         {
@@ -400,13 +401,14 @@ void CpuPanel::TrackMemory( u32 instEip )
 void CpuPanel::OnProcessPostLoad( ProcessPostLoadEvent &event )
 {
     m_disasm = m_engine->GetDisassembler();
+    m_debugger = m_engine->GetDebugger();
 }
 
-void CpuPanel::OnPreExecute( PreExecuteEvent &event )
-{
-    m_cpu = event.Cpu;
-    m_currEip = event.Cpu->EIP;
-}
+// void CpuPanel::OnPreExecute( PreExecuteEvent &event )
+// {
+//     m_cpu = event.Cpu;
+//     m_currEip = event.Cpu->EIP;
+// }
 
 void CpuPanel::ReportBusy( bool isbusy )
 {
@@ -415,5 +417,6 @@ void CpuPanel::ReportBusy( bool isbusy )
 
 void CpuPanel::OnMiddleDown( wxMouseEvent &event )
 {
-    m_dad->PreExecSingleStepCallback(m_cpu);
+    const Processor *cpu = m_debugger->GetCurrentThread()->CPU();
+    m_dad->OnPreExecSingleStep(cpu);
 }

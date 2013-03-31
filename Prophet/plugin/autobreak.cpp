@@ -37,7 +37,7 @@ void AutoBreak::OnPreExecute( PreExecuteEvent &event, bool firstTime )
     if (event.Cpu->GetCurrentModule() == 0) {
         // come to main module for the first time
         m_mainEntryFound = true;
-        m_disasm->GetInst(event.Cpu->EIP)->Desc = "Main module entry";
+        m_disasm->GetInst(event.Cpu, event.Cpu->EIP)->Desc = "Main module entry";
         GetEngine()->RefreshGUI();
         if (m_breakOnMainModuleEntry) {
             GetEngine()->BreakOnNextInst("Main module entry");
@@ -64,7 +64,7 @@ void AutoBreak::OnProcessPostLoad( ProcessPostLoadEvent &event, bool firstTime )
         m_tracer->Enable(false);
     }
     if (m_breakOnEntry) {
-        m_debugger->SetState(ProDebugger::STATE_SINGLESTEP);
+        m_debugger->SetState(m_debugger->GetCurrentThreadId(), ProDebugger::STATE_SINGLESTEP);
     }
 }
 

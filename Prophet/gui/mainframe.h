@@ -12,7 +12,8 @@ public:
     ~ProphetFrame();
 
 
-    void    PreExecSingleStepCallback(const Processor *cpu);
+    void    OnPreExecSingleStep(const Processor *cpu);
+    void    OnThreadStateChange(const Thread *thrd);
 
     CpuPanel *              GetCpuPanel() const { return m_cpuPanel; }
     ContextPanel *          GetRegPanel() const { return m_contextPanel; }

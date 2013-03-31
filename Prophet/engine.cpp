@@ -249,14 +249,14 @@ void ProEngine::SetGuiFrame( ProphetFrame *frame )
 
 void ProEngine::GetInstContext(const Processor *cpu, InstContext *ctx) const
 {
-    m_disassembler.UpdateInstContext(ctx, 0);
-    m_debugger.UpdateInstContext(ctx);
+    m_disassembler.UpdateInstContext(ctx, cpu->EIP);
+    m_debugger.UpdateInstContext(cpu, ctx);
     m_taint.UpdateInstContext(cpu, ctx);
 }
 
 void ProEngine::GetTraceContext( const Processor *cpu, TraceContext *ctx, u32 eip ) const
 {
-    m_debugger.UpdateTraceContext(ctx, eip);
+    m_debugger.UpdateTraceContext(cpu, ctx, eip);
     m_disassembler.UpdateInstContext(ctx, eip);
     m_taint.UpdateInstContext(cpu, ctx);
 }
@@ -347,7 +347,7 @@ void ProEngine::BreakOnNextInst(const char *desc)
     if (desc != NULL)
         LxInfo("Prophet break: %s\n", desc);
     MessageBeep(MB_ICONASTERISK);
-    m_debugger.SetState(ProDebugger::STATE_SINGLESTEP);
+    m_debugger.SetState(m_debugger.GetCurrentThreadId(), ProDebugger::STATE_SINGLESTEP);
 }
 
 void ProEngine::RefreshGUI()
