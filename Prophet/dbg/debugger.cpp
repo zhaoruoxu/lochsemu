@@ -301,6 +301,9 @@ void ProDebugger::UpdateTraceContext( const Processor *cpu, TraceContext *ctx, u
 
     ctx->MRs = m_mrs[cpu->IntID];
     ctx->MWs = m_mws[cpu->IntID];
+
+    ctx->Tid = cpu->IntID;
+    ctx->ExternalTid = cpu->Thr()->ExtID;
 }
 
 void ProDebugger::Serialize( Json::Value &root ) const 
