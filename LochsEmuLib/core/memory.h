@@ -84,6 +84,11 @@ public:
     u32             FindFreePages   (u32 base, u32 size);
 
     /*
+     * Find the emulated address from physical address
+     */
+    bool            PhysToEmulated  (u32 phys, u32p emulated);
+
+    /*
      * Find maximum continuous empty pages
      * return: actual size
      */

@@ -45,9 +45,11 @@ void Thread::InitStack()
 {
     SyncObjectLock lock(*m_memory);
 
-    u32 base = Proc()->Emu()->InquireStackBase();
     if (m_initInfo.StackSize == 0)
-        m_initInfo.StackSize = 0x1000000;       // 1MB
+        m_initInfo.StackSize = Proc()->Emu()->InquireStackBase() - 
+        Proc()->Emu()->InquireStackLimit();
+    u32 base = Proc()->Emu()->InquireStackBase() - m_initInfo.StackSize;
+
     base = m_memory->FindFreePages(base, m_initInfo.StackSize);
 
     LxInfo("Initializing Stack for thread[%x], base %08x, size 0x%x\n", ExtID, 

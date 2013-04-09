@@ -58,6 +58,34 @@ uint Kernel32_CompareStringW(Processor *cpu)
 	RET_PARAMS(6);
 }
 
+uint Kernel32_CreateEventA(Processor *cpu)
+{
+    if (PARAM_PTR(0) != 0) {
+        LxFatal("SecurityAttributes in CreateEventA() is not NULL\n");
+    }
+    RET_VALUE = (u32) CreateEventA(
+        NULL,
+        (BOOL)      PARAM(1),
+        (BOOL)      PARAM(2),
+        (LPCSTR)    PARAM_PTR(3)
+        );
+    RET_PARAMS(4);
+}
+
+uint Kernel32_CreateEventW(Processor *cpu)
+{
+    if (PARAM_PTR(0) != 0) {
+        LxFatal("SecurityAttributes in CreateEventW() is not NULL\n");
+    }
+    RET_VALUE = (u32) CreateEventW(
+        NULL,
+        (BOOL)      PARAM(1),
+        (BOOL)      PARAM(2),
+        (LPCWSTR)    PARAM_PTR(3)
+        );
+    RET_PARAMS(4);
+}
+
 uint Kernel32_CreateFileA(Processor *cpu)
 {
     LPCSTR lpFileName = (LPCSTR) cpu->GetStackParamPtr32(0);
@@ -217,6 +245,15 @@ uint Kernel32_ExitThread(Processor *cpu)
 
     cpu->Proc()->ThreadExit(id, exitCode);
     RET_PARAMS(1);
+}
+
+uint Kernel32_FileTimeToLocalFileTime(Processor *cpu)
+{
+    RET_VALUE = (u32) FileTimeToLocalFileTime(
+        (const FILETIME *)  PARAM_PTR(0),
+        (LPFILETIME)        PARAM_PTR(1)
+        );
+    RET_PARAMS(2);
 }
 
 uint Kernel32_FindActCtxSectionStringW(Processor *cpu)
@@ -543,6 +580,14 @@ uint Kernel32_GetLocaleInfoW(Processor *cpu)
         (int)       PARAM(3)
         );
     RET_PARAMS(4);
+}
+
+uint Kernel32_GetLocalTime(Processor *cpu)
+{
+    GetLocalTime(
+        (LPSYSTEMTIME)  PARAM_PTR(0)
+        );
+    RET_PARAMS(1);
 }
 
 uint Kernel32_GetLongPathNameA(Processor *cpu)
@@ -1243,6 +1288,14 @@ uint Kernel32_ReadFile(Processor *cpu)
     return 5;
 }
 
+uint Kernel32_ResumeThread(Processor *cpu)
+{
+    RET_VALUE = (u32) ResumeThread(
+        (HANDLE)        PARAM(0)
+        );
+    RET_PARAMS(3);
+}
+
 uint Kernel32_RtlUnwind(Processor *cpu)
 {
     //NOT_IMPLEMENTED();
@@ -1316,9 +1369,17 @@ uint Kernel32_SetConsoleTitleA(Processor *cpu)
 uint Kernel32_SetErrorMode(Processor *cpu)
 {
 	RET_VALUE = (u32) SetErrorMode(
-		(UINT)	PARAM(0)
+		(UINT)	    PARAM(0)
 		);
 	RET_PARAMS(1);
+}
+
+uint Kernel32_SetEvent(Processor *cpu)
+{
+    RET_VALUE = (u32) SetEvent(
+        (HANDLE)    PARAM(0)
+        );
+    RET_PARAMS(1);
 }
 
 uint Kernel32_SetFileApisToOEM(Processor *cpu)
@@ -1441,6 +1502,18 @@ uint Kernel32_UnhandledExceptionFilter(Processor *cpu)
     RET_PARAMS(1);
 }
 
+u32 FindAddress(LPVOID lpAddress, size_t s)
+{
+    LPVOID lpRet;
+    if (lpAddress == NULL) {
+        lpRet = (LPVOID) LxEmulator.Mem()->FindFreePages(0x2000000, (u32) s);
+    } else {
+        lpRet = (LPVOID) (((u32) lpAddress) & PAGE_ALLOC_MASK);
+    }
+    Assert( (((u32) lpRet) & ~PAGE_ALLOC_MASK) == 0 );
+    return (u32) lpRet;
+}
+
 uint Kernel32_VirtualAlloc(Processor *cpu)
 {
     LPVOID lpAddress    = (LPVOID) cpu->GetStackParam32(0); // Don't need pointer convertion
@@ -1452,41 +1525,22 @@ uint Kernel32_VirtualAlloc(Processor *cpu)
     u32 result;
 
     SyncObjectLock lock(*cpu->Mem);
-
-    switch (dwType) {
-        case MEM_RESERVE:
-            {
-                if (lpAddress == NULL) {
-                    lpAddress = (LPVOID) LxEmulator.Mem()->FindFreePages(0x2000000, (u32) s);
-                } else {
-                    lpAddress = (LPVOID) (((u32) lpAddress) & PAGE_ALLOC_MASK);
-                }
-                Assert( (((u32) lpAddress) & ~PAGE_ALLOC_MASK) == 0 );
-                lr = LxEmulator.Mem()->Reserve(SectionDesc("v-alloc", cpu->GetCurrentModule()), 
-                    (u32) lpAddress, (u32) s, dwProtect);
-                result = LX_FAILED(lr) ? 0 : (u32) lpAddress;
-            } break;
-        case MEM_COMMIT:
-            {
-                lr = LxEmulator.Mem()->Commit((u32) lpAddress, (u32) s, dwProtect);
-                result = LX_FAILED(lr) ? 0 : (u32) lpAddress;
-            } break;
-        case MEM_RESERVE | MEM_COMMIT:
-            {
-                if (lpAddress == NULL) {
-                    lpAddress = (LPVOID) LxEmulator.Mem()->FindFreePages(0x2000000, (u32) s);
-                } else {
-                    lpAddress = (LPVOID) (((u32) lpAddress) & PAGE_ALLOC_MASK);
-                }
-                Assert( (((u32) lpAddress) & ~PAGE_ALLOC_MASK) == 0 );
-                lr = LxEmulator.Mem()->Alloc(SectionDesc("v-alloc", cpu->GetCurrentModule()), 
-                    (u32) lpAddress, (u32) s, dwProtect);
-                result = LX_FAILED(lr) ? 0 : (u32) lpAddress;
-            } break;
-        default:
-            NOT_IMPLEMENTED();
+    if (dwType == MEM_RESERVE) {
+        u32 addr = FindAddress(lpAddress, s);
+        lr = LxEmulator.Mem()->Reserve(SectionDesc("v-alloc", cpu->GetCurrentModule()), 
+            addr, (u32) s, dwProtect);
+        result = LX_FAILED(lr) ? 0 : addr;
+    } else if (dwType == (MEM_RESERVE | MEM_COMMIT) || (dwType == MEM_COMMIT && lpAddress == NULL)) {
+        u32 addr = FindAddress(lpAddress, s);
+        lr = LxEmulator.Mem()->Alloc(SectionDesc("v-alloc", cpu->GetCurrentModule()), 
+            addr, (u32) s, dwProtect);
+        result = LX_FAILED(lr) ? 0 : addr;
+    } else if (dwType == MEM_COMMIT) {
+        lr = LxEmulator.Mem()->Commit((u32) lpAddress, (u32) s, dwProtect);
+        result = LX_FAILED(lr) ? 0 : (u32) lpAddress;
+    } else {
+        LxFatal("shit happens\n");
     }
-    
     cpu->EAX = result;
     return 4;
 }

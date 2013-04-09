@@ -168,6 +168,10 @@ LxResult Processor::Execute( const Instruction *inst )
     // quick hack for 'rep ret' instructions; thanks to damn AMD
     bool isRet = inst->Main.Inst.BranchType == RetType;
 
+    if (inst->Main.Prefix.LockPrefix) {
+        Mem->Lock();
+    }
+
     const u32 opcode = inst->Main.Inst.Opcode;
     // Thanks to shitty MOVQ_F30F7E
     if (inst->Main.Prefix.RepPrefix && !isRet && opcode != 0x0f7e) {
@@ -190,6 +194,10 @@ LxResult Processor::Execute( const Instruction *inst )
         SetExecFlag(LX_EXEC_PREFIX_REPNE);
     } else {
         (this->*h)(inst);
+    }
+
+    if (inst->Main.Prefix.LockPrefix) {
+        Mem->Unlock();
     }
 
     RET_SUCCESS();

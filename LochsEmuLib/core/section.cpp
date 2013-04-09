@@ -6,7 +6,8 @@ BEGIN_NAMESPACE_LOCHSEMU()
 
 
 Section::Section( const SectionDesc &desc, u32 base, u32 size )
-: m_desc(desc), m_base(base), m_size(size), m_pages(PAGE_NUM(size))
+: m_desc(desc), m_base(base), m_size(size), m_pages(PAGE_NUM(size)), 
+PhysAddress((u32) this)
 {
     Assert(PAGE_LOW(base) == 0);
     Assert(PAGE_LOW(size) == 0);

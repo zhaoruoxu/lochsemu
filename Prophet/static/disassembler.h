@@ -44,7 +44,8 @@ public:
     }
     bool            Contains(u32 addr) const 
     {
-        AssertInRanage(addr);
+        //AssertInRanage(addr);
+        if (!IsInRange(addr)) return false;
         return m_data[addr - m_base] != NULL;
     }
     bool            IsInRange(u32 addr) const

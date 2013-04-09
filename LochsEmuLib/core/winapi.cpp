@@ -28,7 +28,8 @@ const char *WrappedLibraryTable[] = {
     /*  18 */ "shell32.dll",
 	/*  19 */ "oleaut32.dll",
     /*  20 */ "netapi32.dll",
-    /*  21 */ "wldap32.dll"
+    /*  21 */ "wldap32.dll",
+    /*  22 */ "wsock32.dll",
 };
 
 WinAPIInfo WinAPIInfoTable[] = {
@@ -39,6 +40,8 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "AreFileApisANSI", Kernel32_AreFileApisANSI },
     { 01, 0, "CloseHandle", Kernel32_CloseHandle },
 	{ 01, 0, "CompareStringW", Kernel32_CompareStringW },
+    { 01, 0, "CreateEventA", Kernel32_CreateEventA },
+    { 01, 0, "CreateEventW", Kernel32_CreateEventW },
     { 01, 0, "CreateFileA", Kernel32_CreateFileA },
     { 01, 0, "CreateFileW", Kernel32_CreateFileW },
 	{ 01, 0, "CreateProcessA", kernel32_CreateProcessA },
@@ -52,6 +55,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "EnterCriticalSection", Kernel32_EnterCriticalSection },
     { 01, 0, "ExitProcess", Kernel32_ExitProcess },
     { 01, 0, "ExitThread", Kernel32_ExitThread },
+    { 01, 0, "FileTimeToLocalFileTime", Kernel32_FileTimeToLocalFileTime },
     { 01, 0, "FindActCtxSectionStringW", Kernel32_FindActCtxSectionStringW },
 	{ 01, 0, "FindAtomA", Kernel32_FindAtomA },
 	{ 01, 0, "FindClose", Kernel32_FindClose },
@@ -86,6 +90,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "GetFileType", Kernel32_GetFileType },
     { 01, 0, "GetLastError", Kernel32_GetLastError },
     { 01, 0, "GetLocaleInfoW", Kernel32_GetLocaleInfoW },
+    { 01, 0, "GetLocalTime", Kernel32_GetLocalTime },
     { 01, 0, "GetLongPathNameA", Kernel32_GetLongPathNameA },
     { 01, 0, "GetLongPathNameW", Kernel32_GetLongPathNameW },
     { 01, 0, "GetModuleFileNameA", Kernel32_GetModuleFileNameA },
@@ -156,6 +161,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "RaiseException", Kernel32_RaiseException },
     { 01, 0, "ReadConsoleInputA", Kernel32_ReadConsoleInputA },
     { 01, 0, "ReadFile", Kernel32_ReadFile },
+    { 01, 0, "ResumeThread", Kernel32_ResumeThread },
     { 01, 0, "RtlUnwind", Kernel32_RtlUnwind },
     { 01, 0, "SearchPathA", Kernel32_SearchPathA },
     { 01, 0, "SetFileAttributesA", Kernel32_SetFileAttributesA },
@@ -163,6 +169,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "SetConsoleMode", Kernel32_SetConsoleMode },
     { 01, 0, "SetConsoleTitleA", Kernel32_SetConsoleTitleA },
     { 01, 0, "SetErrorMode", Kernel32_SetErrorMode },
+    { 01, 0, "SetEvent", Kernel32_SetEvent },
 	{ 01, 0, "SetFileApisToOEM", Kernel32_SetFileApisToOEM },
     { 01, 0, "SetFilePointer", Kernel32_SetFilePointer },
     { 01, 0, "SetHandleCount", Kernel32_SetHandleCount },
@@ -187,6 +194,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     /* user32.dll */
     { 02, 0, "AppendMenuA", User32_AppendMenuA },
     { 02, 0, "BeginPaint", User32_BeginPaint },
+    { 02, 0, "CharNextA", User32_CharNextA },
 	{ 02, 0, "CharUpperW", User32_CharUpperW },
 	{ 02, 0, "CreateDialogParamA", User32_CreateDialogParamA },
     { 02, 0, "CreateWindowExA", User32_CreateWindowExA },
@@ -202,11 +210,13 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 02, 0, "EnumThreadWindows", User32_EnumThreadWindows },
 	{ 02, 0, "FillRect", User32_FillRect },
     { 02, 0, "GetActiveWindow", User32_GetActiveWindow },
+    { 02, 0, "GetClassInfoA", User32_GetClassInfoA },
     { 02, 0, "GetDC", User32_GetDC },
     { 02, 0, "GetDesktopWindow", User32_GetDesktopWindow },
     { 02, 0, "GetDlgItem", User32_GetDlgItem },
 	{ 02, 0, "GetDlgItemInt", User32_GetDlgItemInt },
-    { 02, 0, "GetDlgItemTextA",User32_GetDlgItemTextA},
+    { 02, 0, "GetDlgItemTextA",User32_GetDlgItemTextA },
+    { 02, 0, "GetKeyboardType", User32_GetKeyboardType },
     { 02, 0, "GetLastActivePopup", User32_GetLastActivePopup },
     { 02, 0, "GetMenu", User32_GetMenu },
     { 02, 0, "GetMessageA", User32_GetMessageA },
@@ -287,8 +297,12 @@ WinAPIInfo WinAPIInfoTable[] = {
     {  8, 0, "CryptAcquireContextW", Advapi32_CryptAcquireContextW },
     {  8, 0, "CryptGenRandom", Advapi32_CryptGenRandom },
     {  8, 0, "CryptReleaseContext",Advapi32_CryptReleaseContext },
+    {  8, 0, "RegCloseKey", Advapi32_RegCloseKey },
+    {  8, 0, "RegEnumKeyExA", Advapi32_RegEnumKeyExA },
     {  8, 0, "RegOpenKeyExA", Advapi32_RegOpenKeyExA },
     {  8, 0, "RegOpenKeyExW", Advapi32_RegOpenKeyExW },
+    {  8, 0, "RegQueryInfoKeyA", Advapi32_RegQueryInfoKeyA },
+    {  8, 0, "RegQueryValueExA", Advapi32_RegQueryValueExA },
     
     /* ws2_32.dll */
     { 16, 0x97, "__WSAFDIsSet", Ws2_32___WSAFDIsSet },
@@ -298,6 +312,8 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 16, 0x04, "connect", Ws2_32_connect },
     { 16, 0xA2, "freeaddrinfo", Ws2_32_freeaddrinfo },
     { 16, 0xA3, "getaddrinfo", Ws2_32_getaddrinfo },
+    { 16, 0x33, "gethostbyaddr", Ws2_32_gethostbyaddr },
+    { 16, 0x34, "gethostbyname", Ws2_32_gethostbyname },
     { 16, 0x39, "gethostname", Ws2_32_gethostname },
     { 16, 0x05, "getpeername", Ws2_32_getpeername },
     { 16, 0x06, "getsockname", Ws2_32_getsockname },
@@ -337,6 +353,21 @@ WinAPIInfo WinAPIInfoTable[] = {
     /* netapi32.dll */
     { 20, 0, "NetApiBufferFree", Netapi32_NetApiBufferFree },
     { 20, 0, "NetStatisticsGet", Netapi32_NetStatisticsGet  },
+
+    /* wsock32.dll */
+    { 22, 0, "accept", Ws2_32_accept },
+    { 22, 0, "bind", Ws2_32_bind },
+    { 22, 0, "closesocket", Ws2_32_closesocket },
+    { 22, 0, "gethostbyaddr", Ws2_32_gethostbyaddr },
+    { 22, 0, "gethostbyname", Ws2_32_gethostbyname },
+    { 22, 0, "htons", Ws2_32_htons },
+    { 22, 0, "listen", Ws2_32_listen },
+    { 22, 0, "recv", Ws2_32_recv },
+    { 22, 0, "send", Ws2_32_send },
+    { 22, 0, "shutdown", Ws2_32_shutdown },
+    { 22, 0, "socket", Ws2_32_socket },
+    { 22, 0, "WSAGetLastError", Ws2_32_WSAGetLastError },
+    { 22, 0, "WSAStartup", Ws2_32_WSAStartup },
 };
 
 uint WinAPINotAvailable(Processor *cpu)

@@ -28,10 +28,34 @@ uint User32_BeginPaint(Processor *cpu)
     RET_PARAMS(2);
 }
 
+uint User32_CharNextA(Processor *cpu)
+{
+    u32 emuAddr = PARAM(0);
+    LPCSTR orig = (LPCSTR)  PARAM_PTR(0);
+    LPSTR ret = CharNextA(
+        (LPCSTR)    PARAM_PTR(0)
+        );
+    if (ret == NULL) {
+        RET_VALUE = 0;
+    } else {
+        RET_VALUE = emuAddr + (ret - orig);
+    }
+    RET_PARAMS(1);
+}
+
 uint User32_CharUpperW(Processor *cpu)
 {
-	RET_VALUE = (u32) CharUpperW(
-		(LPWSTR)	PARAM_PTR(0));
+    u32 emuVal = PARAM(0);
+	u32 ret = (u32) CharUpperW(
+		(LPWSTR)	PARAM_PTR(0)
+        );
+
+    if (HIWORD(emuVal) == 0) {
+        RET_VALUE = ret;    // param is a character
+    } else {
+        RET_VALUE = emuVal; // param is lpsz
+    }
+
 	RET_PARAMS(1);
 }
 
@@ -59,8 +83,12 @@ uint User32_CreateDialogParamA(Processor *cpu)
 uint User32_CreateWindowExA(Processor *cpu)
 {
     DWORD dwExStyle = (DWORD) cpu->GetStackParam32(0);
-    LPCSTR lpClassName = (LPCSTR) cpu->GetStackParamPtr32(1);
-    LPCSTR lpWindowName = (LPCSTR) cpu->GetStackParamPtr32(2);
+    LPCSTR lpClassName = (LPCSTR) PARAM(1);
+    if (LxEmulator.Mem()->Contains((u32) lpClassName))
+        lpClassName = (LPCSTR) cpu->GetStackParamPtr32(1);
+    LPCSTR lpWindowName = (LPCSTR) PARAM(2);
+    if (LxEmulator.Mem()->Contains((u32) lpWindowName))
+        lpWindowName = (LPCSTR) cpu->GetStackParamPtr32(2);
     DWORD dwStyle = (DWORD) cpu->GetStackParam32(3);
     int x = (int) cpu->GetStackParam32(4);
     int y = (int) cpu->GetStackParam32(5);
@@ -200,6 +228,36 @@ uint User32_GetActiveWindow(Processor *cpu)
     RET_PARAMS(0);
 }
 
+uint User32_GetClassInfoA(Processor *cpu)
+{
+    LPWNDCLASSA lpWndClass = (LPWNDCLASSA) PARAM_PTR(2);
+    LPCSTR lpClassName = (LPCSTR) PARAM_PTR(1);
+
+    RET_VALUE = (u32) GetClassInfoA(
+        (HINSTANCE)     PARAM(0),
+        lpClassName,
+        lpWndClass
+        );
+
+//     Memory *mem = LxEmulator.Mem();
+//     if (!mem->PhysToEmulated((u32) lpWndClass->lpszClassName, 
+//         (u32p) &lpWndClass->lpszClassName))
+//     {
+//         LxWarning("PhysToEmulated(lpszClassName) failed in GetClassInfoA\n");
+//     }
+//     if (!mem->PhysToEmulated((u32) lpWndClass->lpszMenuName,
+//         (u32p) &lpWndClass->lpszMenuName))
+//     {
+//         LxWarning("PhysToEmulated(lpszMenuName) failed in GetClassInfoA\n");
+//     }
+    
+    
+//     lpWndClass->lpszClassName = (LPCSTR) LxEmulator.Mem()->GetRawData((u32) lpWndClass->lpszClassName);
+//     lpWndClass->lpszMenuName = (LPCSTR) LxEmulator.Mem()->GetRawData((u32) lpWndClass->lpszMenuName);
+
+    RET_PARAMS(3);
+}
+
 uint User32_GetDC(Processor *cpu)
 {
     RET_VALUE = (u32) GetDC(
@@ -244,6 +302,14 @@ uint User32_GetDlgItemTextA(Processor *cpu)
         (int)       PARAM(3)
         );
     RET_PARAMS(4);
+}
+
+uint User32_GetKeyboardType(Processor *cpu)
+{
+    RET_VALUE = (u32) GetKeyboardType(
+        (int)       PARAM(0)
+        );
+    RET_PARAMS(1);
 }
 
 uint User32_GetLastActivePopup(Processor *cpu)

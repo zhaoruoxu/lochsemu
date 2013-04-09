@@ -37,3 +37,7 @@ LochsEmu/pi_data.txt
 LochsEmu.sdf
 *.pyc
 
+LochsEmu/access_log
+LochsEmu/agent_log
+LochsEmu/error_log
+LochsEmu/referer_log

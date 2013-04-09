@@ -123,9 +123,6 @@
     <ClCompile Include="cpu\and.cpp">
       <Filter>Source Files\cpu</Filter>
     </ClCompile>
-    <ClCompile Include="cpu\bt.cpp">
-      <Filter>Source Files\cpu</Filter>
-    </ClCompile>
     <ClCompile Include="cpu\call.cpp">
       <Filter>Source Files\cpu</Filter>
     </ClCompile>
@@ -356,6 +353,9 @@
     </ClCompile>
     <ClCompile Include="simd\simd_arith.cpp">
       <Filter>Source Files\simd</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu\bit_misc.cpp">
+      <Filter>Source Files\cpu</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

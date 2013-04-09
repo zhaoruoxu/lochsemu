@@ -295,6 +295,17 @@ LochsEmu::SectionDesc Memory::GetSectionDesc( u32 address ) const
     return section->GetDesc();
 }
 
+bool Memory::PhysToEmulated( u32 phys, u32p emulated )
+{
+    for (auto &sec : m_sections) {
+        if (phys >= sec->PhysAddress && phys < sec->PhysAddress + sec->Size()) {
+            *emulated = sec->Base() + (phys - sec->PhysAddress);
+            return true;
+        }
+    }
+    return false;
+}
+
 
 
 END_NAMESPACE_LOCHSEMU()

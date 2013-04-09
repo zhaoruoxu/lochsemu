@@ -228,7 +228,7 @@ void CpuPanel::DrawJumpIcon( wxBufferedPaintDC &dc, const InstPtr inst, int inde
 
 void CpuPanel::OnDataUpdate( u32 addr )
 {
-    if (m_insts == NULL || !m_insts->IsInRange(addr)) {
+    if (m_insts == NULL || !m_insts->Contains(addr)) {
         m_insts = m_disasm->GetInstSection(addr);
     }
 

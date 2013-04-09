@@ -125,6 +125,105 @@ uint Ws2_32_getaddrinfo(Processor *cpu)
     RET_PARAMS(4);
 }
 
+// uint Ws2_32_gethostbyname(Processor *cpu)
+// {
+//     hostent * h = gethostbyname(
+//         (const char *)  PARAM_PTR(0)
+//         );
+//     RET_PARAMS(1);
+// }
+
+u32 MapHostent(hostent *t, Processor *cpu)
+{
+    uint len = sizeof(hostent);
+    len += strlen(t->h_name) + 1;
+    char **aliases = t->h_aliases;
+    int aliasesCount = 0;
+    while (*aliases++ != NULL) {
+        len += strlen(*aliases) + 1;
+        aliasesCount++;
+    }
+    len += sizeof(char *) * (aliasesCount+1);
+    char **addrlist = t->h_addr_list;
+    int addrlistCount = 0;
+    while (*addrlist++ != NULL) {
+        len += t->h_length;
+        addrlistCount++;
+    }
+    len += sizeof(char *) * (addrlistCount+1);
+    len = RoundUp(len);
+
+    static u32 Base = 0x900000;
+    SyncObjectLock lock(*cpu->Mem);
+    u32 actualBase = cpu->Mem->FindFreePages(Base, len);
+    V( cpu->Mem->Alloc(SectionDesc("hostent", cpu->GetCurrentModule()),
+        actualBase, len, PAGE_READWRITE) );
+    LxDebug("Allocated memory for hostent at %08x, size %08x\n", actualBase, len);
+    Base += len;
+
+    pbyte mem = cpu->Mem->GetRawData(actualBase);
+    pbyte memstart = mem;
+    ZeroMemory(mem, len);
+
+    // copy struct itself
+    hostent *dest = (hostent *) mem;
+    memcpy(dest, t, sizeof(hostent));
+    mem += sizeof(hostent);
+
+    // copy h_name
+    dest->h_name = (char *) (actualBase + (mem - memstart));
+    strcpy((char *) mem, t->h_name);
+    mem += strlen(t->h_name) + 1;
+
+    // copy h_aliases
+    char **taliases = (char **) mem;
+    dest->h_aliases = (char **) (actualBase + (mem - memstart));
+    mem += (aliasesCount + 1) * sizeof(char *);
+    aliases = t->h_aliases;
+    while (*aliases != NULL) {
+        *taliases = (char *) (actualBase + (mem - memstart));
+        strcpy((char *) mem, *aliases);
+        mem += strlen(*aliases) + 1;
+        aliases++;
+        taliases++;
+    }
+
+    // copy h_addr_list
+    char **taddrlist = (char **) mem;
+    dest->h_addr_list = (char **) (actualBase + (mem - memstart));
+    mem += (addrlistCount + 1) * sizeof(char *);
+    addrlist = t->h_addr_list;
+    while (*addrlist != NULL) {
+        *taddrlist = (char *) (actualBase + (mem - memstart));
+        memcpy(mem, *addrlist, t->h_length);
+        mem += t->h_length;
+        addrlist++;
+        taddrlist++;
+    }
+
+    return actualBase;
+}
+
+uint Ws2_32_gethostbyaddr(Processor *cpu)
+{
+    hostent *r = gethostbyaddr(
+        (const char *)      PARAM_PTR(0),
+        (int)               PARAM(1),
+        (int)               PARAM(2)
+        );
+    RET_VALUE = MapHostent(r, cpu);
+    RET_PARAMS(3);
+}
+
+uint Ws2_32_gethostbyname(Processor *cpu)
+{
+    hostent *r = gethostbyname(
+        (const char *)      PARAM_PTR(0)
+        );
+    RET_VALUE = MapHostent(r, cpu);
+    RET_PARAMS(1);
+}
+
 uint Ws2_32_gethostname(Processor *cpu)
 {
     RET_VALUE = (u32) gethostname(
@@ -227,6 +326,9 @@ uint Ws2_32_recv(Processor *cpu)
         (int)           PARAM(2),
         (int)           PARAM(3)
         );
+
+    LxInfo("recv: len=%d, retval=%d, buf=%s\n", PARAM(2), cpu->EAX, (char *) PARAM_PTR(1));
+
     RET_PARAMS(4);
 }
 

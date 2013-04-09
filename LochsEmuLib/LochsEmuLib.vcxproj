@@ -136,6 +136,7 @@
   <ItemGroup>
     <ClCompile Include="common\parallel.cpp" />
     <ClCompile Include="core\instruction.cpp" />
+    <ClCompile Include="cpu\bit_misc.cpp" />
     <ClCompile Include="cpu\cmovcc.cpp" />
     <ClCompile Include="cpu\cmpxchg.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -166,7 +167,6 @@
     <ClCompile Include="cpu\adc.cpp" />
     <ClCompile Include="cpu\add.cpp" />
     <ClCompile Include="cpu\and.cpp" />
-    <ClCompile Include="cpu\bt.cpp" />
     <ClCompile Include="cpu\call.cpp" />
     <ClCompile Include="cpu\cbw.cpp" />
     <ClCompile Include="cpu\cdq.cpp" />

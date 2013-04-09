@@ -62,19 +62,29 @@ void Processor::Imul_F6_ext5(const Instruction *inst)
 void Processor::Imul_F7_ext5(const Instruction *inst)
 {
     // IMUL r/m32
-    if (inst->Main.Prefix.OperandSize) NOT_IMPLEMENTED();
-
-    u32 val1 = EAX;
-    u32 val2 = ReadOperand32(inst, inst->Main.Argument2, NULL);
-    i64 r = PROMOTE_I64(val1) * PROMOTE_I64(val2);
-    EAX = (u32) r;
-    EDX = (u32) (r >> 32);
-    if (EDX == 0) {
-        CF = OF = 0;
+    if (inst->Main.Prefix.OperandSize) {
+        u16 val1 = AX;
+        u16 val2 = ReadOperand16(inst, inst->Main.Argument2, NULL);
+        i32 r = PROMOTE_I32(val1) * PROMOTE_I32(val2);
+        AX = (u16) r;
+        DX = (u16) (r >> 16);
+        if (DX == 0) {
+            CF = OF = 0;
+        } else {
+            CF = OF = 1;
+        }
     } else {
-        CF = OF = 1;
+        u32 val1 = EAX;
+        u32 val2 = ReadOperand32(inst, inst->Main.Argument2, NULL);
+        i64 r = PROMOTE_I64(val1) * PROMOTE_I64(val2);
+        EAX = (u32) r;
+        EDX = (u32) (r >> 32);
+        if (EDX == 0) {
+            CF = OF = 0;
+        } else {
+            CF = OF = 1;
+        }
     }
-    
 }
 
 void Processor::Imul_0FAF(const Instruction *inst)

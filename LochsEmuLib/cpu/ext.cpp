@@ -53,8 +53,8 @@ void Processor::Ext_81(const Instruction *inst)
     static InstHandler handlers[] = {
         /* 0x0 */ &Processor::Add_81_ext0,
         /* 0x1 */ &Processor::Or_81_ext1,
-        /* 0x2 */ &Processor::Adc_81_ex2,
-        /* 0x3 */ &Processor::InstNotAvailable,
+        /* 0x2 */ &Processor::Adc_81_ext2,
+        /* 0x3 */ &Processor::Sbb_81_ext3,
         /* 0x4 */ &Processor::And_81_ext4,
         /* 0x5 */ &Processor::Sub_81_ext5,
         /* 0x6 */ &Processor::Xor_81_ext6,

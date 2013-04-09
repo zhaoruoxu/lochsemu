@@ -157,10 +157,12 @@ InstPtr Disassembler::Disassemble( const Processor *cpu, u32 eip )
     if (!instSec->Contains(eip)) {
         SyncObjectLock lock(m_instMem);
         RecursiveDisassemble(cpu, eip, instSec, eip);
-        instSec->UpdateIndices();
+        //instSec->UpdateIndices();
     }
 
-    return instSec->GetInst(eip);
+    InstPtr pinst = instSec->GetInst(eip);
+    Assert(pinst->Index != -1);
+    return pinst;
 }
 
 void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, InstSection *sec, u32 entryEip )
@@ -168,22 +170,24 @@ void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, InstSect
     Assert(sec);
     Assert(entryEip != 0);
 
+    bool updateIndex = false;
     while (true) {
         Assert(sec->IsInRange(eip));
-        if (sec->Contains(eip)) return;     // already disassembled
+        if (sec->Contains(eip)) break;     // already disassembled
 
         InstPtr inst = sec->Alloc(eip);
         LxDecode(LxEmulator.Mem()->GetRawData(eip), (Instruction *) inst, eip);
         AttachApiInfo(cpu, eip, sec, inst);
+        updateIndex = true;
 
         u32 opcode = inst->Main.Inst.Opcode;
         if (opcode == 0xc3 || opcode == 0xcb || opcode == 0xc2 || opcode == 0xca) {
             // 'ret' is met
             inst->Entry = entryEip;
-            return;
+            break;
         }
 
-        if (opcode == 0xcc || opcode == 0xcd) return;
+        if (opcode == 0xcc || opcode == 0xcd) break;
 
         u32 addrValue = (u32) inst->Main.Inst.AddrValue;
         if (addrValue != 0) {
@@ -198,8 +202,12 @@ void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, InstSect
         }
         u32 nextEip = eip + inst->Length;
         InstSection *nextSec = m_instMem.GetSection(nextEip);
-        if (sec != nextSec) return;
+        if (sec != nextSec) break;
         eip = nextEip;
+    }
+
+    if (updateIndex) {
+        sec->UpdateIndices();
     }
 }
 
@@ -211,7 +219,7 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *se
 
     if (opcode == 0xff) {
         // CALL or JMP r/m32
-        if (strstr(mnemonic, "jmp") == mnemonic || Instruction::IsCall(inst)) {
+        if (strstr(mnemonic, "jmp") == mnemonic /*|| Instruction::IsCall(inst)*/) {
             if (IsMemoryArg(inst->Main.Argument1) &&
                 inst->Main.Argument1.Memory.BaseRegister == 0 &&
                 inst->Main.Argument1.Memory.IndexRegister == 0 &&
@@ -294,6 +302,8 @@ const InstSection * Disassembler::GetInstSection( u32 addr )
         }
         Disassemble(cpu, addr);
     }
+    //InstSection *sec = m_instMem.GetSection(addr);
+    //sec->UpdateIndices();
     return m_instMem.GetSection(addr);
 }
 

@@ -77,6 +77,9 @@ protected:
     INLINE bool     CanWrite(uint pageNum) const;
     INLINE bool     CanExecute(uint pageNum) const;
 
+public:
+    const u32       PhysAddress;
+
 protected:
     SectionDesc     m_desc;
     u32             m_base;

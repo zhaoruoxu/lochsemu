@@ -61,7 +61,7 @@ void Processor::Adc_13(const Instruction *inst)
 	}
 }
 
-void Processor::Adc_81_ex2(const Instruction *inst)
+void Processor::Adc_81_ext2(const Instruction *inst)
 {
 	// ADC r/m16/32, imm16/32
 	u32 offset;

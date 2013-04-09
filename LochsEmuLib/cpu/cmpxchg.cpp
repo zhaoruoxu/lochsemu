@@ -3,6 +3,21 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
+void Processor::Cmpxchg_0FB0(const Instruction *inst)
+{
+    // CMPXCHG r/m8, r8
+    u32 offset = 0;
+    u8 val1 = ReadOperand8(inst, inst->Main.Argument1, &offset);
+    u8 val2 = ReadOperand8(inst, inst->Main.Argument2, NULL);
+    if (AL == val1) {
+        ZF = 1;
+        WriteOperand8(inst, inst->Main.Argument1, offset, val2);
+    } else {
+        ZF = 0;
+        AL = val1;
+    }
+}
+
 void Processor::Cmpxchg_0FB1(const Instruction *inst)
 {
     /**
