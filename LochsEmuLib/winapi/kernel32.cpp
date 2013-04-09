@@ -1293,7 +1293,7 @@ uint Kernel32_ResumeThread(Processor *cpu)
     RET_VALUE = (u32) ResumeThread(
         (HANDLE)        PARAM(0)
         );
-    RET_PARAMS(3);
+    RET_PARAMS(1);
 }
 
 uint Kernel32_RtlUnwind(Processor *cpu)

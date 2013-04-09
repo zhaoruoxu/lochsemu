@@ -483,10 +483,6 @@ void CallWindowsAPI( Processor *cpu, u32 val )
 
     uint apiIndex = LX_WINAPI_NUM(val);
 
-//     if (apiIndex == 0x4f) {
-//         LxInfo("debug");
-//     }
-
     if (cpu->Thr()) {
         cpu->Thr()->Plugins()->OnWinapiPreCall(cpu, apiIndex);
     }
