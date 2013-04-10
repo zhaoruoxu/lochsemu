@@ -46,8 +46,8 @@ void Thread::InitStack()
     SyncObjectLock lock(*m_memory);
 
     if (m_initInfo.StackSize == 0)
-        m_initInfo.StackSize = Proc()->Emu()->InquireStackBase() - 
-        Proc()->Emu()->InquireStackLimit();
+        m_initInfo.StackSize = max(0x100000, Proc()->Emu()->InquireStackBase() - 
+        Proc()->Emu()->InquireStackLimit());
     u32 base = Proc()->Emu()->InquireStackBase() - m_initInfo.StackSize;
 
     base = m_memory->FindFreePages(base, m_initInfo.StackSize);
@@ -72,7 +72,7 @@ void Thread::InitTEB()
     Assert(m_TebAddress != 0);
     LxDebug("Allocating memory for TEB at [0x%08x]\n", m_TebAddress);
     char desc[64];
-    sprintf(desc, "TEB (%x)", ExtID);
+    sprintf(desc, "TEB (%x)", IntID);
     V( m_memory->AllocCopy(SectionDesc(desc, m_initInfo.Module), m_TebAddress, size, PAGE_READWRITE, (pbyte) pTeb, size));
     WIN32_TEB *pThreadPeb = (WIN32_TEB *) m_memory->GetRawData(m_TebAddress);
     pThreadPeb->TIB.StackBase = m_stack->Top();
