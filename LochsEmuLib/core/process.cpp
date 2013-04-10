@@ -219,8 +219,8 @@ void Process::ThreadExit( ThreadID id, u32 code )
 
     LxInfo("Exiting thread [%x] with exit code %d\n", id, code);
     int i = 1;
-    for (i = 0; i < MaximumThreads; i++)
-        if (m_threads[i]->ExtID == id) break;
+    for (; i < MaximumThreads; i++)
+        if (m_threads[i] != NULL && m_threads[i]->ExtID == id) break;
     if (i == MaximumThreads) {
         LxFatal("No thread has ID [%x]\n", id);
     }
