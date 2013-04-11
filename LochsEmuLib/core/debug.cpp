@@ -26,6 +26,7 @@ void LX_API LochsDebuggingRoutine()
     LxDebug("sizeof(PREFIXINFO) = %d\n", sizeof(PREFIXINFO));
     LxDebug("sizeof(INST) = %d\n", sizeof(INST));
     LxDebug("sizeof(OPERAND) = %d\n", sizeof(OPERAND));
+    LxDebug("sizeof(DEBUG_EVENT) = %d\n", sizeof(DEBUG_EVENT));
 }
 
 END_NAMESPACE_LOCHSEMU()

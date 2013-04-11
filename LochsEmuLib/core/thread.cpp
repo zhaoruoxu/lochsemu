@@ -9,8 +9,8 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
-Thread::Thread( Process *proc, int intId, ThreadID extId, HANDLE hThread)
-: ExtID(extId), IntID(intId), Handle(hThread), m_cpu(intId, this)
+Thread::Thread( Process *proc, int parentId, int intId, ThreadID extId, HANDLE hThread)
+: ParentId(parentId), ExtID(extId), IntID(intId), Handle(hThread), m_cpu(intId, this)
 {
     Assert(proc);
     m_process       = proc;

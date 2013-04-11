@@ -17,8 +17,10 @@ Coprocessor::~Coprocessor()
 void Coprocessor::Reset()
 {
     ZeroMemory(&m_context,     sizeof(FpuContext));
+    u16 ctrl = 0x27f;
     __asm {
         finit
+        fldcw   ctrl
     }
     SaveContext();
 }

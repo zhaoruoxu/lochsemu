@@ -67,6 +67,12 @@
     <Filter Include="Header Files\protocol\analyzers">
       <UniqueIdentifier>{371545c4-4781-4e79-89e6-13e1126fff84}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\plugin\remotediff">
+      <UniqueIdentifier>{f49a4e21-5cb6-4c65-8545-592887997b8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\plugin\remotediff">
+      <UniqueIdentifier>{3f39604a-8505-4118-adbc-4aabbbe2e978}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -240,6 +246,15 @@
     <ClInclude Include="gui\threadpanel.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
+    <ClInclude Include="plugin\remotediff.h">
+      <Filter>Header Files\plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="plugin\remotediff\pipeserver.h">
+      <Filter>Header Files\plugin\remotediff</Filter>
+    </ClInclude>
+    <ClInclude Include="plugin\context_override.h">
+      <Filter>Header Files\plugin</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -382,6 +397,15 @@
     </ClCompile>
     <ClCompile Include="memory.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="plugin\remotediff.cpp">
+      <Filter>Source Files\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="plugin\remotediff\pipeserver.cpp">
+      <Filter>Source Files\plugin\remotediff</Filter>
+    </ClCompile>
+    <ClCompile Include="plugin\context_override.cpp">
+      <Filter>Source Files\plugin</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

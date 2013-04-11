@@ -14,8 +14,10 @@ struct ThreadInfo {
     u32 ParamPtr;
     uint Flags;
     uint Module;
+    int ParentId;
 
     ThreadInfo() {
+        ParentId = 0;
         StackSize = EntryPoint = ParamPtr = Flags = 0;
         Module = LX_UNKNOWN_MODULE;
     }
@@ -35,7 +37,7 @@ enum LoadReason {
 
 class LX_API Thread {
 public:
-    Thread(Process *proc, int intId, ThreadID extId = 0, HANDLE hThread = INVALID_HANDLE_VALUE);
+    Thread(Process *proc, int parentId, int intId, ThreadID extId = 0, HANDLE hThread = INVALID_HANDLE_VALUE);
     virtual ~Thread();
 
     LxResult        Initialize(const ThreadInfo &info);
@@ -56,6 +58,7 @@ public:
     std::vector<uint>   GetModuleLoadOrder() const { return m_moduleLoadOrder; }
     const ThreadInfo *  GetThreadInfo() const { return &m_initInfo; }
 public:
+    int             ParentId;
     int             IntID;
     ThreadID        ExtID;
     HANDLE          Handle;

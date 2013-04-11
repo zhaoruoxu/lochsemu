@@ -156,8 +156,12 @@ InstPtr Disassembler::Disassemble( const Processor *cpu, u32 eip )
 
     if (!instSec->Contains(eip)) {
         SyncObjectLock lock(m_instMem);
-        RecursiveDisassemble(cpu, eip, instSec, eip);
+        std::set<InstSection *> updateSections;
+        RecursiveDisassemble(cpu, eip, instSec, eip, updateSections);
         //instSec->UpdateIndices();
+        for (auto &s : updateSections) {
+            s->UpdateIndices();
+        }
     }
 
     InstPtr pinst = instSec->GetInst(eip);
@@ -165,7 +169,9 @@ InstPtr Disassembler::Disassemble( const Processor *cpu, u32 eip )
     return pinst;
 }
 
-void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, InstSection *sec, u32 entryEip )
+void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, 
+                                        InstSection *sec, u32 entryEip,
+                                        std::set<InstSection *> &sections)
 {
     Assert(sec);
     Assert(entryEip != 0);
@@ -177,7 +183,7 @@ void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, InstSect
 
         InstPtr inst = sec->Alloc(eip);
         LxDecode(LxEmulator.Mem()->GetRawData(eip), (Instruction *) inst, eip);
-        AttachApiInfo(cpu, eip, sec, inst);
+        AttachApiInfo(cpu, eip, sec, inst, sections);
         updateIndex = true;
 
         u32 opcode = inst->Main.Inst.Opcode;
@@ -196,7 +202,8 @@ void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, InstSect
                 if (s != NULL && s->Description() != "heap") {
                     u32 nextEntry = Instruction::IsCall(inst) ? addrValue : entryEip;
                     InstSection *jumpSec = m_instMem.CreateSection(s->Base(), s->Size());
-                    RecursiveDisassemble(cpu, addrValue, jumpSec, nextEntry);
+                    RecursiveDisassemble(cpu, addrValue, jumpSec, nextEntry, sections);
+                    //jumpSec->UpdateIndices();
                 }
             }
         }
@@ -207,11 +214,12 @@ void Disassembler::RecursiveDisassemble( const Processor *cpu, u32 eip, InstSect
     }
 
     if (updateIndex) {
-        sec->UpdateIndices();
+        sections.insert(sec);
     }
 }
 
-void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *sec, InstPtr inst )
+void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *sec, 
+                                 InstPtr inst, std::set<InstSection *> &sections )
 {
     u32 target = 0;
     u32 opcode = inst->Main.Inst.Opcode;
@@ -235,7 +243,7 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *se
         Section *sect = cpu->Mem->GetSection(target);
         if (sect && sect->Description() != "heap") {
             InstSection *callSec = m_instMem.CreateSection(sect->Base(), sect->Size());
-            RecursiveDisassemble(cpu, target, callSec, target);
+            RecursiveDisassemble(cpu, target, callSec, target, sections);
 
             InstPtr instCalled = callSec->GetInst(target);
             Assert(instCalled != NULL);

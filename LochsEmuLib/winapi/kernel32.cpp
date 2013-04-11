@@ -174,6 +174,7 @@ uint Kernel32_CreateThread(Processor *cpu)
     ti.ParamPtr     = (u32) PARAM(3);
     ti.Flags        = (u32) PARAM(4);
     ti.Module       = cpu->GetCurrentModule();
+    ti.ParentId     = cpu->Thr()->IntID;
 
     Thread *t = cpu->Proc()->ThreadCreate(ti);
     LPDWORD lpId = (LPDWORD) PARAM_PTR(5);

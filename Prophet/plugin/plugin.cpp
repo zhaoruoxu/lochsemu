@@ -7,6 +7,8 @@
 #include "taint_directive.h"
 #include "vulnerability_detector.h"
 #include "syncdiff.h"
+#include "remotediff.h"
+#include "context_override.h"
 
 Plugin::Plugin(ProPluginManager *manager, bool initialEnable, const std::string name, uint ovd)
     : m_manager(manager), m_name(name), m_enabled(initialEnable), m_ovdFlag(ovd)
@@ -51,11 +53,13 @@ ProPluginManager::~ProPluginManager()
 
 void ProPluginManager::Initialize()
 {
+    RegisterPlugin(new ContextOverride(this));
     RegisterPlugin(new AdvancedDebugger(this));
     RegisterPlugin(new AutoBreak(this));
     RegisterPlugin(new TaintDirective(this));
     RegisterPlugin(new VulnerabilityDetector(this));
     RegisterPlugin(new SyncDiff(this));
+    RegisterPlugin(new RemoteDiff(this));
 
     for (int i = 0; i < m_totalPlugins; i++) 
         m_plugins[i]->Initialize();

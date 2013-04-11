@@ -64,12 +64,14 @@ void SyncDiff::OnPostExecute( PostExecuteEvent &event, bool firstTime )
 {
     if (firstTime) return;
 
+    if (event.Cpu->GetCurrentModule() != 0) return;
+
     if (!m_synced) return;
     const u32 opcode = event.Inst->Main.Inst.Opcode;
     bool retReached = opcode == 0xC3 || opcode == 0xcb || opcode == 0xc2 || opcode == 0xca;
 
     CONTEXT ctx;
-    if (event.Cpu->HasExecFlag(LX_EXEC_WINAPI_CALL) ||
+    if (true || event.Cpu->HasExecFlag(LX_EXEC_WINAPI_CALL) ||
         event.Cpu->HasExecFlag(LX_EXEC_WINAPI_JMP) ||
         event.Cpu->HasExecFlag(LX_EXEC_PREFIX_REP) ||
         event.Cpu->HasExecFlag(LX_EXEC_PREFIX_REPNE) )
@@ -111,7 +113,7 @@ void SyncDiff::OnPostExecute( PostExecuteEvent &event, bool firstTime )
     }
 
     if (!m_synced || !IsEnabled()) return;
-    m_refProc->SetTF();
+    //m_refProc->SetTF();
 
     m_refProc->GetMainContext(&ctx, CONTEXT_ALL);
     if (!CompareContext(event.Cpu, &ctx)) {

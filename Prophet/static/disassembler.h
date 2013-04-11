@@ -115,8 +115,10 @@ public:
     InstPtr     GetInst(const Processor *cpu, u32 eip);
     const InstSection * GetInstSection(u32 addr);
 private:
-    void        RecursiveDisassemble(const Processor *cpu, u32 eip, InstSection *sec, u32 entryEip);
-    void        AttachApiInfo(const Processor *cpu, u32 eip, InstSection *sec, InstPtr inst);
+    void        RecursiveDisassemble(const Processor *cpu, u32 eip, 
+        InstSection *sec, u32 entryEip, std::set<InstSection *> &sections);
+    void        AttachApiInfo(const Processor *cpu, u32 eip, 
+        InstSection *sec, InstPtr inst, std::set<InstSection *> &sections);
 private:
     ProEngine *         m_engine;
     ProDebugger *       m_debugger;

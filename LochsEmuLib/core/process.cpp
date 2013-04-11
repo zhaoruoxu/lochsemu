@@ -140,7 +140,7 @@ LochsEmu::LxResult Process::InitMainThread()
     const ThreadID ID = (ThreadID) 0; //GetCurrentThreadId();
     ThreadID realId = GetCurrentThreadId();
     HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, realId);
-    m_threads[ID]   = new Thread(this, ID, realId, hThread);
+    m_threads[ID]   = new Thread(this, ID, ID, realId, hThread);
 
     ThreadInfo info;
     info.EntryPoint = GetModuleInfo(0)->EntryPoint;
@@ -197,7 +197,7 @@ Thread * Process::ThreadCreate( const ThreadInfo &ti )
     SyncObjectLock lock(*this);
 
     ThreadID id = FindNextThreadId();
-    m_threads[id] = new Thread(this, id);
+    m_threads[id] = new Thread(this, ti.ParentId, id);
 
     V( m_threads[id]->Initialize(ti) );
 
@@ -393,7 +393,7 @@ Thread * Process::GetThreadRealID( ThreadID id ) const
 }
 
 void Process::ThreadDelete( ThreadID id )
-{
+      {
 
     for (int i = 0; i < MaximumThreads; i++) {
         if (m_threads[i] != NULL && m_threads[i]->ExtID == id) {

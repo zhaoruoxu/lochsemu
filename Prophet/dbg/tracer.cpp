@@ -28,7 +28,6 @@ void ProTracer::OnProcessPostLoad( ProcessPostLoadEvent &event )
 
 void ProTracer::OnPreExecute( PreExecuteEvent &event )
 {
-    if (event.Cpu->IntID != 1) return;
     //m_currEip   = event.Cpu->EIP;
     if (!IsEnabled()) return;
     m_currTrace.Reset();
@@ -36,8 +35,6 @@ void ProTracer::OnPreExecute( PreExecuteEvent &event )
 
 void ProTracer::OnPostExecute( PostExecuteEvent &event )
 {
-    if (event.Cpu->IntID != 1) return;
-
     ++m_seq;
 
     if (!IsEnabled()) return;
