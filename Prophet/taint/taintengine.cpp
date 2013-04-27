@@ -28,7 +28,7 @@ void TaintEngine::Reset()
     MemTaint.Reset();
 }
 
-void TaintEngine::OnPostExecute( PostExecuteEvent &event )
+void TaintEngine::OnPreExecute( PreExecuteEvent &event )
 {
     if (!IsEnabled()) return;
 
@@ -47,6 +47,11 @@ void TaintEngine::OnPostExecute( PostExecuteEvent &event )
     if (NULL != h) {
         (this->*h)(event.Cpu, event.Inst);
     }
+}
+
+void TaintEngine::OnPostExecute( PostExecuteEvent &event )
+{
+
 }
 
 void TaintEngine::UpdateInstContext( const Processor *cpu, InstContext *ctx ) const

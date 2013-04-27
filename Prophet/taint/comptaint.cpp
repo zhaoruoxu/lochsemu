@@ -61,6 +61,8 @@ void MemoryTaint::PageTaint::Set( u32 offset, const Taint &t )
 
     if (m_data[offset] == 0)
         m_data[offset] = new Taint(t);
+    else
+        *(m_data[offset]) = t;
 
     //m_pool.Write(m_data[offset], &t);
 }

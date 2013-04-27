@@ -66,7 +66,7 @@ private:
         Taint1 t = GetTaintAddressingReg(cpu, oper);
         Tb<N>  s = Extend<N>(t);
         Tb<N>  m = MemTaint.Get<N>(o);
-        return m /* | s */;
+        return m  | s ;
     }
 
     template <int N>
@@ -75,7 +75,7 @@ private:
         u32 o = cpu->Offset32(oper);
         Taint1 r = GetTaintAddressingReg(cpu, oper);
         Tb<N>  s = Extend<N>(r);
-        MemTaint.Set(o, t /* | s */);
+        MemTaint.Set(o, t  | s );
     }
 
     void        TaintRule_ConditionalEip(const Processor *cpu, const Taint1 &t)

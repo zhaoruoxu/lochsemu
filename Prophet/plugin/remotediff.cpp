@@ -33,6 +33,9 @@ void RemoteDiff::OnPostExecute( PostExecuteEvent &event, bool firstTime )
     data.SingleStep.Eip = event.Cpu->EIP;
     data.SingleStep.MultiInsts = multiInsts;
 
+
+    LxInfo("Sending tid=%x eip=%08x\n", data.SingleStep.ThreadId, data.SingleStep.Eip);
+
     m_server.WriteData(data);
 
     SyncData res = m_server.ReadData<SyncData>();
@@ -40,6 +43,8 @@ void RemoteDiff::OnPostExecute( PostExecuteEvent &event, bool firstTime )
         LxError("Emu eip = %08x, Ref eip = %08x\n", event.Cpu->EIP, res.Context.Eip);
         LxError("Emu esp = %08x, Ref esp = %08x\n", event.Cpu->ESP, res.Context.Esp);
         GetEngine()->BreakOnNextInst("context diff");
+    } else {
+        LxInfo("Confirmed tid=%x, eip=%08x\n", res.Context.Tid, res.Context.Eip);
     }
 }
 
@@ -67,7 +72,7 @@ void RemoteDiff::OnProcessPreRun( ProcessPreRunEvent &event, bool firstTime )
 bool RemoteDiff::CompareContextData( PostExecuteEvent &event, ContextData &data )
 {
     if (event.Cpu->EIP != data.Eip) return false;
-    if (event.Cpu->ESP != data.Esp) return false;
+    //if (event.Cpu->ESP != data.Esp) return false;
 
     return true;
 }

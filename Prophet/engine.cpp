@@ -69,6 +69,8 @@ void ProEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
     m_debugger.OnPreExecute(event);
     m_protocol.OnPreExecute(event);
 
+    m_taint.OnPreExecute(event);
+
     m_plugins.OnPreExecute(event, false);
 }
 

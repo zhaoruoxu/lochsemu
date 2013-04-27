@@ -24,6 +24,7 @@ struct SingleStepData {
 };
 
 struct ContextData {
+    u32 Tid;
     u32 Eip;
     u32 Esp;
 };
