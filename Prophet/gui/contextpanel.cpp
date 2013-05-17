@@ -84,14 +84,14 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
     for (int i = 0; i < InstContext::RegCount; i++) {
         dc.DrawText(InstContext::RegNames[i], 0, h);
         dc.DrawText(wxString::Format("%08X", m_data.Regs[i]), m_widthRegName, h);
-        int w = m_widthRegName + m_widthRegValue;
-        DrawTaint(dc, m_data.RegTaint[i], wxRect(w, h, m_widthTaint, m_lineHeight));
+        //int w = m_widthRegName + m_widthRegValue;
+        //DrawTaint(dc, m_data.RegTaint[i], wxRect(w, h, m_widthTaint, m_lineHeight));
         h += m_lineHeight;
     }
     dc.DrawText("Eip", 0, h);
     dc.DrawText(wxString::Format("%08X", m_data.Inst->Eip), m_widthRegName, h);
-    DrawTaint(dc, m_data.EipTaint, wxRect(m_widthRegName + m_widthRegValue,
-        h, m_widthTaint, m_lineHeight));
+    //DrawTaint(dc, m_data.EipTaint, wxRect(m_widthRegName + m_widthRegValue,
+    //    h, m_widthTaint, m_lineHeight));
     h += m_lineHeight;
     dc.SetPen(*wxBLACK_PEN);
     h += HalfLine;
@@ -107,8 +107,8 @@ void ContextPanel::Draw( wxBufferedPaintDC &dc )
             IsFlagTested(m_data.Inst, i), IsFlagModified(m_data.Inst, i),
             IsFlagReset(m_data.Inst, i), IsFlagSet(m_data.Inst, i));
         dc.DrawText(flag, m_widthRegName, h);
-        DrawTaint(dc, m_data.FlagTaint[i],
-            wxRect(m_widthRegName + m_widthFlagValue, h, m_widthTaint, m_lineHeight));
+        //DrawTaint(dc, m_data.FlagTaint[i],
+        //    wxRect(m_widthRegName + m_widthFlagValue, h, m_widthTaint, m_lineHeight));
         h += m_lineHeight;
     }
     h += HalfLine;

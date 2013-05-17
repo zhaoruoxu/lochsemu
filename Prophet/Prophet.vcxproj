@@ -154,6 +154,7 @@
     <ClInclude Include="taint\comptaint.h" />
     <ClInclude Include="taint\taintengine.h" />
     <ClInclude Include="taint\taint.h" />
+    <ClInclude Include="taint\ttrace.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>
@@ -226,6 +227,7 @@
     <ClCompile Include="taint\comptaint.cpp" />
     <ClCompile Include="taint\taintengine.cpp" />
     <ClCompile Include="taint\taint.cpp" />
+    <ClCompile Include="taint\ttrace.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>

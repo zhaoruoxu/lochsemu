@@ -255,6 +255,9 @@
     <ClInclude Include="plugin\context_override.h">
       <Filter>Header Files\plugin</Filter>
     </ClInclude>
+    <ClInclude Include="taint\ttrace.h">
+      <Filter>Header Files\taint</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -406,6 +409,9 @@
     </ClCompile>
     <ClCompile Include="plugin\context_override.cpp">
       <Filter>Source Files\plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="taint\ttrace.cpp">
+      <Filter>Source Files\taint</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

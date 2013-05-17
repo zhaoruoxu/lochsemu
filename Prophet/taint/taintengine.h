@@ -36,7 +36,7 @@ public:
     void        OnWinapiPreCall    (WinapiPreCallEvent  &event);
     void        OnWinapiPostCall   (WinapiPostCallEvent &event);
 
-    void        UpdateInstContext(const Processor *cpu, InstContext *ctx) const;
+    // void        UpdateInstContext(const Processor *cpu, InstContext *ctx) const;
 
     void        Enable(bool isEnabled);
     bool        IsEnabled() const { return m_enabled; }

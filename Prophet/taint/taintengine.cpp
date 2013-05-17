@@ -54,14 +54,14 @@ void TaintEngine::OnPostExecute( PostExecuteEvent &event )
 
 }
 
-void TaintEngine::UpdateInstContext( const Processor *cpu, InstContext *ctx ) const
-{
-    for (int i = 0; i < InstContext::RegCount; i++)
-        ctx->RegTaint[i]    = CpuTaint[cpu->IntID].GPRegs[i];
-    ctx->EipTaint           = CpuTaint[cpu->IntID].Eip;
-    for (int i = 0; i < InstContext::FlagCount; i++)
-        ctx->FlagTaint[i]   = CpuTaint[cpu->IntID].Flags[i];
-}
+// void TaintEngine::UpdateInstContext( const Processor *cpu, InstContext *ctx ) const
+// {
+//     for (int i = 0; i < InstContext::RegCount; i++)
+//         ctx->RegTaint[i]    = CpuTaint[cpu->IntID].GPRegs[i];
+//     ctx->EipTaint           = CpuTaint[cpu->IntID].Eip;
+//     for (int i = 0; i < InstContext::FlagCount; i++)
+//         ctx->FlagTaint[i]   = CpuTaint[cpu->IntID].Flags[i];
+// }
 
 
 void TaintEngine::DebugTaintIntroduce(const Processor *cpu, const Instruction *inst)

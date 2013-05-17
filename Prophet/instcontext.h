@@ -38,13 +38,8 @@ struct InstContext {
     static const std::string FlagNames[];
 
     u32                 Regs[RegCount];
-    Taint4              RegTaint[RegCount];
-
     u32                 Eip;
-    Taint1              EipTaint;
-
     u32                 Flags[FlagCount];
-    Taint1              FlagTaint[FlagCount];
 
     std::string         ModuleName;
     u32                 ModuleImageBase;
@@ -67,11 +62,8 @@ struct InstContext {
 
     void Reset() {
         ZeroMemory(Regs, sizeof(Regs));
-        ZeroMemory(RegTaint, sizeof(RegTaint));
         Eip         = 0;
-        EipTaint.ResetAll();
         ZeroMemory(Flags, sizeof(Flags));
-        ZeroMemory(FlagTaint, sizeof(FlagTaint));
         ModuleName  = "";
         ModuleImageBase = 0;
         Inst        = NULL;
