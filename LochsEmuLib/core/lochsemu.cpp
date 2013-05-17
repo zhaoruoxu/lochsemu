@@ -124,11 +124,12 @@ void LxLogInternal(LogLevel level, const char *format, va_list args)
     static const char *prompt[] = {
         "[*] ", "[-] ", "[?] ", "[!] ",
     };
-    WORD wOldMode;
-    char dtBuffer[256];
-    char buffer[1024];
 
     SyncObjectLock lock(LxEmulator);
+
+    WORD wOldMode;
+    char dtBuffer[1024];
+    char buffer[16384];
 
     LxGetDateTime(dtBuffer);
     vsprintf(buffer, format, args);
