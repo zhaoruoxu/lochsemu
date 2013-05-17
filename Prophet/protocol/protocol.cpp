@@ -10,7 +10,8 @@
 #include "analyzers/separator.h"
 
 Protocol::Protocol( ProEngine *engine )
-    : m_engine(engine), m_apiprocessor(this), m_msgmanager(this)
+    : m_engine(engine), m_apiprocessor(this), m_msgmanager(this),
+    m_tracer(this)
 {
     ZeroMemory(m_analyzers, sizeof(m_analyzers));
     ZeroMemory(m_messages, sizeof(m_messages));
@@ -20,6 +21,7 @@ Protocol::Protocol( ProEngine *engine )
     m_enabled   = true;
     m_state     = Idle;
     m_eipPreExec = 0;
+    m_tracing   = false;
 }
 
 Protocol::~Protocol()
@@ -66,6 +68,10 @@ void Protocol::Serialize( Json::Value &root ) const
     Json::Value msgMgr;
     m_msgmanager.Serialize(msgMgr);
     root["message_manager"] = msgMgr;
+
+    Json::Value runtrace;
+    m_tracer.Serialize(runtrace);
+    root["taint_trace"] = runtrace;
 }
 
 void Protocol::Deserialize( Json::Value &root )
@@ -90,6 +96,11 @@ void Protocol::Deserialize( Json::Value &root )
     Json::Value msgMgr = root["message_manager"];
     if (!msgMgr.isNull()) {
         m_msgmanager.Deserialize(msgMgr);
+    }
+
+    Json::Value runtrace = root["run_trace"];
+    if (!runtrace.isNull()) {
+        m_tracer.Deserialize(runtrace);
     }
 }
 
@@ -116,11 +127,11 @@ void Protocol::OnPreExecute( PreExecuteEvent &event )
     m_eipPreExec = event.Cpu->EIP;
     
     if (m_state == ProcessingMessage) {
-        for (int i = 0; i < m_totalAnalyzers; i++) {
-            ProtocolAnalyzer *pa = m_analyzers[i];
-            if (pa->IsEnabled() && pa->HasHandlerFlag(PreExecuteHandler))
-                pa->OnPreExecute(event);
-        }
+//         for (int i = 0; i < m_totalAnalyzers; i++) {
+//             ProtocolAnalyzer *pa = m_analyzers[i];
+//             if (pa->IsEnabled() && pa->HasHandlerFlag(PreExecuteHandler))
+//                 pa->OnPreExecute(event);
+//         }
     }
 }
 
@@ -128,12 +139,16 @@ void Protocol::OnPostExecute( PostExecuteEvent &event )
 {
     if (!m_enabled) return;
 
+    if (m_tracing) {
+        m_tracer.Trace(event.Cpu);
+    }
+
     if (m_state == ProcessingMessage) {
-        for (int i = 0; i < m_totalAnalyzers; i++) {
-            ProtocolAnalyzer *pa = m_analyzers[i];
-            if (pa->IsEnabled() && pa->HasHandlerFlag(PostExecuteHandler))
-                pa->OnPostExecute(event);
-        }
+//         for (int i = 0; i < m_totalAnalyzers; i++) {
+//             ProtocolAnalyzer *pa = m_analyzers[i];
+//             if (pa->IsEnabled() && pa->HasHandlerFlag(PostExecuteHandler))
+//                 pa->OnPostExecute(event);
+//         }
     }
 }
 
@@ -142,11 +157,11 @@ void Protocol::OnMemRead( MemReadEvent &event )
     if (!m_enabled) return;
 
     if (m_state == ProcessingMessage) {
-        for (int i = 0; i < m_totalAnalyzers; i++) {
-            ProtocolAnalyzer *pa = m_analyzers[i];
-            if (pa->IsEnabled() && pa->HasHandlerFlag(MemReadHandler))
-                pa->OnMemRead(event);
-        }
+//         for (int i = 0; i < m_totalAnalyzers; i++) {
+//             ProtocolAnalyzer *pa = m_analyzers[i];
+//             if (pa->IsEnabled() && pa->HasHandlerFlag(MemReadHandler))
+//                 pa->OnMemRead(event);
+//         }
     }
 }
 
@@ -155,11 +170,11 @@ void Protocol::OnMemWrite( MemWriteEvent &event )
     if (!m_enabled) return;
 
     if (m_state == ProcessingMessage) {
-        for (int i = 0; i < m_totalAnalyzers; i++) {
-            ProtocolAnalyzer *pa = m_analyzers[i];
-            if (pa->IsEnabled() && pa->HasHandlerFlag(MemWriteHandler))
-                pa->OnMemWrite(event);
-        }
+//         for (int i = 0; i < m_totalAnalyzers; i++) {
+//             ProtocolAnalyzer *pa = m_analyzers[i];
+//             if (pa->IsEnabled() && pa->HasHandlerFlag(MemWriteHandler))
+//                 pa->OnMemWrite(event);
+//         }
     }
 }
 
@@ -168,11 +183,11 @@ void Protocol::OnProcessPreRun( ProcessPreRunEvent &event )
     if (!m_enabled) return;
 
     if (m_state == ProcessingMessage) {
-        for (int i = 0; i < m_totalAnalyzers; i++) {
-            ProtocolAnalyzer *pa = m_analyzers[i];
-            if (pa->IsEnabled() && pa->HasHandlerFlag(ProcessPreRunHandler))
-                pa->OnProcessPreRun(event);
-        }
+//         for (int i = 0; i < m_totalAnalyzers; i++) {
+//             ProtocolAnalyzer *pa = m_analyzers[i];
+//             if (pa->IsEnabled() && pa->HasHandlerFlag(ProcessPreRunHandler))
+//                 pa->OnProcessPreRun(event);
+//         }
     }
 }
 
@@ -183,11 +198,11 @@ void Protocol::OnProcessPostRun( ProcessPostRunEvent &event )
     if (m_state == ProcessingMessage) {
         OnMessageEnd(MessageEndEvent(this));
 
-        for (int i = 0; i < m_totalAnalyzers; i++) {
-            ProtocolAnalyzer *pa = m_analyzers[i];
-            if (pa->IsEnabled() && pa->HasHandlerFlag(ProcessPostRunHandler))
-                pa->OnProcessPostRun(event);
-        }
+//         for (int i = 0; i < m_totalAnalyzers; i++) {
+//             ProtocolAnalyzer *pa = m_analyzers[i];
+//             if (pa->IsEnabled() && pa->HasHandlerFlag(ProcessPostRunHandler))
+//                 pa->OnProcessPostRun(event);
+//         }
     }
 }
 
@@ -196,11 +211,11 @@ void Protocol::OnProcessPreLoad( ProcessPreLoadEvent &event )
     if (!m_enabled) return;
 
     if (m_state == ProcessingMessage) {
-        for (int i = 0; i < m_totalAnalyzers; i++) {
-            ProtocolAnalyzer *pa = m_analyzers[i];
-            if (pa->IsEnabled() && pa->HasHandlerFlag(ProcessPreLoadHandler))
-                pa->OnProcessPreLoad(event);
-        }
+//         for (int i = 0; i < m_totalAnalyzers; i++) {
+//             ProtocolAnalyzer *pa = m_analyzers[i];
+//             if (pa->IsEnabled() && pa->HasHandlerFlag(ProcessPreLoadHandler))
+//                 pa->OnProcessPreLoad(event);
+//         }
     }
 }
 
@@ -209,11 +224,11 @@ void Protocol::OnProcessPostLoad( ProcessPostLoadEvent &event )
     if (!m_enabled) return;
 
     if (m_state == ProcessingMessage) {
-        for (int i = 0; i < m_totalAnalyzers; i++) {
-            ProtocolAnalyzer *pa = m_analyzers[i];
-            if (pa->IsEnabled() && pa->HasHandlerFlag(ProcessPostLoadHandler))
-                pa->OnProcessPostLoad(event);
-        }
+//         for (int i = 0; i < m_totalAnalyzers; i++) {
+//             ProtocolAnalyzer *pa = m_analyzers[i];
+//             if (pa->IsEnabled() && pa->HasHandlerFlag(ProcessPostLoadHandler))
+//                 pa->OnProcessPostLoad(event);
+//         }
     }
 }
 
@@ -224,11 +239,11 @@ void Protocol::OnWinapiPreCall( WinapiPreCallEvent &event )
     m_apiprocessor.OnWinapiPreCall(event);
 
     if (m_state == ProcessingMessage) {
-        for (int i = 0; i < m_totalAnalyzers; i++) {
-            ProtocolAnalyzer *pa = m_analyzers[i];
-            if (pa->IsEnabled() && pa->HasHandlerFlag(WinapiPreCallHandler))
-                pa->OnWinapiPreCall(event);
-        }
+//         for (int i = 0; i < m_totalAnalyzers; i++) {
+//             ProtocolAnalyzer *pa = m_analyzers[i];
+//             if (pa->IsEnabled() && pa->HasHandlerFlag(WinapiPreCallHandler))
+//                 pa->OnWinapiPreCall(event);
+//         }
     }
 }
 
@@ -239,11 +254,11 @@ void Protocol::OnWinapiPostCall( WinapiPostCallEvent &event )
     m_apiprocessor.OnWinapiPostCall(event);
 
     if (m_state == ProcessingMessage) {
-        for (int i = 0; i < m_totalAnalyzers; i++) {
-            ProtocolAnalyzer *pa = m_analyzers[i];
-            if (pa->IsEnabled() && pa->HasHandlerFlag(WinapiPostCallHandler))
-                pa->OnWinapiPostCall(event);
-        }
+//         for (int i = 0; i < m_totalAnalyzers; i++) {
+//             ProtocolAnalyzer *pa = m_analyzers[i];
+//             if (pa->IsEnabled() && pa->HasHandlerFlag(WinapiPostCallHandler))
+//                 pa->OnWinapiPostCall(event);
+//         }
     }
 }
 
@@ -262,17 +277,17 @@ void Protocol::OnMessageBegin( MessageBeginEvent &event )
 
     m_state = ProcessingMessage;
     m_engine->GetDisassembler()->GetInst(m_eipPreExec)->Desc = "Message begin";
-    m_taint->Enable(true);
+    // m_taint->Enable(true);
     
-    m_msgmanager.OnMessageBegin(event);
+    // m_msgmanager.OnMessageBegin(event);
 
-    for (int i = 0; i < m_totalAnalyzers; i++) {
-        ProtocolAnalyzer *pa = m_analyzers[i];
-        if (pa->IsEnabled() && pa->HasHandlerFlag(MessageBeginHandler))
-            pa->OnMessageBegin(event);
-    }
+//     for (int i = 0; i < m_totalAnalyzers; i++) {
+//         ProtocolAnalyzer *pa = m_analyzers[i];
+//         if (pa->IsEnabled() && pa->HasHandlerFlag(MessageBeginHandler))
+//             pa->OnMessageBegin(event);
+//     }
 
-    
+    BeginTrace();
 }
 
 void Protocol::OnMessageEnd( MessageEndEvent &event )
@@ -286,15 +301,49 @@ void Protocol::OnMessageEnd( MessageEndEvent &event )
 
     m_engine->GetDisassembler()->GetInst(m_eipPreExec)->Desc = "Message end";
 
-    for (int i = 0; i < m_totalAnalyzers; i++) {
-        ProtocolAnalyzer *pa = m_analyzers[i];
-        if (pa->IsEnabled() && pa->HasHandlerFlag(MessageEndHandler))
-            pa->OnMessageEnd(event);
-    }
+    ExecuteTraces();
+
+    int nTraces;
+    EndTrace(&nTraces);
+    LxInfo("Ending trace, count = %d\n", nTraces);
+
+//     for (int i = 0; i < m_totalAnalyzers; i++) {
+//         ProtocolAnalyzer *pa = m_analyzers[i];
+//         if (pa->IsEnabled() && pa->HasHandlerFlag(MessageEndHandler))
+//             pa->OnMessageEnd(event);
+//     }
 
     //m_formatsyn.OnMessageEnd(event);
-    m_msgmanager.OnMessageEnd(event);
+    //m_msgmanager.OnMessageEnd(event);
 
-    m_taint->Enable(false);
+    //m_taint->Enable(false);
     m_state = Idle;
+}
+
+void Protocol::UpdateTContext( const Processor *cpu, TContext *ctx ) const
+{
+    m_engine->GetDisassembler()->UpdateTContext(ctx, cpu->GetPrevEip());
+    m_engine->GetDebugger()->UpdateTContext(cpu, ctx);
+}
+
+void Protocol::BeginTrace()
+{
+    m_tracer.Begin();
+    m_tracing = true;
+}
+
+void Protocol::EndTrace(int *nCount)
+{
+    if (nCount) *nCount = m_tracer.Count();
+    m_tracing = false;
+    m_tracer.End();
+}
+
+void Protocol::ExecuteTraces()
+{
+    const int nTraces = m_tracer.Count();
+    for (int i = 0; i < nTraces; i++) {
+        ExecuteTraceEvent e(this, m_tracer.Get(i));
+        m_taint->OnExecuteTrace(e);
+    }
 }

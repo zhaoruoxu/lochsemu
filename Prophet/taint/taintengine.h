@@ -10,24 +10,27 @@
 #include "instcontext.h"
 #include "comptaint.h"
 #include "utilities.h"
+#include "protocol/protocol.h"
 
 #include "processor.h"
 #include "process.h"
 #include "thread.h"
 
+#include "protocol/runtrace.h"
+
 #define ARG1    (inst->Main.Argument1)
 #define ARG2    (inst->Main.Argument2)
 #define ARG3    (inst->Main.Argument3)
 
-class TaintEngine : public MutexSyncObject, public ISerializable {
+class TaintEngine : public ISerializable {
 public:
-    static const int MaxCpus = Process::MaximumThreads;
+    //static const int MaxCpus = Process::MaximumThreads;
 public:
 
     TaintEngine(ProEngine *engine);
     ~TaintEngine();
 
-    ProcessorTaint  CpuTaint[MaxCpus];
+    ProcessorTaint  CpuTaint;
     MemoryTaint     MemTaint;
 
     void        Initialize();
@@ -36,15 +39,15 @@ public:
     void        OnWinapiPreCall    (WinapiPreCallEvent  &event);
     void        OnWinapiPostCall   (WinapiPostCallEvent &event);
 
-    // void        UpdateInstContext(const Processor *cpu, InstContext *ctx) const;
+    void        OnExecuteTrace      (ExecuteTraceEvent  &event);
 
     void        Enable(bool isEnabled);
     bool        IsEnabled() const { return m_enabled; }
     void        Reset();
 
-    Taint1      GetTaintAddressingReg(const Processor *cpu, const ARGTYPE &oper) const;
-    Taint1      GetTaintShrink(const Processor *cpu, const ARGTYPE &oper);
-    Taint1      GetTestedFlagTaint(const Processor *cpu, const Instruction *inst) const;
+    Taint1      GetTaintAddressingReg(const TContext *t, const ARGTYPE &oper) const;
+    Taint1      GetTaintShrink(const TContext *t, const ARGTYPE &oper);
+    Taint1      GetTestedFlagTaint(const TContext *t, const Instruction *inst) const;
     void        TaintMemoryRanged(u32 addr, u32 len, bool taintAllBits);
 
     void        Serialize(Json::Value &root) const override;
@@ -60,31 +63,31 @@ private:
     }
 
     template <int N>
-    Tb<N>       TaintRule_Load(const Processor *cpu, const ARGTYPE &oper)
+    Tb<N>       TaintRule_Load(const TContext *ctx, const ARGTYPE &oper)
     {
-        u32 o = cpu->Offset32(oper);
-        Taint1 t = GetTaintAddressingReg(cpu, oper);
+        u32 o = ctx->Mr.Addr;/*cpu->Offset32(oper);*/
+        Taint1 t = GetTaintAddressingReg(ctx, oper);
         Tb<N>  s = Extend<N>(t);
         Tb<N>  m = MemTaint.Get<N>(o);
         return m  | s ;
     }
 
     template <int N>
-    void        TaintRule_Save(const Processor *cpu, const ARGTYPE &oper, const Tb<N> &t)
+    void        TaintRule_Save(const TContext *ctx, const ARGTYPE &oper, const Tb<N> &t)
     {
-        u32 o = cpu->Offset32(oper);
-        Taint1 r = GetTaintAddressingReg(cpu, oper);
+        u32 o = ctx->Mw.Addr;/*cpu->Offset32(oper);*/
+        Taint1 r = GetTaintAddressingReg(ctx, oper);
         Tb<N>  s = Extend<N>(r);
-        MemTaint.Set(o, t  | s );
+        MemTaint.Set(o, t | s );
     }
 
-    void        TaintRule_ConditionalEip(const Processor *cpu, const Taint1 &t)
+    void        TaintRule_ConditionalEip(const TContext *ctx, const Taint1 &t)
     {
-        CpuTaint[cpu->IntID].Eip = t;
+        CpuTaint.Eip = t;
     }
 
     template <int N>
-    Tb<N>       GetTaint(const Processor *cpu, const ARGTYPE &oper)
+    Tb<N>       GetTaint(const TContext *ctx, const ARGTYPE &oper)
     {
         if (IsConstantArg(oper)) {
             return Tb<N>();
@@ -93,9 +96,9 @@ private:
         Assert(oper.ArgSize == N * 8);
         if (IsRegArg(oper)) {
             int index = TranslateReg(oper);
-            return FromTaint<4, N>(CpuTaint[cpu->IntID].GPRegs[index], oper.ArgPosition / 8);
+            return FromTaint<4, N>(CpuTaint.GPRegs[index], oper.ArgPosition / 8);
         } else if (IsMemoryArg(oper)) {
-            return TaintRule_Load<N>(cpu, oper);
+            return TaintRule_Load<N>(ctx, oper);
         } else {
             Assert(0);
             return Tb<N>();
@@ -103,83 +106,82 @@ private:
     }
 
     template <int N>
-    void        SetTaint(const Processor *cpu, const ARGTYPE &oper, const Tb<N> &t)
+    void        SetTaint(const TContext *ctx, const ARGTYPE &oper, const Tb<N> &t)
     {
         Assert(oper.ArgSize == N * 8);
         if (IsRegArg(oper)) {
             int index = TranslateReg(oper);
-            ToTaint(CpuTaint[cpu->IntID].GPRegs[index], t, oper.ArgPosition / 8);
+            ToTaint(CpuTaint.GPRegs[index], t, oper.ArgPosition / 8);
         } else if (IsMemoryArg(oper)) {
-            TaintRule_Save(cpu, oper, t);
+            TaintRule_Save(ctx, oper, t);
         } else {
             Assert(0);
         }
     }
 
-    Taint8      GetTaint8 (const Processor *cpu, const ARGTYPE &oper);
-    Taint16     GetTaint16(const Processor *cpu, const ARGTYPE &oper);
-    void        SetTaint8 (const Processor *cpu, const ARGTYPE &oper, const Taint8 &t);
-    void        SetTaint16(const Processor *cpu, const ARGTYPE &oper, const Taint16 &t);
+    Taint8      GetTaint8 (const TContext *ctx, const ARGTYPE &oper);
+    Taint16     GetTaint16(const TContext *ctx, const ARGTYPE &oper);
+    void        SetTaint8 (const TContext *ctx, const ARGTYPE &oper, const Taint8 &t);
+    void        SetTaint16(const TContext *ctx, const ARGTYPE &oper, const Taint16 &t);
 
     template <int N>
-    void        SetFlagTaint(const Processor *cpu, const Instruction *inst, const Tb<N> &t)
+    void        SetFlagTaint(const TContext *ctx, const Instruction *inst, const Tb<N> &t)
     {
         for (int i = 0; i < InstContext::FlagCount; i++) {
             if (IsFlagModified(inst, i)) {
-                CpuTaint[cpu->IntID].Flags[i] = Shrink(t);
+                CpuTaint.Flags[i] = Shrink(t);
             } else if (IsFlagSet(inst, i) || IsFlagReset(inst, i)) {
-                CpuTaint[cpu->IntID].Flags[i].ResetAll();
+                CpuTaint.Flags[i].ResetAll();
             }
         }
     }
 
     template <int X>
-    Taint1      GetTestedFlagTaint1(const Processor *cpu) const
+    Taint1      GetTestedFlagTaint1(const TContext *ctx) const
     {
-        return CpuTaint[cpu->IntID].Flags[X];
+        return CpuTaint.Flags[X];
     }
 
     template <int X, int Y>
-    Taint1      GetTestedFlagTaint2(const Processor *cpu) const
+    Taint1      GetTestedFlagTaint2(const TContext *ctx) const
     {
-        return CpuTaint[cpu->IntID].Flags[X] | CpuTaint[cpu->IntID].Flags[Y];
+        return CpuTaint.Flags[X] | CpuTaint.Flags[Y];
     }
 
     template <int X, int Y, int Z>
-    Taint1      GetTestedFlagTaint3(const Processor *cpu) const
+    Taint1      GetTestedFlagTaint3(const TContext *ctx) const
     {
-        return CpuTaint[cpu->IntID].Flags[X] | CpuTaint[cpu->IntID].Flags[Y] 
-        | CpuTaint[cpu->IntID].Flags[Z];
+        return CpuTaint.Flags[X] | CpuTaint.Flags[Y] | CpuTaint.Flags[Z];
     }
 
-    Taint1      GetTestedEcxTaint(const Processor *cpu) const
+    Taint1      GetTestedEcxTaint(const TContext *ctx) const
     {
-        return Shrink(CpuTaint[cpu->IntID].GPRegs[LX_REG_ECX]);
-    }
-
-    template <int N>
-    void        TaintPropagate_Binop(const Processor *cpu, const Instruction *inst)
-    {
-        Tb<N> t     = TaintRule_Binop(GetTaint<N>(cpu, ARG1), GetTaint<N>(cpu, ARG2));
-        TaintPropagate(cpu, inst, t);
+        return Shrink(CpuTaint.GPRegs[LX_REG_ECX]);
     }
 
     template <int N>
-    void        TaintPropagate(const Processor *cpu, const Instruction *inst, const Tb<N> &t)
+    void        TaintPropagate_Binop(const TContext *ctx, const Instruction *inst)
     {
-        SetTaint(cpu, ARG1, t);
-        SetFlagTaint(cpu, inst, t);
+        Tb<N> t     = TaintRule_Binop(GetTaint<N>(ctx, ARG1), GetTaint<N>(ctx, ARG2));
+        TaintPropagate(ctx, inst, t);
     }
 
     template <int N>
-    void        TaintPropagate_Or(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate(const TContext *ctx, const Instruction *inst, const Tb<N> &t)
+    {
+        SetTaint(ctx, ARG1, t);
+        SetFlagTaint(ctx, inst, t);
+    }
+
+    template <int N>
+    void        TaintPropagate_Or(const TContext *ctx, const Instruction *inst)
     {
         if (!IsConstantArg(ARG2)) {
-            TaintPropagate_Binop<N>(cpu, inst);
+            TaintPropagate_Binop<N>(ctx, inst);
             return;
         }
 
-        Tb<N> t     = GetTaint<N>(cpu, ARG1);
+        Tb<N> t     = GetTaint<N>(ctx, ARG1);
         u64 val     = inst->Main.Inst.Immediat;
         if (ARG2.ArgSize == 8) 
             val     = SIGN_EXTEND(8, 64, val);
@@ -191,18 +193,18 @@ private:
                 // binop rule?
             }
         }
-        TaintPropagate(cpu, inst, t);
+        TaintPropagate(ctx, inst, t);
     }
 
     template <int N>
-    void        TaintPropagate_And(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_And(const TContext *ctx, const Instruction *inst)
     {
         if (!IsConstantArg(ARG2)) {
-            TaintPropagate_Binop<N>(cpu, inst);
+            TaintPropagate_Binop<N>(ctx, inst);
             return;
         }
 
-        Tb<N> t     = GetTaint<N>(cpu, ARG1);
+        Tb<N> t     = GetTaint<N>(ctx, ARG1);
         u64 val     = inst->Main.Inst.Immediat;
         if (ARG2.ArgSize == 8)
             val     = SIGN_EXTEND(8, 64, val);
@@ -214,207 +216,213 @@ private:
                 // binop rule?
             }
         }
-        TaintPropagate(cpu, inst, t);
+        TaintPropagate(ctx, inst, t);
     }
 
     template <int N>
-    void        TaintPropagate_Xor(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Xor(const TContext *ctx, const Instruction *inst)
     {
         if (ARG1.ArgType == ARG2.ArgType) {
             // xor r0, r0
             Tb<N> t;
             t.ResetAll();
-            TaintPropagate(cpu, inst, t);
+            TaintPropagate(ctx, inst, t);
         } else {
-            TaintPropagate_Binop<N>(cpu, inst);
+            TaintPropagate_Binop<N>(ctx, inst);
         }
     }
 
     template <int N>
-    void        TaintPropagate_Adc_Sbb(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Adc_Sbb(const TContext *ctx, const Instruction *inst)
     {
-        Tb<N> t0    = TaintRule_Binop(GetTaint<N>(cpu, ARG1), GetTaint<N>(cpu, ARG2));
-        Taint1 cf   = CpuTaint[cpu->IntID].Flags[InstContext::CF];
+        Tb<N> t0    = TaintRule_Binop(GetTaint<N>(ctx, ARG1), GetTaint<N>(ctx, ARG2));
+        Taint1 cf   = CpuTaint.Flags[InstContext::CF];
         Tb<N> t1    = TaintRule_Binop(t0, Extend<N>(cf));
-        TaintPropagate(cpu, inst, t1);
+        TaintPropagate(ctx, inst, t1);
     }
 
     template <int N>
-    void        TaintPropagate_Cmp_Test(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Cmp_Test(const TContext *ctx, const Instruction *inst)
     {
-        Tb<N> t     = TaintRule_Binop(GetTaint<N>(cpu, ARG1), GetTaint<N>(cpu, ARG2));
-        SetFlagTaint(cpu, inst, t);
+        Tb<N> t     = TaintRule_Binop(GetTaint<N>(ctx, ARG1), GetTaint<N>(ctx, ARG2));
+        SetFlagTaint(ctx, inst, t);
     }
 
     template <int N>
-    void        TaintPropagate_Inc_Dec(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Inc_Dec(const TContext *ctx, const Instruction *inst)
     {
-        Tb<N> t     = GetTaint<N>(cpu, ARG1);
-        SetFlagTaint(cpu, inst, t);
+        Tb<N> t     = GetTaint<N>(ctx, ARG1);
+        SetFlagTaint(ctx, inst, t);
     }
 
     template <int N>
-    void        TaintPropagate_Push(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Push(const TContext *ctx, const Instruction *inst)
     {
-        Tb<N> t     = GetTaint<N>(cpu, ARG2);
-        MemTaint.Set(cpu->ESP, t);  // should esp be tainted?
+        Tb<N> t     = GetTaint<N>(ctx, ARG2);
+        MemTaint.Set(ctx->Regs[LX_REG_ESP], t);  // should esp be tainted?
     }
 
     template <int N>
-    void        TaintPropagate_Pop(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Pop(const TContext *ctx, const Instruction *inst)
     {
-        Tb<N> t     = MemTaint.Get<N>(cpu->ESP - N);
-        SetTaint(cpu, ARG1, t);
+        Tb<N> t     = MemTaint.Get<N>(ctx->Regs[LX_REG_ESP] - N);
+        SetTaint(ctx, ARG1, t);
     }
 
     template <int N>
-    void        TaintPropagate_Imul(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Imul(const TContext *ctx, const Instruction *inst)
     {
         if (inst->Main.Inst.Immediat == 0) {
-            TaintPropagate(cpu, inst, Tb<N>());
+            TaintPropagate(ctx, inst, Tb<N>());
         } else {
-            TaintPropagate_Binop<N>(cpu, inst);
+            TaintPropagate_Binop<N>(ctx, inst);
         }
     }
 
-    void        TaintPropagate_CJmp(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_CJmp(const TContext *ctx, const Instruction *inst)
     {
-        TaintRule_ConditionalEip(cpu, GetTestedFlagTaint(cpu, inst));
+        TaintRule_ConditionalEip(ctx, GetTestedFlagTaint(ctx, inst));
     }
 
-    void        TaintPropagate_Setcc(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Setcc(const TContext *ctx, const Instruction *inst)
     {
-        SetTaint<1>(cpu, ARG2, GetTestedFlagTaint(cpu, inst));
+        SetTaint<1>(ctx, ARG2, GetTestedFlagTaint(ctx, inst));
     }
 
-    void        TaintPropagate_Cmovcc(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Cmovcc(const TContext *ctx, const Instruction *inst)
     {
-        if (cpu->IsJumpTaken(inst))
-            Mov_Handler(cpu, inst);
-    }
-
-    template <int N>
-    void        TaintPropagate_Xchg(const Processor *cpu, const Instruction *inst)
-    {
-        Tb<N> t1    = GetTaint<N>(cpu, ARG1);
-        Tb<N> t2    = GetTaint<N>(cpu, ARG2);
-        SetTaint<N>(cpu, ARG1, t2);
-        SetTaint<N>(cpu, ARG2, t1);
+        if (ctx->JumpTaken)
+            Mov_Handler(ctx, inst);
     }
 
     template <int N>
-    void        TaintPropagate_Mov(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Xchg(const TContext *ctx, const Instruction *inst)
+    {
+        Tb<N> t1    = GetTaint<N>(ctx, ARG1);
+        Tb<N> t2    = GetTaint<N>(ctx, ARG2);
+        SetTaint<N>(ctx, ARG1, t2);
+        SetTaint<N>(ctx, ARG2, t1);
+    }
+
+    template <int N>
+    void        TaintPropagate_Mov(const TContext *ctx, const Instruction *inst)
     {
         Tb<N> t;
         if (!IsConstantArg(ARG2)) {
-            t       = GetTaint<N>(cpu, ARG2);
+            t       = GetTaint<N>(ctx, ARG2);
         }
-        SetTaint<N>(cpu, ARG1, t);
+        SetTaint<N>(ctx, ARG1, t);
     }
 
     template <int N>
-    void        TaintPropagate_Lea(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Lea(const TContext *ctx, const Instruction *inst)
     {
-        Taint1 t    = GetTaintAddressingReg(cpu, ARG2);
-        SetTaint(cpu, ARG1, Extend<N>(t));
+        Taint1 t    = GetTaintAddressingReg(ctx, ARG2);
+        SetTaint(ctx, ARG1, Extend<N>(t));
     }
 
     template <int N>
-    void        TaintPropagate_Movs(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Movs(const TContext *ctx, const Instruction *inst)
     {
-        Tb<N> t = MemTaint.Get<N>(cpu->DF == 0 ? cpu->ESI - N : cpu->ESI + N);
-        MemTaint.Set<N>(cpu->DF == 0 ? cpu->ESI - N : cpu->ESI + N, t);
+        Tb<N> t = MemTaint.Get<N>(ctx->Flag(InstContext::DF) == 0 ? 
+            ctx->Regs[LX_REG_ESI] - N : ctx->Regs[LX_REG_ESI] + N);
+        MemTaint.Set<N>(ctx->Flag(InstContext::DF) == 0 ? 
+            ctx->Regs[LX_REG_ESI] - N : ctx->Regs[LX_REG_ESI] + N, t);
     }
 
     template <int N>
-    void        TaintPropagate_Cmps(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Cmps(const TContext *ctx, const Instruction *inst)
     {
-        Tb<N> t1 = MemTaint.Get<N>(cpu->DF == 0 ? cpu->ESI - N : cpu->ESI + N);
-        Tb<N> t2 = MemTaint.Get<N>(cpu->DF == 0 ? cpu->EDI - N : cpu->ESI + N);
+        Tb<N> t1 = MemTaint.Get<N>(ctx->Flag(InstContext::DF) == 0 ? 
+            ctx->Regs[LX_REG_ESI] - N : ctx->Regs[LX_REG_ESI] + N);
+        Tb<N> t2 = MemTaint.Get<N>(ctx->Flag(InstContext::DF) == 0 ? 
+            ctx->Regs[LX_REG_EDI] - N : ctx->Regs[LX_REG_EDI] + N);
         Tb<N> t = TaintRule_Binop(t1, t2);
-        SetFlagTaint(cpu, inst, t);
+        SetFlagTaint(ctx, inst, t);
     }
 
     template <int N>
-    void        TaintPropagate_Stos(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Stos(const TContext *ctx, const Instruction *inst)
     {
-        Tb<N> t = FromTaint<4, N>(CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX], 0);
-        MemTaint.Set<N>(cpu->DF == 0 ? cpu->EDI - N : cpu->EDI + N, t);
+        Tb<N> t = FromTaint<4, N>(CpuTaint.GPRegs[LX_REG_EAX], 0);
+        MemTaint.Set<N>(ctx->Flag(InstContext::DF) == 0 ? 
+            ctx->Regs[LX_REG_EDI] - N : ctx->Regs[LX_REG_EDI] + N, t);
     }
 
     template <int N>
-    void        TaintPropagate_Lods(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Lods(const TContext *ctx, const Instruction *inst)
     {
-        Tb<N> t = MemTaint.Get<N>(cpu->DF == 0 ? cpu->ESI - N : cpu->ESI + N);
-        ToTaint<N, 4>(CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX], t, 0);
+        Tb<N> t = MemTaint.Get<N>(ctx->Flag(InstContext::DF) == 0 ? 
+            ctx->Regs[LX_REG_ESI] - N : ctx->Regs[LX_REG_ESI] + N);
+        ToTaint<N, 4>(CpuTaint.GPRegs[LX_REG_EAX], t, 0);
     }
 
     template <int N>
-    void        TaintPropagate_Scas(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Scas(const TContext *ctx, const Instruction *inst)
     {
-        Tb<N> t1 = FromTaint<4, N>(CpuTaint[cpu->IntID].GPRegs[LX_REG_EAX], 0);
-        Tb<N> t2 = MemTaint.Get<N>(cpu->DF == 0 ? cpu->EDI - N : cpu->EDI + N);
+        Tb<N> t1 = FromTaint<4, N>(CpuTaint.GPRegs[LX_REG_EAX], 0);
+        Tb<N> t2 = MemTaint.Get<N>(ctx->Flag(InstContext::DF) == 0 ? 
+            ctx->Regs[LX_REG_EDI] - N : ctx->Regs[LX_REG_EDI] + N);
         Tb<N> t = TaintRule_Binop(t1, t2);
-        SetFlagTaint(cpu, inst, t);
+        SetFlagTaint(ctx, inst, t);
     }
 
     template <int N>
-    void        TaintPropagate_ShiftRotate(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_ShiftRotate(const TContext *ctx, const Instruction *inst)
     {
-        Tb<N> t1 = GetTaint<N>(cpu, ARG1);
+        Tb<N> t1 = GetTaint<N>(ctx, ARG1);
         Taint1 t = Shrink(t1);
         Tb<N> newT = Extend<N>(t);
-        SetTaint(cpu, ARG1, newT);
-        CpuTaint[cpu->IntID].Flags[InstContext::CF] = t;
-        CpuTaint[cpu->IntID].Flags[InstContext::OF] = t;
+        SetTaint(ctx, ARG1, newT);
+        CpuTaint.Flags[InstContext::CF] = t;
+        CpuTaint.Flags[InstContext::OF] = t;
     }
 
     template <int X>
-    void        TaintPropagate_ClearFlag(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_ClearFlag(const TContext *ctx, const Instruction *inst)
     {
-        CpuTaint[cpu->IntID].Flags[X].ResetAll();
+        CpuTaint.Flags[X].ResetAll();
     }
 
     template <int N>
-    void        TaintPropagate_ClearDest(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_ClearDest(const TContext *ctx, const Instruction *inst)
     {
-        SetTaint<N>(cpu, ARG1, Tb<N>());
+        SetTaint<N>(ctx, ARG1, Tb<N>());
     }
 
     template <int N>
-    void        TaintPropagate_Neg(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Neg(const TContext *ctx, const Instruction *inst)
     {
-        Tb<N> t = GetTaint<N>(cpu, ARG1);
-        SetFlagTaint(cpu, inst, t);
+        Tb<N> t = GetTaint<N>(ctx, ARG1);
+        SetFlagTaint(ctx, inst, t);
     }
 
     template <int N>
-    void        TaintPropagate_Bt(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Bt(const TContext *ctx, const Instruction *inst)
     {
-        Tb<N> t = TaintRule_Binop(GetTaint<N>(cpu, ARG1), GetTaint<N>(cpu, ARG2));
-        SetTaint<N>(cpu, ARG1, t);
-        CpuTaint[cpu->IntID].Flags[InstContext::CF] = Shrink<N>(t);
+        Tb<N> t = TaintRule_Binop(GetTaint<N>(ctx, ARG1), GetTaint<N>(ctx, ARG2));
+        SetTaint<N>(ctx, ARG1, t);
+        CpuTaint.Flags[InstContext::CF] = Shrink<N>(t);
     }
 
     template <int N>
-    void        TaintPropagate_Xadd(const Processor *cpu, const Instruction *inst)
+    void        TaintPropagate_Xadd(const TContext *ctx, const Instruction *inst)
     {
-        Tb<N> t1    = GetTaint<N>(cpu, ARG1);
-        Tb<N> t2    = GetTaint<N>(cpu, ARG2);
+        Tb<N> t1    = GetTaint<N>(ctx, ARG1);
+        Tb<N> t2    = GetTaint<N>(ctx, ARG2);
         Tb<N> t     = TaintRule_Binop(t1, t2);
-        SetTaint(cpu, ARG1, t);
-        SetTaint(cpu, ARG2, t1);
-        SetFlagTaint(cpu, inst, t);
+        SetTaint(ctx, ARG1, t);
+        SetTaint(ctx, ARG2, t1);
+        SetFlagTaint(ctx, inst, t);
     }
 
 private:
-    typedef     void (TaintEngine::*TaintInstHandler)(const Processor *cpu, const Instruction *inst);
+    typedef     void (TaintEngine::*TaintInstHandler)(const TContext *ctx, const Instruction *inst);
     static      TaintInstHandler HandlerOneByte[];
     static      TaintInstHandler HandlerTwoBytes[];
 
-#define DECLARE_HANDLER(x)  void    x(const Processor *cpu, const Instruction *inst);
+#define DECLARE_HANDLER(x)  void    x(const TContext *ctx, const Instruction *inst);
 
-    DECLARE_HANDLER(DebugTaintIntroduce);
     DECLARE_HANDLER(DefaultBinopHandler);
     DECLARE_HANDLER(DefaultSIMDBinopHandler);
 

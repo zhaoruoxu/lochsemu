@@ -111,6 +111,7 @@ public:
     void        OnPreExecute(PreExecuteEvent &event);
     InstPtr     Disassemble(const Processor *cpu, u32 eip);
     void        UpdateInstContext(InstContext *ctx, u32 eip) const;
+    void        UpdateTContext(TContext *ctx, u32 eip) const;
     InstPtr     GetInst(u32 eip);
     InstPtr     GetInst(const Processor *cpu, u32 eip);
     const InstSection * GetInstSection(u32 addr);

@@ -18,7 +18,7 @@ struct ApiInfo {
 class LX_API Process : public MutexSyncObject {
 public:
     static const uint   ProcessHeapStart = 0x1000;
-    static const int    MaximumThreads = 256;
+    static const int    MaximumThreads = 8;
 
 public:
     Process();

@@ -31,6 +31,7 @@ public:
 
     void        Initialize();
     void        OnPreExecute(PreExecuteEvent &event);
+    void        OnPostExecute(PostExecuteEvent &event);
     void        OnProcessPreRun(ProcessPreRunEvent &event);
     void        OnProcessPostLoad(ProcessPostLoadEvent &event);
     void        OnMemRead(MemReadEvent &event);
@@ -61,6 +62,7 @@ public:
 
     void        UpdateInstContext(const Processor *cpu, InstContext *ctx) const;
     void        UpdateTraceContext(const Processor *cpu, TraceContext *ctx, u32 eip) const;
+    void        UpdateTContext(const Processor *cpu, TContext *ctx) const;
 
     void        Serialize(Json::Value &root) const override;
     void        Deserialize(Json::Value &root) override;

@@ -177,7 +177,7 @@ void ApiProcessor::Handler_recv(const Processor *cpu)
 {
     int len         = RET_VALUE(int);
     u32 bufferAddr  = PARAM(1, u32);
-    MessageBeginEvent e(this, len, bufferAddr, cpu->Mem->GetRawData(bufferAddr), MR_recv);
+    MessageBeginEvent e(this, cpu->IntID, len, bufferAddr, cpu->Mem->GetRawData(bufferAddr), MR_recv);
     m_protocol->OnMessageBegin(e);
 }
 

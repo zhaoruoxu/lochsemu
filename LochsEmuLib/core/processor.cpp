@@ -175,24 +175,19 @@ LxResult Processor::Execute( const Instruction *inst )
     const u32 opcode = inst->Main.Inst.Opcode;
     // Thanks to shitty MOVQ_F30F7E
     if (inst->Main.Prefix.RepPrefix && !isRet && opcode != 0x0f7e) {
-        //while (ECX != 0) {
-            (this->*h)(inst);
-            ECX--;
-
-            bool isRepe = opcode == 0xa6 || opcode == 0xa7 || opcode == 0xae || opcode == 0xaf;
-            if ((ECX != 0) && !(isRepe && ZF == 0)) {
-                EIP -= inst->Length;    // continue running
-            }
-        //}
+        (this->*h)(inst);
+        ECX--;
+        bool isRepe = opcode == 0xa6 || opcode == 0xa7 || opcode == 0xae || opcode == 0xaf;
+        if ((ECX != 0) && !(isRepe && ZF == 0)) {
+            EIP -= inst->Length;    // continue running
+        }
         SetExecFlag(LX_EXEC_PREFIX_REP);
     } else if (inst->Main.Prefix.RepnePrefix) {
-        //while (ECX != 0) {
-            (this->*h)(inst);
-            ECX--;
-            if (ECX != 0 && ZF != 1) {
-                EIP -= inst->Length;
-            }
-        //}
+        (this->*h)(inst);
+        ECX--;
+        if (ECX != 0 && ZF != 1) {
+            EIP -= inst->Length;
+        }
         SetExecFlag(LX_EXEC_PREFIX_REPNE);
     } else {
         (this->*h)(inst);

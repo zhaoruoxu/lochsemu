@@ -96,6 +96,12 @@ void ProDebugger::OnPreExecute( PreExecuteEvent &event )
     m_mws[Tid].clear();
 }
 
+void ProDebugger::OnPostExecute( PostExecuteEvent &event )
+{
+    m_mrs[event.Cpu->IntID].clear();
+    m_mws[event.Cpu->IntID].clear();
+}
+
 void ProDebugger::OnStepInto()
 {
     Assert(m_state[m_currTid] == STATE_SINGLESTEP);
@@ -304,7 +310,46 @@ void ProDebugger::UpdateTraceContext( const Processor *cpu, TraceContext *ctx, u
 
     ctx->Tid = cpu->IntID;
     ctx->ExternalTid = cpu->Thr()->ExtID;
+    ctx->JumpTaken = Instruction::IsConditionalJump(ctx->Inst) ? 
+        m_cpu[cpu->IntID]->IsJumpTaken(ctx->Inst) : false;
 }
+
+
+void ProDebugger::UpdateTContext( const Processor *cpu, TContext *ctx ) const
+{
+    Assert(m_cpu[cpu->IntID] != NULL);
+
+#define GET_FLAG(x) cpu->x << InstContext::x
+
+    for (int i = 0; i < TContext::RegCount; i++)
+        ctx->Regs[i] = m_cpu[cpu->IntID]->GP_Regs[i].X32;
+    ctx->Eip = cpu->GetPrevEip();
+    ctx->Eflags = 0;
+    ctx->Eflags |= GET_FLAG(OF);
+    ctx->Eflags |= GET_FLAG(SF);
+    ctx->Eflags |= GET_FLAG(ZF);
+    ctx->Eflags |= GET_FLAG(AF);
+    ctx->Eflags |= GET_FLAG(PF);
+    ctx->Eflags |= GET_FLAG(CF);
+    ctx->Eflags |= GET_FLAG(DF);
+
+    if (m_mrs[cpu->IntID].size() > 0) {
+        //if (m_mrs[cpu->IntID].size() > 1) 
+        //    LxWarning("len(MRs) > 1 at %08x, %s\n", cpu->EIP, ctx->Inst->Main.CompleteInstr);
+        ctx->Mr = m_mrs[cpu->IntID][0];
+    }
+    if (m_mws[cpu->IntID].size() > 0) {
+        //if (m_mws[cpu->IntID].size() > 1) 
+        //    LxWarning("len(MWs) > 1 at %08x, %s\n", cpu->EIP, ctx->Inst->Main.CompleteInstr);
+        ctx->Mw = m_mws[cpu->IntID][0];
+    }
+    ctx->Tid = cpu->IntID;
+    ctx->ExtTid = cpu->Thr()->ExtID;
+    ctx->ExecFlag = cpu->GetExecFlag();
+
+#undef GET_FLAG
+}
+
 
 void ProDebugger::Serialize( Json::Value &root ) const 
 {

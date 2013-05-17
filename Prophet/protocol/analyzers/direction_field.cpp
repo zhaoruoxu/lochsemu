@@ -28,23 +28,24 @@ void DirectionField::Initialize()
 
 void DirectionField::OnPreExecute( PreExecuteEvent &event )
 {
-    if (event.Cpu->GetCurrentModule() != 0) return;
-
-    if (IsMemoryArg(event.Inst->Main.Argument2) && event.Inst->Main.Inst.Opcode != 0x8d /* LEA */) {
-        if (!CheckMemoryLength(event, event.Inst->Main.Argument2)) {
-            // check fixed length
-            Taint1 t = m_taint->GetTaintShrink(event.Cpu, event.Inst->Main.Argument2);
-            if (t.IsAnyTainted()) {
-                int first, last;
-                GetTaintRange(t[0], &first, &last);
-                m_msgmgr->SubmitFixedLen(first, last);
-                //m_protocol->GetEngine()->BreakOnNextInst("fixed len");
-            }
-        }
-    }
-    if (m_useFlag) {
-        CheckFlag(event);
-    }
+    
+//     if (event.Cpu->GetCurrentModule() != 0) return;
+// 
+//     if (IsMemoryArg(event.Inst->Main.Argument2) && event.Inst->Main.Inst.Opcode != 0x8d /* LEA */) {
+//         if (!CheckMemoryLength(event, event.Inst->Main.Argument2)) {
+//             // check fixed length
+//             Taint1 t = m_taint->GetTaintShrink(event.Cpu, event.Inst->Main.Argument2);
+//             if (t.IsAnyTainted()) {
+//                 int first, last;
+//                 GetTaintRange(t[0], &first, &last);
+//                 m_msgmgr->SubmitFixedLen(first, last);
+//                 //m_protocol->GetEngine()->BreakOnNextInst("fixed len");
+//             }
+//         }
+//     }
+//     if (m_useFlag) {
+//         CheckFlag(event);
+//     }
 }
 
 void DirectionField::Serialize( Json::Value &root ) const 
@@ -59,16 +60,16 @@ void DirectionField::Deserialize( Json::Value &root )
 
 bool DirectionField::CheckMemoryLength( PreExecuteEvent &event, const ARGTYPE &arg )
 {
-    Taint1 tReg = m_taint->GetTaintAddressingReg(event.Cpu, arg);
-    if (!tReg.IsAnyTainted()) return false;
-
-    Taint1 tMem = m_taint->GetTaintShrink(event.Cpu, arg);
-    if (!tMem.IsAnyTainted()) return false;
-
-    int first, last, target;
-    GetTaintRange(tReg[0], &first, &last);
-    GetTaintRange(tMem[0], &target, NULL);
-    m_msgmgr->SubmitLengthField(first, last, target);
+//     Taint1 tReg = m_taint->GetTaintAddressingReg(event.Cpu, arg);
+//     if (!tReg.IsAnyTainted()) return false;
+// 
+//     Taint1 tMem = m_taint->GetTaintShrink(event.Cpu, arg);
+//     if (!tMem.IsAnyTainted()) return false;
+// 
+//     int first, last, target;
+//     GetTaintRange(tReg[0], &first, &last);
+//     GetTaintRange(tMem[0], &target, NULL);
+//     m_msgmgr->SubmitLengthField(first, last, target);
     return true;
 }
 
@@ -81,27 +82,27 @@ void DirectionField::CheckFlag( PreExecuteEvent &event )
      * target > eip: forwards jump, taken:end of loop
      * target < eip: backwards jump, not taken:end of loop
      */
-    u32 eip = event.Cpu->EIP;
-    if (m_inloop.find(eip) == m_inloop.end()) {
-        bool inLoop = (inst->Target > eip && !event.Cpu->IsJumpTaken(inst))
-            || (inst->Target < eip && event.Cpu->IsJumpTaken(inst));
-        if (inLoop) m_inloop.insert(eip);
-        return;
-    }
-
-    bool endLoop = (inst->Target > eip && event.Cpu->IsJumpTaken(inst))
-        || (inst->Target < eip && !event.Cpu->IsJumpTaken(inst));
-
-    if (!endLoop) return;
-
-    m_inloop.erase(eip);
-
-    Taint1 tFlag = m_taint->GetTestedFlagTaint(event.Cpu, inst);
-    if (!tFlag.IsAnyTainted()) return;
-
-    int first, last;
-    GetTaintRange(tFlag[0], &first, &last);
-    m_msgmgr->SubmitLengthField(first, last, -1);
+//     u32 eip = event.Cpu->EIP;
+//     if (m_inloop.find(eip) == m_inloop.end()) {
+//         bool inLoop = (inst->Target > eip && !event.Cpu->IsJumpTaken(inst))
+//             || (inst->Target < eip && event.Cpu->IsJumpTaken(inst));
+//         if (inLoop) m_inloop.insert(eip);
+//         return;
+//     }
+// 
+//     bool endLoop = (inst->Target > eip && event.Cpu->IsJumpTaken(inst))
+//         || (inst->Target < eip && !event.Cpu->IsJumpTaken(inst));
+// 
+//     if (!endLoop) return;
+// 
+//     m_inloop.erase(eip);
+// 
+//     Taint1 tFlag = m_taint->GetTestedFlagTaint(event.Cpu, inst);
+//     if (!tFlag.IsAnyTainted()) return;
+// 
+//     int first, last;
+//     GetTaintRange(tFlag[0], &first, &last);
+//     m_msgmgr->SubmitLengthField(first, last, -1);
     //m_protocol->GetEngine()->BreakOnNextInst("flag");
 }
 

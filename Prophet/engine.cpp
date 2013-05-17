@@ -89,6 +89,7 @@ void ProEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
     m_taint.OnPostExecute(event);
     m_tracer.OnPostExecute(event);
     m_protocol.OnPostExecute(event);
+    m_debugger.OnPostExecute(event);
 
     m_plugins.OnPostExecute(event, false);
 }

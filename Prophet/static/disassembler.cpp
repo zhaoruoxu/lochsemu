@@ -9,6 +9,7 @@
 #include "process.h"
 #include "emulator.h"
 
+#include "protocol/runtrace.h"
 
 InstSection::InstSection( InstMem *mem, InstPool &pool, u32 base, u32 size )
     : m_mem(mem), m_pool(pool), m_base(base), m_size(size), m_count(0)
@@ -275,8 +276,12 @@ void Disassembler::AttachApiInfo( const Processor *cpu, u32 eip, InstSection *se
 
 void Disassembler::UpdateInstContext( InstContext *ctx, u32 eip ) const
 {
-    InstPtr inst    = m_instMem.GetInst(eip);
-    ctx->Inst       = inst;
+    ctx->Inst = m_instMem.GetInst(eip);
+}
+
+void Disassembler::UpdateTContext( TContext *ctx, u32 eip ) const
+{
+    ctx->Inst = m_instMem.GetInst(eip);
 }
 
 InstPtr Disassembler::GetInst( u32 eip )

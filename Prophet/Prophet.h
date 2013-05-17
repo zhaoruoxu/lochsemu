@@ -78,6 +78,8 @@ class Protocol;
 class Message;
 class MessageManager;
 class FormatSyn;
+struct TContext;
+class RunTracer;
 
 extern Emulator *       g_emulator;
 extern HMODULE          g_module;

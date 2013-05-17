@@ -9,6 +9,16 @@
 #include "apiprocessor.h"
 #include "formatsyn.h"
 #include "msgmgr.h"
+#include "runtrace.h"
+
+class ExecuteTraceEvent : public Event {
+public:
+    ExecuteTraceEvent(void *sender) : Event(sender), Context(NULL) {}
+    ExecuteTraceEvent(void *sender, const TContext *ctx) : Event(sender),
+        Context(ctx) {}
+
+    const TContext *const Context;
+};
 
 class Protocol : public ISerializable {
 public:
@@ -54,8 +64,13 @@ public:
 
     void        AddMessage(Message *msg);
 
+    void        UpdateTContext(const Processor *cpu, TContext *ctx) const;
+
 private:
 /*    void        ReorderAnalyzers();*/
+    void        BeginTrace();
+    void        EndTrace(int *nCount = NULL);
+    void        ExecuteTraces();
 private:
     ProEngine *         m_engine;
     TaintEngine *       m_taint;
@@ -75,6 +90,9 @@ private:
     bool                m_enabled;
 
     u32                 m_eipPreExec;
+
+    RunTracer           m_tracer;
+    bool                m_tracing;
 };
  
 #endif // __PROPHET__PROTOCOL_H__

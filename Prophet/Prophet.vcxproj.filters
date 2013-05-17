@@ -255,8 +255,8 @@
     <ClInclude Include="plugin\context_override.h">
       <Filter>Header Files\plugin</Filter>
     </ClInclude>
-    <ClInclude Include="taint\ttrace.h">
-      <Filter>Header Files\taint</Filter>
+    <ClInclude Include="protocol\runtrace.h">
+      <Filter>Header Files\protocol</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -410,8 +410,8 @@
     <ClCompile Include="plugin\context_override.cpp">
       <Filter>Source Files\plugin</Filter>
     </ClCompile>
-    <ClCompile Include="taint\ttrace.cpp">
-      <Filter>Source Files\taint</Filter>
+    <ClCompile Include="protocol\runtrace.cpp">
+      <Filter>Source Files\protocol</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -12,6 +12,7 @@ struct MemAccess {
     u32     Len;
     u32     Val;
 
+    MemAccess() { Addr = Len = Val = 0; }
     MemAccess(u32 addr, u32 len, u32 val)
         : Addr(addr), Len(len), Val(val) {}
 };
@@ -24,6 +25,7 @@ struct InstContext {
         AF,
         PF,
         CF,
+        DF,
         //         TF,
         //         IF,
         //         DF,

@@ -251,6 +251,7 @@ public:
     void            ClearExecFlags      (void) { m_execFlags = 0; }
     void            SetExecFlag         (u32 flag) { m_execFlags |= flag; }
     bool            HasExecFlag         (u32 flag) const { return (m_execFlags & flag) == flag; }
+    u32             GetExecFlag         () const { return m_execFlags; }
 
     /************************************************************************/
     /* Memory R/W Handlers                                                  */
