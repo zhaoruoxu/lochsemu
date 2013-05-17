@@ -4,6 +4,19 @@
 #include "engine.h"
 #include "event.h"
 
+TSnapshot::TSnapshot( TaintEngine &t )
+{
+    m_pt = t.CpuTaint.Clone();
+    m_mt = t.MemTaint.Clone();
+}
+
+TSnapshot::~TSnapshot()
+{
+    Assert(m_pt && m_mt);
+    SAFE_DELETE(m_pt);
+    SAFE_DELETE(m_mt);
+}
+
 TaintEngine::TaintEngine(ProEngine *engine)
     : m_engine(engine)
 {
@@ -96,6 +109,12 @@ void TaintEngine::Deserialize( Json::Value &root )
     //m_enabled = root.get("enabled", m_enabled).asBool();
     // always disabled at startup
 
+}
+
+void TaintEngine::ApplySnapshot( const TSnapshot &t )
+{
+    CpuTaint.CopyFrom(t.m_pt);
+    MemTaint.CopyFrom(t.m_mt);
 }
 
 void TaintEngine::Enable( bool isEnabled )
@@ -1471,4 +1490,5 @@ void TaintEngine::Movq0FD6_Handler(const TContext *ctx, const Instruction *inst)
         Assert(0);
     }
 }
+
 

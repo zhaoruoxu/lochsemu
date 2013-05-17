@@ -301,6 +301,7 @@ void Protocol::OnMessageEnd( MessageEndEvent &event )
 
     m_engine->GetDisassembler()->GetInst(m_eipPreExec)->Desc = "Message end";
 
+    TSnapshot s(*m_taint);
     ExecuteTraces();
 
     int nTraces;

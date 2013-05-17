@@ -84,7 +84,12 @@ enum {
 
 class ProphetApp : public wxApp {
 public:
-    virtual bool        OnInit();
+    virtual bool        OnInit() override;
+    virtual int         OnExit() override;
+
+private:
+    ProphetFrame *m_frame;
+
 };
 
 template <typename T>

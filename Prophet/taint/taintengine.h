@@ -22,6 +22,17 @@
 #define ARG2    (inst->Main.Argument2)
 #define ARG3    (inst->Main.Argument3)
 
+class TSnapshot {
+    friend class TaintEngine;
+public:
+    TSnapshot(TaintEngine &t);
+    virtual ~TSnapshot();
+
+private:
+    ProcessorTaint *m_pt;
+    MemoryTaint *m_mt;
+};
+
 class TaintEngine : public ISerializable {
 public:
     //static const int MaxCpus = Process::MaximumThreads;
@@ -53,6 +64,7 @@ public:
     void        Serialize(Json::Value &root) const override;
     void        Deserialize(Json::Value &root) override;
 
+    void        ApplySnapshot(const TSnapshot &t);
 private:
 
 

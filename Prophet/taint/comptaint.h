@@ -15,6 +15,8 @@ struct ProcessorTaint {
     Taint16     XMM[8];
 
     void        Reset();
+    ProcessorTaint *    Clone() const;
+    void        CopyFrom(const ProcessorTaint *t);
 };
 
 class MemoryTaint {
@@ -23,6 +25,9 @@ class MemoryTaint {
         Taint   Get(u32 offset);
         void    Set(u32 offset, const Taint &t);
         void    Reset();
+
+        PageTaint * Clone() const;
+        void        CopyFrom(const PageTaint *t);
 
         PageTaint();
         ~PageTaint();
@@ -46,6 +51,9 @@ public:
     void        Set(u32 addr, const Tb<N> &t);
 
     void        Reset();
+
+    MemoryTaint *   Clone() const;
+    void            CopyFrom(const MemoryTaint *t);
 private:
     PageTaint *  GetPage(u32 addr);
 

@@ -53,6 +53,16 @@ ProphetFrame::ProphetFrame(ProEngine *engine, Emulator *emu)
 
 ProphetFrame::~ProphetFrame()
 {
+//     SAFE_DELETE(m_cpuPanel);
+//     SAFE_DELETE(m_contextPanel);
+//     SAFE_DELETE(m_tracePanel);
+//     SAFE_DELETE(m_memInfoPanel);
+//     SAFE_DELETE(m_memDataPanel);
+//     SAFE_DELETE(m_bpsPanel);
+//     SAFE_DELETE(m_msgPanel);
+//     SAFE_DELETE(m_statPanel);
+//     SAFE_DELETE(m_stackPanel);
+//     SAFE_DELETE(m_threadPanel);
     m_auiManager.UnInit();
 }
 
