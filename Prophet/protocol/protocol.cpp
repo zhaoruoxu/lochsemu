@@ -9,6 +9,8 @@
 #include "analyzers/direction_field.h"
 #include "analyzers/separator.h"
 
+#include "sqlite/SQLiteC++.h"
+
 Protocol::Protocol( ProEngine *engine )
     : m_engine(engine), m_apiprocessor(this), m_msgmanager(this),
     m_tracer(this)
@@ -307,6 +309,8 @@ void Protocol::OnMessageEnd( MessageEndEvent &event )
     int nTraces;
     EndTrace(&nTraces);
     LxInfo("Ending trace, count = %d\n", nTraces);
+
+    SQLite::Database db("haha.db3");
 
 //     for (int i = 0; i < m_totalAnalyzers; i++) {
 //         ProtocolAnalyzer *pa = m_analyzers[i];

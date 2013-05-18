@@ -73,6 +73,9 @@
     <Filter Include="Source Files\plugin\remotediff">
       <UniqueIdentifier>{3f39604a-8505-4118-adbc-4aabbbe2e978}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\3rdparty\sqlitecpp">
+      <UniqueIdentifier>{b4f03e8c-7d69-4b0f-866a-c64c970df5e7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -257,6 +260,27 @@
     </ClInclude>
     <ClInclude Include="protocol\runtrace.h">
       <Filter>Header Files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\include\sqlite\Column.h">
+      <Filter>Header Files\3rdparty\sqlitecpp</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\include\sqlite\Database.h">
+      <Filter>Header Files\3rdparty\sqlitecpp</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\include\sqlite\Exception.h">
+      <Filter>Header Files\3rdparty\sqlitecpp</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\include\sqlite\sqlite3.h">
+      <Filter>Header Files\3rdparty\sqlitecpp</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\include\sqlite\SQLiteC++.h">
+      <Filter>Header Files\3rdparty\sqlitecpp</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\include\sqlite\Statement.h">
+      <Filter>Header Files\3rdparty\sqlitecpp</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\include\sqlite\Transaction.h">
+      <Filter>Header Files\3rdparty\sqlitecpp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
