@@ -28,6 +28,8 @@ public:
     TSnapshot(TaintEngine &t);
     virtual ~TSnapshot();
 
+    void    Dump(const std::string &filename);
+
 private:
     ProcessorTaint *m_pt;
     MemoryTaint *m_mt;

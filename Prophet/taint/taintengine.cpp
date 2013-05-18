@@ -17,6 +17,14 @@ TSnapshot::~TSnapshot()
     SAFE_DELETE(m_mt);
 }
 
+void TSnapshot::Dump( const std::string &filename )
+{
+    FILE *fp = fopen(filename.c_str(), "w");
+    m_pt->Dump(fp);
+    m_mt->Dump(fp);
+    fclose(fp);
+}
+
 TaintEngine::TaintEngine(ProEngine *engine)
     : m_engine(engine)
 {

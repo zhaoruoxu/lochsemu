@@ -71,6 +71,8 @@ public:
     void            RefreshGUI();   // rendering part
     //void            UpdateCpuData(const InstSection *insts);
     i64             GetInstExecuted() const { return m_instExecuted; }
+
+    std::string     GetArchiveDir() const { return m_archiveDir; }
     
 private:
     void            Intro() const;
@@ -96,6 +98,7 @@ private:
     //bool            m_mainEntryEntered;
 
     std::string     m_archivePath;
+    std::string     m_archiveDir;
     bool            m_isArchiveLoaded;
     i64             m_instExecuted;
 };

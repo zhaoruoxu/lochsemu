@@ -84,9 +84,10 @@ public:
     Taint&      operator^=(const Taint &rhs);
 
     std::string ToString() const;
+    void        Dump(FILE *fp) const;
     static Taint    FromBinString(const std::string &s);
 private:
-    static const int    Count = 1;
+    static const int    Count = 16;
     static const int    Width = 32 * Count;
     u32         m_data[Count];
 };

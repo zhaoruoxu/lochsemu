@@ -132,3 +132,52 @@ void ProcessorTaint::CopyFrom( const ProcessorTaint *t )
 {
     memcpy(this, t, sizeof(ProcessorTaint));
 }
+
+
+#define PRINT_LINE_SEP()  fprintf(fp, "----------------------------------------\n")
+
+void ProcessorTaint::Dump( FILE *fp ) const
+{
+    fprintf(fp, "Processor Taint:\n");
+    for (int reg = 0; reg < 8; reg++) {
+        fprintf(fp, "--- %s ---\n", InstContext::RegNames[reg].c_str());
+        for (int i = 0; i < 4; i++) {
+            fprintf(fp, "%d: ", i);
+            GPRegs[reg][i].Dump(fp);
+        }
+    }
+    PRINT_LINE_SEP();
+
+    fprintf(fp, "Eip: ");
+    Eip[0].Dump(fp);
+    PRINT_LINE_SEP();
+
+    for (int flag = 0; flag < InstContext::FLAG_COUNT; flag++) {
+        fprintf(fp, "%s: ", InstContext::FlagNames[flag].c_str());
+        Flags[flag][0].Dump(fp);
+    }
+    PRINT_LINE_SEP();
+}
+
+
+
+void MemoryTaint::Dump( FILE *fp ) const
+{
+    fprintf(fp, "Memory Taint:\n");
+    for (u32 i = 0; i < LX_PAGE_COUNT; i++) {
+        if (m_pagetable[i]) {
+            m_pagetable[i]->Dump(fp, i * LX_PAGE_SIZE);
+        }
+    }
+}
+
+
+void MemoryTaint::PageTaint::Dump( FILE *fp, u32 base ) const
+{
+    for (u32 i = 0; i < LX_PAGE_SIZE; i++) {
+        if (!m_data[i]) continue;
+        if (!m_data[i]->IsAnyTainted()) continue;
+        fprintf(fp, "%08x: ", base + i);
+        m_data[i]->Dump(fp);
+    }
+}

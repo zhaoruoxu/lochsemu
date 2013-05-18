@@ -290,9 +290,9 @@ void ProEngine::CreateArchiveDirectory()
 {
     std::string dir     = LxGetModuleDirectory(g_module);
     std::string arcDir  = g_config.GetString("General", "ArchiveDir", "archive");
-    m_archivePath       = dir + arcDir + "\\";
-    if (!LxFileExists(m_archivePath.c_str())) {
-        if (CreateDirectoryA(m_archivePath.c_str(), NULL)) {
+    m_archiveDir        = dir + arcDir + "\\";
+    if (!LxFileExists(m_archiveDir.c_str())) {
+        if (CreateDirectoryA(m_archiveDir.c_str(), NULL)) {
             LxInfo("Prophet archive directory created\n");
         } else {
             LxFatal("Error creating Prophet archive directory\n");
@@ -310,7 +310,7 @@ void ProEngine::LoadArchive(const char *moduleName)
     sprintf(buf, "%08x_", hash);
     strcat(buf, moduleName);
     strcat(buf, ".json");
-    m_archivePath   = m_archivePath + buf;
+    m_archivePath   = m_archiveDir + buf;
 
     m_isArchiveLoaded = true;
 

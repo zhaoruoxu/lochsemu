@@ -279,6 +279,8 @@ void Protocol::OnMessageBegin( MessageBeginEvent &event )
 
     m_state = ProcessingMessage;
     m_engine->GetDisassembler()->GetInst(m_eipPreExec)->Desc = "Message begin";
+
+    m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
     // m_taint->Enable(true);
     
     // m_msgmanager.OnMessageBegin(event);
@@ -304,7 +306,11 @@ void Protocol::OnMessageEnd( MessageEndEvent &event )
     m_engine->GetDisassembler()->GetInst(m_eipPreExec)->Desc = "Message end";
 
     TSnapshot s(*m_taint);
+    s.Dump(m_engine->GetArchiveDir() + "snapshot_pre.taint");
     ExecuteTraces();
+
+    TSnapshot t(*m_taint);
+    t.Dump(m_engine->GetArchiveDir() + "snapshot_post.taint");
 
     int nTraces;
     EndTrace(&nTraces);
