@@ -110,10 +110,11 @@ LX_API void LxGetDateTime(char *buffer) {
 void LxLogInternal(LogLevel level, const char *format, va_list args)
 {
     static WORD consoleMode[] = {
+        FOREGROUND_GREEN,
         FOREGROUND_GREEN | FOREGROUND_INTENSITY,
-        FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY,
-        FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY,
-        FOREGROUND_RED | FOREGROUND_INTENSITY,
+        //FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY,
+        FOREGROUND_RED,
+        FOREGROUND_RED| FOREGROUND_INTENSITY,
     };
     static const char *logFormat[] = {
         "[*][%s] %s",
@@ -136,9 +137,10 @@ void LxLogInternal(LogLevel level, const char *format, va_list args)
 
     wOldMode = LxChangeConsoleMode(consoleMode[level]);
     printf(prompt[level]);
-    LxChangeConsoleMode( wOldMode );
+    //LxChangeConsoleMode( FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
     printf(buffer);
     fflush(stdout);
+    LxChangeConsoleMode( wOldMode );
 
     /*
      * Log to file even not in debug mode

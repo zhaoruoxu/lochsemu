@@ -572,6 +572,17 @@ uint Kernel32_GetLastError(Processor *cpu)
     return 0;
 }
 
+uint Kernel32_GetLocaleInfoA(Processor *cpu)
+{
+    RET_VALUE = (u32) GetLocaleInfoA(
+        (LCID)      PARAM(0),
+        (LCTYPE)    PARAM(1),
+        (LPSTR)     PARAM_PTR(2),
+        (int)       PARAM(3)
+        );
+    RET_PARAMS(4);
+}
+
 uint Kernel32_GetLocaleInfoW(Processor *cpu)
 {
     RET_VALUE = (u32) GetLocaleInfoW(

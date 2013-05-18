@@ -23,7 +23,8 @@ DECLARE_INST_HANDLER(Or_0D);
 DECLARE_INST_HANDLER(Adc_11);           // ADC r/m32, r32
 DECLARE_INST_HANDLER(Adc_12);           // ADC r8, r/m8
 DECLARE_INST_HANDLER(Adc_13);           // ADC r32, r/m32
-
+DECLARE_INST_HANDLER(Adc_14);           // ADC al, imm8
+DECLARE_INST_HANDLER(Adc_15);           // ADC eax, imm32
 DECLARE_INST_HANDLER(Sbb_19);			// SBB r/m16/32, r/16/32
 DECLARE_INST_HANDLER(Sbb_1A);           // SBB r8, r/m8
 DECLARE_INST_HANDLER(Sbb_1B);            // SBB r16/32, r/m16/32

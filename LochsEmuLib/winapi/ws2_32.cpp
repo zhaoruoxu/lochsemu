@@ -326,9 +326,6 @@ uint Ws2_32_recv(Processor *cpu)
         (int)           PARAM(2),
         (int)           PARAM(3)
         );
-
-    LxInfo("recv: len=%d, retval=%d, buf=%s\n", PARAM(2), cpu->EAX, (char *) PARAM_PTR(1));
-
     RET_PARAMS(4);
 }
 

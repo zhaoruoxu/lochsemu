@@ -89,6 +89,7 @@ WinAPIInfo WinAPIInfoTable[] = {
 	{ 01, 0, "GetFileAttributesA", Kernel32_GetFileAttributesA },
     { 01, 0, "GetFileType", Kernel32_GetFileType },
     { 01, 0, "GetLastError", Kernel32_GetLastError },
+    { 01, 0, "GetLocaleInfoA", Kernel32_GetLocaleInfoA },
     { 01, 0, "GetLocaleInfoW", Kernel32_GetLocaleInfoW },
     { 01, 0, "GetLocalTime", Kernel32_GetLocalTime },
     { 01, 0, "GetLongPathNameA", Kernel32_GetLongPathNameA },
@@ -386,11 +387,16 @@ uint WinAPINotAvailable(Processor *cpu)
     return 0;
 }
 
+static bool IsKernel32(const char *dllName)
+{
+    return StrStrIA(dllName, "api-ms-win") || 
+        stricmp(dllName, "kernelbase.dll") == 0;
+}
 
 LX_API uint QueryLibraryIndex( const char *dllName )
 {
     static uint N = sizeof(WrappedLibraryTable) / sizeof(const char *);
-	if (StrStrIA(dllName, "api-ms-win"))
+	if (IsKernel32(dllName))
 		dllName = "kernel32.dll";		// quick hack for api-ms-... DLLs
     uint len = strlen(dllName);
     for (uint i = 0; i < N; i++) {
@@ -404,7 +410,7 @@ LX_API uint QueryLibraryIndex( const char *dllName )
 LX_API uint QueryWinAPIIndexByName( const char *dllName, const char *funcName )
 {
     HMODULE hModule = NULL;
-    if (StrStrIA(dllName, "api-ms-win-core"))
+    if (IsKernel32(dllName))
         hModule = LxGetModuleHandle("kernel32.dll");
     else
         hModule = LxGetModuleHandle(dllName);
@@ -434,7 +440,7 @@ LX_API uint QueryWinAPIIndexByName( HMODULE hModule, const char *funcName )
 LX_API uint QueryWinAPIIndexByOrdinal( const char *dllName, uint ordinal )
 {
     HMODULE hModule = NULL;
-    if (StrStrIA(dllName, "api-ms-win-core"))
+    if (IsKernel32(dllName))
         hModule = LxGetModuleHandle("kernel32.dll");
     else 
         hModule = LxGetModuleHandle(dllName);
@@ -458,7 +464,7 @@ LX_API uint QueryWinAPIIndexByOrdinal( HMODULE hModule, uint ordinal )
 
 LX_API bool IsEmulatedLibrary( const char *dllName )
 {
-    if (StrStrIA(dllName, "api-ms-win-core")) return true; // quick hack for win7 system
+    if (IsKernel32(dllName)) return true; // quick hack for win7 system
     return QueryLibraryIndex(dllName) != 0;
 }
 
