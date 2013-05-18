@@ -156,3 +156,34 @@ bool Serializer::Deserialzie( ISerializable *obj, std::string &input )
     obj->Deserialize(root);
     return true;
 }
+
+File::File( const char *filename, const char *mode )
+{
+    Open(filename, mode);
+}
+
+File::File(const std::string &filename, const std::string &mode)
+{
+    Open(filename.c_str(), mode.c_str());
+}
+
+void File::Open( const char *filename, const char *mode )
+{
+    m_fp = fopen(filename, mode);
+    if (m_fp == NULL) {
+        LxFatal("Error creating file: %s mode: %s\n", filename, mode);
+    }
+}
+
+File::~File()
+{
+    Close();
+}
+
+void File::Close()
+{
+    if (m_fp) {
+        fclose(m_fp);
+        m_fp = NULL;
+    }
+}

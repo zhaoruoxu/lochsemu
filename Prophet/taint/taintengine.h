@@ -28,11 +28,16 @@ public:
     TSnapshot(TaintEngine &t);
     virtual ~TSnapshot();
 
-    void    Dump(const std::string &filename);
+    void    Dump(File &f);
 
 private:
     ProcessorTaint *m_pt;
     MemoryTaint *m_mt;
+};
+
+enum TaintRule {
+    TAINT_LOADADDRREG = 1 << 0,
+    TAINT_SAVEADDRREG = 1 << 1,
 };
 
 class TaintEngine : public ISerializable {
@@ -67,6 +72,15 @@ public:
     void        Deserialize(Json::Value &root) override;
 
     void        ApplySnapshot(const TSnapshot &t);
+    void        SetTaintRule(TaintRule r, bool enable);
+    bool        TaintRuleEnabled(TaintRule r);
+    void        TaintRule_LoadDefault();
+    void        TaintRule_LoadMemory();
+
+private:
+    ProEngine *   m_engine;
+    bool        m_enabled;
+    u32         m_taintRule;
 private:
 
 
@@ -80,19 +94,27 @@ private:
     Tb<N>       TaintRule_Load(const TContext *ctx, const ARGTYPE &oper)
     {
         u32 o = ctx->Mr.Addr;/*cpu->Offset32(oper);*/
-        Taint1 t = GetTaintAddressingReg(ctx, oper);
-        Tb<N>  s = Extend<N>(t);
         Tb<N>  m = MemTaint.Get<N>(o);
-        return m  | s ;
+        if (TaintRuleEnabled(TAINT_LOADADDRREG)) {
+            Taint1 t = GetTaintAddressingReg(ctx, oper);
+            Tb<N>  s = Extend<N>(t);
+            return m | s ;
+        } else {
+            return m;
+        }
     }
 
     template <int N>
     void        TaintRule_Save(const TContext *ctx, const ARGTYPE &oper, const Tb<N> &t)
     {
         u32 o = ctx->Mw.Addr;/*cpu->Offset32(oper);*/
-        Taint1 r = GetTaintAddressingReg(ctx, oper);
-        Tb<N>  s = Extend<N>(r);
-        MemTaint.Set(o, t | s );
+        if (TaintRuleEnabled(TAINT_SAVEADDRREG)) {
+            Taint1 r = GetTaintAddressingReg(ctx, oper);
+            Tb<N>  s = Extend<N>(r);
+            MemTaint.Set(o, t | s );
+        } else {
+            MemTaint.Set(o, t);
+        }
     }
 
     void        TaintRule_ConditionalEip(const TContext *ctx, const Taint1 &t)
@@ -511,9 +533,7 @@ private:
     DECLARE_HANDLER(Movq0FD6_Handler);
 
 #undef DECLARE_HANDLER
-private:
-    ProEngine *   m_engine;
-    bool        m_enabled;
+
 };
 
 #endif // __TAINT_ENGINE_H__

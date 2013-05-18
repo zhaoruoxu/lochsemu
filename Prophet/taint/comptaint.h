@@ -17,7 +17,7 @@ struct ProcessorTaint {
     void        Reset();
     ProcessorTaint *    Clone() const;
     void        CopyFrom(const ProcessorTaint *t);
-    void        Dump(FILE *fp) const;
+    void        Dump(File &f) const;
 };
 
 class MemoryTaint {
@@ -29,7 +29,7 @@ class MemoryTaint {
 
         PageTaint * Clone() const;
         void        CopyFrom(const PageTaint *t);
-        void        Dump(FILE *fp, u32 base) const;
+        void        Dump(File &f, u32 base) const;
 
         PageTaint();
         ~PageTaint();
@@ -57,7 +57,7 @@ public:
     MemoryTaint *   Clone() const;
     void            CopyFrom(const MemoryTaint *t);
 
-    void            Dump(FILE *fp) const;
+    void            Dump(File &f) const;
 private:
     PageTaint *  GetPage(u32 addr);
 

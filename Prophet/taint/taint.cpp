@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "taint.h"
-
+#include "utilities.h"
 
 Taint::Taint( )
 {
@@ -90,7 +90,7 @@ Taint Taint::FromBinString( const std::string &s )
     return r;
 }
 
-void Taint::Dump( FILE *fp ) const
+void Taint::Dump( File &f ) const
 {
     bool prev = IsTainted(0);
     int start = 0;
@@ -100,15 +100,15 @@ void Taint::Dump( FILE *fp ) const
             prev = true;
         } else if (prev) {
             if (start == i-1)
-                fprintf(fp, "%d ", start);
+                fprintf(f.Ptr(), "%d ", start);
             else
-                fprintf(fp, "%d-%d ", start, i-1);
+                fprintf(f.Ptr(), "%d-%d ", start, i-1);
             prev = false;
         }
     }
     if (!IsAnyTainted())
-        fprintf(fp, "None");
-    fprintf(fp, "\n");
+        fprintf(f.Ptr(), "None");
+    fprintf(f.Ptr(), "\n");
 }
 
 

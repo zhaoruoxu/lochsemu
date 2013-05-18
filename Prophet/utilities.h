@@ -27,4 +27,19 @@ private:
     Serializer();
 };
 
+class File {
+public:
+    File(const char *filename, const char *mode);
+    File(const std::string &filename, const std::string &mode);
+    ~File();
+
+    FILE *  Ptr() { return m_fp; }
+    const FILE *Ptr() const { return m_fp; }
+    void    Close();
+
+private:
+    void    Open(const char *filename, const char *mode);
+    FILE *m_fp;
+};
+
 #endif // __PROPHET_UTILITIES_H__

@@ -17,18 +17,17 @@ TSnapshot::~TSnapshot()
     SAFE_DELETE(m_mt);
 }
 
-void TSnapshot::Dump( const std::string &filename )
+void TSnapshot::Dump( File &f )
 {
-    FILE *fp = fopen(filename.c_str(), "w");
-    m_pt->Dump(fp);
-    m_mt->Dump(fp);
-    fclose(fp);
+    m_pt->Dump(f);
+    m_mt->Dump(f);
 }
 
 TaintEngine::TaintEngine(ProEngine *engine)
     : m_engine(engine)
 {
     m_enabled = false;
+    m_taintRule = 0;
 }
 
 TaintEngine::~TaintEngine()
@@ -1497,6 +1496,32 @@ void TaintEngine::Movq0FD6_Handler(const TContext *ctx, const Instruction *inst)
     } else {
         Assert(0);
     }
+}
+
+void TaintEngine::SetTaintRule( TaintRule r, bool enable )
+{
+    if (enable) {
+        m_taintRule |= r;
+    } else {
+        m_taintRule &= ~r;
+    }
+}
+
+bool TaintEngine::TaintRuleEnabled( TaintRule r )
+{
+    return (m_taintRule & r) != 0;
+}
+
+void TaintEngine::TaintRule_LoadDefault()
+{
+    SetTaintRule(TAINT_SAVEADDRREG, false);
+    SetTaintRule(TAINT_LOADADDRREG, false);
+}
+
+void TaintEngine::TaintRule_LoadMemory()
+{
+    SetTaintRule(TAINT_SAVEADDRREG, true);
+    SetTaintRule(TAINT_LOADADDRREG, true);
 }
 
 

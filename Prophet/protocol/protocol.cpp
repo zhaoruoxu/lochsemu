@@ -305,12 +305,17 @@ void Protocol::OnMessageEnd( MessageEndEvent &event )
 
     m_engine->GetDisassembler()->GetInst(m_eipPreExec)->Desc = "Message end";
 
+    std::string dir = m_engine->GetArchiveDir();
+    m_tracer.Dump(File(dir + "traces.txt", "w"));
+
     TSnapshot s(*m_taint);
-    s.Dump(m_engine->GetArchiveDir() + "snapshot_pre.taint");
+    s.Dump(File(dir + "snapshot_pre.taint", "w"));
+
+    m_taint->TaintRule_LoadMemory();
     ExecuteTraces();
 
     TSnapshot t(*m_taint);
-    t.Dump(m_engine->GetArchiveDir() + "snapshot_post.taint");
+    t.Dump(File(dir + "snapshot_post.taint", "w"));
 
     int nTraces;
     EndTrace(&nTraces);

@@ -31,6 +31,8 @@ struct TContext {
         return (ExecFlag & flag) == flag;
     }
 
+    void        Dump(File &f) const;
+
 //     TContext() {
 //         ZeroMemory(this, sizeof(TContext));
 //     }
@@ -50,6 +52,8 @@ public:
 
     void        Serialize(Json::Value &root) const override;
     void        Deserialize(Json::Value &root) override;
+    
+    void        Dump(File &f) const;
 
 private:
     int         m_count;

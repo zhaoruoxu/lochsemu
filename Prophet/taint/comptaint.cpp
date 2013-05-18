@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "comptaint.h"
-
+#include "utilities.h"
 
 MemoryTaint::MemoryTaint()
 {
@@ -134,50 +134,50 @@ void ProcessorTaint::CopyFrom( const ProcessorTaint *t )
 }
 
 
-#define PRINT_LINE_SEP()  fprintf(fp, "----------------------------------------\n")
+#define PRINT_LINE_SEP()  fprintf(f.Ptr(), "----------------------------------------\n")
 
-void ProcessorTaint::Dump( FILE *fp ) const
+void ProcessorTaint::Dump( File &f ) const
 {
-    fprintf(fp, "Processor Taint:\n");
+    fprintf(f.Ptr(), "Processor Taint:\n");
     for (int reg = 0; reg < 8; reg++) {
-        fprintf(fp, "--- %s ---\n", InstContext::RegNames[reg].c_str());
+        fprintf(f.Ptr(), "--- %s ---\n", InstContext::RegNames[reg].c_str());
         for (int i = 0; i < 4; i++) {
-            fprintf(fp, "%d: ", i);
-            GPRegs[reg][i].Dump(fp);
+            fprintf(f.Ptr(), "%d: ", i);
+            GPRegs[reg][i].Dump(f);
         }
     }
     PRINT_LINE_SEP();
 
-    fprintf(fp, "Eip: ");
-    Eip[0].Dump(fp);
+    fprintf(f.Ptr(), "Eip: ");
+    Eip[0].Dump(f);
     PRINT_LINE_SEP();
 
     for (int flag = 0; flag < InstContext::FLAG_COUNT; flag++) {
-        fprintf(fp, "%s: ", InstContext::FlagNames[flag].c_str());
-        Flags[flag][0].Dump(fp);
+        fprintf(f.Ptr(), "%s: ", InstContext::FlagNames[flag].c_str());
+        Flags[flag][0].Dump(f);
     }
     PRINT_LINE_SEP();
 }
 
 
 
-void MemoryTaint::Dump( FILE *fp ) const
+void MemoryTaint::Dump( File &f ) const
 {
-    fprintf(fp, "Memory Taint:\n");
+    fprintf(f.Ptr(), "Memory Taint:\n");
     for (u32 i = 0; i < LX_PAGE_COUNT; i++) {
         if (m_pagetable[i]) {
-            m_pagetable[i]->Dump(fp, i * LX_PAGE_SIZE);
+            m_pagetable[i]->Dump(f, i * LX_PAGE_SIZE);
         }
     }
 }
 
 
-void MemoryTaint::PageTaint::Dump( FILE *fp, u32 base ) const
+void MemoryTaint::PageTaint::Dump( File &f, u32 base ) const
 {
     for (u32 i = 0; i < LX_PAGE_SIZE; i++) {
         if (!m_data[i]) continue;
         if (!m_data[i]->IsAnyTainted()) continue;
-        fprintf(fp, "%08x: ", base + i);
-        m_data[i]->Dump(fp);
+        fprintf(f.Ptr(), "%08x: ", base + i);
+        m_data[i]->Dump(f);
     }
 }

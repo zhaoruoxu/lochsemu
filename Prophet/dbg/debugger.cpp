@@ -346,6 +346,8 @@ void ProDebugger::UpdateTContext( const Processor *cpu, TContext *ctx ) const
     ctx->Tid = cpu->IntID;
     ctx->ExtTid = cpu->Thr()->ExtID;
     ctx->ExecFlag = cpu->GetExecFlag();
+    ctx->JumpTaken = Instruction::IsConditionalJump(ctx->Inst) ?
+        m_cpu[cpu->IntID]->IsJumpTaken(ctx->Inst) : false;
 
 #undef GET_FLAG
 }

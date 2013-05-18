@@ -84,7 +84,7 @@ public:
     Taint&      operator^=(const Taint &rhs);
 
     std::string ToString() const;
-    void        Dump(FILE *fp) const;
+    void        Dump(File &f) const;
     static Taint    FromBinString(const std::string &s);
 private:
     static const int    Count = 16;
