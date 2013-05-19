@@ -11,12 +11,12 @@
 #include "comptaint.h"
 #include "utilities.h"
 #include "protocol/protocol.h"
+#include "protocol/runtrace.h"
+#include "protocol/analyzer.h"
 
 #include "processor.h"
 #include "process.h"
 #include "thread.h"
-
-#include "protocol/runtrace.h"
 
 #define ARG1    (inst->Main.Argument1)
 #define ARG2    (inst->Main.Argument2)
@@ -40,7 +40,7 @@ enum TaintRule {
     TAINT_SAVEADDRREG = 1 << 1,
 };
 
-class TaintEngine : public ISerializable {
+class TaintEngine : public ISerializable, public TraceAnalyzer {
 public:
     //static const int MaxCpus = Process::MaximumThreads;
 public:
@@ -52,16 +52,12 @@ public:
     MemoryTaint     MemTaint;
 
     void        Initialize();
-    void        OnPreExecute       (PreExecuteEvent     &event);
-    void        OnPostExecute      (PostExecuteEvent    &event);
-    void        OnWinapiPreCall    (WinapiPreCallEvent  &event);
-    void        OnWinapiPostCall   (WinapiPostCallEvent &event);
 
-    void        OnExecuteTrace      (ExecuteTraceEvent  &event);
+    void        OnExecuteTrace      (ExecuteTraceEvent  &event) override;
 
     void        Enable(bool isEnabled);
     bool        IsEnabled() const { return m_enabled; }
-    void        Reset();
+    void        Reset() override;
 
     Taint1      GetTaintAddressingReg(const TContext *t, const ARGTYPE &oper) const;
     Taint1      GetTaintShrink(const TContext *t, const ARGTYPE &oper);

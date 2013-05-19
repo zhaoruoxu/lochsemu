@@ -25,12 +25,6 @@
     <Filter Include="Source Files\3rdparty\json">
       <UniqueIdentifier>{593d6157-d151-41d3-bafc-016662e5e374}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\taint">
-      <UniqueIdentifier>{88069ee4-ab8a-41c4-a30f-3439a95b6be2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\taint">
-      <UniqueIdentifier>{669f15ec-3162-4a0f-8763-bde027c561fe}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\gui">
       <UniqueIdentifier>{9f122b0f-8713-4128-b1d5-3b3803a87a00}</UniqueIdentifier>
     </Filter>
@@ -76,6 +70,12 @@
     <Filter Include="Header Files\3rdparty\sqlitecpp">
       <UniqueIdentifier>{b4f03e8c-7d69-4b0f-866a-c64c970df5e7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\protocol\taint">
+      <UniqueIdentifier>{a4c0e6c8-e1b4-43cb-a444-d2bba8f4dd2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\protocol\taint">
+      <UniqueIdentifier>{483326dc-c320-48fa-baab-ffa76bdb9173}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -117,9 +117,6 @@
     <ClInclude Include="3rdparty\src\json\json_tool.h">
       <Filter>Source Files\3rdparty\json</Filter>
     </ClInclude>
-    <ClInclude Include="taint\taint.h">
-      <Filter>Header Files\taint</Filter>
-    </ClInclude>
     <ClInclude Include="gui\gui.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
@@ -137,9 +134,6 @@
     </ClInclude>
     <ClInclude Include="engine.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="taint\taintengine.h">
-      <Filter>Header Files\taint</Filter>
     </ClInclude>
     <ClInclude Include="static\disassembler.h">
       <Filter>Header Files\static</Filter>
@@ -182,9 +176,6 @@
     </ClInclude>
     <ClInclude Include="gui\myswitch.h">
       <Filter>Header Files\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="taint\comptaint.h">
-      <Filter>Header Files\taint</Filter>
     </ClInclude>
     <ClInclude Include="plugin\plugin.h">
       <Filter>Header Files\plugin</Filter>
@@ -291,6 +282,15 @@
     <ClInclude Include="protocol\analyzers\msgaccess.h">
       <Filter>Header Files\protocol\analyzers</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\taint\comptaint.h">
+      <Filter>Header Files\protocol\taint</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\taint\taint.h">
+      <Filter>Header Files\protocol\taint</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\taint\taintengine.h">
+      <Filter>Header Files\protocol\taint</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -307,9 +307,6 @@
     </ClCompile>
     <ClCompile Include="3rdparty\src\json\json_writer.cpp">
       <Filter>Source Files\3rdparty\json</Filter>
-    </ClCompile>
-    <ClCompile Include="taint\taint.cpp">
-      <Filter>Source Files\taint</Filter>
     </ClCompile>
     <ClCompile Include="gui\gui.cpp">
       <Filter>Source Files\gui</Filter>
@@ -328,9 +325,6 @@
     </ClCompile>
     <ClCompile Include="engine.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="taint\taintengine.cpp">
-      <Filter>Source Files\taint</Filter>
     </ClCompile>
     <ClCompile Include="static\disassembler.cpp">
       <Filter>Source Files\static</Filter>
@@ -367,9 +361,6 @@
     </ClCompile>
     <ClCompile Include="gui\myswitch.cpp">
       <Filter>Source Files\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="taint\comptaint.cpp">
-      <Filter>Source Files\taint</Filter>
     </ClCompile>
     <ClCompile Include="plugin\plugin.cpp">
       <Filter>Source Files\plugin</Filter>
@@ -457,6 +448,15 @@
     </ClCompile>
     <ClCompile Include="protocol\analyzers\msgaccess.cpp">
       <Filter>Source Files\protocol\analyzers</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\taint\comptaint.cpp">
+      <Filter>Source Files\protocol\taint</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\taint\taint.cpp">
+      <Filter>Source Files\protocol\taint</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\taint\taintengine.cpp">
+      <Filter>Source Files\protocol\taint</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

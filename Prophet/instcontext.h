@@ -4,7 +4,6 @@
 #define __PROPHET_INSTCONTEXT_H__
  
 #include "prophet.h"
-#include "taint/taint.h"
 #include "static/disassembler.h"
 
 struct MemAccess {

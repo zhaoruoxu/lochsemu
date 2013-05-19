@@ -4,7 +4,7 @@
 #define __PROPHET_PROTOCOL_ANALYZERS_SEPARATOR_H__
  
 #include "protocol/analyzer.h"
-#include "taint/taint.h"
+#include "protocol/taint/taint.h"
 
 class SeparatorKeyword : public ProtocolAnalyzer {
 public:

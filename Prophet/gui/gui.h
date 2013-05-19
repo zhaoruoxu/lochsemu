@@ -4,7 +4,7 @@
 #define __PROPHET_GUI_GUI_H__
  
 #include "prophet.h"
-#include "taint/taint.h"
+#include "protocol/taint/taint.h"
 
 void RunGUI();
 void NotifyMainThread();

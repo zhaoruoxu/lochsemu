@@ -43,22 +43,21 @@ void TaintEngine::Initialize()
 
 void TaintEngine::Reset()
 {
-    //for (int i = 0; i < MaxCpus; i++)
     CpuTaint.Reset();
     MemTaint.Reset();
 }
 
-void TaintEngine::OnPreExecute( PreExecuteEvent &event )
-{
-    if (!IsEnabled()) return;
-
-
-}
-
-void TaintEngine::OnPostExecute( PostExecuteEvent &event )
-{
-
-}
+// void TaintEngine::OnPreExecute( PreExecuteEvent &event )
+// {
+//     if (!IsEnabled()) return;
+// 
+// 
+// }
+// 
+// void TaintEngine::OnPostExecute( PostExecuteEvent &event )
+// {
+// 
+// }
 
 
 void TaintEngine::OnExecuteTrace( ExecuteTraceEvent &event )

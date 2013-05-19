@@ -159,12 +159,12 @@
     <ClInclude Include="protocol\protocol.h" />
     <ClInclude Include="protocol\msgmgr.h" />
     <ClInclude Include="protocol\runtrace.h" />
+    <ClInclude Include="protocol\taint\comptaint.h" />
+    <ClInclude Include="protocol\taint\taint.h" />
+    <ClInclude Include="protocol\taint\taintengine.h" />
     <ClInclude Include="static\disassembler.h" />
     <ClInclude Include="statistics.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="taint\comptaint.h" />
-    <ClInclude Include="taint\taintengine.h" />
-    <ClInclude Include="taint\taint.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>
@@ -233,15 +233,15 @@
     <ClCompile Include="protocol\protocol.cpp" />
     <ClCompile Include="protocol\msgmgr.cpp" />
     <ClCompile Include="protocol\runtrace.cpp" />
+    <ClCompile Include="protocol\taint\comptaint.cpp" />
+    <ClCompile Include="protocol\taint\taint.cpp" />
+    <ClCompile Include="protocol\taint\taintengine.cpp" />
     <ClCompile Include="static\disassembler.cpp" />
     <ClCompile Include="statistics.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="taint\comptaint.cpp" />
-    <ClCompile Include="taint\taintengine.cpp" />
-    <ClCompile Include="taint\taint.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>

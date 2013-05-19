@@ -2,7 +2,7 @@
 #include "direction_field.h"
 #include "instruction.h"
 #include "engine.h"
-#include "taint/taintengine.h"
+#include "protocol/taint/taintengine.h"
 #include "protocol/msgmgr.h"
 
 /*

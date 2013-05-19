@@ -69,7 +69,7 @@ void ProEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
     m_debugger.OnPreExecute(event);
     m_protocol.OnPreExecute(event);
 
-    m_taint.OnPreExecute(event);
+    //m_taint.OnPreExecute(event);
 
     m_plugins.OnPreExecute(event, false);
 }
@@ -86,7 +86,7 @@ void ProEngine::OnPostExecute( Processor *cpu, const Instruction *inst )
     m_plugins.OnPostExecute(event, true);
     if (event.IsVetoed()) return;
 
-    m_taint.OnPostExecute(event);
+    //m_taint.OnPostExecute(event);
     m_tracer.OnPostExecute(event);
     m_protocol.OnPostExecute(event);
     m_debugger.OnPostExecute(event);

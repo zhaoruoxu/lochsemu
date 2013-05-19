@@ -10,7 +10,7 @@
 #include "dbg/tracer.h"
 #include "gui/gui.h"
 #include "static/disassembler.h"
-#include "taint/taintengine.h"
+#include "protocol/taint/taintengine.h"
 #include "plugin/plugin.h"
 #include "protocol/protocol.h"
 

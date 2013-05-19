@@ -3,7 +3,7 @@
 #include "mainframe.h"
 #include "prophet.h"
 #include "parallel.h"
-#include "taint/taint.h"
+#include "protocol/taint/taint.h"
 
 HANDLE      g_guiThread;
 
