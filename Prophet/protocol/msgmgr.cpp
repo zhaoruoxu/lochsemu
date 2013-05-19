@@ -8,8 +8,8 @@ MessageManager::MessageManager( Protocol *protocol )
     : m_protocol(protocol), m_format(this)
 {
     m_message = NULL;
-    m_breakOnMsgBegin   = true;
-    m_breakOnMsgEnd     = true;
+    m_breakOnMsgBegin   = false;
+    m_breakOnMsgEnd     = false;
     m_autoShowMemory    = true;
 }
 
@@ -30,9 +30,9 @@ void MessageManager::OnMessageBegin( MessageBeginEvent &event )
         LxError("Prophet: message length(%d) >= taint width(%d)!\n", event.MessageLen,
             Taint::GetWidth());
     }
-    m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
+    //m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
     m_message = new Message(event.MessageLen, event.MessageAddr, event.MessageData);
-    m_format.OnMessageBegin(event);
+    //m_format.OnMessageBegin(event);
 
     if (m_breakOnMsgBegin) {
         char buf[256];
@@ -48,7 +48,7 @@ void MessageManager::OnMessageBegin( MessageBeginEvent &event )
 
 void MessageManager::OnMessageEnd( MessageEndEvent &event )
 {
-    m_format.OnMessageEnd(event);
+    //m_format.OnMessageEnd(event);
 
     m_protocol->AddMessage(m_message);
     m_protocol->GetEngine()->GetGUI()->ShowMessage(m_message);
@@ -61,7 +61,7 @@ void MessageManager::OnMessageEnd( MessageEndEvent &event )
         m_protocol->GetEngine()->BreakOnNextInst(buf);
     }
 
-    m_taint->Reset();
+    //m_taint->Reset();
 }
 
 void MessageManager::Serialize( Json::Value &root ) const 

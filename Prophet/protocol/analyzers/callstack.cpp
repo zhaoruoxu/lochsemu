@@ -25,11 +25,13 @@ void CallStack::OnExecuteTrace( ExecuteTraceEvent &event )
         Procedure *p;
         if ((p = m_procs->Get(event.Context->Eip)) != NULL) {
             m_stack.push_back(p);
+            //printf("%d : push %08x, stack size = %d\n", event.Seq, p->Entry(), m_stack.size());
         }
     }
 
     if (Instruction::IsRet(event.Context->Inst)) {
         m_stack.pop_back();
+        //printf("%d : pop, stack size = %d\n", event.Seq, m_stack.size());
     }
     m_prev = ctx;
 }
@@ -38,4 +40,13 @@ void CallStack::Reset()
 {
     m_stack.clear();
     m_prev = NULL;
+}
+
+u32 GetProcStackHash( const ProcStack &stack )
+{
+    u32 hash = 0;
+    for (auto &t : stack) {
+        hash = hash * 13131 + (*t).Entry();
+    }
+    return hash;
 }

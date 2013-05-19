@@ -113,8 +113,8 @@ void LxLogInternal(LogLevel level, const char *format, va_list args)
         FOREGROUND_GREEN,
         FOREGROUND_GREEN | FOREGROUND_INTENSITY,
         //FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY,
-        FOREGROUND_RED,
-        FOREGROUND_RED| FOREGROUND_INTENSITY,
+        FOREGROUND_RED | FOREGROUND_INTENSITY,
+        FOREGROUND_RED | FOREGROUND_INTENSITY | BACKGROUND_BLUE,
     };
     static const char *logFormat[] = {
         "[*][%s] %s",

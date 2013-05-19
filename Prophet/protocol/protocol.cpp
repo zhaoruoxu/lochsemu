@@ -10,6 +10,8 @@
 #include "analyzers/separator.h"
 #include "analyzers/procscope.h"
 #include "analyzers/traceexec.h"
+#include "analyzers/callstack.h"
+#include "analyzers/msgaccess.h"
 
 #include "sqlite/SQLiteC++.h"
 
@@ -282,10 +284,11 @@ void Protocol::OnMessageBegin( MessageBeginEvent &event )
     m_state = ProcessingMessage;
     m_engine->GetDisassembler()->GetInst(m_eipPreExec)->Desc = "Message begin";
 
-    m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
+    
     // m_taint->Enable(true);
     
-    // m_msgmanager.OnMessageBegin(event);
+    m_msgmanager.OnMessageBegin(event);
+    m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
 
 //     for (int i = 0; i < m_totalAnalyzers; i++) {
 //         ProtocolAnalyzer *pa = m_analyzers[i];
@@ -325,6 +328,14 @@ void Protocol::OnMessageEnd( MessageEndEvent &event )
 
     procScope.Dump(File(dir + "proc_scope.txt", "w"));
 
+    CallStack callStack(&procScope);
+    MessageAccessLog msglog(&callStack, m_msgmanager.GetCurrentMessage());
+    exec.Add(&msglog);
+    exec.Run(m_tracer);
+    exec.Reset();
+
+    msglog.Dump(File(dir + "message_access_log.txt", "w"));
+
     //TSnapshot t(*m_taint);
     //t.Dump(File(dir + "snapshot_post.taint", "w"));
 
@@ -341,7 +352,7 @@ void Protocol::OnMessageEnd( MessageEndEvent &event )
 //     }
 
     //m_formatsyn.OnMessageEnd(event);
-    //m_msgmanager.OnMessageEnd(event);
+    m_msgmanager.OnMessageEnd(event);
 
     //m_taint->Enable(false);
     m_state = Idle;

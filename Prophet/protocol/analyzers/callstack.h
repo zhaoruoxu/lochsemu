@@ -6,6 +6,10 @@
 #include "protocol/analyzer.h"
 #include "procscope.h"
 
+typedef std::vector<Procedure *> ProcStack;
+
+u32 GetProcStackHash(const ProcStack &stack);
+
 class CallStack : public TraceAnalyzer {
 public:
     CallStack(ProcScope *procs);
@@ -14,9 +18,12 @@ public:
     virtual void Reset() override;
     virtual void OnExecuteTrace(ExecuteTraceEvent &event) override;
 
+    ProcStack &Get() { return m_stack; }
+    const ProcStack &Get() const { return m_stack; }
+
 private:
     ProcScope * m_procs;
-    std::vector<Procedure *> m_stack;
+    ProcStack   m_stack;
     const TContext *m_prev;
 };
  

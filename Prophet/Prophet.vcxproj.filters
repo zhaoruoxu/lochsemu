@@ -288,6 +288,9 @@
     <ClInclude Include="protocol\analyzers\traceexec.h">
       <Filter>Header Files\protocol\analyzers</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\analyzers\msgaccess.h">
+      <Filter>Header Files\protocol\analyzers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -450,6 +453,9 @@
       <Filter>Source Files\protocol\analyzers</Filter>
     </ClCompile>
     <ClCompile Include="protocol\analyzers\traceexec.cpp">
+      <Filter>Source Files\protocol\analyzers</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\analyzers\msgaccess.cpp">
       <Filter>Source Files\protocol\analyzers</Filter>
     </ClCompile>
   </ItemGroup>
