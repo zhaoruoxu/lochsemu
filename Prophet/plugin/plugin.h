@@ -9,13 +9,13 @@
 
 class Plugin : public ISerializable {
 public:
-    Plugin(ProPluginManager *manager, bool initialEnable, const std::string name, uint ovd);
+    Plugin(ProPluginManager *manager, bool initialEnable, const std::string name);
     virtual ~Plugin() {}
 
     std::string     GetName() const { return m_name; }
     bool            IsEnabled() const { return m_enabled; }
     void            Enable(bool isEnabled) { m_enabled = isEnabled; }
-    bool            HasOverrideFlag(EventHandlerFlag f) const { return (m_ovdFlag & f) != 0; }
+    // bool            HasOverrideFlag(EventHandlerFlag f) const { return (m_ovdFlag & f) != 0; }
     ProPluginManager* GetManager() { return m_manager; }
     const ProPluginManager *  GetManager() const { return m_manager; }
     ProEngine *       GetEngine();
@@ -42,7 +42,6 @@ private:
     std::string     m_name;
     bool            m_enabled;
     ProPluginManager *m_manager;
-    uint    m_ovdFlag;
 };
 
 

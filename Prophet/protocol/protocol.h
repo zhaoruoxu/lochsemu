@@ -5,7 +5,6 @@
  
 #include "prophet.h"
 #include "utilities.h"
-#include "analyzer.h"
 #include "apiprocessor.h"
 #include "formatsyn.h"
 #include "msgmgr.h"
@@ -13,11 +12,12 @@
 
 class ExecuteTraceEvent : public Event {
 public:
-    ExecuteTraceEvent(void *sender) : Event(sender), Context(NULL) {}
-    ExecuteTraceEvent(void *sender, const TContext *ctx) : Event(sender),
-        Context(ctx) {}
+    ExecuteTraceEvent(void *sender) : Event(sender), Context(NULL), Seq(-1) {}
+    ExecuteTraceEvent(void *sender, const TContext *ctx, int seq) : Event(sender),
+        Context(ctx), Seq(seq) {}
 
     const TContext *const Context;
+    const int   Seq;
 };
 
 class Protocol : public ISerializable {
@@ -70,7 +70,6 @@ private:
 /*    void        ReorderAnalyzers();*/
     void        BeginTrace();
     void        EndTrace(int *nCount = NULL);
-    void        ExecuteTraces();
 private:
     ProEngine *         m_engine;
     TaintEngine *       m_taint;
@@ -91,7 +90,7 @@ private:
 
     u32                 m_eipPreExec;
 
-    RunTracer           m_tracer;
+    RunTrace           m_tracer;
     bool                m_tracing;
 };
  

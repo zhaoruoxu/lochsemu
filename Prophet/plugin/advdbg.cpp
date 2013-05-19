@@ -2,7 +2,7 @@
 #include "advdbg.h"
 
 AdvancedDebugger::AdvancedDebugger(ProPluginManager *manager)
-    : Plugin(manager, false, "Advanced Debugger", PreExecuteHandler)
+    : Plugin(manager, false, "Advanced Debugger")
 {
     m_breakOnWinMain    = true;
     m_callsBackward     = 0;

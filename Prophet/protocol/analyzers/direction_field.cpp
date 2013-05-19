@@ -12,8 +12,7 @@
  */
 
 DirectionField::DirectionField( Protocol *protocol )
-    : ProtocolAnalyzer(protocol, "DirectionField", 
-    PreExecuteHandler | MessageBeginHandler | MessageEndHandler)
+    : ProtocolAnalyzer(protocol, "DirectionField")
 {
     m_taint = NULL;
     m_useFlag = true;

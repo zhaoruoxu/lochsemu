@@ -10,8 +10,8 @@
 #include "remotediff.h"
 #include "context_override.h"
 
-Plugin::Plugin(ProPluginManager *manager, bool initialEnable, const std::string name, uint ovd)
-    : m_manager(manager), m_name(name), m_enabled(initialEnable), m_ovdFlag(ovd)
+Plugin::Plugin(ProPluginManager *manager, bool initialEnable, const std::string name)
+    : m_manager(manager), m_name(name), m_enabled(initialEnable)
 {
 }
 
@@ -80,7 +80,7 @@ void ProPluginManager::OnPreExecute( PreExecuteEvent &event, bool firstTime )
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(PreExecuteHandler)) 
+        if (p->IsEnabled()) 
             p->OnPreExecute(event, firstTime);
     }
 }
@@ -90,7 +90,7 @@ void ProPluginManager::OnPostExecute( PostExecuteEvent &event, bool firstTime)
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(PostExecuteHandler))
+        if (p->IsEnabled())
             p->OnPostExecute(event, firstTime);
     }
 }
@@ -100,7 +100,7 @@ void ProPluginManager::OnMemRead( MemReadEvent &event, bool firstTime )
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(MemReadHandler))
+        if (p->IsEnabled())
             p->OnMemRead(event, firstTime);
     }
 }
@@ -110,7 +110,7 @@ void ProPluginManager::OnMemWrite( MemWriteEvent &event, bool firstTime )
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(MemWriteHandler))
+        if (p->IsEnabled())
             p->OnMemWrite(event, firstTime);
     }
 }
@@ -120,7 +120,7 @@ void ProPluginManager::OnProcessPreRun( ProcessPreRunEvent &event, bool firstTim
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(ProcessPreRunHandler))
+        if (p->IsEnabled())
             p->OnProcessPreRun(event, firstTime);
     }
 }
@@ -130,7 +130,7 @@ void ProPluginManager::OnProcessPostRun( ProcessPostRunEvent &event, bool firstT
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(ProcessPostRunHandler))
+        if (p->IsEnabled())
             p->OnProcessPostRun(event, firstTime);
     }
 }
@@ -140,7 +140,7 @@ void ProPluginManager::OnProcessPreLoad( ProcessPreLoadEvent &event, bool firstT
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(ProcessPreLoadHandler))
+        if (p->IsEnabled())
             p->OnProcessPreLoad(event, firstTime);
     }
 }
@@ -150,7 +150,7 @@ void ProPluginManager::OnProcessPostLoad( ProcessPostLoadEvent &event, bool firs
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(ProcessPostLoadHandler))
+        if (p->IsEnabled())
             p->OnProcessPostLoad(event, firstTime);
     }
 }
@@ -160,7 +160,7 @@ void ProPluginManager::OnWinapiPreCall( WinapiPreCallEvent &event, bool firstTim
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(WinapiPreCallHandler))
+        if (p->IsEnabled())
             p->OnWinapiPreCall(event, firstTime);
     }
 }
@@ -170,7 +170,7 @@ void ProPluginManager::OnWinapiPostCall( WinapiPostCallEvent &event, bool firstT
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(WinapiPostCallHandler))
+        if (p->IsEnabled())
             p->OnWinapiPostCall(event, firstTime);
     }
 }
@@ -180,7 +180,7 @@ void ProPluginManager::OnThreadCreate( ThreadCreateEvent &event, bool firstTime 
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(ThreadCreateHandler))
+        if (p->IsEnabled())
             p->OnThreadCreate(event, firstTime);
     }
 }
@@ -190,7 +190,7 @@ void ProPluginManager::OnThreadExit( ThreadExitEvent &event, bool firstTime )
     if (!m_enabled) return;
     for (int i = 0; i < m_totalPlugins; i++) {
         Plugin *p = m_plugins[i];
-        if (p->IsEnabled() && p->HasOverrideFlag(ThreadExitHandler))
+        if (p->IsEnabled())
             p->OnThreadExit(event, firstTime);
     }
 }

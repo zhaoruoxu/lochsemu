@@ -4,8 +4,7 @@
 #include "remotediff/pipeserver.h"
 
 RemoteDiff::RemoteDiff( ProPluginManager *manager )
-    : Plugin(manager, false, "RemoteDiff", PostExecuteHandler | 
-    ProcessPreRunHandler | ThreadCreateHandler | ThreadExitHandler)
+    : Plugin(manager, false, "RemoteDiff")
 {
 
 }

@@ -8,7 +8,7 @@
 #include "stack.h"
 
 ContextOverride::ContextOverride( ProPluginManager *manager )
-    : Plugin(manager, true, "ContextOverride", PreExecuteHandler)
+    : Plugin(manager, true, "ContextOverride")
 {
     m_done = false;
 }

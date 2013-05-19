@@ -25,7 +25,7 @@ static const uint       TaintDataSeg        = 0xf1edcacf;
 class TaintDirective : public Plugin {
 public:
     TaintDirective(ProPluginManager *manager) 
-        : Plugin(manager, false, "TaintDirective", PreExecuteHandler | PostExecuteHandler | ProcessPreRunHandler) 
+        : Plugin(manager, false, "TaintDirective") 
     {
         m_taintAllBits = false;
         m_lastEip = 0;

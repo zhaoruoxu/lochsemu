@@ -11,8 +11,7 @@
 #include "emulator.h"
 
 SyncDiff::SyncDiff( ProPluginManager *manager )
-    : Plugin(manager, false, "SyncDiff", PreExecuteHandler | PostExecuteHandler | 
-    ProcessPreRunHandler | ProcessPostLoadHandler)
+    : Plugin(manager, false, "SyncDiff")
 {
     m_refProc   = NULL;
     m_pi        = NULL;

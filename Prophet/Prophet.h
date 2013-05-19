@@ -79,7 +79,11 @@ class Message;
 class MessageManager;
 class FormatSyn;
 struct TContext;
-class RunTracer;
+class RunTrace;
+class ProtocolAnalyzer;
+class TraceAnalyzer;
+class ProcScope;
+class CallStack;
 
 // utilities
 class File;

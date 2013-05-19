@@ -3,7 +3,7 @@
 #include "emulator.h"
 
 AutoBreak::AutoBreak(ProPluginManager *manager) 
-    : Plugin(manager, true, "AutoBreak", ProcessPostLoadHandler | PreExecuteHandler) 
+    : Plugin(manager, true, "AutoBreak") 
 {
     m_breakOnMainModuleEntry    = true;
     m_fakeMessageEnd     = true;

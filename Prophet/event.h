@@ -24,22 +24,22 @@ private:
     void * const    m_sender;
 };
 
-enum EventHandlerFlag : uint {
-    PreExecuteHandler       = 1,
-    PostExecuteHandler      = 1 << 2,
-    MemReadHandler          = 1 << 3,
-    MemWriteHandler         = 1 << 4,
-    ProcessPreRunHandler    = 1 << 5,
-    ProcessPostRunHandler   = 1 << 6,
-    ProcessPreLoadHandler   = 1 << 7,
-    ProcessPostLoadHandler  = 1 << 8,
-    WinapiPreCallHandler    = 1 << 9,
-    WinapiPostCallHandler   = 1 << 10,
-    MessageBeginHandler     = 1 << 11,
-    MessageEndHandler       = 1 << 12,
-    ThreadCreateHandler     = 1 << 13,
-    ThreadExitHandler       = 1 << 14,
-};
+// enum EventHandlerFlag : uint {
+//     PreExecuteHandler       = 1,
+//     PostExecuteHandler      = 1 << 2,
+//     MemReadHandler          = 1 << 3,
+//     MemWriteHandler         = 1 << 4,
+//     ProcessPreRunHandler    = 1 << 5,
+//     ProcessPostRunHandler   = 1 << 6,
+//     ProcessPreLoadHandler   = 1 << 7,
+//     ProcessPostLoadHandler  = 1 << 8,
+//     WinapiPreCallHandler    = 1 << 9,
+//     WinapiPostCallHandler   = 1 << 10,
+//     MessageBeginHandler     = 1 << 11,
+//     MessageEndHandler       = 1 << 12,
+//     ThreadCreateHandler     = 1 << 13,
+//     ThreadExitHandler       = 1 << 14,
+// };
 
 class PreExecuteEvent : public Event {
 public:

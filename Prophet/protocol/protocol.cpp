@@ -8,6 +8,8 @@
 /* Analyzers */
 #include "analyzers/direction_field.h"
 #include "analyzers/separator.h"
+#include "analyzers/procscope.h"
+#include "analyzers/traceexec.h"
 
 #include "sqlite/SQLiteC++.h"
 
@@ -308,20 +310,29 @@ void Protocol::OnMessageEnd( MessageEndEvent &event )
     std::string dir = m_engine->GetArchiveDir();
     m_tracer.Dump(File(dir + "traces.txt", "w"));
 
-    TSnapshot s(*m_taint);
-    s.Dump(File(dir + "snapshot_pre.taint", "w"));
+    //TSnapshot s(*m_taint);
+    //s.Dump(File(dir + "snapshot_pre.taint", "w"));
 
-    m_taint->TaintRule_LoadMemory();
-    ExecuteTraces();
+    //m_taint->TaintRule_LoadMemory();
+    //ExecuteTraces();
+    // 
+    TraceExec exec;
+    ProcScope procScope;
 
-    TSnapshot t(*m_taint);
-    t.Dump(File(dir + "snapshot_post.taint", "w"));
+    exec.Add(&procScope);
+    exec.Run(m_tracer);
+    exec.Reset();
+
+    procScope.Dump(File(dir + "proc_scope.txt", "w"));
+
+    //TSnapshot t(*m_taint);
+    //t.Dump(File(dir + "snapshot_post.taint", "w"));
 
     int nTraces;
     EndTrace(&nTraces);
     LxInfo("Ending trace, count = %d\n", nTraces);
 
-    SQLite::Database db("haha.db3");
+    // SQLite::Database db("haha.db3");
 
 //     for (int i = 0; i < m_totalAnalyzers; i++) {
 //         ProtocolAnalyzer *pa = m_analyzers[i];
@@ -353,13 +364,4 @@ void Protocol::EndTrace(int *nCount)
     if (nCount) *nCount = m_tracer.Count();
     m_tracing = false;
     m_tracer.End();
-}
-
-void Protocol::ExecuteTraces()
-{
-    const int nTraces = m_tracer.Count();
-    for (int i = 0; i < nTraces; i++) {
-        ExecuteTraceEvent e(this, m_tracer.Get(i));
-        m_taint->OnExecuteTrace(e);
-    }
 }

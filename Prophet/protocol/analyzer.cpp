@@ -4,8 +4,8 @@
 #include "event.h"
 
 
-ProtocolAnalyzer::ProtocolAnalyzer( Protocol *protocol, const std::string &name, uint handlerFlags )
-    : m_protocol(protocol), m_name(name), m_handlerFlags(handlerFlags)
+ProtocolAnalyzer::ProtocolAnalyzer( Protocol *protocol, const std::string &name )
+    : m_protocol(protocol), m_name(name)
 {
     m_enabled = true;
 }

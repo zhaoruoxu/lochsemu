@@ -4,8 +4,7 @@
 #include "engine.h"
 
 SeparatorKeyword::SeparatorKeyword( Protocol *protocol )
-    : ProtocolAnalyzer(protocol, "SeparatorKeyword",
-    PreExecuteHandler | PostExecuteHandler | MessageBeginHandler | MessageEndHandler)
+    : ProtocolAnalyzer(protocol, "SeparatorKeyword")
 {
     m_msglen = 0;
     m_tokenMinCmpRange = 5;

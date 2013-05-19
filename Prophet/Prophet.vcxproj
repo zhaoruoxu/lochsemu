@@ -148,8 +148,10 @@
     <ClInclude Include="plugin\vulnerability_detector.h" />
     <ClInclude Include="prophet.h" />
     <ClInclude Include="protocol\analyzer.h" />
+    <ClInclude Include="protocol\analyzers\callstack.h" />
     <ClInclude Include="protocol\analyzers\direction_field.h" />
     <ClInclude Include="protocol\analyzers\separator.h" />
+    <ClInclude Include="protocol\analyzers\traceexec.h" />
     <ClInclude Include="protocol\apiprocessor.h" />
     <ClInclude Include="protocol\formatsyn.h" />
     <ClInclude Include="protocol\message.h" />
@@ -218,8 +220,11 @@
     <ClCompile Include="plugin\vulnerability_detector.cpp" />
     <ClCompile Include="prophet.cpp" />
     <ClCompile Include="protocol\analyzer.cpp" />
+    <ClCompile Include="protocol\analyzers\callstack.cpp" />
     <ClCompile Include="protocol\analyzers\direction_field.cpp" />
+    <ClCompile Include="protocol\analyzers\procscope.cpp" />
     <ClCompile Include="protocol\analyzers\separator.cpp" />
+    <ClCompile Include="protocol\analyzers\traceexec.cpp" />
     <ClCompile Include="protocol\apiprocessor.cpp" />
     <ClCompile Include="protocol\formatsyn.cpp" />
     <ClCompile Include="protocol\message.cpp" />
@@ -241,6 +246,7 @@
     <None Include="3rdparty\src\json\json_internalarray.inl" />
     <None Include="3rdparty\src\json\json_internalmap.inl" />
     <None Include="3rdparty\src\json\json_valueiterator.inl" />
+    <None Include="protocol\analyzers\procscope.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

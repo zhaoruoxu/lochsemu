@@ -282,6 +282,12 @@
     <ClInclude Include="3rdparty\include\sqlite\Transaction.h">
       <Filter>Header Files\3rdparty\sqlitecpp</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\analyzers\callstack.h">
+      <Filter>Header Files\protocol\analyzers</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\analyzers\traceexec.h">
+      <Filter>Header Files\protocol\analyzers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -437,6 +443,15 @@
     <ClCompile Include="protocol\runtrace.cpp">
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
+    <ClCompile Include="protocol\analyzers\callstack.cpp">
+      <Filter>Source Files\protocol\analyzers</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\analyzers\procscope.cpp">
+      <Filter>Source Files\protocol\analyzers</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\analyzers\traceexec.cpp">
+      <Filter>Source Files\protocol\analyzers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="3rdparty\src\json\json_internalarray.inl">
@@ -447,6 +462,9 @@
     </None>
     <None Include="3rdparty\src\json\json_valueiterator.inl">
       <Filter>Source Files\3rdparty\json</Filter>
+    </None>
+    <None Include="protocol\analyzers\procscope.h">
+      <Filter>Header Files\protocol\analyzers</Filter>
     </None>
   </ItemGroup>
 </Project>

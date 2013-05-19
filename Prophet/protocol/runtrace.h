@@ -38,10 +38,10 @@ struct TContext {
 //     }
 };
 
-class RunTracer : public MutexSyncObject, public ISerializable {
+class RunTrace : public MutexSyncObject, public ISerializable {
 public:
-    RunTracer(Protocol *engine);
-    ~RunTracer();
+    RunTrace(Protocol *engine);
+    ~RunTrace();
 
     void        Begin();
     void        Trace(const Processor *cpu);
@@ -60,6 +60,7 @@ private:
     int         m_maxTraces;
     Protocol *  m_engine;
     TContext *  m_traces;
+    bool        m_mergeCallJmp;
 };
  
 #endif // __PROPHET_TAINT_TTRACE_H__

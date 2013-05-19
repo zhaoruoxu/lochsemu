@@ -24,4 +24,11 @@ bool Instruction::IsConditionalJump( const Instruction *inst )
         (op == 0xe2) || (op == 0xe3);
 }
 
+bool Instruction::IsIndirectJump( const Instruction *inst )
+{
+    const char *m = inst->Main.Inst.Mnemonic;
+    u32 op = inst->Main.Inst.Opcode;
+    return op == 0xff && m[0] == 'j' && m[1] == 'm' && m[2] == 'p';
+}
+
 END_NAMESPACE_LOCHSEMU()
