@@ -52,6 +52,7 @@ public:
 
     void    OnWinapiPreCall(WinapiPreCallEvent &event);
     void    OnWinapiPostCall(WinapiPostCallEvent &event);
+    void    OnPreExecute(PreExecuteEvent &event);
 
     void    Serialize(Json::Value &root) const override;
     void    Deserialize(Json::Value &root) override;
@@ -64,6 +65,9 @@ private:
     Protocol *      m_protocol;
     TaintEngine *   m_taint;
     bool    m_enabled;
+    bool    m_accumulated;
+    u32     m_accAddrStart;
+    u32     m_accAddrPrev;
 
 private:
     static const int    ApiCountMax = 4096;

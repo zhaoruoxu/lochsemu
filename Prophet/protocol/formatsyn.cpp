@@ -1,6 +1,13 @@
 #include "stdafx.h"
 #include "formatsyn.h"
 #include "msgmgr.h"
+#include "engine.h"
+
+#include "analyzers/procscope.h"
+#include "analyzers/traceexec.h"
+#include "analyzers/callstack.h"
+#include "analyzers/msgaccess.h"
+#include "analyzers/msgtree.h"
 
 MsgByteInfo::MsgByteInfo()
 {
@@ -14,6 +21,7 @@ FormatSyn::FormatSyn( MessageManager *msgmgr )
 {
     m_msgInfo = NULL;
     m_message = NULL;
+    m_engine  = NULL;
 
     m_weightLenField        = 10;
     m_weightLenFieldNoTarget = 4;
@@ -30,7 +38,7 @@ FormatSyn::~FormatSyn()
 
 void FormatSyn::Initialize()
 {
-
+    m_engine = m_msgmgr->GetProtocol()->GetEngine();
 }
 
 void FormatSyn::OnMessageBegin( MessageBeginEvent &event )
@@ -41,7 +49,43 @@ void FormatSyn::OnMessageBegin( MessageBeginEvent &event )
 
 void FormatSyn::OnMessageEnd( MessageEndEvent &event )
 {
-    Synthesize();
+    const RunTrace &runtrace = m_msgmgr->GetRunTrace();
+    std::string dir = m_engine->GetArchiveDir();
+    char buf[256];
+    sprintf(buf, "%02d", m_msgmgr->GetProtocol()->GetTotalMessages());
+    std::string msg = buf;
+    runtrace.Dump(File(dir + "traces" + msg + ".txt", "w"));
+
+    //TSnapshot s(*m_taint);
+    //s.Dump(File(dir + "snapshot_pre.taint", "w"));
+
+    //m_taint->TaintRule_LoadMemory();
+    //ExecuteTraces();
+    // 
+    TraceExec exec;
+    ProcScope procScope;
+
+    exec.Add(&procScope);
+    exec.Run(runtrace);
+    exec.Reset();
+
+    LxInfo("dumping ProcScope\n");
+    procScope.Dump(File(dir + "proc_scope" + msg + ".txt", "w"));
+
+    CallStack callStack(&procScope);
+    MessageAccessLog msglog(&callStack, m_msgmgr->GetCurrentMessage());
+    exec.Add(&msglog);
+    exec.Run(runtrace);
+    exec.Reset();
+
+    LxInfo("Dumping MessageAccessLog\n");
+    msglog.Dump(File(dir + "message_access_log" + msg + ".txt", "w"));
+
+    MessageTree t(msglog);
+    t.Construct(StackHashComparator());
+    t.Dump(File(dir + "msg_tree" + msg + ".txt", "w"));
+
+    //Synthesize();
     m_message = NULL;
     SAFE_DELETE_ARRAY(m_msgInfo);
 }

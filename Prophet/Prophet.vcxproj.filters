@@ -291,6 +291,9 @@
     <ClInclude Include="protocol\taint\taintengine.h">
       <Filter>Header Files\protocol\taint</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\analyzers\msgtree.h">
+      <Filter>Header Files\protocol\analyzers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -457,6 +460,9 @@
     </ClCompile>
     <ClCompile Include="protocol\taint\taintengine.cpp">
       <Filter>Source Files\protocol\taint</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\analyzers\msgtree.cpp">
+      <Filter>Source Files\protocol\analyzers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

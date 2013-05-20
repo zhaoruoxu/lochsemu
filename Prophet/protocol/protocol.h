@@ -8,7 +8,6 @@
 #include "apiprocessor.h"
 #include "formatsyn.h"
 #include "msgmgr.h"
-#include "runtrace.h"
 
 class ExecuteTraceEvent : public Event {
 public:
@@ -63,13 +62,14 @@ public:
     const ApiProcessor *    GetApiProcessor() const { return &m_apiprocessor; }
 
     void        AddMessage(Message *msg);
+    int         GetTotalMessages() const { return m_totalMessages; }
 
     void        UpdateTContext(const Processor *cpu, TContext *ctx) const;
 
 private:
 /*    void        ReorderAnalyzers();*/
-    void        BeginTrace();
-    void        EndTrace(int *nCount = NULL);
+//     void        BeginTrace();
+//     void        EndTrace(int *nCount = NULL);
 private:
     ProEngine *         m_engine;
     TaintEngine *       m_taint;
@@ -89,9 +89,6 @@ private:
     bool                m_enabled;
 
     u32                 m_eipPreExec;
-
-    RunTrace           m_tracer;
-    bool                m_tracing;
 };
  
 #endif // __PROPHET__PROTOCOL_H__

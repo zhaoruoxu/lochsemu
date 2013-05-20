@@ -172,13 +172,41 @@ void ApiProcessor::RegisterHandlerPostCall( const char *dllName, const char *api
 #define RET_VALUE(type)     (type) cpu->EAX
 #endif
 
+void ApiProcessor::OnPreExecute( PreExecuteEvent &event )
+{
+    if (Instruction::IsRet(event.Inst)) {
+        if (m_accumulated) {
+            LxWarning("Beginning accumulated message, this may contain thread error\n");
+            int len = m_accAddrPrev - m_accAddrStart + 1;
+            MessageBeginEvent e(this, event.Cpu->IntID, len, m_accAddrStart, 
+                event.Cpu->Mem->GetRawData(m_accAddrStart), MR_recv);
+            m_protocol->OnMessageBegin(e);
+            m_accumulated = false;
+            m_accAddrStart = m_accAddrPrev = 0;
+        }
+    }
+}
 
 void ApiProcessor::Handler_recv(const Processor *cpu)
 {
     int len         = RET_VALUE(int);
     u32 bufferAddr  = PARAM(1, u32);
-    MessageBeginEvent e(this, cpu->IntID, len, bufferAddr, cpu->Mem->GetRawData(bufferAddr), MR_recv);
-    m_protocol->OnMessageBegin(e);
+
+    if (len == 1) {
+        if (m_accumulated) {
+            if (bufferAddr == m_accAddrPrev+1) {
+                m_accAddrPrev++;
+            } else {
+                LxError("Cannot concatenate to accumulated message\n");
+            }
+        } else {
+            m_accumulated = true;
+            m_accAddrStart = m_accAddrPrev = bufferAddr;
+        }
+    } else {
+        MessageBeginEvent e(this, cpu->IntID, len, bufferAddr, cpu->Mem->GetRawData(bufferAddr), MR_recv);
+        m_protocol->OnMessageBegin(e);
+    }
 }
 
 void ApiProcessor::Handler_send(const Processor *cpu)

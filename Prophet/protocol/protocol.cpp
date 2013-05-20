@@ -8,16 +8,12 @@
 /* Analyzers */
 #include "analyzers/direction_field.h"
 #include "analyzers/separator.h"
-#include "analyzers/procscope.h"
-#include "analyzers/traceexec.h"
-#include "analyzers/callstack.h"
-#include "analyzers/msgaccess.h"
+
 
 #include "sqlite/SQLiteC++.h"
 
 Protocol::Protocol( ProEngine *engine )
-    : m_engine(engine), m_apiprocessor(this), m_msgmanager(this),
-    m_tracer(this)
+    : m_engine(engine), m_apiprocessor(this), m_msgmanager(this)
 {
     ZeroMemory(m_analyzers, sizeof(m_analyzers));
     ZeroMemory(m_messages, sizeof(m_messages));
@@ -27,7 +23,6 @@ Protocol::Protocol( ProEngine *engine )
     m_enabled   = true;
     m_state     = Idle;
     m_eipPreExec = 0;
-    m_tracing   = false;
 }
 
 Protocol::~Protocol()
@@ -75,9 +70,9 @@ void Protocol::Serialize( Json::Value &root ) const
     m_msgmanager.Serialize(msgMgr);
     root["message_manager"] = msgMgr;
 
-    Json::Value runtrace;
-    m_tracer.Serialize(runtrace);
-    root["taint_trace"] = runtrace;
+//     Json::Value runtrace;
+//     m_tracer.Serialize(runtrace);
+//     root["taint_trace"] = runtrace;
 }
 
 void Protocol::Deserialize( Json::Value &root )
@@ -104,10 +99,10 @@ void Protocol::Deserialize( Json::Value &root )
         m_msgmanager.Deserialize(msgMgr);
     }
 
-    Json::Value runtrace = root["run_trace"];
-    if (!runtrace.isNull()) {
-        m_tracer.Deserialize(runtrace);
-    }
+//     Json::Value runtrace = root["run_trace"];
+//     if (!runtrace.isNull()) {
+//         m_tracer.Deserialize(runtrace);
+//     }
 }
 
 void Protocol::RegisterAnalyzer( ProtocolAnalyzer *analyzer )
@@ -131,6 +126,8 @@ void Protocol::OnPreExecute( PreExecuteEvent &event )
 {
     if (!m_enabled) return;
     m_eipPreExec = event.Cpu->EIP;
+
+    m_apiprocessor.OnPreExecute(event);
     
     if (m_state == ProcessingMessage) {
 //         for (int i = 0; i < m_totalAnalyzers; i++) {
@@ -145,10 +142,10 @@ void Protocol::OnPostExecute( PostExecuteEvent &event )
 {
     if (!m_enabled) return;
 
-    if (m_tracing) {
-        m_tracer.Trace(event.Cpu);
-    }
-
+//     if (m_tracing) {
+//         m_tracer.Trace(event.Cpu);
+//     }
+    m_msgmanager.OnPostExecute(event);
     if (m_state == ProcessingMessage) {
 //         for (int i = 0; i < m_totalAnalyzers; i++) {
 //             ProtocolAnalyzer *pa = m_analyzers[i];
@@ -288,7 +285,6 @@ void Protocol::OnMessageBegin( MessageBeginEvent &event )
     // m_taint->Enable(true);
     
     m_msgmanager.OnMessageBegin(event);
-    m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
 
 //     for (int i = 0; i < m_totalAnalyzers; i++) {
 //         ProtocolAnalyzer *pa = m_analyzers[i];
@@ -296,7 +292,7 @@ void Protocol::OnMessageBegin( MessageBeginEvent &event )
 //             pa->OnMessageBegin(event);
 //     }
 
-    BeginTrace();
+    //BeginTrace();
 }
 
 void Protocol::OnMessageEnd( MessageEndEvent &event )
@@ -310,38 +306,14 @@ void Protocol::OnMessageEnd( MessageEndEvent &event )
 
     m_engine->GetDisassembler()->GetInst(m_eipPreExec)->Desc = "Message end";
 
-    std::string dir = m_engine->GetArchiveDir();
-    m_tracer.Dump(File(dir + "traces.txt", "w"));
 
-    //TSnapshot s(*m_taint);
-    //s.Dump(File(dir + "snapshot_pre.taint", "w"));
-
-    //m_taint->TaintRule_LoadMemory();
-    //ExecuteTraces();
-    // 
-    TraceExec exec;
-    ProcScope procScope;
-
-    exec.Add(&procScope);
-    exec.Run(m_tracer);
-    exec.Reset();
-
-    procScope.Dump(File(dir + "proc_scope.txt", "w"));
-
-    CallStack callStack(&procScope);
-    MessageAccessLog msglog(&callStack, m_msgmanager.GetCurrentMessage());
-    exec.Add(&msglog);
-    exec.Run(m_tracer);
-    exec.Reset();
-
-    msglog.Dump(File(dir + "message_access_log.txt", "w"));
 
     //TSnapshot t(*m_taint);
     //t.Dump(File(dir + "snapshot_post.taint", "w"));
 
-    int nTraces;
-    EndTrace(&nTraces);
-    LxInfo("Ending trace, count = %d\n", nTraces);
+    //int nTraces;
+    //EndTrace(&nTraces);
+    //LxInfo("Ending trace, count = %d\n", nTraces);
 
     // SQLite::Database db("haha.db3");
 
@@ -364,15 +336,15 @@ void Protocol::UpdateTContext( const Processor *cpu, TContext *ctx ) const
     m_engine->GetDebugger()->UpdateTContext(cpu, ctx);
 }
 
-void Protocol::BeginTrace()
-{
-    m_tracer.Begin();
-    m_tracing = true;
-}
-
-void Protocol::EndTrace(int *nCount)
-{
-    if (nCount) *nCount = m_tracer.Count();
-    m_tracing = false;
-    m_tracer.End();
-}
+// void Protocol::BeginTrace()
+// {
+//     m_tracer.Begin();
+//     m_tracing = true;
+// }
+// 
+// void Protocol::EndTrace(int *nCount)
+// {
+//     if (nCount) *nCount = m_tracer.Count();
+//     m_tracing = false;
+//     m_tracer.End();
+// }

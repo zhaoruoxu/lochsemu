@@ -48,6 +48,8 @@ public:
         return m_data[index];
     }
 
+    std::string     ToString() const;
+
 private:
     u32             m_baseAddr;
     int             m_length;

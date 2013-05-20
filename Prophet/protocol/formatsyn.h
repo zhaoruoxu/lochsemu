@@ -9,6 +9,7 @@
 #include "apiprocessor.h"
 #include "message.h"
 
+
 struct MsgByteInfo {
     int     FormatCount[FieldFormat::Total];
     int     Target;
@@ -39,8 +40,9 @@ private:
 private:
     Message *       m_message;
     MsgByteInfo *   m_msgInfo;
-    MessageManager *    m_msgmgr;
+    MessageManager *m_msgmgr;
     TaintEngine *   m_taint;
+    ProEngine *     m_engine;
 
     int     m_weightLenField;
     int     m_weightLenFieldVar;

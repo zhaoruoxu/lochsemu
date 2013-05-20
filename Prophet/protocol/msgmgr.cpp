@@ -4,13 +4,15 @@
 #include "message.h"
 #include "gui/mainframe.h"
 
+
 MessageManager::MessageManager( Protocol *protocol )
-    : m_protocol(protocol), m_format(this)
+    : m_protocol(protocol), m_format(this), m_tracer(protocol)
 {
     m_message = NULL;
     m_breakOnMsgBegin   = false;
     m_breakOnMsgEnd     = false;
     m_autoShowMemory    = true;
+    m_tracing           = false;
 }
 
 MessageManager::~MessageManager()
@@ -30,9 +32,12 @@ void MessageManager::OnMessageBegin( MessageBeginEvent &event )
         LxError("Prophet: message length(%d) >= taint width(%d)!\n", event.MessageLen,
             Taint::GetWidth());
     }
-    //m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
+    m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
     m_message = new Message(event.MessageLen, event.MessageAddr, event.MessageData);
-    //m_format.OnMessageBegin(event);
+    m_format.OnMessageBegin(event);
+
+    m_tracer.Begin();
+    m_tracing = true;
 
     if (m_breakOnMsgBegin) {
         char buf[256];
@@ -48,11 +53,16 @@ void MessageManager::OnMessageBegin( MessageBeginEvent &event )
 
 void MessageManager::OnMessageEnd( MessageEndEvent &event )
 {
-    //m_format.OnMessageEnd(event);
+    m_format.OnMessageEnd(event);
 
     m_protocol->AddMessage(m_message);
     m_protocol->GetEngine()->GetGUI()->ShowMessage(m_message);
     m_message = NULL;
+
+    int nTraces = m_tracer.Count();
+    m_tracer.End();
+    m_tracing = false;
+    LxInfo("Finished %d run-traces\n", nTraces);
 
     if (m_breakOnMsgEnd) {
         char buf[256];
@@ -60,8 +70,6 @@ void MessageManager::OnMessageEnd( MessageEndEvent &event )
             event.MessageAddr, event.MessageLen);
         m_protocol->GetEngine()->BreakOnNextInst(buf);
     }
-
-    //m_taint->Reset();
 }
 
 void MessageManager::Serialize( Json::Value &root ) const 
@@ -73,6 +81,10 @@ void MessageManager::Serialize( Json::Value &root ) const
     Json::Value formatsyn;
     m_format.Serialize(formatsyn);
     root["format_synthesizer"] = formatsyn;
+
+    Json::Value runtrace;
+    m_tracer.Serialize(runtrace);
+    root["run_trace"] = runtrace;
 }
 
 void MessageManager::Deserialize( Json::Value &root )
@@ -84,6 +96,10 @@ void MessageManager::Deserialize( Json::Value &root )
     Json::Value formatsyn = root["format_synthesizer"];
     if (!formatsyn.isNull())
         m_format.Deserialize(formatsyn);
+
+    Json::Value runtrace = root["run_trace"];
+    if (!runtrace.isNull())
+        m_tracer.Deserialize(runtrace);
 }
 
 void MessageManager::SubmitLengthField( int first, int last, int target )
@@ -106,5 +122,11 @@ void MessageManager::SubmitFixedLen( int first, int last )
     Assert(first >= 0   && first < m_message->Size());
     Assert(last >= 0    && last < m_message->Size());
     m_format.SubmitFixedLenField(first, last);
+}
+
+void MessageManager::OnPostExecute( PostExecuteEvent &event )
+{
+    if (m_tracing)
+        m_tracer.Trace(event.Cpu);
 }
 

@@ -8,6 +8,7 @@
 #include "formatsyn.h"
 #include "message.h"
 #include "taint/taint.h"
+#include "runtrace.h"
 
 class MessageManager : ISerializable {
 public:
@@ -15,13 +16,18 @@ public:
     ~MessageManager();
 
     void            Initialize();
+    void            OnPostExecute(PostExecuteEvent &event);
     void            OnMessageBegin(MessageBeginEvent &event);
     void            OnMessageEnd(MessageEndEvent &event);
 
     Message *       GetCurrentMessage() { return m_message; }
     const Message * GetCurrentMessage() const { return m_message; }
-    FormatSyn *     GetFormatSynthesizer() { return &m_format; }
-    const FormatSyn *   GetFormatSynthesizer() const { return &m_format; }
+    FormatSyn &     GetFormatSynthesizer() { return m_format; }
+    const FormatSyn &   GetFormatSynthesizer() const { return m_format; }
+    RunTrace &      GetRunTrace() { return m_tracer; }
+    const RunTrace &GetRunTrace() const { return m_tracer; }
+    Protocol *      GetProtocol() { return m_protocol; }
+    const Protocol *GetProtocol() const { return m_protocol; }
 
     void            Serialize(Json::Value &root) const override;
     void            Deserialize(Json::Value &root) override;
@@ -40,6 +46,8 @@ private:
     Protocol *      m_protocol;
     Message *       m_message;
     TaintEngine *   m_taint;
+    RunTrace        m_tracer;
+    bool            m_tracing;
 
     bool            m_breakOnMsgBegin;
     bool            m_breakOnMsgEnd;

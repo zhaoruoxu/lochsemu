@@ -23,3 +23,13 @@ Message::~Message()
 {
     SAFE_DELETE_ARRAY(m_data);
 }
+
+std::string Message::ToString() const
+{
+    char buf[4096];
+    int i = 0;
+    for (; i < m_length; i++)
+        buf[i] = m_data[i].Data;
+    buf[i] = '\0';
+    return std::string(buf);
+}

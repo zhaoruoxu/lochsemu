@@ -151,6 +151,7 @@
     <ClInclude Include="protocol\analyzers\callstack.h" />
     <ClInclude Include="protocol\analyzers\direction_field.h" />
     <ClInclude Include="protocol\analyzers\msgaccess.h" />
+    <ClInclude Include="protocol\analyzers\msgtree.h" />
     <ClInclude Include="protocol\analyzers\separator.h" />
     <ClInclude Include="protocol\analyzers\traceexec.h" />
     <ClInclude Include="protocol\apiprocessor.h" />
@@ -224,6 +225,7 @@
     <ClCompile Include="protocol\analyzers\callstack.cpp" />
     <ClCompile Include="protocol\analyzers\direction_field.cpp" />
     <ClCompile Include="protocol\analyzers\msgaccess.cpp" />
+    <ClCompile Include="protocol\analyzers\msgtree.cpp" />
     <ClCompile Include="protocol\analyzers\procscope.cpp" />
     <ClCompile Include="protocol\analyzers\separator.cpp" />
     <ClCompile Include="protocol\analyzers\traceexec.cpp" />
