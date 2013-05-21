@@ -27,6 +27,9 @@ public:
 
     bool    CheckValidity() const;
     void    Dump(File &f, const Message *msg, int level) const;
+    void    DumpDot(File &f, const Message *msg) const;
+    std::string GetDotNodeName() const;
+    std::string GetMsgContent(const Message *msg) const;
 
 private:
     int m_l, m_r;

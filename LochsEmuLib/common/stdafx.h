@@ -35,3 +35,4 @@
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <LM.h>
+#include <shellapi.h>

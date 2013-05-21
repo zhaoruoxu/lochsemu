@@ -417,4 +417,10 @@ extern "C" LX_API u32 LxVersion()
     return LOCHSEMU_VERSION;
 }
 
+LX_API bool LxRunProcess( LPCSTR exeToRun, LPCSTR params )
+{
+    int r = (int) ShellExecuteA(0, "open", exeToRun, params, NULL, SW_SHOW);
+    return r >= 32;
+}
+
 END_NAMESPACE_LOCHSEMU()

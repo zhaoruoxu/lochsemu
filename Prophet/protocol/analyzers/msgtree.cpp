@@ -80,7 +80,11 @@ void MessageTree::Dump( File &f ) const
 
 void MessageTree::DumpDot( File &f ) const
 {
+    fprintf(f.Ptr(), "digraph MT {\n");
 
+    m_root->DumpDot(f, m_log.GetMessage());
+
+    fprintf(f.Ptr(), "}\n");
 }
 
 MessageTreeNode::MessageTreeNode( int l, int r, MessageTreeNode *parent )
@@ -203,17 +207,43 @@ void MessageTreeNode::Dump( File &f, const Message *msg, int level ) const
 {
     for (int i = 0; i < level; i++)
         fprintf(f.Ptr(), " ");
-    fprintf(f.Ptr(), "[%d,%d] '", m_l, m_r);
-    for (int i = m_l; i <= m_r; i++) {
-        char ch = (*msg)[i].Data;
-        if (isprint(ch))
-            fprintf(f.Ptr(), "%c", ch);
-        else
-            fprintf(f.Ptr(), "\\x%02x", ch);
-    }
-    fprintf(f.Ptr(), "'\n");
+    fprintf(f.Ptr(), "[%d,%d] %s\n", m_l, m_r, GetMsgContent(msg).c_str());
 
     for (auto c : m_children)
         c->Dump(f, msg, level+1);
+}
 
+void MessageTreeNode::DumpDot( File &f, const Message *msg ) const
+{
+    fprintf(f.Ptr(), "%s [shape=%s,label=\"%s\"];\n", GetDotNodeName().c_str(), 
+        m_children.size() > 0 ? "box" : "ellipse", GetMsgContent(msg).c_str());
+    for (auto &c : m_children) {
+        c->DumpDot(f, msg);
+        fprintf(f.Ptr(), "%s -> %s;\n", GetDotNodeName().c_str(), c->GetDotNodeName().c_str());
+    }
+}
+
+std::string MessageTreeNode::GetDotNodeName() const
+{
+    std::stringstream ss;
+    ss << "node_" << m_l << "_" << m_r;
+    return ss.str();
+}
+
+std::string MessageTreeNode::GetMsgContent( const Message *msg ) const
+{
+    std::stringstream ss;
+    ss << "'";
+    for (int i = m_l; i <= m_r; i++) {
+        char ch = (*msg)[i].Data;
+        if (isprint(ch))
+            ss << ch;
+        else {
+            char buf[16];
+            sprintf(buf, "\\\\0x%02x", ch);
+            ss << buf;
+        }
+    }
+    ss << "'";
+    return ss.str();
 }

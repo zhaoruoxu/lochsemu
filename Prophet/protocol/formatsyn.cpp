@@ -85,6 +85,18 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     t.Construct(StackHashComparator());
     t.Dump(File(dir + "msg_tree" + msg + ".txt", "w"));
 
+    std::string dotfile = dir + "msg_tree" + msg + ".dot";
+    t.DumpDot(File(dotfile, "w"));
+    // ("\"-Tpng -O " + dotfile + "\"").c_str())
+
+//     if (LxRunProcess("%%GRAPHVIZ%%\\dot.exe", ("-Tpng -O " + dotfile).c_str())) {
+//         LxInfo("dot.exe successful\n");
+//     }
+
+    char dotbuf[1024];
+    sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tpng -O %s", dotfile.c_str());
+    system(dotbuf);
+
     //Synthesize();
     m_message = NULL;
     SAFE_DELETE_ARRAY(m_msgInfo);

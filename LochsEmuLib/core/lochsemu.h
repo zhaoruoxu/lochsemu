@@ -245,6 +245,7 @@ LX_API INLINE bool      LxDecode(byte data[], Instruction *inst, u32 eip = 0);
 extern "C" LX_API bool  LxDecodePInvoke(byte data[], Instruction *inst, u32 eip = 0);
 extern "C" LX_API u32   LxVersion();
 LX_API INLINE u32       LxRegConvert(u32 beaReg);
+LX_API bool             LxRunProcess(LPCSTR exeToRun, LPCSTR params);
 
 /************************************************************************/
 /* Call these to rock'n'roll                                            */
