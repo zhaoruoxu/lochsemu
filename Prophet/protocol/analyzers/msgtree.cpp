@@ -87,6 +87,11 @@ void MessageTree::DumpDot( File &f ) const
     fprintf(f.Ptr(), "}\n");
 }
 
+void MessageTree::UpdateHistory( const MessageAccessLog *t )
+{
+    m_root->UpdateHistory(t);
+}
+
 MessageTreeNode::MessageTreeNode( int l, int r, MessageTreeNode *parent )
     : m_l(l), m_r(r)
 {
@@ -207,7 +212,11 @@ void MessageTreeNode::Dump( File &f, const Message *msg, int level ) const
 {
     for (int i = 0; i < level; i++)
         fprintf(f.Ptr(), " ");
-    fprintf(f.Ptr(), "[%d,%d] %s\n", m_l, m_r, GetMsgContent(msg).c_str());
+    fprintf(f.Ptr(), "[%d,%d] %s  EH: ", m_l, m_r, GetMsgContent(msg).c_str());
+    for (auto val : m_execHistory) {
+        fprintf(f.Ptr(), "%08x ", val);
+    }
+    fprintf(f.Ptr(), "\n");
 
     for (auto c : m_children)
         c->Dump(f, msg, level+1);
@@ -248,6 +257,27 @@ std::string MessageTreeNode::GetMsgContent( const Message *msg ) const
     return ss.str();
 }
 
+void MessageTreeNode::UpdateHistory( const MessageAccessLog *t )
+{
+    // do work
+    for (int i = 0; i < t->Count(); i++) {
+        const MessageAccess *ma = t->Get(i);
+        if (ma->Offset == m_l) {
+            m_execHistory.insert(GetProcStackHash(ma->CallStack));
+        }
+    }
+
+    for (auto &c : m_children) {
+        c->UpdateHistory(t);
+    }
+}
+
+void MessageTreeNode::AppendChild( MessageTreeNode *node )
+{
+    node->m_parent = this;
+    m_children.push_back(node);
+}
+
 MessageTreeRefiner::MessageTreeRefiner()
 {
 
@@ -258,7 +288,7 @@ MessageTreeRefiner::~MessageTreeRefiner()
 
 }
 
-void MessageTreeRefiner::Refine( MessageTree &tree )
+void MessageTreeRefiner::RefineTree( MessageTree &tree )
 {
     Refine(tree.m_root);
     if (!tree.CheckValidity()) {
@@ -313,4 +343,89 @@ bool TokenizeRefiner::CanConcatenate(const MessageTreeNode *l,
     return l->IsLeaf() && r->IsLeaf() && 
         IsTokenChar((*m_msg)[l->m_r].Data) && 
         IsTokenChar((*m_msg)[r->m_l].Data);
+}
+
+void ParallelFieldDetector::Refine( MessageTreeNode *node )
+{
+    RefineNode(node);
+    for (auto &c : node->m_children)
+        Refine(c);
+}
+
+void ParallelFieldDetector::RefineNode( MessageTreeNode *node )
+{
+    if (node->m_l == 12 && node->m_r == 57) {
+        LxInfo("debug\n");
+    }
+    while (RefineOnce(node)) {
+        Reset();
+    }
+}
+
+void ParallelFieldDetector::Reset()
+{
+    m_commonExecHist.clear();
+}
+
+bool ParallelFieldDetector::CheckRefinableLeft( MessageTreeNode *node )
+{
+    //if (node->GetChildrenCount() != 2) return false;
+    m_commonExecHist = node->m_execHistory;
+    return true;
+}
+
+bool ParallelFieldDetector::CheckRefinableRight( MessageTreeNode *node )
+{
+    if (node->IsLeaf()) return false;
+    return DoCheckRefinableRight(node);
+}
+
+bool ParallelFieldDetector::DoCheckRefinableRight( MessageTreeNode *node )
+{
+    if (node->m_execHistory != m_commonExecHist) return false;
+    if (node->IsLeaf()) return true;
+    if (node->m_children.size() != 2) return false;
+    Assert(node->m_children[0]->m_execHistory == m_commonExecHist);
+    return DoCheckRefinableRight(node->m_children[1]);
+}
+
+bool ParallelFieldDetector::RefineOnce( MessageTreeNode *node )
+{
+    for (int i = 0; i < node->GetChildrenCount() - 1; i++) {
+        MessageTreeNode *left = node->m_children[i];
+        MessageTreeNode *right = node->m_children[i+1];
+        if (!CheckRefinableLeft(left)) continue;
+        if (!CheckRefinableRight(right)) continue;
+
+        LxInfo("Found parallel fields, refining\n");
+
+        std::vector<MessageTreeNode *> newChildren;
+        int p = 0;
+        for (; p < i; p++) {
+            newChildren.push_back(node->m_children[p]);
+        }
+        p = i + 2; // skip left and right
+        MessageTreeNode *parallelNode = new MessageTreeNode(
+            left->m_l, right->m_r, node);
+        parallelNode->AppendChild(left);
+        while (true) {
+            MessageTreeNode *r = right;
+            if (r->IsLeaf()) {
+                parallelNode->AppendChild(r);
+                break;
+            }
+            Assert(r->GetChildrenCount() == 2);
+            parallelNode->AppendChild(r->m_children[0]);
+            right = r->m_children[1];
+            r->m_children.clear();
+            delete r;
+        }
+        newChildren.push_back(parallelNode);
+        for (; p < node->GetChildrenCount(); p++)
+            newChildren.push_back(node->m_children[p]);
+        node->m_children = newChildren;
+
+        return true;
+    }
+    return false;
 }

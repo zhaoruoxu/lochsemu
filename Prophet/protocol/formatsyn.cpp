@@ -85,6 +85,7 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
 
     MessageTree t(msglog);
     t.Construct(StackHashComparator());
+    t.UpdateHistory(&msglog);
 
     t.Dump(File(dir + "msg_tree" + msg + ".txt", "w"));
     std::string dotfile = dir + "msg_tree" + msg + ".dot";
@@ -94,7 +95,10 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     system(dotbuf);
 
     TokenizeRefiner r(m_msgmgr->GetCurrentMessage());
-    r.Refine(t);
+    r.RefineTree(t);
+
+    ParallelFieldDetector p;
+    p.RefineTree(t);
 
     t.Dump(File(dir + "msg_tree" + msg + "_refined.txt", "w"));
     dotfile = dir + "msg_tree" + msg + "_refined.dot";
@@ -102,13 +106,13 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tpng -O %s", dotfile.c_str());
     system(dotbuf);
 
-    TSnapshot tSnapshot(*m_taint);
-    m_taint->TaintRule_LoadMemory();
-    MessageFieldFormat f(m_taint);
-    exec.Add(m_taint);
-    exec.Add(&f);
-    exec.Run(runtrace);
-    exec.Reset();
+//     TSnapshot tSnapshot(*m_taint);
+//     m_taint->TaintRule_LoadMemory();
+//     MessageFieldFormat f(m_taint);
+//     exec.Add(m_taint);
+//     exec.Add(&f);
+//     exec.Run(runtrace);
+//     exec.Reset();
 
     //Synthesize();
     m_message = NULL;
