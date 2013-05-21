@@ -178,6 +178,8 @@ void MessageTreeNode::Insert( MessageTreeNode *node )
             node->m_children.clear();
         }
         newChildren.push_back(node);
+    } else {
+        delete node;
     }
     m_children = newChildren;
     std::sort(m_children.begin(), m_children.end(), 
