@@ -84,6 +84,7 @@ class ProtocolAnalyzer;
 class TraceAnalyzer;
 class ProcScope;
 class CallStack;
+class MessageFieldFormat;
 
 // utilities
 class File;

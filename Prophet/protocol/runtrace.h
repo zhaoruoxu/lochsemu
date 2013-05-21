@@ -6,37 +6,7 @@
 #include "prophet.h"
 #include "parallel.h"
 #include "utilities.h"
-#include "instcontext.h"
-
-struct TContext {
-
-    static const int    RegCount    = 8;
-
-    u32         Regs[RegCount];
-    u32         Eip;
-    u32         Eflags;
-    MemAccess   Mr;
-    MemAccess   Mw;
-    InstPtr     Inst;
-    int         Tid;
-    ThreadID    ExtTid;
-    bool        JumpTaken;
-    u32         ExecFlag;
-
-    u32         Flag(InstContext::Flag f) const {
-        return (Eflags >> f) & 1;
-    }
-
-    bool        HasExecFlag(u32 flag) const {
-        return (ExecFlag & flag) == flag;
-    }
-
-    void        Dump(File &f) const;
-
-//     TContext() {
-//         ZeroMemory(this, sizeof(TContext));
-//     }
-};
+#include "tcontext.h"
 
 class RunTrace : public MutexSyncObject, public ISerializable {
 public:

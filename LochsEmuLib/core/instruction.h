@@ -25,6 +25,7 @@ public:
     static bool IsCall(const Instruction *inst);
     static bool IsConditionalJump(const Instruction *inst);
     static bool IsIndirectJump(const Instruction *inst);
+    static bool IsCmp(const Instruction *inst);
 
     DISASM          Main;  /* BeaEngine */
 

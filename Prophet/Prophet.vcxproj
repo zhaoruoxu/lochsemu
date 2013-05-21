@@ -150,6 +150,7 @@
     <ClInclude Include="protocol\analyzer.h" />
     <ClInclude Include="protocol\analyzers\callstack.h" />
     <ClInclude Include="protocol\analyzers\direction_field.h" />
+    <ClInclude Include="protocol\analyzers\msgformat.h" />
     <ClInclude Include="protocol\analyzers\msgaccess.h" />
     <ClInclude Include="protocol\analyzers\msgtree.h" />
     <ClInclude Include="protocol\analyzers\separator.h" />
@@ -163,6 +164,7 @@
     <ClInclude Include="protocol\taint\comptaint.h" />
     <ClInclude Include="protocol\taint\taint.h" />
     <ClInclude Include="protocol\taint\taintengine.h" />
+    <ClInclude Include="protocol\tcontext.h" />
     <ClInclude Include="static\disassembler.h" />
     <ClInclude Include="statistics.h" />
     <ClInclude Include="stdafx.h" />
@@ -224,6 +226,7 @@
     <ClCompile Include="protocol\analyzer.cpp" />
     <ClCompile Include="protocol\analyzers\callstack.cpp" />
     <ClCompile Include="protocol\analyzers\direction_field.cpp" />
+    <ClCompile Include="protocol\analyzers\msgformat.cpp" />
     <ClCompile Include="protocol\analyzers\msgaccess.cpp" />
     <ClCompile Include="protocol\analyzers\msgtree.cpp" />
     <ClCompile Include="protocol\analyzers\procscope.cpp" />
@@ -238,6 +241,7 @@
     <ClCompile Include="protocol\taint\comptaint.cpp" />
     <ClCompile Include="protocol\taint\taint.cpp" />
     <ClCompile Include="protocol\taint\taintengine.cpp" />
+    <ClCompile Include="protocol\tcontext.cpp" />
     <ClCompile Include="static\disassembler.cpp" />
     <ClCompile Include="statistics.cpp" />
     <ClCompile Include="stdafx.cpp">

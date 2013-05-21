@@ -31,4 +31,10 @@ bool Instruction::IsIndirectJump( const Instruction *inst )
     return op == 0xff && m[0] == 'j' && m[1] == 'm' && m[2] == 'p';
 }
 
+bool Instruction::IsCmp( const Instruction *inst )
+{
+    const char *m = inst->Main.Inst.Mnemonic;
+    return m[0] == 'c' && m[1] == 'm' && m[2] == 'p';
+}
+
 END_NAMESPACE_LOCHSEMU()

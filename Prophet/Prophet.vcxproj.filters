@@ -294,6 +294,12 @@
     <ClInclude Include="protocol\analyzers\msgtree.h">
       <Filter>Header Files\protocol\analyzers</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\tcontext.h">
+      <Filter>Header Files\protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\analyzers\msgformat.h">
+      <Filter>Header Files\protocol\analyzers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -462,6 +468,12 @@
       <Filter>Source Files\protocol\taint</Filter>
     </ClCompile>
     <ClCompile Include="protocol\analyzers\msgtree.cpp">
+      <Filter>Source Files\protocol\analyzers</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\tcontext.cpp">
+      <Filter>Source Files\protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\analyzers\msgformat.cpp">
       <Filter>Source Files\protocol\analyzers</Filter>
     </ClCompile>
   </ItemGroup>

@@ -40,10 +40,10 @@ void MessageTree::Construct( MessageAccessComparator &cmp )
         if (curr->Offset == prev->Offset+1 && cmp.Equals(curr, prev)) {
             currNode->m_r++;
         } else {
-            LxInfo("inserting [%d,%d]\n", currNode->m_l, currNode->m_r);
-            if (currNode->m_l == 60 && currNode->m_r == 66) {
-                LxDebug("debug\n");
-            }
+            //LxInfo("inserting [%d,%d]\n", currNode->m_l, currNode->m_r);
+            //if (currNode->m_l == 60 && currNode->m_r == 66) {
+            //    LxDebug("debug\n");
+            //}
             Insert(currNode);
 
 //             if (!CheckValidity()) {
@@ -240,10 +240,77 @@ std::string MessageTreeNode::GetMsgContent( const Message *msg ) const
             ss << ch;
         else {
             char buf[16];
-            sprintf(buf, "\\\\0x%02x", ch);
+            sprintf(buf, "\\\\0x%02x", (byte) ch);
             ss << buf;
         }
     }
     ss << "'";
     return ss.str();
+}
+
+MessageTreeRefiner::MessageTreeRefiner()
+{
+
+}
+
+MessageTreeRefiner::~MessageTreeRefiner()
+{
+
+}
+
+void MessageTreeRefiner::Refine( MessageTree &tree )
+{
+    Refine(tree.m_root);
+    if (!tree.CheckValidity()) {
+        LxFatal("Tree validity failed after refining\n");
+    }
+}
+
+void MessageTreeRefiner::Refine(MessageTreeNode *node)
+{
+    for (auto &c : node->m_children)
+        Refine(c);
+    RefineNode(node);
+}
+
+void TokenizeRefiner::RefineNode( MessageTreeNode *node )
+{
+    if (node->IsLeaf()) return;
+
+    std::vector<MessageTreeNode *> newChildren;
+    newChildren.push_back(node->m_children[0]);
+    MessageTreeNode *prev = node->m_children[0];
+    for (uint i = 1; i < node->m_children.size(); i++) {
+        if (CanConcatenate(prev, node->m_children[i])) {
+            prev->m_r = node->m_children[i]->m_r;
+            delete node->m_children[i];
+        } else {
+            prev = node->m_children[i];
+            newChildren.push_back(prev);
+        }
+    }
+    if (newChildren.size() == 1) {
+        delete newChildren[0];
+        node->m_children.clear();
+    } else {
+        node->m_children = newChildren;
+    }
+}
+
+TokenizeRefiner::TokenizeRefiner( const Message *msg )
+{
+    m_msg = msg;
+}
+
+bool TokenizeRefiner::IsTokenChar( char ch ) const
+{
+    return !isspace(ch) && !iscntrl(ch);
+}
+
+bool TokenizeRefiner::CanConcatenate(const MessageTreeNode *l, 
+                                     const MessageTreeNode *r ) const
+{
+    return l->IsLeaf() && r->IsLeaf() && 
+        IsTokenChar((*m_msg)[l->m_r].Data) && 
+        IsTokenChar((*m_msg)[r->m_l].Data);
 }

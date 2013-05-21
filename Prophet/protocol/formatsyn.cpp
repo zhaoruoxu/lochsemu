@@ -8,6 +8,7 @@
 #include "analyzers/callstack.h"
 #include "analyzers/msgaccess.h"
 #include "analyzers/msgtree.h"
+#include "analyzers/msgformat.h"
 
 MsgByteInfo::MsgByteInfo()
 {
@@ -39,6 +40,7 @@ FormatSyn::~FormatSyn()
 void FormatSyn::Initialize()
 {
     m_engine = m_msgmgr->GetProtocol()->GetEngine();
+    m_taint = m_engine->GetTaintEngine();
 }
 
 void FormatSyn::OnMessageBegin( MessageBeginEvent &event )
@@ -83,19 +85,30 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
 
     MessageTree t(msglog);
     t.Construct(StackHashComparator());
-    t.Dump(File(dir + "msg_tree" + msg + ".txt", "w"));
 
+    t.Dump(File(dir + "msg_tree" + msg + ".txt", "w"));
     std::string dotfile = dir + "msg_tree" + msg + ".dot";
     t.DumpDot(File(dotfile, "w"));
-    // ("\"-Tpng -O " + dotfile + "\"").c_str())
-
-//     if (LxRunProcess("%%GRAPHVIZ%%\\dot.exe", ("-Tpng -O " + dotfile).c_str())) {
-//         LxInfo("dot.exe successful\n");
-//     }
-
     char dotbuf[1024];
     sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tpng -O %s", dotfile.c_str());
     system(dotbuf);
+
+    TokenizeRefiner r(m_msgmgr->GetCurrentMessage());
+    r.Refine(t);
+
+    t.Dump(File(dir + "msg_tree" + msg + "_refined.txt", "w"));
+    dotfile = dir + "msg_tree" + msg + "_refined.dot";
+    t.DumpDot(File(dotfile, "w"));
+    sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tpng -O %s", dotfile.c_str());
+    system(dotbuf);
+
+    TSnapshot tSnapshot(*m_taint);
+    m_taint->TaintRule_LoadMemory();
+    MessageFieldFormat f(m_taint);
+    exec.Add(m_taint);
+    exec.Add(&f);
+    exec.Run(runtrace);
+    exec.Reset();
 
     //Synthesize();
     m_message = NULL;
