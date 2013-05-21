@@ -18,7 +18,7 @@ public:
 class MessageTreeNode {
     friend class MessageTree;
 public:
-    MessageTreeNode(int l, int r);
+    MessageTreeNode(int l, int r, MessageTreeNode *parent = NULL);
     virtual ~MessageTreeNode();
 
     bool    Contains(int l, int r);
@@ -41,6 +41,7 @@ public:
 
     void    Construct(MessageAccessComparator &cmp);
     void    Dump(File &f) const;
+    void    DumpDot(File &f) const;
 private:
     void    Insert(MessageTreeNode *node);
     bool    CheckValidity() const;
