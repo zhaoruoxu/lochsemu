@@ -17,6 +17,11 @@ public:
 
 typedef std::set<u32>   ExecutionHistory;
 
+enum NodeFlag {
+    TREENODE_PARALLEL = 1,
+
+};
+
 class MessageTreeNode {
     friend class MessageTree;
     friend class MessageTreeRefiner;
@@ -37,11 +42,14 @@ public:
     std::string GetDotNodeName() const;
     std::string GetMsgContent(const Message *msg) const;
     void    UpdateHistory(const MessageAccessLog *t);
-    int    GetChildrenCount() const { return m_children.size(); }
+    int     GetChildrenCount() const { return m_children.size(); }
+    bool    HasFlag(NodeFlag f) const { return (m_flag & f) != 0; }
 private:
     void    AppendChild(MessageTreeNode *node);
+    void    SetFlag(NodeFlag f) { m_flag |= f; }
 private:
     int m_l, m_r;
+    u32 m_flag;
     MessageTreeNode *m_parent;
     std::vector<MessageTreeNode *> m_children;
     ExecutionHistory    m_execHistory;

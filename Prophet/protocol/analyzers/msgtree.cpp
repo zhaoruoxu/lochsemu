@@ -97,6 +97,7 @@ MessageTreeNode::MessageTreeNode( int l, int r, MessageTreeNode *parent )
 {
     Assert(m_l <= m_r);
     m_parent = parent;
+    m_flag = 0;
 }
 
 MessageTreeNode::~MessageTreeNode()
@@ -226,8 +227,9 @@ void MessageTreeNode::Dump( File &f, const Message *msg, int level ) const
 
 void MessageTreeNode::DumpDot( File &f, const Message *msg ) const
 {
-    fprintf(f.Ptr(), "%s [shape=%s,label=\"%s\"];\n", GetDotNodeName().c_str(), 
-        m_children.size() > 0 ? "box" : "ellipse", GetMsgContent(msg).c_str());
+    fprintf(f.Ptr(), "%s [shape=%s,label=\"%s\"%s];\n", GetDotNodeName().c_str(), 
+        m_children.size() > 0 ? "box" : "ellipse", GetMsgContent(msg).c_str(),
+        HasFlag(TREENODE_PARALLEL) ? ",color=blue" : "");
     for (auto &c : m_children) {
         c->DumpDot(f, msg);
         fprintf(f.Ptr(), "%s -> %s;\n", GetDotNodeName().c_str(), c->GetDotNodeName().c_str());
@@ -407,8 +409,8 @@ bool ParallelFieldDetector::RefineOnce( MessageTreeNode *node )
             newChildren.push_back(node->m_children[p]);
         }
         p = i + 2; // skip left and right
-        MessageTreeNode *parallelNode = new MessageTreeNode(
-            left->m_l, right->m_r, node);
+        MessageTreeNode *parallelNode = 
+            new MessageTreeNode(left->m_l, right->m_r, node);
         parallelNode->AppendChild(left);
         while (true) {
             MessageTreeNode *r = right;
@@ -425,7 +427,16 @@ bool ParallelFieldDetector::RefineOnce( MessageTreeNode *node )
         newChildren.push_back(parallelNode);
         for (; p < node->GetChildrenCount(); p++)
             newChildren.push_back(node->m_children[p]);
-        node->m_children = newChildren;
+
+        if (newChildren.size() == 1) {
+            Assert(newChildren[0] == parallelNode);
+            node->m_children = parallelNode->m_children;
+            delete parallelNode;
+            node->SetFlag(TREENODE_PARALLEL);
+        } else {
+            node->m_children = newChildren;
+            parallelNode->SetFlag(TREENODE_PARALLEL);
+        }
 
         return true;
     }
