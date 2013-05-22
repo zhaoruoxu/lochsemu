@@ -10,6 +10,25 @@
 #include "analyzers/msgtree.h"
 #include "analyzers/msgformat.h"
 
+DWORD __stdcall DotToImageRoutine(LPVOID lpParams)
+{
+    char dotbuf[1024];
+    const char *p = (const char *) lpParams;
+    sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tpng -O %s", p);
+    system(dotbuf);
+    free((void *) p);
+    return 0;
+}
+
+static void DotToImage(const std::string &filename)
+{
+    const char *p = _strdup(filename.c_str());
+    HANDLE hThread = CreateThread(NULL, 0, DotToImageRoutine, (LPVOID) p, 0, NULL);
+    if (INVALID_HANDLE_VALUE == hThread) {
+        LxError("Cannot create DotToImage thread\n");
+    }
+}
+
 MsgByteInfo::MsgByteInfo()
 {
     ZeroMemory(FormatCount, sizeof(FormatCount));
@@ -90,9 +109,10 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     t.Dump(File(dir + "msg_tree" + msg + ".txt", "w"));
     std::string dotfile = dir + "msg_tree" + msg + ".dot";
     t.DumpDot(File(dotfile, "w"));
-    char dotbuf[1024];
-    sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tpng -O %s", dotfile.c_str());
-    system(dotbuf);
+    DotToImage(dotfile);
+    //char dotbuf[1024];
+    //sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tpng -O %s", dotfile.c_str());
+    //system(dotbuf);
 
     TokenizeRefiner r(m_msgmgr->GetCurrentMessage());
     r.RefineTree(t);
@@ -103,8 +123,7 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     t.Dump(File(dir + "msg_tree" + msg + "_refined.txt", "w"));
     dotfile = dir + "msg_tree" + msg + "_refined.dot";
     t.DumpDot(File(dotfile, "w"));
-    sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tpng -O %s", dotfile.c_str());
-    system(dotbuf);
+    DotToImage(dotfile);
 
 //     TSnapshot tSnapshot(*m_taint);
 //     m_taint->TaintRule_LoadMemory();
