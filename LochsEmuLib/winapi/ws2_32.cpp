@@ -243,6 +243,50 @@ uint Ws2_32_getpeername(Processor *cpu)
     RET_PARAMS(3);
 }
 
+uint Ws2_32_getservbyname(Processor *cpu)
+{
+    //const char *p0 = (const char *) PARAM_PTR(0);
+    //const char *p1 = (const char *) PARAM_PTR(1);
+    servent *s = getservbyname(
+        (const char *)  PARAM_PTR(0),
+        (const char *)  PARAM_PTR(1)
+        );
+
+    uint len = sizeof(servent);
+    len += strlen(s->s_name) + 1;
+    len += strlen(s->s_proto) + 1;
+    len += 4;   // s_aliases[0], which is NULL
+    len = RoundUp(len);
+    static u32 Base = 0x900000;
+    SyncObjectLock lock(*cpu->Mem);
+    u32 actualBase = cpu->Mem->FindFreePages(Base, len);
+    V( cpu->Mem->Alloc(SectionDesc("servent", cpu->GetCurrentModule()),
+        actualBase, len, PAGE_READWRITE));
+    LxDebug("Allocated memory for servent at %08x, size %08x\n", actualBase, len);
+    Base += len;
+
+    pbyte mem = cpu->Mem->GetRawData(actualBase);
+    pbyte memstart = mem;
+    ZeroMemory(mem, len);
+    servent *dest = (servent *) mem;
+    dest->s_port = s->s_port;
+    mem += sizeof(servent);
+
+    dest->s_name = (char *) (actualBase + mem - memstart);
+    strcpy((char *) mem, s->s_name);
+    mem += strlen(s->s_name) + 1;
+
+    dest->s_proto = (char *) (actualBase + mem - memstart);
+    strcpy((char *) mem, s->s_proto);
+    mem += strlen(s->s_proto) + 1;
+
+    dest->s_aliases = (char **) (actualBase + mem - memstart);
+
+    RET_VALUE = actualBase; 
+
+    RET_PARAMS(2);
+}
+
 uint Ws2_32_getsockname(Processor *cpu)
 {
     RET_VALUE = (u32) getsockname(

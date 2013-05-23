@@ -97,7 +97,12 @@ typedef unsigned __int32    u32;
 typedef __int64             i64;
 typedef unsigned __int64    u64;
 struct u128 { 
-    u32 dat[4]; 
+    union {
+        u32 dat[4];
+        u64 qw[2];
+        double d[2];
+    };
+    
     u128() { ZeroMemory(dat, sizeof(u32)*4); }
     u128 &operator =(const u128 &rhs) { memcpy(dat, rhs.dat, sizeof(u32)*4); return *this; }
 };

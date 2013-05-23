@@ -36,3 +36,4 @@
 #include <WS2tcpip.h>
 #include <LM.h>
 #include <shellapi.h>
+#include <TlHelp32.h>

@@ -288,6 +288,21 @@ void Processor::Ext_0F72(const Instruction *inst)
     return (this->*(handlers[MASK_MODRM_REG(inst->Aux.modrm)]))(inst);
 }
 
+void Processor::Ext_0F73(const Instruction *inst)
+{
+    static InstHandler handlers[] = {
+        /* 0x0 */ &Processor::InstNotAvailable,
+        /* 0x1 */ &Processor::InstNotAvailable,
+        /* 0x2 */ &Processor::InstNotAvailable,
+        /* 0x3 */ &Processor::Psrldq_0F73_ext3,
+        /* 0x4 */ &Processor::InstNotAvailable,
+        /* 0x5 */ &Processor::InstNotAvailable,
+        /* 0x6 */ &Processor::InstNotAvailable,
+        /* 0x7 */ &Processor::InstNotAvailable,
+    };
+    return (this->*(handlers[MASK_MODRM_REG(inst->Aux.modrm)]))(inst);
+}
+
 void Processor::Ext_0FAE(const Instruction *inst)
 {
     static InstHandler handlers[] = {

@@ -57,4 +57,64 @@ void Processor::Pxor_0FEF(const Instruction *inst)
 	
 }
 
+void Processor::Psrld_0F72_ext2(const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize) {
+        // PSRLD xmm1, imm8
+        u128 val1 = ReadOperand128(inst, inst->Main.Argument1, NULL);
+        byte imm = (byte) inst->Main.Inst.Immediat;
+        val1.dat[0] >>= imm;
+        val1.dat[1] >>= imm;
+        val1.dat[2] >>= imm;
+        val1.dat[3] >>= imm;
+        WriteOperand128(inst, inst->Main.Argument1, 0, val1);
+    } else {
+        // PSRLD mm, imm8
+        u64 val1 = ReadOperand64(inst, inst->Main.Argument1, NULL);
+        byte imm = (byte) inst->Main.Inst.Immediat;
+        u32p dest = (u32p) &val1;
+        dest[0] >>= imm;
+        dest[1] >>= imm;
+        WriteOperand64(inst, inst->Main.Argument1, 0, val1);
+    }
+}
+
+void Processor::Pslld_0F72_ext6(const Instruction *inst)
+{
+    if (inst->Main.Prefix.OperandSize) {
+        // PSLLD xmm1, imm8
+        u128 val1 = ReadOperand128(inst, inst->Main.Argument1, NULL);
+        byte imm = (byte) inst->Main.Inst.Immediat;
+        val1.dat[0] <<= imm;
+        val1.dat[1] <<= imm;
+        val1.dat[2] <<= imm;
+        val1.dat[3] <<= imm;
+        WriteOperand128(inst, inst->Main.Argument1, 0, val1);
+    } else {
+        // PSLLD mm, imm8
+        u64 val1 = ReadOperand64(inst, inst->Main.Argument1, NULL);
+        byte imm = (byte) inst->Main.Inst.Immediat;
+        u32p dest = (u32p) &val1;
+        dest[0] <<= imm;
+        dest[1] <<= imm;
+        WriteOperand64(inst, inst->Main.Argument1, 0, val1);
+    }
+}
+
+void Processor::Psrldq_0F73_ext3(const Instruction *inst)
+{
+    Assert(inst->Main.Prefix.OperandSize);
+
+    // PSRLDQ xmm1, imm8;
+    u128 val1 = ReadOperand128(inst, inst->Main.Argument1, NULL);
+    byte imm = (byte) inst->Main.Inst.Immediat;
+    u128 r;
+    pbyte dest = (pbyte) &r, src = (pbyte) &val1;
+    if (imm <= 15) {
+        for (int i = 0; i < 16 - imm; i++)
+            dest[i] = src[i + imm];
+    }
+    WriteOperand128(inst, inst->Main.Argument1, 0, r);
+}
+
 END_NAMESPACE_LOCHSEMU()

@@ -258,6 +258,14 @@ uint User32_GetClassInfoA(Processor *cpu)
     RET_PARAMS(3);
 }
 
+uint User32_GetCursorInfo(Processor *cpu)
+{
+    RET_VALUE = (u32) GetCursorInfo(
+        (PCURSORINFO)   PARAM_PTR(0)
+        );
+    RET_PARAMS(1);
+}
+
 uint User32_GetDC(Processor *cpu)
 {
     RET_VALUE = (u32) GetDC(
@@ -294,7 +302,6 @@ uint User32_GetDlgItemInt(Processor *cpu)
 
 uint User32_GetDlgItemTextA(Processor *cpu)
 {
-
     RET_VALUE = (u32) GetDlgItemTextA(
         (HWND)      PARAM(0),
         (int)       PARAM(1),
@@ -302,6 +309,12 @@ uint User32_GetDlgItemTextA(Processor *cpu)
         (int)       PARAM(3)
         );
     RET_PARAMS(4);
+}
+
+uint User32_GetForegroundWindow(Processor *cpu)
+{
+    RET_VALUE = (u32) GetForegroundWindow();
+    RET_PARAMS(0);
 }
 
 uint User32_GetKeyboardType(Processor *cpu)
@@ -342,6 +355,14 @@ uint User32_GetProcessWindowStation(Processor *cpu)
 {
     RET_VALUE = (u32) GetProcessWindowStation();
     RET_PARAMS(0);
+}
+
+uint User32_GetQueueStatus(Processor *cpu)
+{
+    RET_VALUE = (u32) GetQueueStatus(
+        (UINT)      PARAM(0)
+        );
+    RET_PARAMS(1);
 }
 
 uint User32_GetUserObjectInformationA(Processor *cpu)

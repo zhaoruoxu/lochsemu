@@ -63,7 +63,8 @@ void SyncDiff::OnPostExecute( PostExecuteEvent &event, bool firstTime )
 {
     if (firstTime) return;
 
-    if (event.Cpu->GetCurrentModule() != 0) return;
+    // if (event.Cpu->HasExecFlag(LX_EXEC_CALLBACK)) return;
+    // if (event.Cpu->GetCurrentModule() != 0) return;
 
     if (!m_synced) return;
     const u32 opcode = event.Inst->Main.Inst.Opcode;
@@ -118,8 +119,8 @@ void SyncDiff::OnPostExecute( PostExecuteEvent &event, bool firstTime )
     if (!CompareContext(event.Cpu, &ctx)) {
         LxError("Emu eip = %08x, Ref eip = %08x\n", event.Cpu->EIP, ctx.Eip);
         LxError("Emu esp = %08x, Ref esp = %08x\n", event.Cpu->ESP, ctx.Esp);
-        LxError("Emu ebp = %08x, Ref ebp = %08x\n", event.Cpu->EBP, ctx.Ebp);
-        LxError("Emu ecx = %08x, Ref ecx = %08x\n", event.Cpu->ECX, ctx.Ecx);
+//         LxError("Emu ebp = %08x, Ref ebp = %08x\n", event.Cpu->EBP, ctx.Ebp);
+//         LxError("Emu ecx = %08x, Ref ecx = %08x\n", event.Cpu->ECX, ctx.Ecx);
         GetEngine()->BreakOnNextInst("context diff");
     }
 }

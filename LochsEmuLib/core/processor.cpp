@@ -155,7 +155,12 @@ LxResult Processor::Execute( const Instruction *inst )
         h = InstTableOneByte[inst->Main.Inst.Opcode];
     } else if (INST_TWOBYTE(inst->Main.Inst.Opcode)) {
         h = InstTableTwoBytes[inst->Main.Inst.Opcode & 0xff];
-    } else {
+    } else if (inst->Main.Inst.Opcode == 0x0f3840) {
+        h = &Processor::Pmulld_660F3840;
+    } else if (inst->Main.Inst.Opcode == 0x0f3a63) {
+        h = &Processor::Pcmpistri_660F3A63;
+    }
+    else {
         LxFatal("Unsupported instruction: %s\n", inst->Main.CompleteInstr);
     }
 
@@ -174,7 +179,7 @@ LxResult Processor::Execute( const Instruction *inst )
 
     const u32 opcode = inst->Main.Inst.Opcode;
     // Thanks to shitty MOVQ_F30F7E
-    if (inst->Main.Prefix.RepPrefix && !isRet && opcode != 0x0f7e) {
+    if (inst->Main.Prefix.RepPrefix && !isRet && opcode != 0x0f7e && opcode != 0x0f6f) {
         (this->*h)(inst);
         ECX--;
         bool isRepe = opcode == 0xa6 || opcode == 0xa7 || opcode == 0xae || opcode == 0xaf;
@@ -182,7 +187,9 @@ LxResult Processor::Execute( const Instruction *inst )
             EIP -= inst->Length;    // continue running
         }
         SetExecFlag(LX_EXEC_PREFIX_REP);
-    } else if (inst->Main.Prefix.RepnePrefix) {
+    } else if (inst->Main.Prefix.RepnePrefix 
+        && opcode != 0x0f10 && opcode != 0x0f11 && opcode != 0x0f58) // MOVSD, ADDSD
+    {
         (this->*h)(inst);
         ECX--;
         if (ECX != 0 && ZF != 1) {
@@ -522,7 +529,9 @@ u64 Processor::ReadOperand64(const Instruction *inst, const ARGTYPE &oper, u32 *
         u32 o = Offset32(oper);
         if (offset) *offset = o;
         return MemRead64(o, seg);
-    } else if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & MMX_REG)) {
+    } else if (IsRegArg(oper) && 
+        ((REG_TYPE(oper.ArgType) & MMX_REG) || (REG_TYPE(oper.ArgType) & SSE_REG))) 
+    {
         return SIMD.MMReg(REG_NUM(oper.ArgType));
     } else {
         LxFatal("Processor::ReadOperand64() called with non-memory operand\n");
@@ -537,7 +546,9 @@ u128 Processor::ReadOperand128(const Instruction *inst, const ARGTYPE &oper, u32
         u32 o = Offset32(oper);
         if (offset) *offset = o;
         return MemRead128(o, seg);
-    } else if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & SSE_REG)) {
+    } else if (IsRegArg(oper) && 
+        ((REG_TYPE(oper.ArgType) & SSE_REG) || (REG_TYPE(oper.ArgType) & MMX_REG))) 
+    {
         return SIMD.XMMReg(REG_NUM(oper.ArgType));
     } else {
         LxFatal("Processor::ReadOperand128() invalid operand\n");
@@ -592,7 +603,9 @@ void Processor::WriteOperand64(const Instruction *inst, const ARGTYPE &oper, u32
     if (IsMemoryArg(oper)) {
         RegSeg seg = inst->Main.Prefix.FSPrefix ? LX_REG_FS : LX_REG_DS;
         MemWrite64(offset, val, seg);
-    } else if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & MMX_REG)) {
+    } else if (IsRegArg(oper) && 
+        ((REG_TYPE(oper.ArgType) & MMX_REG) || (REG_TYPE(oper.ArgType) & SSE_REG))) 
+    {
         SIMD.MMReg(REG_NUM(oper.ArgType)) = val;
     } else {
         LxFatal("Processor::WriteOperand64() called with non-memory operand\n");
@@ -604,7 +617,9 @@ void Processor::WriteOperand128(const Instruction *inst, const ARGTYPE &oper, u3
     if (IsMemoryArg(oper)) {
         RegSeg seg = inst->Main.Prefix.FSPrefix ? LX_REG_FS : LX_REG_DS;
         MemWrite128(offset, val, seg);
-    } else if (IsRegArg(oper) && (REG_TYPE(oper.ArgType) & SSE_REG)){
+    } else if (IsRegArg(oper) && 
+        ((REG_TYPE(oper.ArgType) & SSE_REG) || (REG_TYPE(oper.ArgType) & MMX_REG)))
+    {
         SIMD.XMMReg(REG_NUM(oper.ArgType)) = val;
     } else {
         LxFatal("Processor::WriteOperand128() invalid operand\n");

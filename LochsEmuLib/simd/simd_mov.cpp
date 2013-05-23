@@ -4,6 +4,60 @@
 
 BEGIN_NAMESPACE_LOCHSEMU()
 
+void Processor::Movsd_F20F10(const Instruction *inst)
+{
+    // MOVSD xmm1, xmm2/m64
+    u128 val1 = ReadOperand128(inst, inst->Main.Argument1, NULL);
+    u128 val2;
+    if (IsMemoryArg(inst->Main.Argument2)) {
+        u64 t2 = ReadOperand64(inst, inst->Main.Argument2, NULL);
+        memcpy(&val2, &t2, sizeof(u64));
+    } else if (IsRegArg(inst->Main.Argument2)) {
+        val2 = ReadOperand128(inst, inst->Main.Argument2, NULL);
+    } else {
+        Assert(0);
+    }
+    val1.dat[0] = val2.dat[0]; val1.dat[1] = val2.dat[1];
+    WriteOperand128(inst, inst->Main.Argument1, 0, val1);
+}
+
+void Processor::Movsd_F20F11(const Instruction *inst)
+{
+    // MOVSD xmm2/m64, xmm1
+    u128 val2 = ReadOperand128(inst, inst->Main.Argument2, NULL);
+    if (IsMemoryArg(inst->Main.Argument1)) {
+        u64 val1;
+        memcpy(&val1, &val2, sizeof(u64));
+        WriteOperand64(inst, inst->Main.Argument1, Offset32(inst->Main.Argument1), val1);
+    } else if (IsRegArg(inst->Main.Argument1)) {
+        u128 val1 = ReadOperand128(inst, inst->Main.Argument1, NULL);
+        val1.dat[0] = val2.dat[0]; val1.dat[1] = val2.dat[1];
+        WriteOperand128(inst, inst->Main.Argument1, 0, val1);
+    } else {
+        Assert(0);
+    }
+}
+
+void Processor::Movlpd_0F12(const Instruction *inst)
+{
+    // MOVLPD xmm, m64
+    Assert(inst->Main.Prefix.OperandSize);
+
+    u128 val1 = ReadOperand128(inst, inst->Main.Argument1, NULL);
+    u64 val2 = ReadOperand64(inst, inst->Main.Argument2, NULL);
+    val1.qw[0] = val2;
+    WriteOperand128(inst, inst->Main.Argument1, 0, val1);
+}
+
+void Processor::Movlpd_0F13(const Instruction *inst)
+{
+    // MOVLPD m64, xmm
+    Assert(inst->Main.Prefix.OperandSize);
+
+    u128 val2 = ReadOperand128(inst, inst->Main.Argument2, NULL);
+    WriteOperand64(inst, inst->Main.Argument1, Offset32(inst->Main.Argument1), val2.qw[0]);
+}
+
 void Processor::Movapd_66_0F28(const Instruction *inst)
 {
     if (inst->Main.Prefix.OperandSize) {
@@ -35,6 +89,10 @@ void Processor::Movd_0F6E(const Instruction *inst)
 
 void Processor::Movdqa_0F6F(const Instruction *inst)
 {
+    if (inst->Main.Prefix.RepPrefix) {
+        // return Movdqu_F30F6F(inst);
+        // Same with movdqa
+    }
     if (inst->Main.Prefix.OperandSize) {
         // MOVDQA
         u128 val = ReadOperand128(inst, inst->Main.Argument2, NULL);
@@ -46,6 +104,11 @@ void Processor::Movdqa_0F6F(const Instruction *inst)
     }
     
 }
+
+// void Processor::Movdqu_F30F6F(const Instruction *inst)
+// {
+//     // MOVDQU xmm1, xmm2/m128
+// }
 
 void Processor::Movd_0F7E(const Instruction *inst)
 {
@@ -79,6 +142,10 @@ void Processor::Movd_0F7E(const Instruction *inst)
 
 void Processor::Movdqa_0F7F(const Instruction *inst)
 {
+    if (inst->Main.Prefix.RepPrefix) {
+        //return Movdqu_F30F7F(inst);
+        // Same with movdqa
+    }
     if (inst->Main.Prefix.OperandSize) {	//SSE
         // MOVDQA
         u128 val = ReadOperand128(inst, inst->Main.Argument2, NULL);
@@ -89,6 +156,11 @@ void Processor::Movdqa_0F7F(const Instruction *inst)
     }
     
 }
+
+// void Processor::Movdqu_F30F7F(const Instruction *inst)
+// {
+//     NOT_IMPLEMENTED();
+// }
 
 void Processor::Movq_0FD6(const Instruction *inst)
 {

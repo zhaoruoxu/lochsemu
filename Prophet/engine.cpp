@@ -260,8 +260,8 @@ void ProEngine::GetInstContext(const Processor *cpu, InstContext *ctx) const
 
 void ProEngine::GetTraceContext( const Processor *cpu, TraceContext *ctx, u32 eip ) const
 {
-    m_debugger.UpdateTraceContext(cpu, ctx, eip);
     m_disassembler.UpdateInstContext(ctx, eip);
+    m_debugger.UpdateTraceContext(cpu, ctx, eip);
     //m_taint.UpdateInstContext(cpu, ctx);
 }
 

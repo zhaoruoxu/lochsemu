@@ -45,6 +45,11 @@ uint Kernel32_CloseHandle(Processor *cpu)
     return 1;
 }
 
+// uint Kernel32_CloseToolhelp32Snapshot(Processor *cpu)
+// {
+//     RET_VALUE = (u32) CloseToolhelp32Snapshot()
+// }
+
 uint Kernel32_CompareStringW(Processor *cpu)
 {
 	RET_VALUE = (u32) CompareStringW(
@@ -160,6 +165,15 @@ uint Kernel32_CreateSemaphoreA(Processor *cpu)
 		(LPCSTR) PARAM_PTR(3)
 		);
 	RET_PARAMS(4);
+}
+
+uint Kernel32_CreateToolhelp32Snapshot(Processor *cpu)
+{
+    RET_VALUE = (u32) CreateToolhelp32Snapshot(
+        (DWORD)     PARAM(0),
+        (DWORD)     PARAM(1)
+        );
+    RET_PARAMS(2);
 }
 
 uint Kernel32_CreateThread(Processor *cpu)
@@ -886,6 +900,42 @@ uint Kernel32_GlobalMemoryStatus(Processor *cpu)
     return 1;
 }
 
+uint Kernel32_Heap32First(Processor *cpu)
+{
+    RET_VALUE = (u32) Heap32First(
+        (LPHEAPENTRY32) PARAM_PTR(0),
+        (DWORD)         PARAM(1),
+        (ULONG_PTR)     PARAM(2)
+        );
+    RET_PARAMS(3);
+}
+
+uint Kernel32_Heap32Next(Processor *cpu)
+{
+    RET_VALUE = (u32) Heap32Next(
+        (LPHEAPENTRY32) PARAM_PTR(0)
+        );
+    RET_PARAMS(1);
+}
+
+uint Kernel32_Heap32ListFirst(Processor *cpu)
+{
+    RET_VALUE = (u32) Heap32ListFirst(
+        (HANDLE)        PARAM(0),
+        (LPHEAPLIST32)  PARAM_PTR(1)
+        );
+    RET_PARAMS(2);
+}
+
+uint Kernel32_Heap32ListNext(Processor *cpu)
+{
+    RET_VALUE = (u32) Heap32ListNext(
+        (HANDLE)        PARAM(0),
+        (LPHEAPLIST32)  PARAM_PTR(1)
+        );
+    RET_PARAMS(2);
+}
+
 uint Kernel32_HeapAlloc( Processor *cpu )
 {
     SyncObjectLock lock(*cpu->Mem);
@@ -896,6 +946,7 @@ uint Kernel32_HeapAlloc( Processor *cpu )
     Heap *h = LxEmulator.Proc()->GetHeap((uint) hHeap);
     Assert(h);
     cpu->EAX = (u32) h->HeapAlloc(dwBytes, dwFlag, cpu);
+
     return 3;
 }
 
@@ -1240,6 +1291,24 @@ uint Kernel32_lstrlenA(Processor *cpu)
     RET_PARAMS(1);
 }
 
+uint Kernel32_Module32First(Processor *cpu)
+{
+    RET_VALUE = (u32) Module32First(
+        (HANDLE)        PARAM(0),
+        (LPMODULEENTRY32)   PARAM_PTR(1)
+        );
+    RET_PARAMS(2);
+}
+
+uint Kernel32_Module32Next(Processor *cpu)
+{
+    RET_VALUE = (u32) Module32Next(
+        (HANDLE)        PARAM(0),
+        (LPMODULEENTRY32)   PARAM_PTR(1)
+        );
+    RET_PARAMS(2);
+}
+
 uint Kernel32_MultiByteToWideChar(Processor *cpu)
 {
     RET_VALUE = (u32) MultiByteToWideChar(
@@ -1262,6 +1331,24 @@ uint Kernel32_PeekConsoleInputA(Processor *cpu)
         (LPDWORD)       PARAM_PTR(3)
         );
     RET_PARAMS(4);
+}
+
+uint Kernel32_Process32First(Processor *cpu)
+{
+    RET_VALUE = (u32) Process32First(
+        (HANDLE)        PARAM(0),
+        (LPPROCESSENTRY32)  PARAM_PTR(1)
+        );
+    RET_PARAMS(2);
+}
+
+uint Kernel32_Process32Next(Processor *cpu)
+{
+    RET_VALUE = (u32) Process32Next(
+        (HANDLE)        PARAM(0),
+        (LPPROCESSENTRY32)  PARAM_PTR(1)
+        );
+    RET_PARAMS(2);
 }
 
 uint Kernel32_QueryPerformanceCounter(Processor *cpu)
@@ -1466,6 +1553,24 @@ uint Kernel32_TerminateProcess(Processor *cpu)
             hProc, nExit
             );
     }
+    RET_PARAMS(2);
+}
+
+uint Kernel32_Thread32First(Processor *cpu)
+{
+    RET_VALUE = (u32) Thread32First(
+        (HANDLE)        PARAM(0),
+        (LPTHREADENTRY32)   PARAM_PTR(1)
+        );
+    RET_PARAMS(2);
+}
+
+uint Kernel32_Thread32Next(Processor *cpu)
+{
+    RET_VALUE = (u32) Thread32Next(
+        (HANDLE)        PARAM(0),
+        (LPTHREADENTRY32)   PARAM_PTR(1)
+        );
     RET_PARAMS(2);
 }
 

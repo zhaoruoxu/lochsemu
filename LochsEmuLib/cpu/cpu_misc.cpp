@@ -84,6 +84,10 @@ void Processor::Cpuid_0FA2(const Instruction *inst)
 //         d &= 0xf97fffff;
 //     }
 
+    if (EAX == 1) {
+        c &= ~( (1 << 20) | (1 << 19) | (1 << 9) | 1);  // SSE4.2 SSE4.1 SSSE3 SSE3
+    }
+
     EAX = a;
     EBX = b;
     ECX = c;
