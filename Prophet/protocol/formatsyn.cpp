@@ -10,6 +10,8 @@
 #include "analyzers/msgtree.h"
 #include "analyzers/msgformat.h"
 
+#define DOT_IN_ANOTHER_THREAD   0
+
 DWORD __stdcall DotToImageRoutine(LPVOID lpParams)
 {
     char dotbuf[1024], outbuf[MAX_PATH];
@@ -21,17 +23,23 @@ DWORD __stdcall DotToImageRoutine(LPVOID lpParams)
     }
     sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tpng %s -o %s", p, outbuf);
     system(dotbuf);
-    free((void *) p);       // p is from strdup()
+    delete [] p;      // p is 'new'ed
     return 0;
 }
 
 static void DotToImage(const std::string &filename)
 {
-    const char *p = _strdup(filename.c_str());
+    char *p = new char[filename.size() + 1];  // use c++ allocation so that memory leaks can be detected
+    strcpy(p, filename.c_str());
+
+#if DOT_IN_ANOTHER_THREAD
     HANDLE hThread = CreateThread(NULL, 0, DotToImageRoutine, (LPVOID) p, 0, NULL);
     if (INVALID_HANDLE_VALUE == hThread) {
         LxError("Cannot create DotToImage thread\n");
     }
+#else   // DOT_IN_ANOTHER_THREAD
+    DotToImageRoutine((LPVOID) p);
+#endif  // DOT_IN_ANOTHER_THREAD
 }
 
 MsgByteInfo::MsgByteInfo()

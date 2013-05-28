@@ -62,6 +62,7 @@ LxResult Emulator::LoadModule( int argc, LPSTR argv[] )
 void Emulator::Run()
 {
     V( m_process.Run() );
+    m_pluginManager.OnExit();
 }
 
 void Emulator::Reset()

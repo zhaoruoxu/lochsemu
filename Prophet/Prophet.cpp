@@ -95,6 +95,8 @@ PROPHET_API void LochsEmu_Process_PostRun( const Process *proc )
 
 PROPHET_API bool LochsEmu_Plugin_Cleanup( void )
 {
+    // int *t = new int[10];
+    WaitForGUI();
     return true;
 }
 

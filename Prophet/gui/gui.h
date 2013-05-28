@@ -7,6 +7,7 @@
 #include "protocol/taint/taint.h"
 
 void RunGUI();
+void WaitForGUI();
 void NotifyMainThread();
 
 class CustomScrolledControl;

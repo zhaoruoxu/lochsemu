@@ -17,6 +17,11 @@ void RunGUI()
     }
 }
 
+void WaitForGUI()
+{
+    WaitForSingleObject(g_guiThread, INFINITE);
+}
+
 DWORD __stdcall GuiThreadProc( LPVOID lpParams )
 {
     HINSTANCE hInstance = GetModuleHandle(NULL);
