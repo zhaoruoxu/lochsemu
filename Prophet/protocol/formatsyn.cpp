@@ -12,11 +12,16 @@
 
 DWORD __stdcall DotToImageRoutine(LPVOID lpParams)
 {
-    char dotbuf[1024];
+    char dotbuf[1024], outbuf[MAX_PATH];
     const char *p = (const char *) lpParams;
-    sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tpng -O %s", p);
+    strcpy(outbuf, p);
+    size_t l = strlen(outbuf);
+    if (strcmp(outbuf + l - 4, ".dot") == 0) {
+        outbuf[l-3] = 'p'; outbuf[l-2] = 'n'; outbuf[l-1] = 'g';
+    }
+    sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tpng %s -o %s", p, outbuf);
     system(dotbuf);
-    free((void *) p);
+    free((void *) p);       // p is from strdup()
     return 0;
 }
 
@@ -110,9 +115,6 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     std::string dotfile = dir + "msg_tree" + msg + ".dot";
     t.DumpDot(File(dotfile, "w"));
     DotToImage(dotfile);
-    //char dotbuf[1024];
-    //sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tpng -O %s", dotfile.c_str());
-    //system(dotbuf);
 
     TokenizeRefiner r(m_msgmgr->GetCurrentMessage());
     r.RefineTree(t);

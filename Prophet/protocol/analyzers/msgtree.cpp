@@ -431,6 +431,7 @@ bool ParallelFieldDetector::RefineOnce( MessageTreeNode *node )
         if (newChildren.size() == 1) {
             Assert(newChildren[0] == parallelNode);
             node->m_children = parallelNode->m_children;
+            parallelNode->m_children.clear();
             delete parallelNode;
             node->SetFlag(TREENODE_PARALLEL);
         } else {
