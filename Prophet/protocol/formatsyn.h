@@ -31,11 +31,11 @@ public:
     void    Serialize(Json::Value &root) const override;
     void    Deserialize(Json::Value &root) override;
 
-    void    SubmitLengthField(int first, int last, int target);
-    void    SubmitToken(byte t, int first, int last);
-    void    SubmitFixedLenField(int first, int last);
+//     void    SubmitLengthField(int first, int last, int target);
+//     void    SubmitToken(byte t, int first, int last);
+//     void    SubmitFixedLenField(int first, int last);
 private:
-    void    Synthesize();
+/*    void    Synthesize();*/
 
 private:
     Message *       m_message;
