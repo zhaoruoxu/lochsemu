@@ -107,21 +107,21 @@ void MessageManager::SubmitLengthField( int first, int last, int target )
     Assert(first >= 0   && first < m_message->Size());
     Assert(last >= 0    && last < m_message->Size());
     Assert(target == -1 || target >= 0  && target < m_message->Size());
-    m_format.SubmitLengthField(first, last, target);
+    // m_format.SubmitLengthField(first, last, target);
 }
 
 void MessageManager::SubmitToken( byte t, int first, int last )
 {
     Assert(first >= 0   && first < m_message->Size());
     Assert(last >= 0    && last < m_message->Size());
-    m_format.SubmitToken(t, first, last);
+    // m_format.SubmitToken(t, first, last);
 }
 
 void MessageManager::SubmitFixedLen( int first, int last )
 {
     Assert(first >= 0   && first < m_message->Size());
     Assert(last >= 0    && last < m_message->Size());
-    m_format.SubmitFixedLenField(first, last);
+    // m_format.SubmitFixedLenField(first, last);
 }
 
 void MessageManager::OnPostExecute( PostExecuteEvent &event )
