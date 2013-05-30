@@ -49,6 +49,15 @@ void TraceExec::Add( TraceAnalyzer *t )
     m_workers[m_count++] = t;
 }
 
+void TraceExec::Add( TraceAnalyzer *t0, TraceAnalyzer *t1 )
+{
+    Add(t0); Add(t1);
+}
+
+void TraceExec::Add( TraceAnalyzer *t0, TraceAnalyzer *t1, TraceAnalyzer *t2 )
+{
+    Add(t0); Add(t1); Add(t2);
+}
 
 void TraceExec::Run( const RunTrace &t )
 {

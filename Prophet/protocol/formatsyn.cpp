@@ -107,8 +107,7 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
 
     CallStack callStack(&procScope);
     MessageAccessLog msglog(&callStack, m_msgmgr->GetCurrentMessage());
-    exec.Add(&callStack);
-    exec.Add(&msglog);
+    exec.Add(&callStack, &msglog);
     exec.Run(runtrace);
     exec.Reset();
 
@@ -142,9 +141,7 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     ProcDump pd(dir + "proc_exec" + msg + ".txt");
     ProcExec pexec(&callStack, m_taint);
     pexec.Add(&pd);
-    exec.Add(m_taint);
-    exec.Add(&callStack);
-    exec.Add(&pexec);
+    exec.Add(m_taint, &callStack, &pexec);
     exec.Run(runtrace);
     exec.Reset();
 

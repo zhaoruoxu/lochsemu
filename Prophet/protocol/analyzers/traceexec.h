@@ -17,6 +17,8 @@ public:
     virtual void OnComplete() override;
     virtual void Reset() override;
     void Add(TraceAnalyzer *t);
+    void Add(TraceAnalyzer *t0, TraceAnalyzer *t1);
+    void Add(TraceAnalyzer *t0, TraceAnalyzer *t1, TraceAnalyzer *t2);
     void Run(const RunTrace &t);
 
 private:
