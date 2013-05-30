@@ -153,6 +153,7 @@
     <ClInclude Include="protocol\analyzers\msgformat.h" />
     <ClInclude Include="protocol\analyzers\msgaccess.h" />
     <ClInclude Include="protocol\analyzers\msgtree.h" />
+    <ClInclude Include="protocol\analyzers\procexec.h" />
     <ClInclude Include="protocol\analyzers\separator.h" />
     <ClInclude Include="protocol\analyzers\traceexec.h" />
     <ClInclude Include="protocol\apiprocessor.h" />
@@ -229,6 +230,7 @@
     <ClCompile Include="protocol\analyzers\msgformat.cpp" />
     <ClCompile Include="protocol\analyzers\msgaccess.cpp" />
     <ClCompile Include="protocol\analyzers\msgtree.cpp" />
+    <ClCompile Include="protocol\analyzers\procexec.cpp" />
     <ClCompile Include="protocol\analyzers\procscope.cpp" />
     <ClCompile Include="protocol\analyzers\separator.cpp" />
     <ClCompile Include="protocol\analyzers\traceexec.cpp" />

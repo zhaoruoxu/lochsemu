@@ -9,6 +9,7 @@
 #include "analyzers/msgaccess.h"
 #include "analyzers/msgtree.h"
 #include "analyzers/msgformat.h"
+#include "analyzers/procexec.h"
 
 #define DOT_IN_ANOTHER_THREAD   0
 
@@ -90,10 +91,8 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     std::string msg = buf;
     runtrace.Dump(File(dir + "traces" + msg + ".txt", "w"));
 
-    //TSnapshot s(*m_taint);
-    //s.Dump(File(dir + "snapshot_pre.taint", "w"));
 
-    //m_taint->TaintRule_LoadMemory();
+
     //ExecuteTraces();
     // 
     TraceExec exec;
@@ -108,6 +107,7 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
 
     CallStack callStack(&procScope);
     MessageAccessLog msglog(&callStack, m_msgmgr->GetCurrentMessage());
+    exec.Add(&callStack);
     exec.Add(&msglog);
     exec.Run(runtrace);
     exec.Reset();
@@ -115,6 +115,7 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     LxInfo("Dumping MessageAccessLog\n");
     msglog.Dump(File(dir + "message_access_log" + msg + ".txt", "w"));
 
+    
     MessageTree t(msglog);
     t.Construct(StackHashComparator());
     t.UpdateHistory(&msglog);
@@ -134,6 +135,21 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     dotfile = dir + "msg_tree" + msg + "_refined.dot";
     t.DumpDot(File(dotfile, "w"));
     DotToImage(dotfile);
+    
+    TSnapshot s1(*m_taint);
+    s1.Dump(File(dir + "taint_snapshot_pre.txt", "w"));
+    m_taint->TaintRule_LoadMemory();
+    ProcDump pd(dir + "proc_exec" + msg + ".txt");
+    ProcExec pexec(&callStack, m_taint);
+    pexec.Add(&pd);
+    exec.Add(m_taint);
+    exec.Add(&callStack);
+    exec.Add(&pexec);
+    exec.Run(runtrace);
+    exec.Reset();
+
+    TSnapshot s2(*m_taint);
+    s2.Dump(File(dir + "taint_snapshot_post.txt", "w"));
 
 //     TSnapshot tSnapshot(*m_taint);
 //     m_taint->TaintRule_LoadMemory();

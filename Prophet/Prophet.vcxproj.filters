@@ -300,6 +300,9 @@
     <ClInclude Include="protocol\analyzers\msgformat.h">
       <Filter>Header Files\protocol\analyzers</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\analyzers\procexec.h">
+      <Filter>Header Files\protocol\analyzers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -474,6 +477,9 @@
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
     <ClCompile Include="protocol\analyzers\msgformat.cpp">
+      <Filter>Source Files\protocol\analyzers</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\analyzers\procexec.cpp">
       <Filter>Source Files\protocol\analyzers</Filter>
     </ClCompile>
   </ItemGroup>

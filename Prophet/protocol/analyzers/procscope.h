@@ -29,6 +29,20 @@ private:
 	std::set<u32>	m_exits;
 };
 
+// struct ProcContext {
+//     Procedure * Proc;
+//     int BeginSeq;
+//     int EndSeq;
+// 
+//     ProcContext() {
+//         Proc = NULL; BeginSeq = EndSeq = -1;
+//     }
+// 
+//     ProcContext(Procedure *p, int begseq, int endseq) {
+//         Proc = p; BeginSeq = begseq; EndSeq = endseq;
+//     }
+// };
+
 class ProcScope : public TraceAnalyzer {
 public:
 	ProcScope();
@@ -36,6 +50,8 @@ public:
 
 	virtual void Reset() override;
 	virtual void OnExecuteTrace(ExecuteTraceEvent &event) override;
+    virtual void OnProcBegin(ExecuteTraceEvent &event) override;
+    virtual void OnProcEnd(ExecuteTraceEvent &event) override;
 	virtual void OnComplete() override;
 
 	Procedure *	Get(u32 entry) const;
@@ -47,7 +63,12 @@ private:
 private:
 	std::map<u32, Procedure *>	m_procs;
 	std::stack<Procedure *>		m_callStack;
-	const TContext *	m_prev;
+	// const TContext *	m_prev;
+    // int     m_prevSeq;
+
+    // record the beginning seq of current top of call stack
+    // std::stack<int>             m_beginSeqs;        
+    // std::vector<ProcContext>    m_postOrder;
 };
  
 #endif // __PROPHET_PROTOCOL_ANALYZERS_PROCSCOPE_H__

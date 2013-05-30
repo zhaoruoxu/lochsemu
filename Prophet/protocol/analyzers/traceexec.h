@@ -23,6 +23,7 @@ private:
     static const int MaxAnalyzers = 16;
     TraceAnalyzer * m_workers[MaxAnalyzers];
     int m_count;
+    const TContext *    m_prev;
 };
 
 #endif // __PROPHET_PROTOCOL_ANALYZERS_TRACEEXEC_H__

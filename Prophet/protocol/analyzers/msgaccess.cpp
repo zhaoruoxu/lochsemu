@@ -15,7 +15,7 @@ MessageAccessLog::~MessageAccessLog()
 
 void MessageAccessLog::Reset()
 {
-    m_callstack->Reset();
+    // m_callstack->Reset();
     for (auto &t : m_accesses) {
         SAFE_DELETE(t);
     }
@@ -24,7 +24,7 @@ void MessageAccessLog::Reset()
 
 void MessageAccessLog::OnExecuteTrace( ExecuteTraceEvent &event )
 {
-    m_callstack->OnExecuteTrace(event);
+    // m_callstack->OnExecuteTrace(event);
     const TContext *ctx = event.Context;
 
     if (ctx->Mr.Len == 0) {

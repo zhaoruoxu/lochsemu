@@ -11,12 +11,13 @@
 
 class ExecuteTraceEvent : public Event {
 public:
-    ExecuteTraceEvent(void *sender) : Event(sender), Context(NULL), Seq(-1) {}
-    ExecuteTraceEvent(void *sender, const TContext *ctx, int seq) : Event(sender),
-        Context(ctx), Seq(seq) {}
+    ExecuteTraceEvent(void *sender) : Event(sender), Context(NULL), Seq(-1), Count(0) {}
+    ExecuteTraceEvent(void *sender, const TContext *ctx, int seq, int cnt) : Event(sender),
+        Context(ctx), Seq(seq), Count(cnt) {}
 
     const TContext *const Context;
     const int   Seq;
+    const int   Count;
 };
 
 class Protocol : public ISerializable {

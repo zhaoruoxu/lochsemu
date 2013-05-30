@@ -14,6 +14,8 @@ public:
     virtual void    Reset() {}
     virtual void    OnExecuteTrace(ExecuteTraceEvent &event) = 0;
     virtual void    OnComplete() {};
+    virtual void    OnProcBegin(ExecuteTraceEvent &event) {}
+    virtual void    OnProcEnd(ExecuteTraceEvent &event) {}
 };
 
 class ProtocolAnalyzer : public ISerializable {
