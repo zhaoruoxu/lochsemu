@@ -102,7 +102,7 @@ public:
 
     virtual void RefineNode(MessageTreeNode *node) override;
 private:
-    bool IsTokenChar(char ch) const;
+    bool IsTokenChar(byte ch) const;
     bool CanConcatenate(const MessageTreeNode *l, const MessageTreeNode *r) const;
 private:
     const Message *m_msg;

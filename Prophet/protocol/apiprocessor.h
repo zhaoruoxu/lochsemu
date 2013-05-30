@@ -63,7 +63,7 @@ private:
 
 private:
     Protocol *      m_protocol;
-    TaintEngine *   m_taint;
+    //TaintEngine *   m_taint;
     bool    m_enabled;
     bool    m_accumulated;
     u32     m_accAddrStart;

@@ -4,8 +4,8 @@
 
 #include "advdbg.h"
 #include "autobreak.h"
-#include "taint_directive.h"
-#include "vulnerability_detector.h"
+//#include "taint_directive.h"
+//#include "vulnerability_detector.h"
 #include "syncdiff.h"
 #include "remotediff.h"
 #include "context_override.h"
@@ -56,8 +56,8 @@ void ProPluginManager::Initialize()
     RegisterPlugin(new ContextOverride(this));
     RegisterPlugin(new AdvancedDebugger(this));
     RegisterPlugin(new AutoBreak(this));
-    RegisterPlugin(new TaintDirective(this));
-    RegisterPlugin(new VulnerabilityDetector(this));
+    //RegisterPlugin(new TaintDirective(this));
+    //RegisterPlugin(new VulnerabilityDetector(this));
     RegisterPlugin(new SyncDiff(this));
     RegisterPlugin(new RemoteDiff(this));
 

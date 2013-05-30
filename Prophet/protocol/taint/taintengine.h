@@ -40,23 +40,20 @@ enum TaintRule {
     TAINT_SAVEADDRREG = 1 << 1,
 };
 
-class TaintEngine : public ISerializable, public TraceAnalyzer {
+class TaintEngine : public TraceAnalyzer {
 public:
     //static const int MaxCpus = Process::MaximumThreads;
 public:
 
-    TaintEngine(ProEngine *engine);
-    ~TaintEngine();
+    TaintEngine();
 
     ProcessorTaint  CpuTaint;
     MemoryTaint     MemTaint;
 
-    void        Initialize();
-
     void        OnExecuteTrace      (ExecuteTraceEvent  &event) override;
 
-    void        Enable(bool isEnabled);
-    bool        IsEnabled() const { return m_enabled; }
+    //void        Enable(bool isEnabled);
+    //bool        IsEnabled() const { return m_enabled; }
     void        Reset() override;
 
     Taint1      GetTaintAddressingReg(const TContext *t, const ARGTYPE &oper) const;
@@ -64,8 +61,8 @@ public:
     Taint1      GetTestedFlagTaint(const TContext *t, const Instruction *inst) const;
     void        TaintMemoryRanged(u32 addr, u32 len, bool taintAllBits);
 
-    void        Serialize(Json::Value &root) const override;
-    void        Deserialize(Json::Value &root) override;
+//     void        Serialize(Json::Value &root) const override;
+//     void        Deserialize(Json::Value &root) override;
 
     void        ApplySnapshot(const TSnapshot &t);
     void        SetTaintRule(TaintRule r, bool enable);
@@ -74,8 +71,8 @@ public:
     void        TaintRule_LoadMemory();
 
 private:
-    ProEngine *   m_engine;
-    bool        m_enabled;
+    //ProEngine *   m_engine;
+    //bool        m_enabled;
     u32         m_taintRule;
 private:
 

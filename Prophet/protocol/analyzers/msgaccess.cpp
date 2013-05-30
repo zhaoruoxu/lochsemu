@@ -65,7 +65,7 @@ void MessageAccessLog::Dump( File &f ) const
 {
     fprintf(f.Ptr(), "msg: '%s'\n", m_currmsg->ToString().c_str());
     for (auto &m : m_accesses) {
-        char c = (*m_currmsg)[m->Offset].Data;
+        byte c = (*m_currmsg)[m->Offset].Data;
         fprintf(f.Ptr(), "%3d '%c' %08x %-50s  stack_hash=%08x", 
             m->Offset, isprint(c) ? c : '.', m->Context->Eip, 
             m->Context->Inst->Main.CompleteInstr, GetProcStackHash(m->CallStack));

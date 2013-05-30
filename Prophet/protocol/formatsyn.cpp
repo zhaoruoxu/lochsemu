@@ -10,8 +10,9 @@
 #include "analyzers/msgtree.h"
 #include "analyzers/msgformat.h"
 #include "analyzers/procexec.h"
+#include "algorithms/alganalyzer.h"
 
-#define DOT_IN_ANOTHER_THREAD   0
+#define GRAPHVIZ_MULTITHREADED   0
 
 DWORD __stdcall DotToImageRoutine(LPVOID lpParams)
 {
@@ -73,7 +74,7 @@ FormatSyn::~FormatSyn()
 void FormatSyn::Initialize()
 {
     m_engine = m_msgmgr->GetProtocol()->GetEngine();
-    m_taint = m_engine->GetTaintEngine();
+    //m_taint = m_engine->GetTaintEngine();
 }
 
 void FormatSyn::OnMessageBegin( MessageBeginEvent &event )
@@ -91,10 +92,6 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     std::string msg = buf;
     runtrace.Dump(File(dir + "traces" + msg + ".txt", "w"));
 
-
-
-    //ExecuteTraces();
-    // 
     TraceExec exec;
     ProcScope procScope;
 
@@ -135,17 +132,23 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     t.DumpDot(File(dotfile, "w"));
     DotToImage(dotfile);
     
-    TSnapshot s1(*m_taint);
+    TaintEngine taint;
+    taint.TaintMemoryRanged(m_msgmgr->GetCurrentMessage()->Base(),
+        m_msgmgr->GetCurrentMessage()->Size(), false);
+    TSnapshot s1(taint);
     s1.Dump(File(dir + "taint_snapshot_pre.txt", "w"));
-    m_taint->TaintRule_LoadMemory();
+    taint.TaintRule_LoadMemory();
     ProcDump pd(dir + "proc_exec" + msg + ".txt");
-    ProcExec pexec(&callStack, m_taint);
+    AlgorithmAnalyzer aa(s1);
+    ProcExec pexec(&callStack, &taint);
     pexec.Add(&pd);
-    exec.Add(m_taint, &callStack, &pexec);
+    pexec.Add(&aa);
+    exec.Add(&taint, &callStack, &pexec);
     exec.Run(runtrace);
     exec.Reset();
+    pexec.Reset();
 
-    TSnapshot s2(*m_taint);
+    TSnapshot s2(taint);
     s2.Dump(File(dir + "taint_snapshot_post.txt", "w"));
 
 //     TSnapshot tSnapshot(*m_taint);

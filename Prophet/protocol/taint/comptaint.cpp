@@ -4,12 +4,15 @@
 
 MemoryTaint::MemoryTaint()
 {
-    ZeroMemory(m_pagetable, sizeof(m_pagetable));
+    //ZeroMemory(m_pagetable, sizeof(m_pagetable));
+    m_pagetable = new PageTaint *[Pages];
+    ZeroMemory(m_pagetable, sizeof(PageTaint *) * Pages);
 }
 
 MemoryTaint::~MemoryTaint()
 {
     Reset();
+    SAFE_DELETE_ARRAY(m_pagetable);
 }
 
 MemoryTaint::PageTaint * MemoryTaint::GetPage( u32 addr )
@@ -23,7 +26,7 @@ MemoryTaint::PageTaint * MemoryTaint::GetPage( u32 addr )
 
 void MemoryTaint::Reset()
 {
-    for (int i = 0; i < LX_PAGE_COUNT; i++) {
+    for (int i = 0; i < Pages; i++) {
         SAFE_DELETE(m_pagetable[i]);
     }
 }
@@ -31,7 +34,7 @@ void MemoryTaint::Reset()
 MemoryTaint * MemoryTaint::Clone() const
 {
     MemoryTaint *t = new MemoryTaint;
-    for (int i = 0; i < LX_PAGE_COUNT; i++) {
+    for (int i = 0; i < Pages; i++) {
         if (m_pagetable[i]) t->m_pagetable[i] = m_pagetable[i]->Clone();
     }
     return t;
@@ -39,7 +42,7 @@ MemoryTaint * MemoryTaint::Clone() const
 
 void MemoryTaint::CopyFrom( const MemoryTaint *t )
 {
-    for (int i = 0; i < LX_PAGE_COUNT; i++) {
+    for (int i = 0; i < Pages; i++) {
         if (t->m_pagetable[i]) {
             if (m_pagetable[i]) 
                 m_pagetable[i]->CopyFrom(t->m_pagetable[i]);
@@ -78,8 +81,9 @@ void MemoryTaint::PageTaint::Reset()
         if (m_data[i]) SAFE_DELETE(m_data[i]);
 }
 
-MemoryTaint::PageTaint::PageTaint( )
+MemoryTaint::PageTaint::PageTaint()
 {
+    uint x = sizeof(m_data);
     ZeroMemory(m_data, sizeof(m_data));
 }
 
@@ -164,7 +168,7 @@ void ProcessorTaint::Dump( File &f ) const
 void MemoryTaint::Dump( File &f ) const
 {
     fprintf(f.Ptr(), "Memory Taint:\n");
-    for (u32 i = 0; i < LX_PAGE_COUNT; i++) {
+    for (u32 i = 0; i < LX_PAGE_COUNT/2; i++) {
         if (m_pagetable[i]) {
             m_pagetable[i]->Dump(f, i * LX_PAGE_SIZE);
         }

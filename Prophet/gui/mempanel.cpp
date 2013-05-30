@@ -43,7 +43,7 @@ MemDataPanel::MemDataPanel( wxWindow *parent, ProphetFrame *dad, ProEngine *engi
     InitMenu();
     InitRender();
     m_section   = NULL;
-    m_taint     = m_engine->GetTaintEngine();
+    //m_taint     = m_engine->GetTaintEngine();
 
     m_isLeftDown = false;
     m_selDown = m_selUp = -1;
@@ -52,7 +52,7 @@ MemDataPanel::MemDataPanel( wxWindow *parent, ProphetFrame *dad, ProEngine *engi
 
 MemDataPanel::~MemDataPanel()
 {
-    SAFE_DELETE(m_popup);
+    //SAFE_DELETE(m_popup);
 }
 
 void MemDataPanel::InitRender()
@@ -141,14 +141,14 @@ void MemDataPanel::DrawLine( wxBufferedPaintDC &dc, int idx )
         offset++;
         w += m_widthChar;
     }
-    offset = m_context.Base + CharsPerLine * idx;
-    for (int i = 0; i < CharsPerLine; i++) {
-        bool highlight = InSelRange((int) offset - m_context.Base, m_selDown, m_selUp);
-        DrawTaint(dc, m_taint->MemTaint.Get<1>(offset), 
-            wxRect(w, h, m_widthTaint, m_lineHeight), highlight);
-        offset++;
-        w += m_widthTaint;
-    }
+//     offset = m_context.Base + CharsPerLine * idx;
+//     for (int i = 0; i < CharsPerLine; i++) {
+//         bool highlight = InSelRange((int) offset - m_context.Base, m_selDown, m_selUp);
+//         DrawTaint(dc, m_taint->MemTaint.Get<1>(offset), 
+//             wxRect(w, h, m_widthTaint, m_lineHeight), highlight);
+//         offset++;
+//         w += m_widthTaint;
+//     }
 }
 
 void MemDataPanel::UpdateData( const Section *sec, const SectionContext &ctx )
@@ -245,45 +245,45 @@ int MemDataPanel::GetIndex( const wxPoint &mouse )
 
 void MemDataPanel::InitMenu()
 {
-    m_popup = new wxMenu;
-    wxMenu *taintMem = new wxMenu;
-    taintMem->Append(ID_PopupTaintMemRange, "Cyclic");
-    taintMem->Append(ID_PopupTaintMemRangeAllBits, "All at once");
-    m_popup->AppendSubMenu(taintMem, "Taint Memory Ranged");
+    //m_popup = new wxMenu;
+    //wxMenu *taintMem = new wxMenu;
+    //taintMem->Append(ID_PopupTaintMemRange, "Cyclic");
+    //taintMem->Append(ID_PopupTaintMemRangeAllBits, "All at once");
+    //m_popup->AppendSubMenu(taintMem, "Taint Memory Ranged");
 
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &MemDataPanel::OnTaintMemoryRangedClicked, 
-        this, ID_PopupTaintMemRange);
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &MemDataPanel::OnTaintMemoryRangedAllBitsClicked,
-        this, ID_PopupTaintMemRangeAllBits);
+//     Bind(wxEVT_COMMAND_MENU_SELECTED, &MemDataPanel::OnTaintMemoryRangedClicked, 
+//         this, ID_PopupTaintMemRange);
+//     Bind(wxEVT_COMMAND_MENU_SELECTED, &MemDataPanel::OnTaintMemoryRangedAllBitsClicked,
+//         this, ID_PopupTaintMemRangeAllBits);
 }
 
-void MemDataPanel::OnTaintMemoryRangedClicked( wxCommandEvent &event )
-{
-    TaintMemRanged(false);
-}
-
-void MemDataPanel::OnTaintMemoryRangedAllBitsClicked( wxCommandEvent &event )
-{
-    TaintMemRanged(true);
-}
+// void MemDataPanel::OnTaintMemoryRangedClicked( wxCommandEvent &event )
+// {
+//     TaintMemRanged(false);
+// }
+// 
+// void MemDataPanel::OnTaintMemoryRangedAllBitsClicked( wxCommandEvent &event )
+// {
+//     TaintMemRanged(true);
+// }
 
 void MemDataPanel::OnRightClick( wxMouseEvent &event )
 {
-    PopupMenu(m_popup);
+    //PopupMenu(m_popup);
 }
 
-void MemDataPanel::TaintMemRanged( bool allbits )
-{
-    if (m_selDown == -1 || m_selUp == -1) {
-        wxMessageBox("No selection");
-        return;
-    }
-
-    int start = min(m_selDown, m_selUp);
-    int len = abs(m_selDown - m_selUp) + 1;
-    m_taint->TaintMemoryRanged((uint) m_context.Base + start, (uint) len, allbits);
-    Refresh();
-}
+// void MemDataPanel::TaintMemRanged( bool allbits )
+// {
+//     if (m_selDown == -1 || m_selUp == -1) {
+//         wxMessageBox("No selection");
+//         return;
+//     }
+// 
+//     int start = min(m_selDown, m_selUp);
+//     int len = abs(m_selDown - m_selUp) + 1;
+//     m_taint->TaintMemoryRanged((uint) m_context.Base + start, (uint) len, allbits);
+//     Refresh();
+// }
 
 MemInfoPanel::MemInfoPanel(wxWindow *parent, ProphetFrame *dad, MemDataPanel *data)
     : SelectableScrolledControl(parent, wxSize(400, 150)), m_dataPanel(data), m_dad(dad)

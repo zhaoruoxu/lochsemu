@@ -22,7 +22,7 @@ MessageManager::~MessageManager()
 
 void MessageManager::Initialize()
 {
-    m_taint = m_protocol->GetEngine()->GetTaintEngine();
+    //m_taint = m_protocol->GetEngine()->GetTaintEngine();
     m_format.Initialize();
 }
 
@@ -32,7 +32,7 @@ void MessageManager::OnMessageBegin( MessageBeginEvent &event )
         LxError("Prophet: message length(%d) >= taint width(%d)!\n", event.MessageLen,
             Taint::GetWidth());
     }
-    m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
+    //m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
     m_message = new Message(event.MessageLen, event.MessageAddr, event.MessageData);
     m_format.OnMessageBegin(event);
 

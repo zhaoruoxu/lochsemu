@@ -248,12 +248,12 @@ std::string MessageTreeNode::GetMsgContent( const Message *msg ) const
     std::stringstream ss;
     ss << "'";
     for (int i = m_l; i <= m_r; i++) {
-        char ch = (*msg)[i].Data;
+        byte ch = (*msg)[i].Data;
         if (isprint(ch))
             ss << ch;
         else {
             char buf[16];
-            sprintf(buf, "\\\\0x%02x", (byte) ch);
+            sprintf(buf, "\\\\0x%02x", ch);
             ss << buf;
         }
     }
@@ -336,7 +336,7 @@ TokenizeRefiner::TokenizeRefiner( const Message *msg )
     m_msg = msg;
 }
 
-bool TokenizeRefiner::IsTokenChar( char ch ) const
+bool TokenizeRefiner::IsTokenChar( byte ch ) const
 {
     return !isspace(ch) && !iscntrl(ch);
 }

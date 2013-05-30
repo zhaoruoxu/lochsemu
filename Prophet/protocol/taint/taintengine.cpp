@@ -23,23 +23,17 @@ void TSnapshot::Dump( File &f )
     m_mt->Dump(f);
 }
 
-TaintEngine::TaintEngine(ProEngine *engine)
-    : m_engine(engine)
+TaintEngine::TaintEngine()
 {
-    m_enabled = false;
+    //m_enabled = false;
     m_taintRule = 0;
 }
 
-TaintEngine::~TaintEngine()
-{
-
-}
-
-void TaintEngine::Initialize()
-{
+//void TaintEngine::Initialize()
+//{
     //std::string pfile = g_config.GetString("General", "TaintPoolFile", "\\prophet_taint_pool");
     //MemTaint.Init(pfile.c_str());
-}
+//}
 
 void TaintEngine::Reset()
 {
@@ -104,18 +98,18 @@ Taint1 TaintEngine::GetTaintAddressingReg( const TContext *ctx, const ARGTYPE &o
     return t;
 }
 
-void TaintEngine::Serialize( Json::Value &root ) const 
-{
-    //root["enabled"] = m_enabled;
-
-}
-
-void TaintEngine::Deserialize( Json::Value &root )
-{
-    //m_enabled = root.get("enabled", m_enabled).asBool();
-    // always disabled at startup
-
-}
+// void TaintEngine::Serialize( Json::Value &root ) const 
+// {
+//     //root["enabled"] = m_enabled;
+// 
+// }
+// 
+// void TaintEngine::Deserialize( Json::Value &root )
+// {
+//     //m_enabled = root.get("enabled", m_enabled).asBool();
+//     // always disabled at startup
+// 
+// }
 
 void TaintEngine::ApplySnapshot( const TSnapshot &t )
 {
@@ -123,11 +117,11 @@ void TaintEngine::ApplySnapshot( const TSnapshot &t )
     MemTaint.CopyFrom(t.m_mt);
 }
 
-void TaintEngine::Enable( bool isEnabled )
-{ 
-    m_enabled = isEnabled; 
-    m_engine->UpdateGUI();
-}
+//void TaintEngine::Enable( bool isEnabled )
+//{ 
+    //m_enabled = isEnabled; 
+    //m_engine->UpdateGUI();
+//}
 
 Taint1 TaintEngine::GetTestedFlagTaint( const TContext *ctx, const Instruction *inst ) const
 {

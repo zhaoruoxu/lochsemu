@@ -27,12 +27,12 @@ private:
     bool    m_breakOnMainModuleEntry;
     bool    m_fakeMessageEnd;
     bool    m_skipDllEntries;
-    bool    m_taintOriginalState;
+    //bool    m_taintOriginalState;
     bool    m_tracerOriginalState;
     bool    m_mainEntryFound;
 
     ProDebugger *   m_debugger;
-    TaintEngine *   m_taint;
+    //TaintEngine *   m_taint;
     ProTracer *     m_tracer;
     Disassembler *  m_disasm;
 

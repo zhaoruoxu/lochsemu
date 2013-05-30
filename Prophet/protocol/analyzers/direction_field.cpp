@@ -2,7 +2,6 @@
 #include "direction_field.h"
 #include "instruction.h"
 #include "engine.h"
-#include "protocol/taint/taintengine.h"
 #include "protocol/msgmgr.h"
 
 /*
@@ -14,13 +13,13 @@
 DirectionField::DirectionField( Protocol *protocol )
     : ProtocolAnalyzer(protocol, "DirectionField")
 {
-    m_taint = NULL;
+    //m_taint = NULL;
     m_useFlag = true;
 }
 
 void DirectionField::Initialize()
 {
-    m_taint = m_protocol->GetEngine()->GetTaintEngine();
+    //m_taint = m_protocol->GetEngine()->GetTaintEngine();
     m_msgmgr = m_protocol->GetMessageManager();
     m_disasm = m_protocol->GetEngine()->GetDisassembler();
 }

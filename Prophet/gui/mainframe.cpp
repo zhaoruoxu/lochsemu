@@ -39,7 +39,7 @@ ProphetFrame::ProphetFrame(ProEngine *engine, Emulator *emu)
 #endif
     m_archive   = m_engine->GetArchive();
     m_tracer    = m_engine->GetTracer();
-    m_taint     = m_engine->GetTaintEngine();
+    //m_taint     = m_engine->GetTaintEngine();
     m_plugins   = m_engine->GetPluginManager();
 
     InitMisc();
@@ -250,10 +250,10 @@ void ProphetFrame::InitToolbars()
     tbDebug->AddSeparator();
     //tbDebug->AddStretchableSpace();
     m_toggleTrace = new MySwitch(tbDebug, ID_ToolbarToggleTrace, "Trace", wxSize(50, -1));
-    m_toggleTaint = new MySwitch(tbDebug, ID_ToolbarToggleTaint, "Taint", wxSize(50, -1));
+    //m_toggleTaint = new MySwitch(tbDebug, ID_ToolbarToggleTaint, "Taint", wxSize(50, -1));
     tbDebug->AddControl(m_toggleTrace);
     tbDebug->AddSeparator();
-    tbDebug->AddControl(m_toggleTaint);
+    //tbDebug->AddControl(m_toggleTaint);
 
     tbDebug->Realize();
 
@@ -264,8 +264,8 @@ void ProphetFrame::InitToolbars()
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnRunNoBp,    this, ID_RunNoBp);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnToggleTraceClicked, 
         this, ID_ToolbarToggleTrace);
-    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnToggleTaintClicked,
-        this, ID_ToolbarToggleTaint);
+//     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &ProphetFrame::OnToggleTaintClicked,
+//         this, ID_ToolbarToggleTaint);
 }
 
 
@@ -499,14 +499,14 @@ void ProphetFrame::OnArchiveLoaded( Archive *arc )
     OnUpdate();
 }
 
-void ProphetFrame::OnToggleTaintClicked( wxCommandEvent &event )
-{
-    if (m_isbusy) return;
-    bool beingEnabled = !m_engine->GetTaintEngine()->IsEnabled();
-    m_engine->GetTaintEngine()->Enable(beingEnabled);
-    m_toggleTaint->SetOn(beingEnabled);
-    m_engine->SaveArchive();
-}
+//void ProphetFrame::OnToggleTaintClicked( wxCommandEvent &event )
+//{
+    //if (m_isbusy) return;
+    //bool beingEnabled = !m_engine->GetTaintEngine()->IsEnabled();
+    //m_engine->GetTaintEngine()->Enable(beingEnabled);
+    //m_toggleTaint->SetOn(beingEnabled);
+    //m_engine->SaveArchive();
+//}
 
 void ProphetFrame::OnShowMemory( wxCommandEvent &event )
 {
@@ -549,7 +549,7 @@ void ProphetFrame::OnUpdate()
 {
     m_statusbar->SetStatusText(m_tracer->IsEnabled() ? "Tracing" : "", Statusbar_Tracing);
     m_toggleTrace->SetOn(m_tracer->IsEnabled());
-    m_toggleTaint->SetOn(m_taint->IsEnabled());
+    //m_toggleTaint->SetOn(m_taint->IsEnabled());
 
     for (int i = 0; i < m_plugins->GetNumPlugins(); i++)
         m_menuPlugins->Check(ID_PluginCheckEnable+i, m_plugins->GetPlugin(i)->IsEnabled());

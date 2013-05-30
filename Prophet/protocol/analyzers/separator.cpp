@@ -12,7 +12,7 @@ SeparatorKeyword::SeparatorKeyword( Protocol *protocol )
 
 void SeparatorKeyword::Initialize()
 {
-    m_taint = m_protocol->GetEngine()->GetTaintEngine();
+    //m_taint = m_protocol->GetEngine()->GetTaintEngine();
     m_msgmgr = m_protocol->GetMessageManager();
     Reset();
 }

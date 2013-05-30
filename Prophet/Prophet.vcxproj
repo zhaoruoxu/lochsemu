@@ -147,6 +147,7 @@
     <ClInclude Include="plugin\taint_directive.h" />
     <ClInclude Include="plugin\vulnerability_detector.h" />
     <ClInclude Include="prophet.h" />
+    <ClInclude Include="protocol\algorithms\alganalyzer.h" />
     <ClInclude Include="protocol\analyzer.h" />
     <ClInclude Include="protocol\analyzers\callstack.h" />
     <ClInclude Include="protocol\analyzers\direction_field.h" />
@@ -224,6 +225,7 @@
     <ClCompile Include="plugin\taint_directive.cpp" />
     <ClCompile Include="plugin\vulnerability_detector.cpp" />
     <ClCompile Include="prophet.cpp" />
+    <ClCompile Include="protocol\algorithms\alganalyzer.cpp" />
     <ClCompile Include="protocol\analyzer.cpp" />
     <ClCompile Include="protocol\analyzers\callstack.cpp" />
     <ClCompile Include="protocol\analyzers\direction_field.cpp" />

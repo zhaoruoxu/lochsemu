@@ -20,6 +20,7 @@ public:
     void Add(TraceAnalyzer *t0, TraceAnalyzer *t1);
     void Add(TraceAnalyzer *t0, TraceAnalyzer *t1, TraceAnalyzer *t2);
     void Run(const RunTrace &t);
+    void RunPartial(const RunTrace &t, int firstIncl, int lastIncl);
 
 private:
     static const int MaxAnalyzers = 16;

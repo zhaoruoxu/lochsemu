@@ -17,7 +17,7 @@ ProEngine::ProEngine()
     : m_disassembler(this), 
     m_debugger(this), 
     m_tracer(this), 
-    m_taint(this), 
+    //m_taint(this), 
     m_plugins(this), 
     m_protocol(this)
 {
@@ -37,7 +37,7 @@ void ProEngine::Initialize(Emulator *emu)
     m_statistics.Initialize();
     m_debugger.Initialize();
     m_disassembler.Initialize();
-    m_taint.Initialize();
+    //m_taint.Initialize();
     m_protocol.Initialize();
     m_plugins.Initialize();
     //m_mainEntryEntered  = false;
@@ -47,7 +47,7 @@ void ProEngine::Initialize(Emulator *emu)
     m_archive.AddObject("plugins",      &m_plugins);
     m_archive.AddObject("debugger",     &m_debugger);
     m_archive.AddObject("tracer",       &m_tracer);
-    m_archive.AddObject("taintengine",  &m_taint);
+    //m_archive.AddObject("taintengine",  &m_taint);
     m_archive.AddObject("protocol",     &m_protocol);
 
     CreateArchiveDirectory();

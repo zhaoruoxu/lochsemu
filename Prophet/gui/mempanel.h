@@ -33,8 +33,8 @@ public:
     void        OnRightClick(wxMouseEvent &event);
     void        OnMouseMove(wxMouseEvent &event);
     void        OnMouseLeave(wxMouseEvent &event);
-    void        OnTaintMemoryRangedClicked(wxCommandEvent &event);
-    void        OnTaintMemoryRangedAllBitsClicked(wxCommandEvent &event);
+    //void        OnTaintMemoryRangedClicked(wxCommandEvent &event);
+    //void        OnTaintMemoryRangedAllBitsClicked(wxCommandEvent &event);
 
     void        UpdateData(const Section *sec, const SectionContext &ctx);
     void        SelectAddress(u32 addr, u32 len);
@@ -44,7 +44,7 @@ private:
     void        InitMenu();
     void        DrawLine(wxBufferedPaintDC &dc, int idx);
     int         GetIndex(const wxPoint &mouse);
-    void        TaintMemRanged(bool allbits);
+    //void        TaintMemRanged(bool allbits);
 private:
     ProphetFrame *      m_dad;
     static const int    CharsPerLine = 8;
@@ -52,9 +52,9 @@ private:
     pbyte               m_rawdata;
     SectionContext      m_context;
     ProEngine *           m_engine;
-    TaintEngine *       m_taint;
+    //TaintEngine *       m_taint;
     wxBrush             m_bgBrush;
-    wxMenu *            m_popup;
+    //wxMenu *            m_popup;
 
     int         m_widthOffset;
     int         m_widthHex;

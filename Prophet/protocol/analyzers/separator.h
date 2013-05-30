@@ -23,7 +23,7 @@ private:
     void    CheckToken(byte t);
 
 private:
-    TaintEngine *       m_taint;
+    //TaintEngine *       m_taint;
     MessageManager *    m_msgmgr;
     int     m_msglen;
 

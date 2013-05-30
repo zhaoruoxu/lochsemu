@@ -2,7 +2,6 @@
 #include "apiprocessor.h"
 #include "protocol.h"
 #include "engine.h"
-#include "taint/taintengine.h"
 
 #include "processor.h"
 #include "winapi.h"
@@ -15,7 +14,7 @@ ApiProcessor::ApiProcessor( Protocol *protocol )
     ZeroMemory(m_isHandlerEnabledPreCall,   sizeof(m_isHandlerEnabledPreCall));
     ZeroMemory(m_isHandlerEnabledPostCall,  sizeof(m_isHandlerEnabledPostCall));
     m_enabled = true;
-    m_taint = NULL;
+    //m_taint = NULL;
 }
 
 ApiProcessor::~ApiProcessor()
@@ -25,7 +24,7 @@ ApiProcessor::~ApiProcessor()
 
 void ApiProcessor::Initialize()
 {
-    m_taint = m_protocol->GetEngine()->GetTaintEngine();
+    //m_taint = m_protocol->GetEngine()->GetTaintEngine();
     InitializeDefaultHandlers();
 }
 

@@ -53,7 +53,7 @@ private:
     void    OnToggleTraceClicked(wxCommandEvent &event);
 //     void    OnToggleCRTEntryClicked(wxCommandEvent &event);
 //     void    OnToggleSkipDllEntryClicked(wxCommandEvent &event);
-    void    OnToggleTaintClicked(wxCommandEvent &event);
+//     void    OnToggleTaintClicked(wxCommandEvent &event);
     void    OnShowMemory(wxCommandEvent &event);
     void    OnShowCode(wxCommandEvent &event);
     void    OnPluginCheckEnable(wxCommandEvent &event);
@@ -75,7 +75,7 @@ private:
     ProEngine *     m_engine;
     Archive *       m_archive;
     ProTracer *     m_tracer;
-    TaintEngine *   m_taint;
+    //TaintEngine *   m_taint;
     ProPluginManager *  m_plugins;
 
     CpuPanel *      m_cpuPanel;
@@ -115,7 +115,7 @@ private:
     MySwitch *      m_toggleTrace;
     //MySwitch *      m_toggleCRTEntry;
     //MySwitch *      m_toggleSkipDllEntry;
-    MySwitch *      m_toggleTaint;
+    //MySwitch *      m_toggleTaint;
 };
  
 #endif // __PROPHET_GUI_MAINFRAME_H__

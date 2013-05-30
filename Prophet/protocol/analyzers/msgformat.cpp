@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "msgformat.h"
-#include "protocol/taint/taintengine.h"
-
+/*
 
 MessageFieldFormat::MessageFieldFormat( TaintEngine *taint )
 {
@@ -49,3 +48,4 @@ void MessageFieldFormat::OnComplete()
         }
     }
 }
+*/

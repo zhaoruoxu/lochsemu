@@ -20,7 +20,7 @@ AutoBreak::~AutoBreak()
 void AutoBreak::Initialize()
 {
     m_debugger  = GetEngine()->GetDebugger();
-    m_taint     = GetEngine()->GetTaintEngine();
+    //m_taint     = GetEngine()->GetTaintEngine();
     m_tracer    = GetEngine()->GetTracer();
     m_disasm    = GetEngine()->GetDisassembler();
 }
@@ -49,7 +49,7 @@ void AutoBreak::OnPreExecute( PreExecuteEvent &event, bool firstTime )
             LxInfo("AutoBreak: Main module at %08x\n", event.Cpu->EIP);
         }
         if (m_skipDllEntries) {
-            m_taint->Enable(m_taintOriginalState);
+            //m_taint->Enable(m_taintOriginalState);
             m_tracer->Enable(m_tracerOriginalState);
         }
     }
@@ -61,9 +61,9 @@ void AutoBreak::OnProcessPostLoad( ProcessPostLoadEvent &event, bool firstTime )
     if (firstTime) return;
     if (m_skipDllEntries) {
         // 禁用DLL初始化时的Taint和Tracer执行
-        m_taintOriginalState    = m_taint->IsEnabled();
+        //m_taintOriginalState    = m_taint->IsEnabled();
         m_tracerOriginalState   = m_tracer->IsEnabled();
-        m_taint->Enable(false);
+        //m_taint->Enable(false);
         m_tracer->Enable(false);
     }
     if (m_breakOnEntry) {

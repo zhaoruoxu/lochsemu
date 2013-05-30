@@ -76,6 +76,12 @@
     <Filter Include="Source Files\protocol\taint">
       <UniqueIdentifier>{483326dc-c320-48fa-baab-ffa76bdb9173}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\protocol\algorithms">
+      <UniqueIdentifier>{e64de164-2458-4449-aead-63138228da39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\protocol\algorithms">
+      <UniqueIdentifier>{f11466e3-f200-4c73-ad21-fb81c44f03c3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -303,6 +309,9 @@
     <ClInclude Include="protocol\analyzers\procexec.h">
       <Filter>Header Files\protocol\analyzers</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\algorithms\alganalyzer.h">
+      <Filter>Header Files\protocol\algorithms</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -481,6 +490,9 @@
     </ClCompile>
     <ClCompile Include="protocol\analyzers\procexec.cpp">
       <Filter>Source Files\protocol\analyzers</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\algorithms\alganalyzer.cpp">
+      <Filter>Source Files\protocol\algorithms</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

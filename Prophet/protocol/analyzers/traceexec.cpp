@@ -61,8 +61,15 @@ void TraceExec::Add( TraceAnalyzer *t0, TraceAnalyzer *t1, TraceAnalyzer *t2 )
 
 void TraceExec::Run( const RunTrace &t )
 {
-    for (int i = 0; i < t.Count(); i++) {
-        ExecuteTraceEvent e(this, t.Get(i), i, t.Count());
+    RunPartial(t, 0, t.Count()-1);
+}
+
+void TraceExec::RunPartial( const RunTrace &t, int firstIncl, int lastIncl )
+{
+    Assert(firstIncl >= 0 && firstIncl < t.Count());
+    Assert(lastIncl >= firstIncl && lastIncl < t.Count());
+    for (int i = firstIncl; i <= lastIncl; i++) {
+        ExecuteTraceEvent e(this, t.Get(i), i, t);
         OnExecuteTrace(e);
     }
     OnComplete();

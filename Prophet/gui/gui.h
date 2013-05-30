@@ -46,7 +46,7 @@ enum {
     ID_ToolbarToggleTrace,
     //ID_ToolbarToggleCRTEntry,
     //ID_ToolbarToggleSkipDllEntry,
-    ID_ToolbarToggleTaint,
+    //ID_ToolbarToggleTaint,
 
     /* notebooks */
     ID_NbContext,
@@ -67,8 +67,8 @@ enum {
     ID_PopupToggle,
 
     /* mem data panel */
-    ID_PopupTaintMemRange,
-    ID_PopupTaintMemRangeAllBits,
+    //ID_PopupTaintMemRange,
+    //ID_PopupTaintMemRangeAllBits,
 
     /* trace panel */
     ID_PopupFindFirstReg,

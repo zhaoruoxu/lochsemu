@@ -11,13 +11,12 @@
 
 class ExecuteTraceEvent : public Event {
 public:
-    ExecuteTraceEvent(void *sender) : Event(sender), Context(NULL), Seq(-1), Count(0) {}
-    ExecuteTraceEvent(void *sender, const TContext *ctx, int seq, int cnt) : Event(sender),
-        Context(ctx), Seq(seq), Count(cnt) {}
+    ExecuteTraceEvent(void *sender, const TContext *ctx, int seq, const RunTrace &rt) : Event(sender),
+        Context(ctx), Seq(seq), Trace(rt) {}
 
     const TContext *const Context;
     const int   Seq;
-    const int   Count;
+    const RunTrace &Trace;
 };
 
 class Protocol : public ISerializable {
@@ -73,7 +72,7 @@ private:
 //     void        EndTrace(int *nCount = NULL);
 private:
     ProEngine *         m_engine;
-    TaintEngine *       m_taint;
+    //TaintEngine *       m_taint;
 
     static const int    MaxAnalyzers = 64;
     int                 m_totalAnalyzers;

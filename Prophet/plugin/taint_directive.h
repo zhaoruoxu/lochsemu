@@ -17,6 +17,7 @@
  * TAINT_CODE_BEGIN() and TAINT_CODE_END() macros.
  */
 
+/*
 static const std::string TaintSegmentPrefix = ".taint";
 static const uint       TaintBegin          = 0x14159265;
 static const uint       TaintEnd            = 0x65921514;
@@ -50,6 +51,6 @@ private:
     u32     m_lastEip;
 };
 
-
+*/
  
 #endif // __PROPHET_PLUGIN_TAINT_DIRECTIVE_H__

@@ -12,6 +12,62 @@ void ProcContext::Reset()
     Outputs.clear();
 }
 
+void ProcContext::OnTrace( ExecuteTraceEvent &event, TaintEngine *taint )
+{
+    const MemAccess &mr = event.Context->Mr;
+    if (mr.Len != 0) {
+        pbyte dat = (pbyte) &mr.Val;
+        for (uint i = 0; i < mr.Len; i++)
+            OnMemRead(mr.Addr+i, dat[i], taint);
+    }
+    const MemAccess &mw = event.Context->Mw;
+    if (mw.Len != 0) {
+        pbyte dat = (pbyte) &mw.Val;
+        for (uint i = 0; i < mw.Len; i++)
+            OnMemWrite(mw.Addr+i, dat[i], taint);
+    }
+}
+
+void ProcContext::OnMemRead( u32 addr, byte val, TaintEngine *taint )
+{
+    if (Outputs.find(addr) != Outputs.end()) return;    // 已经被写过
+    if (Inputs.find(addr) != Inputs.end()) return;      // 已经被读过
+    TMemAccess tma;
+    tma.Data = val;
+    if (taint) {
+        tma.Tnt = taint->MemTaint.Get<1>(addr)[0];
+    }
+    Inputs[addr] = tma;
+}
+
+void ProcContext::OnMemWrite( u32 addr, byte val, TaintEngine *taint )
+{
+    TMemAccess tma;
+    tma.Data = val;
+    if (taint) {
+        tma.Tnt = taint->MemTaint.Get<1>(addr)[0];
+    }
+    Outputs[addr] = tma;
+}
+
+void ProcContext::Dump( File &f ) const
+{
+    fprintf(f.Ptr(), "Proc %08x: from %d to %d, length %d\n",
+        Proc->Entry(), BeginSeq, EndSeq, EndSeq - BeginSeq + 1);
+    fprintf(f.Ptr(), "Inputs:\n");
+    for (auto &entry : Inputs) {
+        if (!entry.second.Tnt.IsAnyTainted()) continue;
+        fprintf(f.Ptr(), "  %08x : %02x  ", entry.first, entry.second.Data);
+        entry.second.Tnt.Dump(f);
+    }
+    fprintf(f.Ptr(), "Outputs:\n");
+    for (auto &entry : Outputs) {
+        if (!entry.second.Tnt.IsAnyTainted()) continue;
+        fprintf(f.Ptr(), "  %08x : %02x  ", entry.first, entry.second.Data);
+        entry.second.Tnt.Dump(f);
+    }
+}
+
 
 ProcExec::ProcExec(CallStack *cs, TaintEngine *te)
 {
@@ -34,18 +90,7 @@ void ProcExec::OnExecuteTrace( ExecuteTraceEvent &event )
     if (m_contexts.empty()) {
         OnProcBegin(event);
     }
-    const MemAccess &mr = event.Context->Mr;
-    if (mr.Len != 0) {
-        pbyte dat = (pbyte) &mr.Val;
-        for (uint i = 0; i < mr.Len; i++)
-            OnMemRead(mr.Addr+i, dat[i]);
-    }
-    const MemAccess &mw = event.Context->Mw;
-    if (mw.Len != 0) {
-        pbyte dat = (pbyte) &mw.Val;
-        for (uint i = 0; i < mw.Len; i++)
-            OnMemWrite(mw.Addr+i, dat[i]);
-    }
+    m_contexts.back().OnTrace(event, m_taint);
 }
 
 void ProcExec::OnComplete()
@@ -70,29 +115,20 @@ void ProcExec::OnProcEnd( ExecuteTraceEvent &event )
 //         t.BeginSeq, event.Seq, t.Inputs.size(), t.Outputs.size());
     m_contexts.back().EndSeq = event.Seq;
     for (int i = 0; i < m_count; i++)
-        m_workers[i]->OnProcedure(m_contexts.back());
+        m_workers[i]->OnProcedure(event, m_contexts.back());
 
     m_contexts.pop_back();
 }
 
-void ProcExec::OnMemRead( u32 addr, byte val )
-{
-    ProcContext &t = m_contexts.back();
-    if (t.Outputs.find(addr) != t.Outputs.end()) return;    // 已经被写过
-    if (t.Inputs.find(addr) != t.Inputs.end()) return;      // 已经被读过
-    TMemAccess tma;
-    tma.Data = val;
-    tma.Tnt = m_taint->MemTaint.Get<1>(addr)[0];
-    t.Inputs[addr] = tma;
-}
-
-void ProcExec::OnMemWrite( u32 addr, byte val )
-{
-    TMemAccess tma;
-    tma.Data = val;
-    tma.Tnt = m_taint->MemTaint.Get<1>(addr)[0];
-    m_contexts.back().Outputs[addr] = tma;
-}
+// void ProcExec::OnMemRead( u32 addr, byte val )
+// {
+// 
+// }
+// 
+// void ProcExec::OnMemWrite( u32 addr, byte val )
+// {
+// 
+// }
 
 void ProcExec::Add( ProcAnalyzer *analyzer )
 {
@@ -109,20 +145,36 @@ ProcDump::ProcDump( const std::string &filename )
 
 }
 
-void ProcDump::OnProcedure( const ProcContext &ctx )
+void ProcDump::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
-    fprintf(m_f.Ptr(), "Proc %08x: from %d to %d, length %d\n",
-        ctx.Proc->Entry(), ctx.BeginSeq, ctx.EndSeq, ctx.EndSeq - ctx.BeginSeq + 1);
-    fprintf(m_f.Ptr(), "Inputs:\n");
-    for (auto &entry : ctx.Inputs) {
-        if (!entry.second.Tnt.IsAnyTainted()) continue;
-        fprintf(m_f.Ptr(), "  %08x : %02x  ", entry.first, entry.second.Data);
-        entry.second.Tnt.Dump(m_f);
-    }
-    fprintf(m_f.Ptr(), "Outputs:\n");
-    for (auto &entry : ctx.Outputs) {
-        if (!entry.second.Tnt.IsAnyTainted()) continue;
-        fprintf(m_f.Ptr(), "  %08x : %02x  ", entry.first, entry.second.Data);
-        entry.second.Tnt.Dump(m_f);
-    }
+    ctx.Dump(m_f);
+}
+
+void ProcTraceExec::RunProc( const RunTrace &t, const ProcContext &ctx )
+{
+    RunPartial(t, ctx.BeginSeq, ctx.EndSeq);
+}
+
+ProcContext SingleProcExec::Run(ExecuteTraceEvent &event, const ProcContext &ctx,
+                                TaintEngine *taint)
+{
+    SingleProcExec sexec(taint);
+    sexec.m_context.Proc = ctx.Proc;
+    sexec.m_context.BeginSeq = ctx.BeginSeq;
+    sexec.m_context.EndSeq = ctx.EndSeq;
+    ProcTraceExec exec;
+    if (taint) exec.Add(taint);
+    exec.Add(&sexec);
+    exec.RunProc(event.Trace, ctx);
+    return sexec.m_context;
+}
+
+SingleProcExec::SingleProcExec( TaintEngine *te )
+{
+    m_taint = te;
+}
+
+void SingleProcExec::OnExecuteTrace( ExecuteTraceEvent &event )
+{
+    m_context.OnTrace(event, m_taint);
 }

@@ -41,7 +41,7 @@ private:
     Message *       m_message;
     MsgByteInfo *   m_msgInfo;
     MessageManager *m_msgmgr;
-    TaintEngine *   m_taint;
+    //TaintEngine *   m_taint;
     ProEngine *     m_engine;
 
     int     m_weightLenField;

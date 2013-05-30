@@ -5,6 +5,7 @@
  
 #include "protocol/analyzer.h"
 
+/*
 struct TokenInfo {
     bool HasTrueCompare;
     bool HasFalseCompare;
@@ -27,5 +28,5 @@ private:
     TaintEngine *   m_taint;
     TokenInfo       m_tokens[256];
 };
-
+*/
 #endif // __PROPHET_PROTOCOL_ANALYZERS_FIELDFORMAT_H__

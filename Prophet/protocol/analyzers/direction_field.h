@@ -24,7 +24,7 @@ private:
 
 private:
     Disassembler *      m_disasm;
-    TaintEngine *       m_taint;
+    //TaintEngine *       m_taint;
     MessageManager *    m_msgmgr;
 
     std::unordered_set<u32>     m_inloop;

@@ -11,6 +11,7 @@
 
 class TraceAnalyzer {
 public:
+    virtual ~TraceAnalyzer() {}
     virtual void    Reset() {}
     virtual void    OnExecuteTrace(ExecuteTraceEvent &event) = 0;
     virtual void    OnComplete() {};

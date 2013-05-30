@@ -31,15 +31,22 @@ class File {
 public:
     File(const char *filename, const char *mode);
     File(const std::string &filename, const std::string &mode);
-    ~File();
+    virtual ~File();
 
-    FILE *  Ptr() { return m_fp; }
-    const FILE *Ptr() const { return m_fp; }
+    virtual FILE *  Ptr() { return m_fp; }
+    virtual const FILE *Ptr() const { return m_fp; }
     void    Close();
 
 private:
     void    Open(const char *filename, const char *mode);
-    FILE *m_fp;
+    FILE *  m_fp;
+};
+
+class StdOut : public File {
+public:
+    StdOut() : File(NULL, NULL) {}
+    virtual FILE *  Ptr() { return stdout; }
+    virtual const FILE *Ptr() const { return stdout; }
 };
 
 #endif // __PROPHET_UTILITIES_H__

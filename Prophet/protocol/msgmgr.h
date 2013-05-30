@@ -45,7 +45,7 @@ private:
     FormatSyn       m_format;
     Protocol *      m_protocol;
     Message *       m_message;
-    TaintEngine *   m_taint;
+    //TaintEngine *   m_taint;
     RunTrace        m_tracer;
     bool            m_tracing;
 

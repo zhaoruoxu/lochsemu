@@ -5,6 +5,7 @@
  
 #include "protocol/analyzer.h"
 #include "procscope.h"
+#include "traceexec.h"
 
 struct TMemAccess {
     byte Data;
@@ -24,12 +25,19 @@ struct ProcContext {
     ProcContext() {
         Reset();
     }
+
+    void OnTrace(ExecuteTraceEvent &event, TaintEngine *taint);
+    void Dump(File &f) const;
+
+private:
+    void OnMemRead(u32 addr, byte val, TaintEngine *taint);
+    void OnMemWrite(u32 addr, byte val, TaintEngine *taint);
 };
 
 class ProcAnalyzer {
 public:
     virtual ~ProcAnalyzer() {}
-    virtual void OnProcedure(const ProcContext &ctx) = 0;
+    virtual void OnProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) = 0;
 };
 
 class ProcExec : public TraceAnalyzer {
@@ -43,9 +51,9 @@ public:
     virtual void OnProcEnd(ExecuteTraceEvent &event) override;
 
     void Add(ProcAnalyzer *analyzer);
-private:
-    void    OnMemRead(u32 addr, byte val);
-    void    OnMemWrite(u32 addr, byte val);
+// private:
+//     void    OnMemRead(u32 addr, byte val);
+//     void    OnMemWrite(u32 addr, byte val);
 
 private:
     //std::vector<int>    m_beginSeqs;
@@ -58,11 +66,29 @@ private:
     int m_count;
 };
 
+class ProcTraceExec : public TraceExec {
+public:
+    void RunProc(const RunTrace &t, const ProcContext &ctx);
+};
+
+class SingleProcExec : public TraceAnalyzer {
+public:
+    static ProcContext Run(ExecuteTraceEvent &event, const ProcContext &ctx, 
+        TaintEngine *taint);
+private:
+    SingleProcExec(TaintEngine *te);
+    virtual void OnExecuteTrace(ExecuteTraceEvent &event) override;
+    
+private:
+    TaintEngine *m_taint;
+    ProcContext m_context;
+};
+
 class ProcDump : public ProcAnalyzer {
 public:
     ProcDump(const std::string &filename);
 
-    virtual void OnProcedure(const ProcContext &ctx) override;
+    virtual void OnProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
 private:
     File m_f;
 };

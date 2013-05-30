@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "taint_directive.h"
 
+/*
 void TaintDirective::Initialize()
 {
     m_lastEip = 0;
@@ -75,3 +76,5 @@ void TaintDirective::Deserialize( Json::Value &root )
     Plugin::Deserialize(root);
     m_taintAllBits = root.get("taint_all_bits", m_taintAllBits).asBool();
 }
+
+*/

@@ -169,6 +169,8 @@ File::File(const std::string &filename, const std::string &mode)
 
 void File::Open( const char *filename, const char *mode )
 {
+    m_fp = NULL;
+    if (!filename || !mode) return;
     m_fp = fopen(filename, mode);
     if (m_fp == NULL) {
         LxFatal("Error creating file: %s mode: %s\n", filename, mode);

@@ -2,13 +2,11 @@
 #include "protocol.h"
 #include "event.h"
 #include "engine.h"
-#include "taint/taintengine.h"
 #include "message.h"
 
 /* Analyzers */
 #include "analyzers/direction_field.h"
 #include "analyzers/separator.h"
-
 
 #include "sqlite/SQLiteC++.h"
 
@@ -19,7 +17,7 @@ Protocol::Protocol( ProEngine *engine )
     ZeroMemory(m_messages, sizeof(m_messages));
     m_totalAnalyzers    = 0;
     m_totalMessages     = 0;
-    m_taint     = NULL;
+    //m_taint     = NULL;
     m_enabled   = true;
     m_state     = Idle;
     m_eipPreExec = 0;
@@ -37,7 +35,7 @@ Protocol::~Protocol()
 
 void Protocol::Initialize()
 {
-    m_taint = m_engine->GetTaintEngine();
+    //m_taint = m_engine->GetTaintEngine();
     m_apiprocessor.Initialize();
     m_msgmanager.Initialize();
 
