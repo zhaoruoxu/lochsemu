@@ -16,6 +16,7 @@ public:
 	void	Extend(u32 addr) { m_addrs.insert(addr); }
 	void	Exit(u32 addr);
 	void	Dump(File &f) const;
+    bool    Containts(u32 addr) const;
 
 	u32		Entry() const { return m_entry; }
 	std::set<u32> &	Addrs() { return m_addrs; }

@@ -50,19 +50,19 @@ void ProcContext::OnMemWrite( u32 addr, byte val, TaintEngine *taint )
     Outputs[addr] = tma;
 }
 
-void ProcContext::Dump( File &f ) const
+void ProcContext::Dump( File &f, bool taintedOnly ) const
 {
     fprintf(f.Ptr(), "Proc %08x: from %d to %d, length %d\n",
         Proc->Entry(), BeginSeq, EndSeq, EndSeq - BeginSeq + 1);
     fprintf(f.Ptr(), "Inputs:\n");
     for (auto &entry : Inputs) {
-        if (!entry.second.Tnt.IsAnyTainted()) continue;
+        if (taintedOnly && !entry.second.Tnt.IsAnyTainted()) continue;
         fprintf(f.Ptr(), "  %08x : %02x  ", entry.first, entry.second.Data);
         entry.second.Tnt.Dump(f);
     }
     fprintf(f.Ptr(), "Outputs:\n");
     for (auto &entry : Outputs) {
-        if (!entry.second.Tnt.IsAnyTainted()) continue;
+        if (taintedOnly && !entry.second.Tnt.IsAnyTainted()) continue;
         fprintf(f.Ptr(), "  %08x : %02x  ", entry.first, entry.second.Data);
         entry.second.Tnt.Dump(f);
     }
@@ -147,7 +147,7 @@ ProcDump::ProcDump( const std::string &filename )
 
 void ProcDump::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
-    ctx.Dump(m_f);
+    ctx.Dump(m_f, false);
 }
 
 void ProcTraceExec::RunProc( const RunTrace &t, const ProcContext &ctx )
@@ -156,25 +156,32 @@ void ProcTraceExec::RunProc( const RunTrace &t, const ProcContext &ctx )
 }
 
 ProcContext SingleProcExec::Run(ExecuteTraceEvent &event, const ProcContext &ctx,
-                                TaintEngine *taint)
+                                TaintEngine *taint, int maxDepth)
 {
-    SingleProcExec sexec(taint);
-    sexec.m_context.Proc = ctx.Proc;
-    sexec.m_context.BeginSeq = ctx.BeginSeq;
-    sexec.m_context.EndSeq = ctx.EndSeq;
+    SingleProcExec sexec(taint, ctx, maxDepth);
     ProcTraceExec exec;
     if (taint) exec.Add(taint);
     exec.Add(&sexec);
     exec.RunProc(event.Trace, ctx);
     return sexec.m_context;
+    
 }
 
-SingleProcExec::SingleProcExec( TaintEngine *te )
+SingleProcExec::SingleProcExec( TaintEngine *te, const ProcContext &ctx, int maxDepth )
 {
     m_taint = te;
+    m_context.Proc = ctx.Proc;
+    m_context.BeginSeq = ctx.BeginSeq;
+    m_context.EndSeq = ctx.EndSeq;
+    m_maxDepth = maxDepth;
 }
 
 void SingleProcExec::OnExecuteTrace( ExecuteTraceEvent &event )
 {
-    m_context.OnTrace(event, m_taint);
+    if (m_maxDepth > 0) {
+        LxWarning("SingleProcExec depth > 0 not supported\n");
+    }
+    if (m_context.Proc->Containts(event.Context->Eip)) {
+        m_context.OnTrace(event, m_taint);
+    }
 }

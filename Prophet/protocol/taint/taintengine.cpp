@@ -25,34 +25,36 @@ void TSnapshot::Dump( File &f )
 
 TaintEngine::TaintEngine()
 {
-    //m_enabled = false;
     m_taintRule = 0;
+    m_count = 0;
 }
-
-//void TaintEngine::Initialize()
-//{
-    //std::string pfile = g_config.GetString("General", "TaintPoolFile", "\\prophet_taint_pool");
-    //MemTaint.Init(pfile.c_str());
-//}
 
 void TaintEngine::Reset()
 {
     CpuTaint.Reset();
     MemTaint.Reset();
+    m_count = 0;
+    for (auto &desc : m_taintDesc)
+        desc.Reset();
 }
 
-// void TaintEngine::OnPreExecute( PreExecuteEvent &event )
-// {
-//     if (!IsEnabled()) return;
-// 
-// 
-// }
-// 
-// void TaintEngine::OnPostExecute( PostExecuteEvent &event )
-// {
-// 
-// }
+void TaintEngine::DoTaint( u32 addr )
+{
+    if (m_count >= Taint::Width) {
+        LxFatal("Too many taints!\n");
+    }
+    Taint t = MemTaint.GetByte(addr);
+    t.Set(m_count);
+    MemTaint.SetByte(addr, t);
+    m_taintDesc[m_count++].SourceAddr = addr;
+}
 
+void TaintEngine::TaintRegion( const MemRegion &region )
+{
+    for (u32 l = 0; l < region.Len; l++) {
+        DoTaint(region.Addr + l);
+    }
+}
 
 void TaintEngine::OnExecuteTrace( ExecuteTraceEvent &event )
 {
@@ -98,30 +100,12 @@ Taint1 TaintEngine::GetTaintAddressingReg( const TContext *ctx, const ARGTYPE &o
     return t;
 }
 
-// void TaintEngine::Serialize( Json::Value &root ) const 
-// {
-//     //root["enabled"] = m_enabled;
-// 
-// }
-// 
-// void TaintEngine::Deserialize( Json::Value &root )
-// {
-//     //m_enabled = root.get("enabled", m_enabled).asBool();
-//     // always disabled at startup
-// 
-// }
-
 void TaintEngine::ApplySnapshot( const TSnapshot &t )
 {
     CpuTaint.CopyFrom(t.m_pt);
     MemTaint.CopyFrom(t.m_mt);
 }
 
-//void TaintEngine::Enable( bool isEnabled )
-//{ 
-    //m_enabled = isEnabled; 
-    //m_engine->UpdateGUI();
-//}
 
 Taint1 TaintEngine::GetTestedFlagTaint( const TContext *ctx, const Instruction *inst ) const
 {
@@ -236,18 +220,18 @@ void TaintEngine::SetTaint16( const TContext *ctx, const ARGTYPE &oper, const Ta
     }
 }
 
-void TaintEngine::TaintMemoryRanged( u32 addr, u32 len, bool taintAllBits )
-{
-    for (uint i = 0; i < len; i++) {
-        Taint1 t;
-        if (taintAllBits) {
-            t.SetAll();
-        } else {
-            t[0].Set(i % t[0].GetWidth());
-        }
-        MemTaint.Set<1>(addr + i, t);
-    }
-}
+// void TaintEngine::TaintMemoryRanged( u32 addr, u32 len, bool taintAllBits )
+// {
+//     for (uint i = 0; i < len; i++) {
+//         Taint1 t;
+//         if (taintAllBits) {
+//             t.SetAll();
+//         } else {
+//             t[0].Set(i % t[0].GetWidth());
+//         }
+//         MemTaint.Set<1>(addr + i, t);
+//     }
+// }
 
 TaintEngine::TaintInstHandler TaintEngine::HandlerOneByte[] = {
     /*0x00*/ &TaintEngine::DefaultBinopHandler,

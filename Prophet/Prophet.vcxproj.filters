@@ -312,6 +312,12 @@
     <ClInclude Include="protocol\algorithms\alganalyzer.h">
       <Filter>Header Files\protocol\algorithms</Filter>
     </ClInclude>
+    <ClInclude Include="memregion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\algorithms\rc4_analyzer.h">
+      <Filter>Header Files\protocol\algorithms</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -492,6 +498,9 @@
       <Filter>Source Files\protocol\analyzers</Filter>
     </ClCompile>
     <ClCompile Include="protocol\algorithms\alganalyzer.cpp">
+      <Filter>Source Files\protocol\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\algorithms\rc4_analyzer.cpp">
       <Filter>Source Files\protocol\algorithms</Filter>
     </ClCompile>
   </ItemGroup>

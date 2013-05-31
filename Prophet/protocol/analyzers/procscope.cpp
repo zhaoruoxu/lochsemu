@@ -20,6 +20,11 @@ void Procedure::Exit( u32 addr )
     m_exits.insert(addr);
 }
 
+bool Procedure::Containts( u32 addr ) const
+{
+    return m_addrs.find(addr) != m_addrs.end();
+}
+
 ProcScope::ProcScope()
 {
     Reset();

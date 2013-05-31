@@ -11,7 +11,9 @@ MemoryTaint::MemoryTaint()
 
 MemoryTaint::~MemoryTaint()
 {
-    Reset();
+    for (int i = 0; i < Pages; i++) {
+        SAFE_DELETE(m_pagetable[i]);
+    }
     SAFE_DELETE_ARRAY(m_pagetable);
 }
 
@@ -27,7 +29,8 @@ MemoryTaint::PageTaint * MemoryTaint::GetPage( u32 addr )
 void MemoryTaint::Reset()
 {
     for (int i = 0; i < Pages; i++) {
-        SAFE_DELETE(m_pagetable[i]);
+        if (m_pagetable[i] != NULL)
+            m_pagetable[i]->Reset();
     }
 }
 
@@ -173,6 +176,16 @@ void MemoryTaint::Dump( File &f ) const
             m_pagetable[i]->Dump(f, i * LX_PAGE_SIZE);
         }
     }
+}
+
+Taint MemoryTaint::GetByte( u32 addr )
+{
+    return GetPage(addr)->Get(PAGE_LOW(addr));
+}
+
+void MemoryTaint::SetByte( u32 addr, const Taint &t )
+{
+    GetPage(addr)->Set(PAGE_LOW(addr), t);
 }
 
 

@@ -27,7 +27,7 @@ struct ProcContext {
     }
 
     void OnTrace(ExecuteTraceEvent &event, TaintEngine *taint);
-    void Dump(File &f) const;
+    void Dump(File &f, bool taintedOnly) const;
 
 private:
     void OnMemRead(u32 addr, byte val, TaintEngine *taint);
@@ -74,14 +74,15 @@ public:
 class SingleProcExec : public TraceAnalyzer {
 public:
     static ProcContext Run(ExecuteTraceEvent &event, const ProcContext &ctx, 
-        TaintEngine *taint);
+        TaintEngine *taint, int maxDepth);
 private:
-    SingleProcExec(TaintEngine *te);
+    SingleProcExec(TaintEngine *te, const ProcContext &ctx, int maxDepth);
     virtual void OnExecuteTrace(ExecuteTraceEvent &event) override;
     
 private:
     TaintEngine *m_taint;
     ProcContext m_context;
+    int m_maxDepth;
 };
 
 class ProcDump : public ProcAnalyzer {

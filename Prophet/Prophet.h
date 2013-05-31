@@ -89,6 +89,8 @@ class MessageFieldFormat;
 // utilities
 class File;
 
+struct MemRegion;
+
 extern Emulator *       g_emulator;
 extern HMODULE          g_module;
 extern Config           g_config;

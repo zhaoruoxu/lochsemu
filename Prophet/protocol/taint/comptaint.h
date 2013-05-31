@@ -36,7 +36,6 @@ class MemoryTaint {
 
     private:
         Taint *     m_data[LX_PAGE_SIZE];
-        //FilePool<Taint> &   m_pool;
     };
 
 
@@ -44,13 +43,14 @@ public:
     MemoryTaint();
     ~MemoryTaint();
 
-    //void        Init(const char *pool);
-
     template <int N>
     Tb<N>       Get(u32 addr);
 
     template <int N>
     void        Set(u32 addr, const Tb<N> &t);
+
+    Taint       GetByte(u32 addr);
+    void        SetByte(u32 addr, const Taint &t);
 
     void        Reset();
 
@@ -64,7 +64,6 @@ private:
 private:
     static const u32 Pages = LX_PAGE_COUNT/2;   // No address above 0x7fffffff
     PageTaint ** m_pagetable;
-    //FilePool<Taint>    m_pool;
 };
 
 template <int N>
@@ -73,7 +72,7 @@ Tb<N> MemoryTaint::Get( u32 addr )
     Assert((addr & 0x80000000) == 0);
     Tb<N> res;
     for (int i = 0; i < N; i++) {
-        res[i]  = GetPage(addr+i)->Get(PAGE_LOW(addr+i));
+        res[i]  = GetByte(addr+i);
     }
     return res;
 }
@@ -83,7 +82,7 @@ void MemoryTaint::Set( u32 addr, const Tb<N> &t )
 {
     Assert((addr & 0x80000000) == 0);
     for (int i = 0; i < N; i++) {
-        GetPage(addr+i)->Set(PAGE_LOW(addr+i), t[i]);
+        SetByte(addr+i, t[i]);
     }
 }
 

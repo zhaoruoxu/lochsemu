@@ -33,7 +33,7 @@ void MessageManager::OnMessageBegin( MessageBeginEvent &event )
             Taint::GetWidth());
     }
     //m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
-    m_message = new Message(event.MessageLen, event.MessageAddr, event.MessageData);
+    m_message = new Message(event.MessageAddr, event.MessageLen, event.MessageData);
     m_format.OnMessageBegin(event);
 
     m_tracer.Begin();

@@ -86,9 +86,11 @@ public:
     std::string ToString() const;
     void        Dump(File &f) const;
     static Taint    FromBinString(const std::string &s);
-private:
+
+public:
     static const int    Count = 16;
     static const int    Width = 32 * Count;
+private:
     u32         m_data[Count];
 };
 

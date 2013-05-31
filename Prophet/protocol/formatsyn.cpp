@@ -133,13 +133,14 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     DotToImage(dotfile);
     
     TaintEngine taint;
-    taint.TaintMemoryRanged(m_msgmgr->GetCurrentMessage()->Base(),
-        m_msgmgr->GetCurrentMessage()->Size(), false);
+//     taint.TaintMemoryRanged(m_msgmgr->GetCurrentMessage()->Base(),
+//         m_msgmgr->GetCurrentMessage()->Size(), false);
+    taint.TaintRegion(m_msgmgr->GetCurrentMessage()->GetRegion());
     TSnapshot s1(taint);
     s1.Dump(File(dir + "taint_snapshot_pre.txt", "w"));
     taint.TaintRule_LoadMemory();
     ProcDump pd(dir + "proc_exec" + msg + ".txt");
-    AlgorithmAnalyzer aa(s1);
+    AdvAlgEngine aa(s1, 64);
     ProcExec pexec(&callStack, &taint);
     pexec.Add(&pd);
     pexec.Add(&aa);

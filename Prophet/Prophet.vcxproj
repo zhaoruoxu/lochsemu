@@ -137,6 +137,7 @@
     <ClInclude Include="gui\tracepanel.h" />
     <ClInclude Include="instcontext.h" />
     <ClInclude Include="memory.h" />
+    <ClInclude Include="memregion.h" />
     <ClInclude Include="plugin\advdbg.h" />
     <ClInclude Include="plugin\autobreak.h" />
     <ClInclude Include="plugin\context_override.h" />
@@ -148,6 +149,7 @@
     <ClInclude Include="plugin\vulnerability_detector.h" />
     <ClInclude Include="prophet.h" />
     <ClInclude Include="protocol\algorithms\alganalyzer.h" />
+    <ClInclude Include="protocol\algorithms\rc4_analyzer.h" />
     <ClInclude Include="protocol\analyzer.h" />
     <ClInclude Include="protocol\analyzers\callstack.h" />
     <ClInclude Include="protocol\analyzers\direction_field.h" />
@@ -226,6 +228,7 @@
     <ClCompile Include="plugin\vulnerability_detector.cpp" />
     <ClCompile Include="prophet.cpp" />
     <ClCompile Include="protocol\algorithms\alganalyzer.cpp" />
+    <ClCompile Include="protocol\algorithms\rc4_analyzer.cpp" />
     <ClCompile Include="protocol\analyzer.cpp" />
     <ClCompile Include="protocol\analyzers\callstack.cpp" />
     <ClCompile Include="protocol\analyzers\direction_field.cpp" />
