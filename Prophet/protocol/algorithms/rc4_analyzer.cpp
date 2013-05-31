@@ -5,6 +5,11 @@
 void RC4Analyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
     ctx.Dump(StdOut(), false);
+
+    if (m_contexts.empty()) return;
+    for (auto &r : ctx.InputRegions) {
+        TestRC4Crypt(event, ctx, r);
+    }
 }
 
 void RC4Analyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
@@ -47,6 +52,19 @@ void RC4Analyzer::TestKeySchedule( const ProcContext &ctx, u32 sboxAddr )
                 key.Addr, key.Addr + key.Len - 1, sboxAddr, sboxAddr + 255);
         }
     }
+    
+}
+
+void RC4Analyzer::TestRC4Crypt(ExecuteTraceEvent &event, 
+                               const ProcContext &ctx, const MemRegion &region )
+{
+    // region必须为连续被taint的一块内存区域
+    Taint tor;
+    for (u32 o = 0; o < region.Len; o++) {
+        tor |= ctx.Inputs.find(region.Addr + o)->second.Tnt;
+    }
+    auto tRegions = tor.GenerateRegions();
+    if (tRegions.size() != 1) return;       // 不满足全部被连续taint
     
 }
 

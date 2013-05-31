@@ -198,10 +198,10 @@ SingleProcExec::SingleProcExec( TaintEngine *te, const ProcContext &ctx, int max
 
 void SingleProcExec::OnExecuteTrace( ExecuteTraceEvent &event )
 {
-    if (m_maxDepth > 0) {
-        LxWarning("SingleProcExec depth > 0 not supported\n");
-    }
-    if (m_context.Proc->Containts(event.Context->Eip)) {
+//     if (m_maxDepth > 0) {
+//         LxWarning("SingleProcExec depth > 0 not supported\n");
+//     }
+    if (m_maxDepth > 0 || m_context.Proc->Containts(event.Context->Eip)) {
         m_context.OnTrace(event, m_taint);
     }
 }

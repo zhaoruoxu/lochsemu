@@ -22,6 +22,14 @@
 #define ARG2    (inst->Main.Argument2)
 #define ARG3    (inst->Main.Argument3)
 
+struct TaintDesc {
+    u32 SourceAddr;
+
+    TaintDesc() { SourceAddr = 0; }
+    void Reset() { SourceAddr = 0; }
+};
+
+
 class TSnapshot {
     friend class TaintEngine;
 public:
@@ -33,6 +41,8 @@ public:
 private:
     ProcessorTaint *m_pt;
     MemoryTaint *m_mt;
+    u32 m_count;
+    TaintDesc m_desc[Taint::Width];
 };
 
 enum TaintRule {
@@ -40,14 +50,9 @@ enum TaintRule {
     TAINT_SAVEADDRREG = 1 << 1,
 };
 
-struct TaintDesc {
-    u32 SourceAddr;
-
-    TaintDesc() { SourceAddr = 0; }
-    void Reset() { SourceAddr = 0; }
-};
 
 class TaintEngine : public TraceAnalyzer {
+    friend class TSnapshot;
 public:
     //static const int MaxCpus = Process::MaximumThreads;
 public:
@@ -67,7 +72,8 @@ public:
 
     bool        TryGetMemRegion(const TaintRegion &t, MemRegion &m);
     void        TaintMemRegion(const MemRegion &region);
-    void        TaintByte(u32 addr) { DoTaint(addr); }
+    void        TaintMemRegion(const MemRegion &region, const Taint &t);
+    Taint       TaintByte(u32 addr);
 
     void        ApplySnapshot(const TSnapshot &t);
     void        SetTaintRule(TaintRule r, bool enable);

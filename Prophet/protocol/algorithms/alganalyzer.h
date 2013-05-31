@@ -16,6 +16,8 @@ public:
 
     TaintEngine *   GetTaint() { return &m_taint; }
     const TaintEngine *GetTaint() const { return &m_taint; }
+    const TSnapshot &GetSnapshot() const { return m_origSnapshot; }
+
 private:
     void RegisterAnalyzers();
     void RegisterAnalyzer(AlgorithmAnalyzer *a);

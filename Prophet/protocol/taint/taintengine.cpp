@@ -8,6 +8,8 @@ TSnapshot::TSnapshot( TaintEngine &t )
 {
     m_pt = t.CpuTaint.Clone();
     m_mt = t.MemTaint.Clone();
+    m_count = t.m_count;
+    memcpy(m_desc, t.m_taintDesc, sizeof(t.m_taintDesc));
 }
 
 TSnapshot::~TSnapshot()
@@ -56,6 +58,12 @@ bool TaintEngine::TryGetMemRegion( const TaintRegion &t, MemRegion &m )
     return true;
 }
 
+Taint TaintEngine::TaintByte( u32 addr )
+{
+    DoTaint(addr); 
+    return MemTaint.GetByte(addr);
+}
+
 void TaintEngine::DoTaint( u32 addr )
 {
     if (m_count >= Taint::Width) {
@@ -71,6 +79,13 @@ void TaintEngine::TaintMemRegion( const MemRegion &region )
 {
     for (u32 l = 0; l < region.Len; l++) {
         DoTaint(region.Addr + l);
+    }
+}
+
+void TaintEngine::TaintMemRegion( const MemRegion &region, const Taint &t )
+{
+    for (u32 l = 0; l < region.Len; l++) {
+        MemTaint.SetByte(region.Addr + l, t);
     }
 }
 
@@ -122,6 +137,8 @@ void TaintEngine::ApplySnapshot( const TSnapshot &t )
 {
     CpuTaint.CopyFrom(t.m_pt);
     MemTaint.CopyFrom(t.m_mt);
+    m_count = t.m_count;
+    memcpy(m_taintDesc, t.m_desc, sizeof(t.m_desc));
 }
 
 
