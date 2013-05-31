@@ -14,6 +14,8 @@ public:
     virtual ~AdvAlgEngine();
     virtual void OnProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
 
+    TaintEngine *   GetTaint() { return &m_taint; }
+    const TaintEngine *GetTaint() const { return &m_taint; }
 private:
     void RegisterAnalyzers();
     void RegisterAnalyzer(AlgorithmAnalyzer *a);
@@ -29,9 +31,14 @@ private:
 
 class AlgorithmAnalyzer {
 public:
+    AlgorithmAnalyzer();
     virtual void OnProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) {}
     virtual void OnOriginalProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) {}
     virtual void OnInputProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) {}
+
+    void SetAlgEngine(AdvAlgEngine *e) { m_algEngine = e; }
+protected:
+    AdvAlgEngine *  m_algEngine;
 };
  
 #endif // __PROPHET_PROTOCOL_ALGORITHMS_ALGANALYZER_H__

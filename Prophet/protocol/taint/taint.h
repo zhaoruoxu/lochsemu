@@ -6,6 +6,16 @@
 #include "prophet.h"
 #include "memory.h"
 
+struct TaintRegion {
+    int Offset;
+    int Len;
+
+    TaintRegion() { Offset = Len = 0; }
+    TaintRegion(int off, int l) {
+        Offset = off; Len = l;
+    }
+};
+
 // Per BYTE Taint structure
 class Taint {
 public:
@@ -79,9 +89,12 @@ public:
     Taint       operator&(const Taint &rhs) const;
     Taint       operator|(const Taint &rhs) const;
     Taint       operator^(const Taint &rhs) const;
+    Taint       operator~() const;
     Taint&      operator&=(const Taint &rhs);
     Taint&      operator|=(const Taint &rhs);
     Taint&      operator^=(const Taint &rhs);
+
+    std::vector<TaintRegion> GenerateRegions() const;
 
     std::string ToString() const;
     void        Dump(File &f) const;

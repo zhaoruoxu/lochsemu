@@ -15,11 +15,17 @@ struct TMemAccess {
 
 typedef std::map<u32, TMemAccess> ProcParameter;
 
+std::vector<MemRegion>  GetDisjointRegions(const ProcParameter &params);
+void FillMemRegionBytes(const ProcParameter &params, const MemRegion &r, pbyte dest);
+
 struct ProcContext {
     Procedure *Proc;
     int BeginSeq;
     int EndSeq;
     ProcParameter Inputs, Outputs;
+    std::vector<MemRegion> InputRegions, OutputRegions;
+
+    int Count;
 
     void Reset();
     ProcContext() {
@@ -28,6 +34,7 @@ struct ProcContext {
 
     void OnTrace(ExecuteTraceEvent &event, TaintEngine *taint);
     void Dump(File &f, bool taintedOnly) const;
+    void GenerateRegions();
 
 private:
     void OnMemRead(u32 addr, byte val, TaintEngine *taint);

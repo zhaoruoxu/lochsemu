@@ -56,7 +56,7 @@ void MessageManager::OnMessageEnd( MessageEndEvent &event )
     m_format.OnMessageEnd(event);
 
     m_protocol->AddMessage(m_message);
-    m_protocol->GetEngine()->GetGUI()->ShowMessage(m_message);
+    //m_protocol->GetEngine()->GetGUI()->ShowMessage(m_message);
     m_message = NULL;
 
     int nTraces = m_tracer.Count();

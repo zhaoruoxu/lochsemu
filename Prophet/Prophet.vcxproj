@@ -116,6 +116,7 @@
     <ClInclude Include="3rdparty\src\json\json_tool.h" />
     <ClInclude Include="archive.h" />
     <ClInclude Include="buildver.h" />
+    <ClInclude Include="cryptohelp.h" />
     <ClInclude Include="dbg\breakpoint.h" />
     <ClInclude Include="dbg\debugger.h" />
     <ClInclude Include="dbg\tracer.h" />
@@ -189,6 +190,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="archive.cpp" />
+    <ClCompile Include="cryptohelp.cpp" />
     <ClCompile Include="dbg\breakpoint.cpp" />
     <ClCompile Include="dbg\debugger.cpp" />
     <ClCompile Include="dbg\tracer.cpp" />

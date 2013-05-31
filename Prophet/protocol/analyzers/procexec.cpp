@@ -10,6 +10,7 @@ void ProcContext::Reset()
     BeginSeq = EndSeq = -1;
     Inputs.clear();
     Outputs.clear();
+    Count = 0;
 }
 
 void ProcContext::OnTrace( ExecuteTraceEvent &event, TaintEngine *taint )
@@ -26,6 +27,7 @@ void ProcContext::OnTrace( ExecuteTraceEvent &event, TaintEngine *taint )
         for (uint i = 0; i < mw.Len; i++)
             OnMemWrite(mw.Addr+i, dat[i], taint);
     }
+    Count++;
 }
 
 void ProcContext::OnMemRead( u32 addr, byte val, TaintEngine *taint )
@@ -54,18 +56,35 @@ void ProcContext::Dump( File &f, bool taintedOnly ) const
 {
     fprintf(f.Ptr(), "Proc %08x: from %d to %d, length %d\n",
         Proc->Entry(), BeginSeq, EndSeq, EndSeq - BeginSeq + 1);
-    fprintf(f.Ptr(), "Inputs:\n");
+
+    std::vector<MemRegion> inputRegions = GetDisjointRegions(Inputs),
+        outputRegions = GetDisjointRegions(Outputs);
+    fprintf(f.Ptr(), "Inputs:");
+    for (auto &region : inputRegions)
+        fprintf(f.Ptr(), " (%08x-%08x:%d)", region.Addr, 
+        region.Addr + region.Len - 1, region.Len);
+    fprintf(f.Ptr(), "\n");
     for (auto &entry : Inputs) {
         if (taintedOnly && !entry.second.Tnt.IsAnyTainted()) continue;
         fprintf(f.Ptr(), "  %08x : %02x  ", entry.first, entry.second.Data);
         entry.second.Tnt.Dump(f);
     }
-    fprintf(f.Ptr(), "Outputs:\n");
+    fprintf(f.Ptr(), "Outputs:");
+    for (auto &region : outputRegions)
+        fprintf(f.Ptr(), " (%08x-%08x:%d)", region.Addr, 
+        region.Addr + region.Len - 1, region.Len);
+    fprintf(f.Ptr(), "\n");
     for (auto &entry : Outputs) {
         if (taintedOnly && !entry.second.Tnt.IsAnyTainted()) continue;
         fprintf(f.Ptr(), "  %08x : %02x  ", entry.first, entry.second.Data);
         entry.second.Tnt.Dump(f);
     }
+}
+
+void ProcContext::GenerateRegions()
+{
+    InputRegions = GetDisjointRegions(Inputs);
+    OutputRegions = GetDisjointRegions(Outputs);
 }
 
 
@@ -114,6 +133,7 @@ void ProcExec::OnProcEnd( ExecuteTraceEvent &event )
 //     LxDebug("Proc %08x: %d -> %d, count(i)=%d, count(o)=%d\n", m_callstack->Top()->Entry(), 
 //         t.BeginSeq, event.Seq, t.Inputs.size(), t.Outputs.size());
     m_contexts.back().EndSeq = event.Seq;
+    m_contexts.back().GenerateRegions();
     for (int i = 0; i < m_count; i++)
         m_workers[i]->OnProcedure(event, m_contexts.back());
 
@@ -163,8 +183,8 @@ ProcContext SingleProcExec::Run(ExecuteTraceEvent &event, const ProcContext &ctx
     if (taint) exec.Add(taint);
     exec.Add(&sexec);
     exec.RunProc(event.Trace, ctx);
+    sexec.m_context.GenerateRegions();
     return sexec.m_context;
-    
 }
 
 SingleProcExec::SingleProcExec( TaintEngine *te, const ProcContext &ctx, int maxDepth )
@@ -183,5 +203,34 @@ void SingleProcExec::OnExecuteTrace( ExecuteTraceEvent &event )
     }
     if (m_context.Proc->Containts(event.Context->Eip)) {
         m_context.OnTrace(event, m_taint);
+    }
+}
+
+std::vector<MemRegion> GetDisjointRegions( const ProcParameter &params )
+{
+    std::vector<MemRegion> r;
+    if (params.empty()) return r;
+    auto iter = params.begin();
+    MemRegion curr(iter->first, 1);
+    u32 prev = iter->first;
+    for (iter++; iter != params.end(); iter++) {
+        if (iter->first == prev + 1) {
+            prev++;
+        } else {
+            curr.Len = prev - curr.Addr + 1;
+            r.push_back(curr);
+            curr.Addr = iter->first; curr.Len = 1;
+            prev = iter->first;
+        }
+    }
+    curr.Len = prev - curr.Addr + 1;
+    r.push_back(curr);
+    return r;
+}
+
+void FillMemRegionBytes( const ProcParameter &params, const MemRegion &r, pbyte dest )
+{
+    for (u32 i = 0; i < r.Len; i++) {
+        dest[i] = params.find(r.Addr + i)->second.Data;
     }
 }

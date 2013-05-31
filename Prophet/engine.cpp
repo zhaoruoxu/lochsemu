@@ -23,6 +23,7 @@ ProEngine::ProEngine()
 {
     m_emulator  = NULL;
     m_instExecuted = 0;
+    m_nogui = false;
 }
 
 ProEngine::~ProEngine()
@@ -60,7 +61,6 @@ void ProEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
 
     m_disassembler.OnPreExecute(event);     // disassemble the instruction first no matter what
     m_statistics.OnPreExecute(event);
-    //m_gui->OnPreExecute(event);
     
     m_plugins.OnPreExecute(event, true);
     if (event.IsVetoed()) return;
@@ -68,8 +68,6 @@ void ProEngine::OnPreExecute( Processor *cpu, const Instruction *inst )
     m_tracer.OnPreExecute(event);
     m_debugger.OnPreExecute(event);
     m_protocol.OnPreExecute(event);
-
-    //m_taint.OnPreExecute(event);
 
     m_plugins.OnPreExecute(event, false);
 }
@@ -149,7 +147,8 @@ void ProEngine::OnProcessPostRun( const Process *proc )
     m_protocol.OnProcessPostRun(event);
     SaveArchive();
 
-    m_gui->OnProcessPostRun(event);
+    if (!m_nogui)
+        m_gui->OnProcessPostRun(event);
 
     m_plugins.OnProcessPostRun(event, false);
 }
@@ -178,8 +177,12 @@ void ProEngine::OnProcessPostLoad( PeLoader *loader )
     LoadArchive(loader->GetModuleInfo(0)->Name);
     m_debugger.OnProcessPostLoad(event);
     m_tracer.OnProcessPostLoad(event);
-    m_gui->OnArchiveLoaded(&m_archive);
-    m_gui->OnProcessPostLoad(event);
+
+    if (!m_nogui) {
+        m_gui->OnArchiveLoaded(&m_archive);
+        m_gui->OnProcessPostLoad(event);
+    }
+
     m_protocol.OnProcessPostLoad(event);
 
     m_plugins.OnProcessPostLoad(event, false);
@@ -237,36 +240,35 @@ void ProEngine::OnThreadExit( Thread *thrd )
     m_plugins.OnThreadExit(event, false);
 }
 
+
+void ProEngine::NoGUI()
+{
+    m_nogui = true;
+    m_debugger.SetState(0, ProDebugger::STATE_RUNNING_NOBP);
+}
+
+
 void ProEngine::SetGuiFrame( ProphetFrame *frame )
 {
     m_gui = frame;
-//     m_disassembler.RegisterDataUpdateHandler([this](const InstSection *insts, const Processor *cpu) {
-//         this->m_gui->GetCpuPanel()->OnDataUpdate(insts, cpu);
-//     });
     m_gui->GetTracePanel()->SetTracer(&m_tracer);
 }
-
-// void ProEngine::UpdateCpuData( const InstSection *insts )
-// {
-//     m_gui->GetCpuPanel()->OnDataUpdate(insts);
-// }
 
 void ProEngine::GetInstContext(const Processor *cpu, InstContext *ctx) const
 {
     m_disassembler.UpdateInstContext(ctx, cpu->GetValidEip());
     m_debugger.UpdateInstContext(cpu, ctx);
-    //m_taint.UpdateInstContext(cpu, ctx);
 }
 
 void ProEngine::GetTraceContext( const Processor *cpu, TraceContext *ctx, u32 eip ) const
 {
     m_disassembler.UpdateInstContext(ctx, eip);
     m_debugger.UpdateTraceContext(cpu, ctx, eip);
-    //m_taint.UpdateInstContext(cpu, ctx);
 }
 
 void ProEngine::ReportBusy( bool isBusy )
 {
+    if (m_nogui) return;
     m_gui->ReportBusy(isBusy);
 }
 
@@ -343,11 +345,15 @@ void ProEngine::SaveArchive()
 
 void ProEngine::UpdateGUI()
 {
+    if (m_nogui) return;
+
     m_gui->OnUpdate();
 }
 
 void ProEngine::BreakOnNextInst(const char *desc)
 {
+    if (m_nogui) return;
+
     if (desc != NULL)
         LxInfo("Prophet break: %s\n", desc);
     MessageBeep(MB_ICONASTERISK);
@@ -356,6 +362,8 @@ void ProEngine::BreakOnNextInst(const char *desc)
 
 void ProEngine::RefreshGUI()
 {
+    if (m_nogui) return;
+
     m_gui->OnRefresh();
 }
 

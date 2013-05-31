@@ -20,6 +20,7 @@ Emulator *      g_emulator;
 ProEngine       g_engine;
 Semaphore       g_guiSem;
 
+
 PROPHET_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, PluginInfo *info)
 {
     g_handle    = lochsemu->Handle;
@@ -37,9 +38,13 @@ PROPHET_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, P
 
     g_engine.Initialize(lochsemu->Emulator);
 
-    RunGUI();
+    if (g_config.GetInt("General", "GUI", 1) != 0) {
+        RunGUI();
+        g_guiSem.Wait();
+    } else {
+        g_engine.NoGUI();
+    }
 
-    g_guiSem.Wait();
     return true;
 }
 
@@ -95,8 +100,12 @@ PROPHET_API void LochsEmu_Process_PostRun( const Process *proc )
 
 PROPHET_API bool LochsEmu_Plugin_Cleanup( void )
 {
-    // int *t = new int[10];
-    WaitForGUI();
+    if (g_engine.GUIEnabled()) {
+        WaitForGUI();
+    } else {
+        g_engine.Terminate();
+    }
+    
     return true;
 }
 

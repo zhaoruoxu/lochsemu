@@ -11,6 +11,7 @@ int     GetThreadCount();
 uint    StringHash(const char *str);
 uint    FileTimeHash(const char *path);
  
+int     CompareByteArray(const pbyte l, const pbyte r, int n);
 
 class ISerializable {
 public:

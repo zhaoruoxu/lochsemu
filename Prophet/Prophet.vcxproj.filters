@@ -318,6 +318,9 @@
     <ClInclude Include="protocol\algorithms\rc4_analyzer.h">
       <Filter>Header Files\protocol\algorithms</Filter>
     </ClInclude>
+    <ClInclude Include="cryptohelp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -502,6 +505,9 @@
     </ClCompile>
     <ClCompile Include="protocol\algorithms\rc4_analyzer.cpp">
       <Filter>Source Files\protocol\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="cryptohelp.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

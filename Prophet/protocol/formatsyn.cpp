@@ -135,7 +135,7 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     TaintEngine taint;
 //     taint.TaintMemoryRanged(m_msgmgr->GetCurrentMessage()->Base(),
 //         m_msgmgr->GetCurrentMessage()->Size(), false);
-    taint.TaintRegion(m_msgmgr->GetCurrentMessage()->GetRegion());
+    taint.TaintMemRegion(m_msgmgr->GetCurrentMessage()->GetRegion());
     TSnapshot s1(taint);
     s1.Dump(File(dir + "taint_snapshot_pre.txt", "w"));
     taint.TaintRule_LoadMemory();

@@ -129,7 +129,14 @@ uint FileTimeHash( const char *path )
         lastWrite.dwLowDateTime;
 }
 
-
+int CompareByteArray( const pbyte l, const pbyte r, int n )
+{
+    for (int i = 0; i < n; i++) {
+        if (l[i] > r[i]) return 1;
+        if (l[i] < r[i]) return -1;
+    }
+    return 0;
+}
 
 bool Serializer::Serialize( ISerializable *obj, std::string &output )
 {

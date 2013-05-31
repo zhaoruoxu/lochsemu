@@ -38,6 +38,24 @@ void TaintEngine::Reset()
         desc.Reset();
 }
 
+bool TaintEngine::TryGetMemRegion( const TaintRegion &t, MemRegion &m )
+{
+    Assert(t.Offset < m_count && t.Offset + t.Len <= m_count);
+    if (t.Len == 1) {
+        m.Addr = m_taintDesc[t.Offset].SourceAddr;
+        m.Len = 1;
+        return true;
+    }
+    u32 delta = m_taintDesc[t.Offset].SourceAddr - (u32) t.Offset;
+    for (int i = 1; i < t.Len; i++) {
+        if (m_taintDesc[t.Offset + i].SourceAddr - (u32 (t.Offset + i)) != delta)
+            return false;
+    }
+    m.Addr = m_taintDesc[t.Offset].SourceAddr;
+    m.Len = t.Len;
+    return true;
+}
+
 void TaintEngine::DoTaint( u32 addr )
 {
     if (m_count >= Taint::Width) {
@@ -49,7 +67,7 @@ void TaintEngine::DoTaint( u32 addr )
     m_taintDesc[m_count++].SourceAddr = addr;
 }
 
-void TaintEngine::TaintRegion( const MemRegion &region )
+void TaintEngine::TaintMemRegion( const MemRegion &region )
 {
     for (u32 l = 0; l < region.Len; l++) {
         DoTaint(region.Addr + l);

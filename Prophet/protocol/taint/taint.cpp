@@ -46,6 +46,14 @@ Taint Taint::operator^( const Taint &rhs ) const
     return res;
 }
 
+Taint Taint::operator~() const
+{
+    Taint t = *this;
+    for (int i = 0; i < Count; i++)
+        t.m_data[i] = ~t.m_data[i];
+    return t;
+}
+
 Taint& Taint::operator&=( const Taint &rhs )
 {
     for (int i = 0; i < Count; i++)
@@ -109,6 +117,23 @@ void Taint::Dump( File &f ) const
     if (!IsAnyTainted())
         fprintf(f.Ptr(), "None");
     fprintf(f.Ptr(), "\n");
+}
+
+std::vector<TaintRegion> Taint::GenerateRegions() const
+{
+    std::vector<TaintRegion> r;
+    bool prev = IsTainted(0);
+    int start = 0;
+    for (int i = 1; i <= Width; i++) {
+        if (i != Width && IsTainted(i)) {
+            if (!prev) { start = i; }
+            prev = true;
+        } else if (prev) {
+            r.emplace_back(start, i - start);
+            prev = false;
+        }
+    }
+    return r;
 }
 
 

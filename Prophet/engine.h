@@ -25,6 +25,8 @@ public:
 
     void            SetGuiFrame(ProphetFrame *frame);
     ProphetFrame *  GetGUI() const { Assert(m_gui); return m_gui; }
+    void            NoGUI();
+    bool            GUIEnabled() const { return !m_nogui; }
 
     void            OnPreExecute        (Processor *cpu, const Instruction *inst);
     void            OnPostExecute       (Processor *cpu, const Instruction *inst);
@@ -100,6 +102,7 @@ private:
     std::string     m_archiveDir;
     bool            m_isArchiveLoaded;
     i64             m_instExecuted;
+    bool            m_nogui;
 };
 
 #endif // __PROPHET_ENGINE_H__

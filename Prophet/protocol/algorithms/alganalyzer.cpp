@@ -33,7 +33,7 @@ void AdvAlgEngine::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx
 
     // 3.
     m_taint.Reset();
-    m_taint.ApplySnapshot(m_origSnapshot);
+    //m_taint.ApplySnapshot(m_origSnapshot);
     for (auto &input : ctx.Inputs) {
         if (!input.second.Tnt.IsAnyTainted())
             m_taint.TaintByte(input.first);
@@ -49,6 +49,7 @@ void AdvAlgEngine::RegisterAnalyzer( AlgorithmAnalyzer *a )
         LxFatal("Too many algorithm analyzers\n");
     }
     m_analyzers[m_count++] = a;
+    a->SetAlgEngine(this);
 }
 
 void AdvAlgEngine::RegisterAnalyzers()
@@ -85,3 +86,8 @@ void AlgorithmAnalyzer::OnProcedure( ExecuteTraceEvent &event, const ProcContext
     pc.Dump(StdOut(), false);
 }
 */
+
+AlgorithmAnalyzer::AlgorithmAnalyzer()
+{
+    m_algEngine = NULL;
+}

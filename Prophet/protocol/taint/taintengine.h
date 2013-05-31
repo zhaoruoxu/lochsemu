@@ -65,7 +65,8 @@ public:
     Taint1      GetTestedFlagTaint(const TContext *t, const Instruction *inst) const;
     //void        TaintMemoryRanged(u32 addr, u32 len, bool taintAllBits);
 
-    void        TaintRegion(const MemRegion &region);
+    bool        TryGetMemRegion(const TaintRegion &t, MemRegion &m);
+    void        TaintMemRegion(const MemRegion &region);
     void        TaintByte(u32 addr) { DoTaint(addr); }
 
     void        ApplySnapshot(const TSnapshot &t);

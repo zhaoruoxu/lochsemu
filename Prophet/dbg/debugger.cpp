@@ -214,6 +214,7 @@ void ProDebugger::CheckBreakpoints( const Processor *cpu, const Instruction *ins
 
 void ProDebugger::DoPreExecSingleStep( const Processor *cpu, const Instruction *inst )
 {
+    if (!m_engine->GUIEnabled()) return;
     if (cpu->IntID == m_currTid) {
         m_engine->ReportBusy(false);
         m_engine->GetGUI()->OnPreExecSingleStep(cpu);
@@ -472,14 +473,10 @@ void ProDebugger::SetCurrentThread( int tid )
 
     LxInfo("--- DEBUGGER: Current Thread is %d ---\n", tid);
 
-    m_engine->ReportBusy(false);
-    //if (isSingleStep) {
+    if (m_engine->GUIEnabled()) {
+        m_engine->ReportBusy(false);
         m_engine->GetGUI()->OnPreExecSingleStep(m_cpu[tid]);
-    //}
-//     else {
-//         m_engine->GetGUI()->OnRefresh();
-//     }
-    //
+    }
 }
 
 Thread * ProDebugger::GetCurrentThread()
