@@ -93,6 +93,7 @@ public:
     Taint&      operator&=(const Taint &rhs);
     Taint&      operator|=(const Taint &rhs);
     Taint&      operator^=(const Taint &rhs);
+    bool        operator==(const Taint &rhs) const;
 
     std::vector<TaintRegion> GenerateRegions() const;
 

@@ -4,11 +4,11 @@
 
 void RC4Analyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
-    ctx.Dump(StdOut(), false);
+    //ctx.Dump(StdOut(), false);
 
     if (m_contexts.empty()) return;
     for (auto &r : ctx.InputRegions) {
-        TestRC4Crypt(event, ctx, r);
+        TestRC4Crypt(ctx, r);
     }
 }
 
@@ -55,8 +55,7 @@ void RC4Analyzer::TestKeySchedule( const ProcContext &ctx, u32 sboxAddr )
     
 }
 
-void RC4Analyzer::TestRC4Crypt(ExecuteTraceEvent &event, 
-                               const ProcContext &ctx, const MemRegion &region )
+void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &region )
 {
     // region必须为连续被taint的一块内存区域
     Taint tor;
@@ -66,16 +65,55 @@ void RC4Analyzer::TestRC4Crypt(ExecuteTraceEvent &event,
     auto tRegions = tor.GenerateRegions();
     if (tRegions.size() != 1) return;       // 不满足全部被连续taint
     
+    for (auto &r : ctx.OutputRegions) {
+        if (r.Len < region.Len) continue;
+        u32 offset = 0;
+        for (u32 i = 0; i < r.Len; i++) {
+            if (ctx.Inputs.find(region.Addr + offset)->second.Tnt == 
+                ctx.Outputs.find(r.Addr + i)->second.Tnt)
+            {
+                offset++;
+            }
+            if (offset == r.Len) {
+                // found match
+                TestRC4Crypt(ctx, region, MemRegion(r.Addr + i - r.Len + 1, region.Len));
+            }
+        }
+    }
+}
+
+void RC4Analyzer::TestRC4Crypt( const ProcContext &ctx, const MemRegion &input, const MemRegion &output )
+{
+    Assert(input.Len == output.Len);
+    for (auto &rc4ctx : m_contexts) {
+        byte sbox[SboxLength];
+        memcpy(sbox, rc4ctx.Sbox, SboxLength);
+        int len = input.Len;
+        pbyte pt = new byte[len];
+        pbyte ct = new byte[len];
+        FillMemRegionBytes(ctx.Inputs, input, pt);
+        FillMemRegionBytes(ctx.Outputs, output, ct);
+        if (RC4_IsValidCrypt(sbox, pt, ct, len)) {
+            ctx.Dump(StdOut(), false);
+            Message submsg(output.Addr, output.Len, ct);
+            LxInfo("sub-message: [%08x-%08x] %s\n", output.Addr, 
+                output.Addr + output.Len - 1, submsg.ToString().c_str());
+            memcpy(rc4ctx.Sbox, sbox, SboxLength);
+        }
+        SAFE_DELETE_ARRAY(pt);
+        SAFE_DELETE_ARRAY(ct);
+    }
 }
 
 bool RC4Context::TryKeySchedule(const ProcContext &ctx, const MemRegion &key, 
                                 const MemRegion &sbox )
 {
-    byte sboxData[RC4Analyzer::SboxLength];
+    byte sboxData[SboxLength];
     FillMemRegionBytes(ctx.Inputs, key, Key);
     FillMemRegionBytes(ctx.Outputs, sbox, sboxData);
     if (RC4_IsValidSbox(sboxData, Key, key.Len)) {
         KeyRegion = key; SboxRegion = sbox;
+        memcpy(Sbox, sboxData, SboxLength);
         return true;
     }
     return false;

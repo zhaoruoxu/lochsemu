@@ -75,6 +75,13 @@ Taint& Taint::operator^=( const Taint &rhs )
     return *this;
 }
 
+bool Taint::operator==(const Taint &rhs) const
+{
+    for (int i = 0; i < Count; i++)
+        if (m_data[i] != rhs.m_data[i]) return false;
+    return true;
+}
+
 std::string Taint::ToString() const
 {
     std::string r;

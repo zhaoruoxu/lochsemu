@@ -6,7 +6,10 @@
 #include "alganalyzer.h"
 
 struct RC4Context {
+    static const u32 SboxLength = 256;
+
     byte Key[256];
+    byte Sbox[SboxLength];
     MemRegion KeyRegion;
     MemRegion SboxRegion;
 
@@ -21,12 +24,12 @@ public:
         const ProcContext &ctx) override;
 
 public:
-    static const u32 SboxLength = 256;
+    static const u32 SboxLength = RC4Context::SboxLength;
 private:
     void TestKeySchedule(const ProcContext &ctx, const MemRegion &region);
     void TestKeySchedule(const ProcContext &ctx, u32 sboxAddr);
-    void TestRC4Crypt(ExecuteTraceEvent &event, const ProcContext &ctx, 
-        const MemRegion &region);
+    void TestRC4Crypt(const ProcContext &ctx, const MemRegion &region);
+    void TestRC4Crypt(const ProcContext &ctx, const MemRegion &input, const MemRegion &output);
 
 private:
     std::vector<RC4Context> m_contexts;

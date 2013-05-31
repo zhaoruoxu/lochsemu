@@ -57,8 +57,8 @@ void ProcContext::Dump( File &f, bool taintedOnly ) const
     fprintf(f.Ptr(), "Proc %08x: from %d to %d, length %d\n",
         Proc->Entry(), BeginSeq, EndSeq, EndSeq - BeginSeq + 1);
 
-    std::vector<MemRegion> inputRegions = GetDisjointRegions(Inputs),
-        outputRegions = GetDisjointRegions(Outputs);
+    std::vector<MemRegion> inputRegions = GenerateMemRegions(Inputs),
+        outputRegions = GenerateMemRegions(Outputs);
     fprintf(f.Ptr(), "Inputs:");
     for (auto &region : inputRegions)
         fprintf(f.Ptr(), " (%08x-%08x:%d)", region.Addr, 
@@ -83,8 +83,8 @@ void ProcContext::Dump( File &f, bool taintedOnly ) const
 
 void ProcContext::GenerateRegions()
 {
-    InputRegions = GetDisjointRegions(Inputs);
-    OutputRegions = GetDisjointRegions(Outputs);
+    InputRegions = GenerateMemRegions(Inputs);
+    OutputRegions = GenerateMemRegions(Outputs);
 }
 
 
@@ -206,7 +206,7 @@ void SingleProcExec::OnExecuteTrace( ExecuteTraceEvent &event )
     }
 }
 
-std::vector<MemRegion> GetDisjointRegions( const ProcParameter &params )
+std::vector<MemRegion> GenerateMemRegions( const ProcParameter &params )
 {
     std::vector<MemRegion> r;
     if (params.empty()) return r;

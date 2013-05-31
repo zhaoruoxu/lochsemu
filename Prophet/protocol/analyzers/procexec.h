@@ -15,7 +15,7 @@ struct TMemAccess {
 
 typedef std::map<u32, TMemAccess> ProcParameter;
 
-std::vector<MemRegion>  GetDisjointRegions(const ProcParameter &params);
+std::vector<MemRegion>  GenerateMemRegions(const ProcParameter &params);
 void FillMemRegionBytes(const ProcParameter &params, const MemRegion &r, pbyte dest);
 
 struct ProcContext {
