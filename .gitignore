@@ -41,3 +41,4 @@ LochsEmu/access_log
 LochsEmu/agent_log
 LochsEmu/error_log
 LochsEmu/referer_log
+*.psess
