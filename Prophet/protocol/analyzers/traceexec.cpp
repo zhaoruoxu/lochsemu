@@ -2,7 +2,8 @@
 #include "traceexec.h"
 #include "processor.h"
 
-TraceExec::TraceExec()
+TraceExec::TraceExec(const RunTrace &t)
+    : m_trace(t)
 {
     Reset();
 }
@@ -32,6 +33,7 @@ void TraceExec::OnComplete()
 {
     for (int i = 0; i < m_count; i++)
         m_workers[i]->OnComplete();
+    Reset();
 }
 
 void TraceExec::Reset()
@@ -59,18 +61,23 @@ void TraceExec::Add( TraceAnalyzer *t0, TraceAnalyzer *t1, TraceAnalyzer *t2 )
     Add(t0); Add(t1); Add(t2);
 }
 
-void TraceExec::Run( const RunTrace &t )
-{
-    RunPartial(t, 0, t.Count()-1);
-}
+// void TraceExec::Run( const RunTrace &t )
+// {
+//     RunPartial(t, 0, t.Count()-1);
+// }
 
-void TraceExec::RunPartial( const RunTrace &t, int firstIncl, int lastIncl )
+void TraceExec::RunPartial( int firstIncl, int lastIncl )
 {
-    Assert(firstIncl >= 0 && firstIncl < t.Count());
-    Assert(lastIncl >= firstIncl && lastIncl < t.Count());
+    Assert(firstIncl >= 0 && firstIncl < m_trace.Count());
+    Assert(lastIncl >= firstIncl && lastIncl < m_trace.Count());
     for (int i = firstIncl; i <= lastIncl; i++) {
-        ExecuteTraceEvent e(this, t.Get(i), i, t);
+        ExecuteTraceEvent e(this, m_trace.Get(i), i, m_trace);
         OnExecuteTrace(e);
     }
     OnComplete();
+}
+
+void TraceExec::RunMessage( const Message *msg )
+{
+    RunPartial(msg->GetTraceBegin(), msg->GetTraceEnd());
 }

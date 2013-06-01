@@ -8,6 +8,7 @@
 #include "custombase.h"
 #include "protocol/message.h"
 
+/*
 class MessagePanel : public SelectableScrolledControl {
 public:
     MessagePanel(wxWindow *parent, ProphetFrame *dad, ProEngine *engine);
@@ -34,5 +35,5 @@ private:
     wxBrush     m_currSelBrush;
     wxBrush     m_formatBrushes[FieldFormat::Total];
 };
-
+*/
 #endif // __PROPHET_GUI_MSGPANEL_H__

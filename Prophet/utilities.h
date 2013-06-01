@@ -50,4 +50,7 @@ public:
     virtual const FILE *Ptr() const { return stdout; }
 };
 
+
+void DotToImage(const std::string &filename);
+
 #endif // __PROPHET_UTILITIES_H__

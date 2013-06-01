@@ -11,6 +11,7 @@ void ProcContext::Reset()
     Inputs.clear();
     Outputs.clear();
     Count = 0;
+    Level = 0;
 }
 
 void ProcContext::OnTrace( ExecuteTraceEvent &event, TaintEngine *taint )
@@ -54,8 +55,8 @@ void ProcContext::OnMemWrite( u32 addr, byte val, TaintEngine *taint )
 
 void ProcContext::Dump( File &f, bool taintedOnly ) const
 {
-    fprintf(f.Ptr(), "Proc %08x: from %d to %d, length %d\n",
-        Proc->Entry(), BeginSeq, EndSeq, EndSeq - BeginSeq + 1);
+    fprintf(f.Ptr(), "Proc %08x: from %d to %d, length %d, count %d, level %d\n",
+        Proc->Entry(), BeginSeq, EndSeq, EndSeq - BeginSeq + 1, Count, Level);
 
     std::vector<MemRegion> inputRegions = GenerateMemRegions(Inputs),
         outputRegions = GenerateMemRegions(Outputs);
@@ -119,7 +120,6 @@ void ProcExec::OnComplete()
 
 void ProcExec::OnProcBegin( ExecuteTraceEvent &event )
 {
-    //m_beginSeqs.push_back(event.Seq);
     ProcContext pc;
     pc.Proc = m_callstack->Top();
     pc.BeginSeq = event.Seq;
@@ -129,26 +129,16 @@ void ProcExec::OnProcBegin( ExecuteTraceEvent &event )
 void ProcExec::OnProcEnd( ExecuteTraceEvent &event )
 {
     Assert(m_callstack->Get().size() == m_contexts.size());
-//     const ProcContext &t = m_contexts.back();
-//     LxDebug("Proc %08x: %d -> %d, count(i)=%d, count(o)=%d\n", m_callstack->Top()->Entry(), 
-//         t.BeginSeq, event.Seq, t.Inputs.size(), t.Outputs.size());
-    m_contexts.back().EndSeq = event.Seq;
-    m_contexts.back().GenerateRegions();
-    for (int i = 0; i < m_count; i++)
-        m_workers[i]->OnProcedure(event, m_contexts.back());
-
+    auto back = m_contexts.back();
     m_contexts.pop_back();
+    back.EndSeq = event.Seq;
+    back.GenerateRegions();
+    for (int i = 0; i < m_count; i++)
+        m_workers[i]->OnProcedure(event, back);
+    if (!m_contexts.empty()) {
+        m_contexts.back().Level = max(m_contexts.back().Level, back.Level + 1);
+    }
 }
-
-// void ProcExec::OnMemRead( u32 addr, byte val )
-// {
-// 
-// }
-// 
-// void ProcExec::OnMemWrite( u32 addr, byte val )
-// {
-// 
-// }
 
 void ProcExec::Add( ProcAnalyzer *analyzer )
 {
@@ -170,19 +160,19 @@ void ProcDump::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
     ctx.Dump(m_f, false);
 }
 
-void ProcTraceExec::RunProc( const RunTrace &t, const ProcContext &ctx )
+void ProcTraceExec::RunProc( const ProcContext &ctx )
 {
-    RunPartial(t, ctx.BeginSeq, ctx.EndSeq);
+    RunPartial(ctx.BeginSeq, ctx.EndSeq);
 }
 
 ProcContext SingleProcExec::Run(ExecuteTraceEvent &event, const ProcContext &ctx,
                                 TaintEngine *taint, int maxDepth)
 {
     SingleProcExec sexec(taint, ctx, maxDepth);
-    ProcTraceExec exec;
+    ProcTraceExec exec(event.Trace);
     if (taint) exec.Add(taint);
     exec.Add(&sexec);
-    exec.RunProc(event.Trace, ctx);
+    exec.RunProc(ctx);
     sexec.m_context.GenerateRegions();
     return sexec.m_context;
 }
@@ -193,6 +183,7 @@ SingleProcExec::SingleProcExec( TaintEngine *te, const ProcContext &ctx, int max
     m_context.Proc = ctx.Proc;
     m_context.BeginSeq = ctx.BeginSeq;
     m_context.EndSeq = ctx.EndSeq;
+    m_context.Level = ctx.Level;
     m_maxDepth = maxDepth;
 }
 
@@ -201,7 +192,7 @@ void SingleProcExec::OnExecuteTrace( ExecuteTraceEvent &event )
 //     if (m_maxDepth > 0) {
 //         LxWarning("SingleProcExec depth > 0 not supported\n");
 //     }
-    if (m_maxDepth > 0 || m_context.Proc->Containts(event.Context->Eip)) {
+    if (m_context.Level <= m_maxDepth) {
         m_context.OnTrace(event, m_taint);
     }
 }

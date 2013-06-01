@@ -6,7 +6,6 @@
 #include "prophet.h"
 #include "event.h"
 #include "formatsyn.h"
-#include "message.h"
 #include "taint/taint.h"
 #include "runtrace.h"
 
@@ -20,10 +19,11 @@ public:
     void            OnMessageBegin(MessageBeginEvent &event);
     void            OnMessageEnd(MessageEndEvent &event);
 
-    Message *       GetCurrentMessage() { return m_message; }
-    const Message * GetCurrentMessage() const { return m_message; }
-    FormatSyn &     GetFormatSynthesizer() { return m_format; }
-    const FormatSyn &   GetFormatSynthesizer() const { return m_format; }
+    void            EnqueueMessage(Message *msg, int beginIncl, int endIncl);
+    void            Analyze();
+
+//     Message *       GetCurrentMessage() { return m_currRootMsg; }
+//     const Message * GetCurrentMessage() const { return m_currRootMsg; }
     RunTrace &      GetRunTrace() { return m_tracer; }
     const RunTrace &GetRunTrace() const { return m_tracer; }
     Protocol *      GetProtocol() { return m_protocol; }
@@ -32,22 +32,15 @@ public:
     void            Serialize(Json::Value &root) const override;
     void            Deserialize(Json::Value &root) override;
 
-//     void            OnSubmitFormat(const Taint &t, FieldFormat f);
-//     void            OnSubmitFormat(const Taint1 &t, FieldFormat f)
-//     {
-//         OnSubmitFormat(t[0], f);
-//     }
-
-    void            SubmitLengthField(int first, int last, int target);
-    void            SubmitToken(byte t, int first, int last);
-    void            SubmitFixedLen(int first, int last);
 private:
-    FormatSyn       m_format;
     Protocol *      m_protocol;
-    Message *       m_message;
-    //TaintEngine *   m_taint;
+    Message *       m_currRootMsg;
     RunTrace        m_tracer;
     bool            m_tracing;
+
+    int             m_currId;
+    std::vector<Message *>  m_messages;
+    std::deque<Message *>   m_msgQueue;
 
     bool            m_breakOnMsgBegin;
     bool            m_breakOnMsgEnd;

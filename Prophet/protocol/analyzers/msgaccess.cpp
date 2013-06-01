@@ -2,9 +2,9 @@
 #include "msgaccess.h"
 
 
-MessageAccessLog::MessageAccessLog( CallStack *cs, const Message *msg )
+MessageAccessLog::MessageAccessLog( const Message *msg )
 {
-    m_callstack = cs;
+    m_callstack = NULL;
     m_currmsg = msg;
 }
 
@@ -48,7 +48,7 @@ void MessageAccessLog::OnMemRead( const TContext *t, u32 addr, byte data )
     if (addr < m_currmsg->Base() || addr >= m_currmsg->Base() + m_currmsg->Size())
         return;
     u32 offset = addr - m_currmsg->Base();
-    if (data != (*m_currmsg)[offset].Data) {
+    if (data != m_currmsg->Get(offset).Data) {
         //LxWarning("Message data differs from original\n");
         return;
     }
@@ -57,15 +57,13 @@ void MessageAccessLog::OnMemRead( const TContext *t, u32 addr, byte data )
     acc->Context = t;
     acc->Offset = offset;
     m_accesses.push_back(acc);
-
-    //printf("MSGACC %d %c %08x %s\n", offset, data, t->Eip, t->Inst->Main.CompleteInstr);
 }
 
 void MessageAccessLog::Dump( File &f ) const
 {
-    fprintf(f.Ptr(), "msg: '%s'\n", m_currmsg->ToString().c_str());
+    //fprintf(f.Ptr(), "msg: '%s'\n", m_currmsg->ToString().c_str());
     for (auto &m : m_accesses) {
-        byte c = (*m_currmsg)[m->Offset].Data;
+        byte c = m_currmsg->Get(m->Offset).Data;
         fprintf(f.Ptr(), "%3d '%c' %08x %-50s  stack_hash=%08x", 
             m->Offset, isprint(c) ? c : '.', m->Context->Eip, 
             m->Context->Inst->Main.CompleteInstr, GetProcStackHash(m->CallStack));

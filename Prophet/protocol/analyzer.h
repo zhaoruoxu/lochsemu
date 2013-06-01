@@ -4,7 +4,6 @@
 #define __PROPHET_PROTOCOL_ANALYZER_H__
 
 #include "prophet.h"
-#include "event.h"
 #include "utilities.h"
 #include "apiprocessor.h"
 #include "protocol.h"

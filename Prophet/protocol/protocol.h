@@ -6,7 +6,6 @@
 #include "prophet.h"
 #include "utilities.h"
 #include "apiprocessor.h"
-#include "formatsyn.h"
 #include "msgmgr.h"
 
 class ExecuteTraceEvent : public Event {
@@ -61,8 +60,8 @@ public:
     ApiProcessor *      GetApiProcessor() { return &m_apiprocessor; }
     const ApiProcessor *    GetApiProcessor() const { return &m_apiprocessor; }
 
-    void        AddMessage(Message *msg);
-    int         GetTotalMessages() const { return m_totalMessages; }
+    //void        AddMessage(Message *msg);
+    //int         GetTotalMessages() const { return m_totalMessages; }
 
     void        UpdateTContext(const Processor *cpu, TContext *ctx) const;
 
@@ -78,9 +77,9 @@ private:
     int                 m_totalAnalyzers;
     ProtocolAnalyzer *  m_analyzers[MaxAnalyzers];
 
-    static const int    MaxMessages = 4096;
-    int                 m_totalMessages;
-    Message *           m_messages[MaxMessages];
+    //static const int    MaxMessages = 4096;
+    //int                 m_totalMessages;
+    //Message *           m_messages[MaxMessages];
 
     ApiProcessor        m_apiprocessor;
     MessageManager      m_msgmanager;

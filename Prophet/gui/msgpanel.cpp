@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "msgpanel.h"
 
+/*
 MessagePanel::MessagePanel( wxWindow *parent, ProphetFrame *dad, ProEngine *engine )
     : SelectableScrolledControl(parent, wxSize(400, 200)), m_engine(engine), m_dad(dad)
 {
@@ -119,3 +120,5 @@ void MessagePanel::DrawItem( wxBufferedPaintDC &dc, int index )
     dc.DrawText(FieldFormatName[(*m_message)[index].Format], w, h);
     w += m_widthFormat;
 }
+
+*/

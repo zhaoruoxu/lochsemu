@@ -6,6 +6,7 @@
 #include "protocol/analyzer.h"
 #include "protocol/taint/taint.h"
 
+/*
 class SeparatorKeyword : public ProtocolAnalyzer {
 public:
     SeparatorKeyword(Protocol *protocol);
@@ -34,5 +35,5 @@ private:
     int     m_tokenMinCmpRange;
 };
 
- 
+ */
 #endif // __PROPHET_PROTOCOL_ANALYZERS_SEPARATOR_H__

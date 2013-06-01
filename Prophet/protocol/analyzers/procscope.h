@@ -19,15 +19,15 @@ public:
     bool    Containts(u32 addr) const;
 
 	u32		Entry() const { return m_entry; }
-	std::set<u32> &	Addrs() { return m_addrs; }
-	const std::set<u32> &	Addrs() const { return m_addrs; }
-	std::set<u32> &	Exits() { return m_exits; }
-	const std::set<u32> &	Exits() const { return m_exits; }
+	std::unordered_set<u32> &	Addrs() { return m_addrs; }
+	const std::unordered_set<u32> &	Addrs() const { return m_addrs; }
+	std::unordered_set<u32> &	Exits() { return m_exits; }
+	const std::unordered_set<u32> &	Exits() const { return m_exits; }
 
 private:
 	u32	m_entry;
-	std::set<u32>	m_addrs;
-	std::set<u32>	m_exits;
+	std::unordered_set<u32>	m_addrs;
+	std::unordered_set<u32>	m_exits;
 };
 
 // struct ProcContext {

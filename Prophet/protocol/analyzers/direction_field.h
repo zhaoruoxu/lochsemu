@@ -6,6 +6,7 @@
 #include "protocol/analyzer.h"
 #include "instruction.h"
 
+/*
 class DirectionField : public ProtocolAnalyzer {
 public:
     DirectionField(Protocol *protocol);
@@ -31,6 +32,6 @@ private:
 
     bool                m_useFlag;
 };
-
+*/
  
 #endif // __PROPHET_PROTOCOL_ANALYZERS_DIRECTION_FIELD_H__

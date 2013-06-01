@@ -2,7 +2,6 @@
 #include "taintengine.h"
 #include "processor.h"
 #include "engine.h"
-#include "event.h"
 
 TSnapshot::TSnapshot( TaintEngine &t )
 {

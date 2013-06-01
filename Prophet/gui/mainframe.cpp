@@ -93,7 +93,7 @@ void ProphetFrame::InitUI()
     m_cpuPanel      = new CpuPanel(this, this, m_engine);
 
     m_contextPanel  = new ContextPanel(m_nbContext, this);
-    m_msgPanel      = new MessagePanel(m_nbContext, this, m_engine);
+    //m_msgPanel      = new MessagePanel(m_nbContext, this, m_engine);
 
     m_tracePanel    = new CompositeTracePanel(m_nbTrace, this, m_contextPanel, m_cpuPanel);
     m_memDataPanel  = new MemDataPanel(m_nbTrace, this, m_engine);
@@ -106,7 +106,7 @@ void ProphetFrame::InitUI()
     m_threadPanel   = new ThreadPanel(m_nbSections, this);
 
     m_nbContext->AddPage(m_contextPanel, "Context");
-    m_nbContext->AddPage(m_msgPanel, "Message");
+    //m_nbContext->AddPage(m_msgPanel, "Message");
 
     m_nbSections->AddPage(m_memInfoPanel, "Sections");
     m_nbSections->AddPage(m_threadPanel, "Threads");
@@ -557,7 +557,7 @@ void ProphetFrame::OnUpdate()
 
 void ProphetFrame::ShowMessage( const Message *msg )
 {
-    m_msgPanel->UpdateData(msg);
+    //m_msgPanel->UpdateData(msg);
 }
 
 void ProphetFrame::OnAllowDND( wxAuiNotebookEvent &event )
@@ -579,7 +579,7 @@ void ProphetFrame::OnRefresh()
     m_memInfoPanel->Refresh();
     m_memDataPanel->Refresh();
     m_bpsPanel->Refresh();
-    m_msgPanel->Refresh();
+    //m_msgPanel->Refresh();
     m_statPanel->Refresh();
 }
 

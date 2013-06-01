@@ -58,10 +58,10 @@ private:
 class MessageTree {
     friend class MessageTreeRefiner;
 public:
-    MessageTree(const MessageAccessLog &log);
+    MessageTree(Message *msg);
     virtual ~MessageTree();
 
-    void    Construct(MessageAccessComparator &cmp);
+    void    Construct(const MessageAccessLog *log, MessageAccessComparator &cmp);
     void    Dump(File &f) const;
     void    DumpDot(File &f) const;
     void    UpdateHistory(const MessageAccessLog *t);
@@ -70,7 +70,8 @@ private:
     bool    CheckValidity() const;
 private:
     MessageTreeNode *m_root;
-    const MessageAccessLog &m_log;
+    Message *m_message;
+    //const MessageAccessLog &m_log;
 };
 
 // class ParallelFieldDetector : public TraceAnalyzer {

@@ -26,6 +26,7 @@ struct ProcContext {
     std::vector<MemRegion> InputRegions, OutputRegions;
 
     int Count;
+    int Level;
 
     void Reset();
     ProcContext() {
@@ -75,7 +76,8 @@ private:
 
 class ProcTraceExec : public TraceExec {
 public:
-    void RunProc(const RunTrace &t, const ProcContext &ctx);
+    ProcTraceExec(const RunTrace &t) : TraceExec(t) {}
+    void RunProc(const ProcContext &ctx);
 };
 
 class SingleProcExec : public TraceAnalyzer {

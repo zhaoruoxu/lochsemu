@@ -95,10 +95,12 @@ void RC4Analyzer::TestRC4Crypt( const ProcContext &ctx, const MemRegion &input, 
         FillMemRegionBytes(ctx.Outputs, output, ct);
         if (RC4_IsValidCrypt(sbox, pt, ct, len)) {
             ctx.Dump(StdOut(), false);
-            Message submsg(output.Addr, output.Len, ct);
-            LxInfo("sub-message: [%08x-%08x] %s\n", output.Addr, 
-                output.Addr + output.Len - 1, submsg.ToString().c_str());
+            Message *submsg = new Message(output.Addr, output.Len, ct, m_algEngine->GetMessage());
+            LxInfo("sub-message: [%08x-%08x]\n", output.Addr, 
+                output.Addr + output.Len - 1);
             memcpy(rc4ctx.Sbox, sbox, SboxLength);
+            m_algEngine->GetMessageManager()->EnqueueMessage(
+                submsg, ctx.EndSeq+1, m_algEngine->GetMessage()->GetTraceEnd());
         }
         SAFE_DELETE_ARRAY(pt);
         SAFE_DELETE_ARRAY(ct);

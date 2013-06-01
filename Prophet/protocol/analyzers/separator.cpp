@@ -2,7 +2,7 @@
 #include "separator.h"
 #include "instruction.h"
 #include "engine.h"
-
+/*
 SeparatorKeyword::SeparatorKeyword( Protocol *protocol )
     : ProtocolAnalyzer(protocol, "SeparatorKeyword")
 {
@@ -96,3 +96,4 @@ void SeparatorKeyword::Deserialize( Json::Value &root )
     m_tokenMinCmpRange = root.get("token_minimum_cmp_range", 
         m_tokenMinCmpRange).asInt();
 }
+*/

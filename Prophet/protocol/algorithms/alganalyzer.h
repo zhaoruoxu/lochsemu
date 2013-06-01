@@ -10,19 +10,22 @@ class AlgorithmAnalyzer;
 
 class AdvAlgEngine : public ProcAnalyzer {
 public:
-    AdvAlgEngine(const TSnapshot &original, int minProcSize = 32);
+    AdvAlgEngine(MessageManager *msgmgr, Message *msg, int minProcSize = 32);
     virtual ~AdvAlgEngine();
     virtual void OnProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
 
     TaintEngine *   GetTaint() { return &m_taint; }
     const TaintEngine *GetTaint() const { return &m_taint; }
-    const TSnapshot &GetSnapshot() const { return m_origSnapshot; }
+    Message * GetMessage() { return m_message; }
+    MessageManager *    GetMessageManager() { return m_msgmgr; }
+
 
 private:
     void RegisterAnalyzers();
     void RegisterAnalyzer(AlgorithmAnalyzer *a);
 private:
-    const TSnapshot &m_origSnapshot;
+    MessageManager *m_msgmgr;
+    Message *m_message;
     TaintEngine m_taint;
     int m_minProcSize;
 

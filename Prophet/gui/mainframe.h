@@ -84,7 +84,7 @@ private:
     MemInfoPanel *  m_memInfoPanel;
     MemDataPanel *  m_memDataPanel;
     BreakpointsPanel    *   m_bpsPanel;
-    MessagePanel *  m_msgPanel;
+    //MessagePanel *  m_msgPanel;
     StatPanel *     m_statPanel;
     StackPanel *    m_stackPanel;
     ThreadPanel *   m_threadPanel;

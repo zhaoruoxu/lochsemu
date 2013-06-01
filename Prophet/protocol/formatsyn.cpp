@@ -12,38 +12,6 @@
 #include "analyzers/procexec.h"
 #include "algorithms/alganalyzer.h"
 
-#define GRAPHVIZ_MULTITHREADED   0
-
-DWORD __stdcall DotToImageRoutine(LPVOID lpParams)
-{
-    char dotbuf[1024], outbuf[MAX_PATH];
-    const char *p = (const char *) lpParams;
-    strcpy(outbuf, p);
-    size_t l = strlen(outbuf);
-    if (strcmp(outbuf + l - 4, ".dot") == 0) {
-        outbuf[l-3] = 'p'; outbuf[l-2] = 'n'; outbuf[l-1] = 'g';
-    }
-    sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tpng %s -o %s", p, outbuf);
-    system(dotbuf);
-    delete [] p;      // p is 'new'ed
-    return 0;
-}
-
-static void DotToImage(const std::string &filename)
-{
-    char *p = new char[filename.size() + 1];  // use c++ allocation so that memory leaks can be detected
-    strcpy(p, filename.c_str());
-
-#if DOT_IN_ANOTHER_THREAD
-    HANDLE hThread = CreateThread(NULL, 0, DotToImageRoutine, (LPVOID) p, 0, NULL);
-    if (INVALID_HANDLE_VALUE == hThread) {
-        LxError("Cannot create DotToImage thread\n");
-    }
-#else   // DOT_IN_ANOTHER_THREAD
-    DotToImageRoutine((LPVOID) p);
-#endif  // DOT_IN_ANOTHER_THREAD
-}
-
 MsgByteInfo::MsgByteInfo()
 {
     ZeroMemory(FormatCount, sizeof(FormatCount));
@@ -79,16 +47,17 @@ void FormatSyn::Initialize()
 
 void FormatSyn::OnMessageBegin( MessageBeginEvent &event )
 {
-    m_message = m_msgmgr->GetCurrentMessage();
+    //m_message = m_msgmgr->GetCurrentMessage();
     m_msgInfo = new MsgByteInfo[m_message->Size()];
 }
 
 void FormatSyn::OnMessageEnd( MessageEndEvent &event )
 {
+    /*
     const RunTrace &runtrace = m_msgmgr->GetRunTrace();
     std::string dir = m_engine->GetArchiveDir();
     char buf[256];
-    sprintf(buf, "%02d", m_msgmgr->GetProtocol()->GetTotalMessages());
+    //sprintf(buf, "%02d", m_msgmgr->GetProtocol()->GetTotalMessages());
     std::string msg = buf;
     runtrace.Dump(File(dir + "traces" + msg + ".txt", "w"));
 
@@ -163,6 +132,7 @@ void FormatSyn::OnMessageEnd( MessageEndEvent &event )
     //Synthesize();
     m_message = NULL;
     SAFE_DELETE_ARRAY(m_msgInfo);
+    */
 }
 
 void FormatSyn::Serialize( Json::Value &root ) const 

@@ -3,8 +3,8 @@
 
 #include "rc4_analyzer.h"
 
-AdvAlgEngine::AdvAlgEngine( const TSnapshot &original, int minProcSize )
-    : m_origSnapshot(original)
+AdvAlgEngine::AdvAlgEngine( MessageManager *msgmgr, Message *msg, int minProcSize )
+    : m_msgmgr(msgmgr), m_message(msg)
 {
     m_minProcSize = minProcSize;
     m_taint.TaintRule_LoadMemory();
@@ -26,19 +26,18 @@ void AdvAlgEngine::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx
 
     // 2.
     m_taint.Reset();
-    m_taint.ApplySnapshot(m_origSnapshot);
-    ProcContext pc = SingleProcExec::Run(event, ctx, &m_taint, 0);
+    m_taint.TaintMemRegion(m_message->GetRegion());
+    ProcContext pc = SingleProcExec::Run(event, ctx, &m_taint, 1);
     for (int i = 0; i < m_count; i++)
         m_analyzers[i]->OnOriginalProcedure(event, pc);
 
     // 3.
     m_taint.Reset();
-    //m_taint.ApplySnapshot(m_origSnapshot);
     for (auto &input : ctx.Inputs) {
         if (!input.second.Tnt.IsAnyTainted())
             m_taint.TaintByte(input.first);
     }
-    pc = SingleProcExec::Run(event, ctx, &m_taint, 0);
+    pc = SingleProcExec::Run(event, ctx, &m_taint, 1);
     for (int i = 0; i < m_count; i++)
         m_analyzers[i]->OnInputProcedure(event, pc);
 }

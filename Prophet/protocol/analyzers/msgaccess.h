@@ -15,13 +15,15 @@ struct MessageAccess {
 
 class MessageAccessLog : public TraceAnalyzer {
 public:
-    MessageAccessLog(CallStack *cs, const Message *msg);
+    MessageAccessLog(const Message *msg);
     virtual ~MessageAccessLog();
 
     void Reset() override;
     void OnExecuteTrace(ExecuteTraceEvent &event) override;
     void OnComplete() override;
     void Dump(File &f) const;
+
+    void SetCallStack(CallStack *cs) { m_callstack = cs; }
 
     int Count() const { return m_accesses.size(); }
     const MessageAccess *Get(int n) const { Assert(n >= 0 && n < Count()); return m_accesses[n]; }

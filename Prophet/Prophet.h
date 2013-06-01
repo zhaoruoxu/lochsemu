@@ -85,6 +85,9 @@ class TraceAnalyzer;
 class ProcScope;
 class CallStack;
 class MessageFieldFormat;
+class ExecuteTraceEvent;
+class MessageAccessLog;
+class MessageTree;
 
 // utilities
 class File;

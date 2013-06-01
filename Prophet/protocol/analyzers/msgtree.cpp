@@ -9,8 +9,8 @@ bool StackHashComparator::Equals( const MessageAccess *l, const MessageAccess *r
 }
 
 
-MessageTree::MessageTree( const MessageAccessLog &log )
-    : m_log(log), m_root(NULL)
+MessageTree::MessageTree(Message *msg)
+    : m_root(NULL), m_message(msg)
 {
 
 }
@@ -20,17 +20,16 @@ MessageTree::~MessageTree()
     SAFE_DELETE(m_root);
 }
 
-void MessageTree::Construct( MessageAccessComparator &cmp )
+void MessageTree::Construct( const MessageAccessLog *log, MessageAccessComparator &cmp )
 {
     LxDebug("Constructing message tree\n");
-    const Message *msg = m_log.GetMessage();
-    m_root = new MessageTreeNode(0, msg->Size() - 1);
+    m_root = new MessageTreeNode(0, m_message->Size() - 1);
     //m_root->m_children.push_back(new MessageTreeNode(0, msg->Size() - 1, m_root));
 
-    const MessageAccess *prev = m_log.Get(0);
+    const MessageAccess *prev = log->Get(0);
     MessageTreeNode *currNode = new MessageTreeNode(prev->Offset, prev->Offset);
-    for (int i = 1; i < m_log.Count(); i++) {
-        const MessageAccess *curr = m_log.Get(i);
+    for (int i = 1; i < log->Count(); i++) {
+        const MessageAccess *curr = log->Get(i);
 
         if (curr->Offset == prev->Offset && cmp.Equals(curr, prev)) {
             // ignore local visits
@@ -75,14 +74,14 @@ bool MessageTree::CheckValidity() const
 
 void MessageTree::Dump( File &f ) const
 {
-    m_root->Dump(f, m_log.GetMessage(), 0);
+    m_root->Dump(f, m_message, 0);
 }
 
 void MessageTree::DumpDot( File &f ) const
 {
     fprintf(f.Ptr(), "digraph MT {\n");
 
-    m_root->DumpDot(f, m_log.GetMessage());
+    m_root->DumpDot(f, m_message);
 
     fprintf(f.Ptr(), "}\n");
 }
@@ -248,7 +247,7 @@ std::string MessageTreeNode::GetMsgContent( const Message *msg ) const
     std::stringstream ss;
     ss << "'";
     for (int i = m_l; i <= m_r; i++) {
-        byte ch = (*msg)[i].Data;
+        byte ch = msg->Get(i).Data;
         if (isprint(ch))
             ss << ch;
         else {
@@ -345,8 +344,8 @@ bool TokenizeRefiner::CanConcatenate(const MessageTreeNode *l,
                                      const MessageTreeNode *r ) const
 {
     return l->IsLeaf() && r->IsLeaf() && 
-        IsTokenChar((*m_msg)[l->m_r].Data) && 
-        IsTokenChar((*m_msg)[r->m_l].Data);
+        IsTokenChar(m_msg->Get(l->m_r).Data) && 
+        IsTokenChar(m_msg->Get(r->m_l).Data);
 }
 
 void ParallelFieldDetector::Refine( MessageTreeNode *node )
