@@ -3,6 +3,7 @@
 #include "engine.h"
 #include "message.h"
 #include "protocol.h"
+#include "analyzers/msgtree.h"
 
 MessageManager::MessageManager( Protocol *protocol )
     : m_protocol(protocol), m_tracer(protocol)
@@ -19,7 +20,7 @@ MessageManager::~MessageManager()
 {
     //SAFE_DELETE(m_currRootMsg);
     Assert(m_currRootMsg == NULL);
-    Analyze();
+    //Analyze();
     Assert(m_msgQueue.empty());
     for (auto &msg : m_messages) {
         SAFE_DELETE(msg);
@@ -41,7 +42,7 @@ void MessageManager::OnMessageBegin( MessageBeginEvent &event )
             Taint::GetWidth());
     }
     //m_taint->TaintMemoryRanged(event.MessageAddr, event.MessageLen, false);
-    m_currRootMsg = new Message(event.MessageAddr, event.MessageLen, event.MessageData, NULL);
+    m_currRootMsg = new Message(MemRegion(event.MessageAddr, event.MessageLen), event.MessageData);
     //m_format.OnMessageBegin(event);
 
     m_tracer.Begin();
@@ -129,8 +130,28 @@ void MessageManager::Analyze()
     while (!m_msgQueue.empty()) {
         Message *msg = m_msgQueue.front();
         m_msgQueue.pop_front();
-        m_messages.push_back(msg);
+
+        if (msg->GetParent() != NULL) {
+            msg->GetParent()->Insert(msg);
+        } else {
+            m_messages.push_back(msg);
+        }
+        
         msg->Analyze(this, m_tracer);
+    }
+
+}
+
+void MessageManager::GenerateOutput()
+{
+    Analyze();
+
+    std::string dir = g_engine.GetArchiveDir();
+    // dump dots
+    for (auto &msg : m_messages) {
+        std::string dotfile = dir + "tree_" + msg->GetName() + ".dot";
+        msg->GetTree()->DumpDot(File(dotfile, "w"), true);
+        DotToImage(dotfile);
     }
 }
 

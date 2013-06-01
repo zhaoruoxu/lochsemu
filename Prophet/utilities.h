@@ -52,5 +52,6 @@ public:
 
 
 void DotToImage(const std::string &filename);
+std::string ByteArrayToDotString(cpbyte data, int n, int maxlen);
 
 #endif // __PROPHET_UTILITIES_H__

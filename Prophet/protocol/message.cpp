@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "engine.h"
 #include "message.h"
 
 #include "analyzers/procscope.h"
@@ -15,14 +14,26 @@ const char *FieldFormatName[] = {
     "unknown", "separator", "keyword", "length", "fixed_length", "var_length", NULL
 };
 
-Message::Message(u32 addr, int len, cpbyte data, Message *parent )
-    : m_region(addr, len), m_parent(parent)
+Message::Message(const MemRegion &r, cpbyte data )
+    : m_region(r), m_parent(NULL)
 {
     m_id = -1;
     m_traceBegin = m_traceEnd = 0;
-    m_data = new MessageByte[len];
-    for (int i = 0; i < Size(); i++)
-        m_data[i].Data = data[i];
+    m_data = new byte[m_region.Len];
+    memcpy(m_data, data, m_region.Len);
+    m_name = "T";
+    m_tag = NULL;
+}
+
+Message::Message(const MemRegion &r, cpbyte data, Message *parent, 
+                 const MemRegion &pr, AlgTag *tag )
+    : m_region(r), m_parent(parent), m_parentRegion(pr)
+{
+    m_id = -1;
+    m_traceBegin = m_traceEnd = 0;
+    m_data = new byte[m_region.Len];
+    memcpy(m_data, data, m_region.Len);
+    m_tag = tag;
 }
 
 Message::~Message()
@@ -30,6 +41,11 @@ Message::~Message()
     SAFE_DELETE_ARRAY(m_data);
     SAFE_DELETE(m_accesslog);
     SAFE_DELETE(m_fieldTree);
+    SAFE_DELETE(m_tag);
+    for (auto &submsg : m_children) {
+        SAFE_DELETE(submsg);
+    }
+    m_children.clear();
 }
 
 // std::string Message::ToString() const
@@ -64,13 +80,6 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
     TokenizeRefiner(this).RefineTree(*m_fieldTree);
     ParallelFieldDetector().RefineTree(*m_fieldTree);
 
-    std::string dir = g_engine.GetArchiveDir();
-
-    //m_fieldTree.Dump(File(dir + "field_tree.txt", "w"));
-    std::string dotfile = dir + "field_tree.dot";
-    m_fieldTree->DumpDot(File(dotfile, "w"));
-    DotToImage(dotfile);
-
     AdvAlgEngine alg(msgmgr, this, 32);
     ProcExec procExe(&callStack, NULL);
     procExe.Add(&alg);
@@ -82,4 +91,63 @@ void Message::SetTraceRange( int beginIncl, int endIncl )
 {
     m_traceBegin = beginIncl;
     m_traceEnd = endIncl;
+}
+
+void Message::Insert( Message *msg )
+{
+    MessageTreeNode *node = m_fieldTree->FindNode(msg->GetParentRegion());
+    if (node == NULL) {
+        LxError("Cannot insert sub-message into message\n");
+        return;
+    }
+    char name[64];
+    sprintf(name, "%s_%d", m_name.c_str(), m_children.size());
+    msg->m_name = name;
+    node->SetSubMessage(msg);
+    m_children.push_back(msg);
+}
+
+void Message::SetID( int id )
+{
+    m_id = id;
+    char buf[64];
+    sprintf(buf, "T%d", m_id);
+    m_name = buf;
+}
+
+AlgTag::AlgTag( const std::string &name, const std::string &desc )
+    : AlgName(name), Description(desc)
+{
+
+}
+
+AlgTag::~AlgTag()
+{
+    for (auto &param : Params) {
+        SAFE_DELETE(param);
+    }
+    Params.clear();
+}
+
+void AlgTag::DumpDot( File &f ) const
+{
+    fprintf(f.Ptr(), "\"");
+    fprintf(f.Ptr(), "-- %s(%s) --\\l", AlgName.c_str(), Description.c_str());
+    for (auto &p : Params) {
+        fprintf(f.Ptr(), "[%x:%d] %s %s\\l", p->Mem.Addr, p->Mem.Len,
+            p->Type.c_str(), ByteArrayToDotString(p->Data, p->Mem.Len, 32).c_str());
+    }
+    fprintf(f.Ptr(), "\"");
+}
+
+AlgParam::AlgParam( const std::string &t, const MemRegion &r, cpbyte d )
+    : Type(t), Mem(r)
+{
+    Data = new byte[r.Len];
+    memcpy(Data, d, r.Len);
+}
+
+AlgParam::~AlgParam()
+{
+    SAFE_DELETE(Data);
 }

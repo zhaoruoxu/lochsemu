@@ -219,6 +219,7 @@
     <ClCompile Include="gui\contextpanel.cpp" />
     <ClCompile Include="instcontext.cpp" />
     <ClCompile Include="memory.cpp" />
+    <ClCompile Include="memregion.cpp" />
     <ClCompile Include="plugin\advdbg.cpp" />
     <ClCompile Include="plugin\autobreak.cpp" />
     <ClCompile Include="plugin\context_override.cpp" />

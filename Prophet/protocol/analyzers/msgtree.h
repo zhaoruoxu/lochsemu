@@ -39,11 +39,14 @@ public:
     bool    CheckValidity() const;
     void    Dump(File &f, const Message *msg, int level) const;
     void    DumpDot(File &f, const Message *msg) const;
-    std::string GetDotNodeName() const;
-    std::string GetMsgContent(const Message *msg) const;
+    std::string GetDotName(const Message *msg) const;
+    std::string GetDotStyle(const Message *msg) const;
+    std::string GetDotLabel(const Message *msg) const;
     void    UpdateHistory(const MessageAccessLog *t);
     int     GetChildrenCount() const { return m_children.size(); }
     bool    HasFlag(NodeFlag f) const { return (m_flag & f) != 0; }
+    void    SetSubMessage(Message *msg) { m_submsg = msg; }
+    Message *   GetSubMessage() const { return m_submsg; }
 private:
     void    AppendChild(MessageTreeNode *node);
     void    SetFlag(NodeFlag f) { m_flag |= f; }
@@ -53,6 +56,7 @@ private:
     MessageTreeNode *m_parent;
     std::vector<MessageTreeNode *> m_children;
     ExecutionHistory    m_execHistory;
+    Message *   m_submsg;
 };
 
 class MessageTree {
@@ -63,8 +67,10 @@ public:
 
     void    Construct(const MessageAccessLog *log, MessageAccessComparator &cmp);
     void    Dump(File &f) const;
-    void    DumpDot(File &f) const;
+    void    DumpDot(File &f, bool isRoot) const;
     void    UpdateHistory(const MessageAccessLog *t);
+    MessageTreeNode *   FindNode(const MemRegion &r);
+    MessageTreeNode *   GetRoot() { return m_root; }
 private:
     void    Insert(MessageTreeNode *node);
     bool    CheckValidity() const;

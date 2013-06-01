@@ -77,9 +77,14 @@ void MessageTree::Dump( File &f ) const
     m_root->Dump(f, m_message, 0);
 }
 
-void MessageTree::DumpDot( File &f ) const
+void MessageTree::DumpDot( File &f, bool isRoot ) const
 {
-    fprintf(f.Ptr(), "digraph MT {\n");
+    if (isRoot) {
+        fprintf(f.Ptr(), "digraph %s {\n", m_message->GetName().c_str());
+        fprintf(f.Ptr(), "node [fontname=\"Consolas\", fontsize=14];\n");
+    } else {
+        fprintf(f.Ptr(), "subgraph cluster_%s {\n", m_message->GetName().c_str());
+    }
 
     m_root->DumpDot(f, m_message);
 
@@ -91,12 +96,37 @@ void MessageTree::UpdateHistory( const MessageAccessLog *t )
     m_root->UpdateHistory(t);
 }
 
+MessageTreeNode * MessageTree::FindNode( const MemRegion &r )
+{
+    Assert(m_message->GetRegion().Contains(r));
+
+    int left = r.Addr - m_message->GetRegion().Addr;
+    int right = left + r.Len - 1;
+    MessageTreeNode *n = m_root;
+    while (true) {
+        Assert(n->m_l <= left && n->m_r >= right);
+        if (n->m_l == left && n->m_r == right) return n;
+        if (n->IsLeaf()) return NULL;
+
+        bool found = false;
+        for (auto &ch : n->m_children) {
+            if (ch->m_l >= left && ch->m_r <= right) {
+                n = ch;
+                found =  true;
+                break;
+            }
+        }
+        if (!found) { return NULL; }
+    }
+}
+
 MessageTreeNode::MessageTreeNode( int l, int r, MessageTreeNode *parent )
     : m_l(l), m_r(r)
 {
     Assert(m_l <= m_r);
     m_parent = parent;
     m_flag = 0;
+    m_submsg = NULL;
 }
 
 MessageTreeNode::~MessageTreeNode()
@@ -214,7 +244,7 @@ void MessageTreeNode::Dump( File &f, const Message *msg, int level ) const
 {
     for (int i = 0; i < level; i++)
         fprintf(f.Ptr(), " ");
-    fprintf(f.Ptr(), "[%d,%d] %s  EH: ", m_l, m_r, GetMsgContent(msg).c_str());
+    fprintf(f.Ptr(), "[%d,%d] %s  EH: ", m_l, m_r, GetDotLabel(msg).c_str());
     for (auto val : m_execHistory) {
         fprintf(f.Ptr(), "%08x ", val);
     }
@@ -226,38 +256,70 @@ void MessageTreeNode::Dump( File &f, const Message *msg, int level ) const
 
 void MessageTreeNode::DumpDot( File &f, const Message *msg ) const
 {
-    fprintf(f.Ptr(), "%s [shape=%s,label=\"%s\"%s];\n", GetDotNodeName().c_str(), 
-        m_children.size() > 0 ? "box" : "ellipse", GetMsgContent(msg).c_str(),
-        HasFlag(TREENODE_PARALLEL) ? ",color=blue" : "");
+    fprintf(f.Ptr(), "%s [label=\"%s\",%s];\n", GetDotName(msg).c_str(), 
+        GetDotLabel(msg).c_str(), GetDotStyle(msg).c_str());
+//     fprintf(f.Ptr(), "%s [shape=%s,label=\"%s\"%s];\n", GetDotNodeName(msg).c_str(), 
+//         m_children.size() > 0 ? "box" : "ellipse", GetMsgContent(msg).c_str(),
+//         HasFlag(TREENODE_PARALLEL) ? ",color=blue,style=bold" : "");
+
+    std::string nodeName = GetDotName(msg);
     for (auto &c : m_children) {
         c->DumpDot(f, msg);
-        fprintf(f.Ptr(), "%s -> %s;\n", GetDotNodeName().c_str(), c->GetDotNodeName().c_str());
+        fprintf(f.Ptr(), "%s -> %s;\n", nodeName.c_str(), c->GetDotName(msg).c_str());
+    }
+
+    if (m_submsg != NULL) {
+        std::string tagName = m_submsg->GetName() + "_tag";
+        fprintf(f.Ptr(), "%s [shape=box,color=purple,style=filled,fontcolor=white,label=", tagName.c_str());
+        m_submsg->GetTag()->DumpDot(f);
+        fprintf(f.Ptr(), "];\n");
+        fprintf(f.Ptr(), "%s -> %s [color=purple];\n", nodeName.c_str(), tagName.c_str());
+        m_submsg->GetTree()->DumpDot(f, false);
+        fprintf(f.Ptr(), "%s -> %s [color=purple];\n", tagName.c_str(), 
+            m_submsg->GetTree()->GetRoot()->GetDotName(m_submsg).c_str());
     }
 }
 
-std::string MessageTreeNode::GetDotNodeName() const
+std::string MessageTreeNode::GetDotName(const Message *msg) const
 {
     std::stringstream ss;
-    ss << "node_" << m_l << "_" << m_r;
+    ss << msg->GetName() << "__" << m_l << "_" << m_r;
     return ss.str();
 }
 
-std::string MessageTreeNode::GetMsgContent( const Message *msg ) const
+std::string MessageTreeNode::GetDotStyle( const Message *msg ) const
 {
-    std::stringstream ss;
-    ss << "'";
-    for (int i = m_l; i <= m_r; i++) {
-        byte ch = msg->Get(i).Data;
-        if (isprint(ch))
-            ss << ch;
-        else {
-            char buf[16];
-            sprintf(buf, "\\\\0x%02x", ch);
-            ss << buf;
+    //char buf[256];
+    if (this == msg->GetTree()->GetRoot()) {
+        return "shape=polygon,sides=4,peripheries=2";
+    }
+    if (IsLeaf()) {
+        //sprintf(buf, "shape=ellipse");
+        return "shape=ellipse";
+    } else {
+        if (HasFlag(TREENODE_PARALLEL)) {
+            //sprintf(buf, "shape=box,color=blue,style=bold");
+            return "shape=box,color=blue,style=bold";
+        } else {
+            //sprintf(buf, "shape=box");
+            return "shape=box";
         }
     }
-    ss << "'";
-    return ss.str();
+
+    //return std::string(buf);
+}
+
+std::string MessageTreeNode::GetDotLabel( const Message *msg ) const
+{
+    char buf[64];
+    sprintf(buf, "%s[%x:%d]", this == msg->GetTree()->GetRoot() ? "Root " : "",
+        msg->GetRegion().Addr + m_l, m_r - m_l + 1);
+    //if (IsLeaf()) {
+        strcat(buf, "\\n");
+        return buf + ByteArrayToDotString(msg->GetRaw() + m_l, m_r - m_l + 1, 64);
+    //} else {
+    //    return buf;
+    //}
 }
 
 void MessageTreeNode::UpdateHistory( const MessageAccessLog *t )
@@ -344,8 +406,8 @@ bool TokenizeRefiner::CanConcatenate(const MessageTreeNode *l,
                                      const MessageTreeNode *r ) const
 {
     return l->IsLeaf() && r->IsLeaf() && 
-        IsTokenChar(m_msg->Get(l->m_r).Data) && 
-        IsTokenChar(m_msg->Get(r->m_l).Data);
+        IsTokenChar(m_msg->Get(l->m_r)) && 
+        IsTokenChar(m_msg->Get(r->m_l));
 }
 
 void ParallelFieldDetector::Refine( MessageTreeNode *node )
@@ -357,9 +419,6 @@ void ParallelFieldDetector::Refine( MessageTreeNode *node )
 
 void ParallelFieldDetector::RefineNode( MessageTreeNode *node )
 {
-    if (node->m_l == 12 && node->m_r == 57) {
-        LxInfo("debug\n");
-    }
     while (RefineOnce(node)) {
         Reset();
     }
@@ -373,12 +432,14 @@ void ParallelFieldDetector::Reset()
 bool ParallelFieldDetector::CheckRefinableLeft( MessageTreeNode *node )
 {
     //if (node->GetChildrenCount() != 2) return false;
+    if (node->HasFlag(TREENODE_PARALLEL)) return false;
     m_commonExecHist = node->m_execHistory;
     return true;
 }
 
 bool ParallelFieldDetector::CheckRefinableRight( MessageTreeNode *node )
 {
+    if (node->HasFlag(TREENODE_PARALLEL)) return false;
     if (node->IsLeaf()) return false;
     return DoCheckRefinableRight(node);
 }
@@ -392,8 +453,10 @@ bool ParallelFieldDetector::DoCheckRefinableRight( MessageTreeNode *node )
     return DoCheckRefinableRight(node->m_children[1]);
 }
 
+
 bool ParallelFieldDetector::RefineOnce( MessageTreeNode *node )
 {
+    if (node->HasFlag(TREENODE_PARALLEL)) return false;
     for (int i = 0; i < node->GetChildrenCount() - 1; i++) {
         MessageTreeNode *left = node->m_children[i];
         MessageTreeNode *right = node->m_children[i+1];

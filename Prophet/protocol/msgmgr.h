@@ -21,6 +21,7 @@ public:
 
     void            EnqueueMessage(Message *msg, int beginIncl, int endIncl);
     void            Analyze();
+    void            GenerateOutput();
 
 //     Message *       GetCurrentMessage() { return m_currRootMsg; }
 //     const Message * GetCurrentMessage() const { return m_currRootMsg; }

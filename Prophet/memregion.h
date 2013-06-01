@@ -13,6 +13,10 @@ struct MemRegion {
     MemRegion(u32 addr, u32 len) {
         Addr = addr; Len = len;
     }
+
+    bool Contains(u32 addr) const;
+    bool Contains(const MemRegion &r) const;
 };
- 
+
+
 #endif // __PROPHET_MEMREGION_H__

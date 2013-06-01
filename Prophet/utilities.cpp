@@ -220,7 +220,7 @@ void DotToImage(const std::string &filename)
     char *p = new char[filename.size() + 1];  // use c++ allocation so that memory leaks can be detected
     strcpy(p, filename.c_str());
 
-#if DOT_IN_ANOTHER_THREAD
+#if GRAPHVIZ_MULTITHREADED
     HANDLE hThread = CreateThread(NULL, 0, DotToImageRoutine, (LPVOID) p, 0, NULL);
     if (INVALID_HANDLE_VALUE == hThread) {
         LxError("Cannot create DotToImage thread\n");
@@ -228,4 +228,28 @@ void DotToImage(const std::string &filename)
 #else   // DOT_IN_ANOTHER_THREAD
     DotToImageRoutine((LPVOID) p);
 #endif  // DOT_IN_ANOTHER_THREAD
+}
+
+std::string ByteArrayToDotString( cpbyte data, int n, int maxlen )
+{
+    std::stringstream ss;
+    ss << "'";
+    if (maxlen <= 0) maxlen = 0x7fffffff;
+    for (int i = 0; i < min(n, maxlen); i++) {
+        byte ch = data[i];
+        if (ch == '\\') {
+            ss << "\\\\";
+        } else if (isprint(ch)) {
+            ss << ch;
+        } else {
+            char buf[8];
+            sprintf(buf, "\\\\%02x", ch);
+            ss << buf;
+        }
+    }
+    ss << "'";
+    if (maxlen < n) {
+         ss << "...";
+    }
+    return ss.str();
 }
