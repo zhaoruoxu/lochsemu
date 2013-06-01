@@ -290,9 +290,9 @@ std::string MessageTreeNode::GetDotName(const Message *msg) const
 std::string MessageTreeNode::GetDotStyle( const Message *msg ) const
 {
     //char buf[256];
-    if (this == msg->GetTree()->GetRoot()) {
-        return "shape=polygon,sides=4,peripheries=2";
-    }
+//     if (this == msg->GetTree()->GetRoot()) {
+//         return "shape=polygon,sides=4,peripheries=2";
+//     }
     if (IsLeaf()) {
         //sprintf(buf, "shape=ellipse");
         return "shape=ellipse";

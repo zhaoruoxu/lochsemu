@@ -22,6 +22,9 @@ void RC4Analyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext 
 void RC4Analyzer::TestKeySchedule( const ProcContext &ctx, const MemRegion &region )
 {
     if (region.Len < SboxLength) return;
+    if (region.Len > SboxLength) {
+        LxWarning("RC4 key schedule test %d iterations\n", region.Len - SboxLength);
+    }
     for (u32 offset = 0; offset <= region.Len - SboxLength; offset++) {
         TestKeySchedule(ctx, region.Addr + offset);
     }
