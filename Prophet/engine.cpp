@@ -311,6 +311,7 @@ void ProEngine::LoadArchive(const char *moduleName)
     char buf[MAX_PATH];
     sprintf(buf, "%08x_", hash);
     strcat(buf, moduleName);
+    m_archiveFileName = buf;
     strcat(buf, ".json");
     m_archivePath   = m_archiveDir + buf;
 

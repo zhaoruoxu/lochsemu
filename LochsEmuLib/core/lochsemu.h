@@ -239,6 +239,7 @@ LX_API void             LxFormatTimeMS(DWORD time, char *buf);
 LX_API void             LxFormatTimeS(DWORD time, char *buf);
 LX_API void             LxGetDateTime(char *buffer);
 LX_API bool             LxFileExists(LPCSTR filepath);
+LX_API bool             LxCreateDirectory(LPCSTR dir);
 LX_API bool             LxWideToByte(LPCWSTR w, LPSTR b, int len);
 LX_API bool             LxByteToWide(LPCSTR b, LPWSTR w, int len);
 LX_API std::string      LxFilePath(const char *fullPath);

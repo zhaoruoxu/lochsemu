@@ -146,7 +146,8 @@ void MessageManager::GenerateOutput()
 {
     Analyze();
 
-    std::string dir = g_engine.GetArchiveDir();
+    std::string dir = g_engine.GetArchiveDir() + g_engine.GetArchiveFileName() + "\\";
+    LxCreateDirectory(dir.c_str());
     // dump dots
     for (auto &msg : m_messages) {
         msg->DumpTree(File(dir + "tree_" + msg->GetName() + ".txt", "w"));

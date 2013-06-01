@@ -423,4 +423,12 @@ LX_API bool LxRunProcess( LPCSTR exeToRun, LPCSTR params )
     return r >= 32;
 }
 
+LX_API bool LxCreateDirectory( LPCSTR dir )
+{
+    if (!LxFileExists(dir)) {
+        return CreateDirectoryA(dir, NULL) != 0;
+    }
+    return true;
+}
+
 END_NAMESPACE_LOCHSEMU()

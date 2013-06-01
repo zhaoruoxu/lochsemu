@@ -74,6 +74,7 @@ public:
     i64             GetInstExecuted() const { return m_instExecuted; }
 
     std::string     GetArchiveDir() const { return m_archiveDir; }
+    std::string     GetArchiveFileName() const { return m_archiveFileName; }
     
 private:
     void            Intro() const;
@@ -100,6 +101,7 @@ private:
 
     std::string     m_archivePath;
     std::string     m_archiveDir;
+    std::string     m_archiveFileName;
     bool            m_isArchiveLoaded;
     i64             m_instExecuted;
     bool            m_nogui;
