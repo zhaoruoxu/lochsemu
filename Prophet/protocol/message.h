@@ -74,6 +74,7 @@ public:
     MessageTree *GetTree() const { return m_fieldTree; }
     //const MessageTree *GetTree() const { return m_fieldTree; }
     AlgTag *    GetTag() const { return m_tag; }
+    void        DumpTree(File &f) const;
 
     void        Analyze(MessageManager *msgmgr, const RunTrace &trace);
     void        Insert(Message *msg);

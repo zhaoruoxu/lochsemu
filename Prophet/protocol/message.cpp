@@ -9,6 +9,9 @@
 #include "analyzers/msgformat.h"
 #include "analyzers/procexec.h"
 #include "algorithms/alganalyzer.h"
+#include "analyzers/tokenize_refiner.h"
+#include "analyzers/parallel_detector.h"
+#include "analyzers/sanitize_refiner.h"
 
 const char *FieldFormatName[] = {
     "unknown", "separator", "keyword", "length", "fixed_length", "var_length", NULL
@@ -21,7 +24,7 @@ Message::Message(const MemRegion &r, cpbyte data )
     m_traceBegin = m_traceEnd = 0;
     m_data = new byte[m_region.Len];
     memcpy(m_data, data, m_region.Len);
-    m_name = "T";
+    m_name = "t";
     m_tag = NULL;
 }
 
@@ -48,16 +51,6 @@ Message::~Message()
     m_children.clear();
 }
 
-// std::string Message::ToString() const
-// {
-//     char buf[4096];
-//     int i = 0;
-//     for (; i < Size(); i++)
-//         buf[i] = m_data[i].Data;
-//     buf[i] = '\0';
-//     return std::string(buf);
-// }
-
 void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
 {
     TraceExec traceExe(trace);
@@ -79,6 +72,7 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
 
     TokenizeRefiner(this).RefineTree(*m_fieldTree);
     ParallelFieldDetector().RefineTree(*m_fieldTree);
+    SanitizeRefiner().RefineTree(*m_fieldTree);
 
     AdvAlgEngine alg(msgmgr, this, 32);
     ProcExec procExe(&callStack, NULL);
@@ -113,6 +107,14 @@ void Message::SetID( int id )
     char buf[64];
     sprintf(buf, "T%d", m_id);
     m_name = buf;
+}
+
+void Message::DumpTree( File &f ) const
+{
+    m_fieldTree->Dump(f);
+    for (auto &ch : m_children) {
+        ch->DumpTree(f);
+    }
 }
 
 AlgTag::AlgTag( const std::string &name, const std::string &desc )

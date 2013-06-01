@@ -321,6 +321,15 @@
     <ClInclude Include="cryptohelp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\analyzers\tokenize_refiner.h">
+      <Filter>Header Files\protocol\analyzers</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\analyzers\parallel_detector.h">
+      <Filter>Header Files\protocol\analyzers</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\analyzers\sanitize_refiner.h">
+      <Filter>Header Files\protocol\analyzers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -511,6 +520,15 @@
     </ClCompile>
     <ClCompile Include="memregion.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\analyzers\tokenize_refiner.cpp">
+      <Filter>Source Files\protocol\analyzers</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\analyzers\parallel_detector.cpp">
+      <Filter>Source Files\protocol\analyzers</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\analyzers\sanitize_refiner.cpp">
+      <Filter>Source Files\protocol\analyzers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

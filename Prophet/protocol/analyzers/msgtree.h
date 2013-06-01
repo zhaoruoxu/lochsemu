@@ -15,11 +15,12 @@ public:
     virtual bool Equals(const MessageAccess *l, const MessageAccess *r) override;
 };
 
-typedef std::set<u32>   ExecutionHistory;
+typedef std::set<u32>       ExecHistory;
+typedef std::vector<u32>    ExecHistoryStrict;
 
 enum NodeFlag {
-    TREENODE_PARALLEL = 1,
-
+    TREENODE_PARALLEL   = 1 << 0,
+    TREENODE_SEPARATOR  = 1 << 1,
 };
 
 class MessageTreeNode {
@@ -27,6 +28,7 @@ class MessageTreeNode {
     friend class MessageTreeRefiner;
     friend class TokenizeRefiner;
     friend class ParallelFieldDetector;
+    friend class SanitizeRefiner;
 public:
     MessageTreeNode(int l, int r, MessageTreeNode *parent = NULL);
     virtual ~MessageTreeNode();
@@ -35,6 +37,7 @@ public:
     bool    Contains(const MessageTreeNode * n);
     void    Insert(MessageTreeNode *node);
     bool    IsLeaf() const { return m_children.size() == 0; }
+    int     Length() const { return m_r - m_l + 1; }
 
     bool    CheckValidity() const;
     void    Dump(File &f, const Message *msg, int level) const;
@@ -47,6 +50,7 @@ public:
     bool    HasFlag(NodeFlag f) const { return (m_flag & f) != 0; }
     void    SetSubMessage(Message *msg) { m_submsg = msg; }
     Message *   GetSubMessage() const { return m_submsg; }
+    MessageTreeNode *GetChild(int n) const;
 private:
     void    AppendChild(MessageTreeNode *node);
     void    SetFlag(NodeFlag f) { m_flag |= f; }
@@ -55,7 +59,8 @@ private:
     u32 m_flag;
     MessageTreeNode *m_parent;
     std::vector<MessageTreeNode *> m_children;
-    ExecutionHistory    m_execHistory;
+    ExecHistory     m_execHistory;
+    ExecHistoryStrict   m_execHistoryStrict;
     Message *   m_submsg;
 };
 
@@ -80,19 +85,6 @@ private:
     //const MessageAccessLog &m_log;
 };
 
-// class ParallelFieldDetector : public TraceAnalyzer {
-// public:
-//     ParallelFieldDetector(MessageTree &t);
-//     virtual ~ParallelFieldDetector();
-// 
-//     void    Reset() override;
-//     void    OnExecuteTrace(ExecuteTraceEvent &event) override;
-//     void    OnComplete() override;
-// 
-// private:
-//     MessageTree &m_tree;
-// };
-
 class MessageTreeRefiner {
 public:
     MessageTreeRefiner();
@@ -100,36 +92,7 @@ public:
 
     virtual void RefineTree(MessageTree &tree);
     virtual void Refine(MessageTreeNode *node);
-    virtual void RefineNode(MessageTreeNode *node) = 0;
+    virtual void RefineNode(MessageTreeNode *node) {};
 };
 
-class TokenizeRefiner : public MessageTreeRefiner {
-public:
-    TokenizeRefiner(const Message *msg);
-
-    virtual void RefineNode(MessageTreeNode *node) override;
-private:
-    bool IsTokenChar(byte ch) const;
-    bool CanConcatenate(const MessageTreeNode *l, const MessageTreeNode *r) const;
-private:
-    const Message *m_msg;
-};
-
-class ParallelFieldDetector : public MessageTreeRefiner {
-public:
-
-    //virtual void Refine(MessageTree &tree);
-    virtual void Refine(MessageTreeNode *node) override;
-    virtual void RefineNode(MessageTreeNode *node) override;
-
-private:
-    bool    RefineOnce(MessageTreeNode *node);
-    void    Reset();
-    bool    CheckRefinableLeft(MessageTreeNode *node);
-    bool    CheckRefinableRight(MessageTreeNode *node);
-    bool    DoCheckRefinableRight(MessageTreeNode *node);
-private:
-    ExecutionHistory    m_commonExecHist;
-};
- 
 #endif // __PROPHET_PROTOCOL_ANALYZERS_MSGTREE_H__

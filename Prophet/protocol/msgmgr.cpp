@@ -149,6 +149,7 @@ void MessageManager::GenerateOutput()
     std::string dir = g_engine.GetArchiveDir();
     // dump dots
     for (auto &msg : m_messages) {
+        msg->DumpTree(File(dir + "tree_" + msg->GetName() + ".txt", "w"));
         std::string dotfile = dir + "tree_" + msg->GetName() + ".dot";
         msg->GetTree()->DumpDot(File(dotfile, "w"), true);
         DotToImage(dotfile);
