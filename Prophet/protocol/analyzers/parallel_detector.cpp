@@ -128,8 +128,10 @@ void ParallelFieldDetector::LabelLeafFlags( MessageTreeNode *node )
 
     if (possibleSeparators.empty()) return;
     ExecHistory sep = possibleSeparators[0]->m_execHistory;
-    for (uint i = 1; i < possibleSeparators.size(); i++)
+    for (uint i = 1; i < possibleSeparators.size(); i++) {
         if (possibleSeparators[i]->m_execHistory != sep) return;
+        if (possibleSeparators[i]->Length() > 2) return;
+    }
     for (auto &s : possibleSeparators) {
         s->SetFlag(TREENODE_SEPARATOR);
     }

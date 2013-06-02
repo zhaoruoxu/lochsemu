@@ -14,7 +14,7 @@ void ChainedXorAnalyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcC
 
 void ChainedXorAnalyzer::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
-    ctx.Dump(StdOut(), true);
+    //ctx.Dump(StdOut(), true);
 
     for (auto &input : ctx.InputRegions) {
         if (input.Len <=4 ) continue;
