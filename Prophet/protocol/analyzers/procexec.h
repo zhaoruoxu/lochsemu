@@ -17,6 +17,8 @@ typedef std::map<u32, TMemAccess> ProcParameter;
 
 std::vector<MemRegion>  GenerateMemRegions(const ProcParameter &params);
 void FillMemRegionBytes(const ProcParameter &params, const MemRegion &r, pbyte dest);
+Taint GetMemRegionTaintAnd(const ProcParameter &params, const MemRegion &r);
+Taint GetMemRegionTaintOr(const ProcParameter &params, const MemRegion &r);
 
 struct ProcContext {
     Procedure *Proc;
@@ -46,6 +48,7 @@ class ProcAnalyzer {
 public:
     virtual ~ProcAnalyzer() {}
     virtual void OnProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) = 0;
+    virtual void OnComplete() = 0;
 };
 
 class ProcExec : public TraceAnalyzer {

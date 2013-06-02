@@ -23,7 +23,11 @@ void RC4Analyzer::TestKeySchedule( const ProcContext &ctx, const MemRegion &regi
 {
     if (region.Len < SboxLength) return;
     if (region.Len > SboxLength) {
-        LxWarning("RC4 key schedule test %d iterations\n", region.Len - SboxLength);
+        //LxWarning("RC4 key schedule test %d iterations\n", region.Len - SboxLength);
+        return;
+    }
+    for (auto &c : m_contexts) {
+        if (c.SboxRegion == region) return;
     }
     for (u32 offset = 0; offset <= region.Len - SboxLength; offset++) {
         TestKeySchedule(ctx, region.Addr + offset);
@@ -79,13 +83,14 @@ void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &region )
             }
             if (offset == r.Len) {
                 // found match
-                TestRC4Crypt(ctx, region, MemRegion(r.Addr + i - r.Len + 1, region.Len));
+                TestRC4Crypt(ctx, region, MemRegion(r.Addr + i - r.Len + 1, region.Len), tRegions[0]);
             }
         }
     }
 }
 
-void RC4Analyzer::TestRC4Crypt( const ProcContext &ctx, const MemRegion &input, const MemRegion &output )
+void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &input, 
+                               const MemRegion &output, const TaintRegion &tin )
 {
     Assert(input.Len == output.Len);
     for (auto &rc4ctx : m_contexts) {
@@ -104,8 +109,10 @@ void RC4Analyzer::TestRC4Crypt( const ProcContext &ctx, const MemRegion &input, 
             tag->Params.push_back(new AlgParam("Input", input, pt));
             tag->Params.push_back(new AlgParam("Output", output, ct));
 
-            Message *submsg = new Message(output, ct, m_algEngine->GetMessage(), input, tag);
-            LxInfo("sub-message: [%08x-%08x]\n", output.Addr, 
+            Message *parent = m_algEngine->GetMessage();
+            Message *submsg = new Message(output, ct, parent,
+                parent->GetRegion().SubRegion(tin), tag);
+            LxInfo("RC4 sub-message: [%08x-%08x]\n", output.Addr, 
                 output.Addr + output.Len - 1);
             memcpy(rc4ctx.Sbox, sbox, SboxLength);
             m_algEngine->GetMessageManager()->EnqueueMessage(

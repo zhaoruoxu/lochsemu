@@ -2,6 +2,7 @@
 #include "alganalyzer.h"
 
 #include "rc4_analyzer.h"
+#include "des_analyzer.h"
 
 AdvAlgEngine::AdvAlgEngine( MessageManager *msgmgr, Message *msg, int minProcSize )
     : m_msgmgr(msgmgr), m_message(msg)
@@ -20,8 +21,6 @@ void AdvAlgEngine::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx
 
     // TODO : ignore 1, 2 or 3 if not registered
 
-    ctx.Dump(StdOut(), true);
-
     // 1.
     for (int i = 0; i < m_count; i++)
         m_analyzers[i]->OnProcedure(event, ctx);
@@ -36,6 +35,7 @@ void AdvAlgEngine::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx
 
     // 3.
     m_taint.Reset();
+    //m_taint.TaintMemRegion(m_message->GetRegion());
     for (auto &input : ctx.Inputs) {
         if (!input.second.Tnt.IsAnyTainted())
             m_taint.TaintByte(input.first);
@@ -57,12 +57,19 @@ void AdvAlgEngine::RegisterAnalyzer( AlgorithmAnalyzer *a )
 void AdvAlgEngine::RegisterAnalyzers()
 {
     RegisterAnalyzer(new RC4Analyzer());
+    RegisterAnalyzer(new DESAnalyzer());
 }
 
 AdvAlgEngine::~AdvAlgEngine()
 {
     for (int i = 0; i < m_count; i++)
         SAFE_DELETE(m_analyzers[i]);
+}
+
+void AdvAlgEngine::OnComplete()
+{
+    for (int i = 0; i < m_count; i++)
+        m_analyzers[i]->OnComplete();
 }
 
 /*

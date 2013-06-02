@@ -54,4 +54,41 @@ public:
 void DotToImage(const std::string &filename);
 std::string ByteArrayToDotString(cpbyte data, int n, int maxlen);
 
+template <typename T>
+class Array {
+public:
+    Array(int initSize = 32) {
+        m_currSize = 0;
+        m_currMaxSize = initSize;
+        m_data = new T[m_currMaxSize];
+    }
+    ~Array() {
+        SAFE_DELETE_ARRAY(m_data);
+    }
+
+    T *Get() const { return m_data; }
+    T Get(int n) const { Assert(n < m_currSize); return m_data[n]; }
+    int Size() const { return m_currSize; }
+    void Append(const T *data, int n) {
+        if (m_currSize + n > m_currMaxSize)
+            Expand();
+        memcpy(m_data + m_currSize, data, n * sizeof(T));
+        m_currSize += n;
+    }
+
+private:
+    void Expand() {
+        m_currMaxSize *= 2;
+        T *newData = new T[m_currMaxSize];
+        memcpy(newData, m_data, m_currSize * sizeof(T));
+        SAFE_DELETE_ARRAY(m_data);
+        m_data = newData;
+    }
+
+private:
+    T *m_data;
+    int m_currSize;
+    int m_currMaxSize;
+};
+
 #endif // __PROPHET_UTILITIES_H__

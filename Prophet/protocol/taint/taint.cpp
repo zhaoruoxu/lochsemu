@@ -82,6 +82,11 @@ bool Taint::operator==(const Taint &rhs) const
     return true;
 }
 
+bool Taint::operator!=(const Taint &rhs) const
+{
+    return !(*this == rhs);
+}
+
 std::string Taint::ToString() const
 {
     std::string r;

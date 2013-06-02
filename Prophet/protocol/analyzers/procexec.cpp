@@ -115,6 +115,8 @@ void ProcExec::OnExecuteTrace( ExecuteTraceEvent &event )
 
 void ProcExec::OnComplete()
 {
+    for (int i = 0; i < m_count; i++)
+        m_workers[i]->OnComplete();
     Reset();
 }
 
@@ -224,4 +226,21 @@ void FillMemRegionBytes( const ProcParameter &params, const MemRegion &r, pbyte 
     for (u32 i = 0; i < r.Len; i++) {
         dest[i] = params.find(r.Addr + i)->second.Data;
     }
+}
+
+Taint GetMemRegionTaintAnd( const ProcParameter &params, const MemRegion &r )
+{
+    Taint t;
+    t.SetAll();
+    for (u32 i = 0; i < r.Len; i++)
+        t &= params.find(r.Addr + i)->second.Tnt;
+    return t;
+}
+
+Taint GetMemRegionTaintOr( const ProcParameter &params, const MemRegion &r )
+{
+    Taint t;
+    for (u32 i = 0; i < r.Len; i++)
+        t |= params.find(r.Addr + i)->second.Tnt;
+    return t;
 }

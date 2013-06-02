@@ -14,6 +14,12 @@ struct TaintRegion {
     TaintRegion(int off, int l) {
         Offset = off; Len = l;
     }
+
+    bool TryMerge(const TaintRegion &t) {
+        if (Offset + Len != t.Offset) return false;
+        Len += t.Len;
+        return true;
+    }
 };
 
 // Per BYTE Taint structure
@@ -94,6 +100,7 @@ public:
     Taint&      operator|=(const Taint &rhs);
     Taint&      operator^=(const Taint &rhs);
     bool        operator==(const Taint &rhs) const;
+    bool        operator!=(const Taint &rhs) const;
 
     std::vector<TaintRegion> GenerateRegions() const;
 

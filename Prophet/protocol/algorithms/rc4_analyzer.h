@@ -29,7 +29,8 @@ private:
     void TestKeySchedule(const ProcContext &ctx, const MemRegion &region);
     void TestKeySchedule(const ProcContext &ctx, u32 sboxAddr);
     void TestRC4Crypt(const ProcContext &ctx, const MemRegion &region);
-    void TestRC4Crypt(const ProcContext &ctx, const MemRegion &input, const MemRegion &output);
+    void TestRC4Crypt(const ProcContext &ctx, const MemRegion &input, 
+        const MemRegion &output, const TaintRegion &tin);
 
 private:
     std::vector<RC4Context> m_contexts;

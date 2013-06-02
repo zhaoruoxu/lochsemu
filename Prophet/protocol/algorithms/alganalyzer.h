@@ -13,6 +13,7 @@ public:
     AdvAlgEngine(MessageManager *msgmgr, Message *msg, int minProcSize = 32);
     virtual ~AdvAlgEngine();
     virtual void OnProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
+    virtual void OnComplete() override;
 
     TaintEngine *   GetTaint() { return &m_taint; }
     const TaintEngine *GetTaint() const { return &m_taint; }
@@ -37,9 +38,11 @@ private:
 class AlgorithmAnalyzer {
 public:
     AlgorithmAnalyzer();
+    virtual ~AlgorithmAnalyzer() {}
     virtual void OnProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) {}
     virtual void OnOriginalProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) {}
     virtual void OnInputProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) {}
+    virtual void OnComplete() {}
 
     void SetAlgEngine(AdvAlgEngine *e) { m_algEngine = e; }
 protected:
