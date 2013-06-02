@@ -402,6 +402,7 @@ private:
     void        Rol32(u32 &a, u8 b);
     void        Rol8(u8 &a, u8 b);
     void        Ror8(u8 &a, u8 b);
+    void        Ror16(u16 &a, u8 b);
     void        Ror32(u32 &a, u8 b);
     void        SetByte(const Instruction *inst, bool cond);
     void        JumpRel8(const Instruction *inst);

@@ -20,6 +20,8 @@ void AdvAlgEngine::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx
 
     // TODO : ignore 1, 2 or 3 if not registered
 
+    ctx.Dump(StdOut(), true);
+
     // 1.
     for (int i = 0; i < m_count; i++)
         m_analyzers[i]->OnProcedure(event, ctx);
@@ -28,6 +30,7 @@ void AdvAlgEngine::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx
     m_taint.Reset();
     m_taint.TaintMemRegion(m_message->GetRegion());
     ProcContext pc = SingleProcExec::Run(event, ctx, &m_taint, 1);
+    
     for (int i = 0; i < m_count; i++)
         m_analyzers[i]->OnOriginalProcedure(event, pc);
 

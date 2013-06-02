@@ -24,6 +24,8 @@ public:
     void RunMessage(const Message *msg);
 
 private:
+    bool IsSpecialCallPop(ExecuteTraceEvent &event) const;
+private:
     const RunTrace &m_trace;
     static const int MaxAnalyzers = 16;
     TraceAnalyzer * m_workers[MaxAnalyzers];

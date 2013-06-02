@@ -142,7 +142,7 @@ void Processor::Ext_D1(const Instruction *inst)
 {
     static InstHandler handlers[] = {
         /* 0x0 */ &Processor::Rol_D1_ext0,
-        /* 0x1 */ &Processor::InstNotAvailable,
+        /* 0x1 */ &Processor::Ror_D1_ext1,
         /* 0x2 */ &Processor::Rcl_D1_ext2,
         /* 0x3 */ &Processor::InstNotAvailable,
         /* 0x4 */ &Processor::Shl_D1_ext4,

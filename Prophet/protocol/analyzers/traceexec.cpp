@@ -8,11 +8,21 @@ TraceExec::TraceExec(const RunTrace &t)
     Reset();
 }
 
+bool TraceExec::IsSpecialCallPop( ExecuteTraceEvent &event ) const
+{
+    if (m_prev == NULL) return false;
+    if (!Instruction::IsCall(m_prev->Inst)) return false;
+    if (!Instruction::IsPop(event.Context->Inst)) return false;
+    return true;
+}
+
 void TraceExec::OnExecuteTrace( ExecuteTraceEvent &event )
 {
+
+
     if (event.Seq == 0 || (m_prev && Instruction::IsCall(m_prev->Inst) && 
         !m_prev->HasExecFlag(LX_EXEC_WINAPI_CALL) && 
-        !m_prev->HasExecFlag(LX_EXEC_WINAPI_JMP)) )
+        !m_prev->HasExecFlag(LX_EXEC_WINAPI_JMP)) && !IsSpecialCallPop(event))
     {
         for (int i = 0; i < m_count; i++)
             m_workers[i]->OnProcBegin(event);

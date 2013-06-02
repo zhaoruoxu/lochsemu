@@ -29,11 +29,14 @@ public:
     const RunTrace &GetRunTrace() const { return m_tracer; }
     Protocol *      GetProtocol() { return m_protocol; }
     const Protocol *GetProtocol() const { return m_protocol; }
+    TaintEngine *   GetTaint() { return m_taint; }
+    const TaintEngine *GetTaint() const { return m_taint; }
 
     void            Serialize(Json::Value &root) const override;
     void            Deserialize(Json::Value &root) override;
 
 private:
+    TaintEngine *   m_taint;
     Protocol *      m_protocol;
     Message *       m_currRootMsg;
     RunTrace        m_tracer;

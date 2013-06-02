@@ -4,6 +4,7 @@
 #include "message.h"
 #include "protocol.h"
 #include "analyzers/msgtree.h"
+#include "taint/taintengine.h"
 
 MessageManager::MessageManager( Protocol *protocol )
     : m_protocol(protocol), m_tracer(protocol)
@@ -14,6 +15,7 @@ MessageManager::MessageManager( Protocol *protocol )
     m_autoShowMemory    = true;
     m_tracing           = false;
     m_currId = 0;
+    m_taint = new TaintEngine();
 }
 
 MessageManager::~MessageManager()
@@ -26,7 +28,7 @@ MessageManager::~MessageManager()
         SAFE_DELETE(msg);
     }
     m_messages.clear();
-
+    SAFE_DELETE(m_taint);
 }
 
 void MessageManager::Initialize()

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "message.h"
+#include "engine.h"
 
 #include "analyzers/procscope.h"
 #include "analyzers/traceexec.h"
@@ -56,6 +57,10 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
     TraceExec traceExe(trace);
     ProcScope procScope;
 
+    std::string dir = g_engine.GetArchiveDir() + g_engine.GetArchiveFileName() + "\\";
+    LxCreateDirectory(dir.c_str());
+    trace.Dump(File(dir + "trace_" + GetName() + ".txt", "w"));
+
     // Get Procedures
     traceExe.Add(&procScope);
     traceExe.RunMessage(this);
@@ -74,10 +79,14 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
     ParallelFieldDetector().RefineTree(*m_fieldTree);
     SanitizeRefiner().RefineTree(*m_fieldTree);
 
+    TaintEngine *taint = msgmgr->GetTaint();
+    taint->Reset();
+    taint->TaintRule_LoadMemory();
+    taint->TaintMemRegion(m_region);
     AdvAlgEngine alg(msgmgr, this, 32);
-    ProcExec procExe(&callStack, NULL);
+    ProcExec procExe(&callStack, taint);
     procExe.Add(&alg);
-    traceExe.Add(&callStack, &procExe);
+    traceExe.Add(taint, &callStack, &procExe);
     traceExe.RunMessage(this);
 }
 

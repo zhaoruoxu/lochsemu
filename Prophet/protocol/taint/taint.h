@@ -102,7 +102,7 @@ public:
     static Taint    FromBinString(const std::string &s);
 
 public:
-    static const int    Count = 16;
+    static const int    Count = 32;
     static const int    Width = 32 * Count;
 private:
     u32         m_data[Count];

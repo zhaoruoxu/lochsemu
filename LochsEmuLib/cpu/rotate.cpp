@@ -85,6 +85,17 @@ void Processor::Ror8(u8 &a, u8 b)
     a = r;
 }
 
+void Processor::Ror16(u16 &a, u8 b)
+{
+    b &= COUNT_MASK;
+    u16 r = (a >> b) | (a << (16-b));
+    if (MSB16(r)) CF = 1;
+    if (b == 1) {
+        OF = ((r >> 15) ^ ((r >> 14) & 1)) ? 1 : 0;
+    }
+    a = r;
+}
+
 void Processor::Ror32(u32 &a, u8 b)
 {
     b &= COUNT_MASK;
@@ -179,6 +190,21 @@ void Processor::Rol_D1_ext0(const Instruction *inst)
     }
 
     
+}
+
+void Processor::Ror_D1_ext1(const Instruction *inst)
+{
+    // ROR r/m32, 1
+    u32 offset;
+    if (inst->Main.Prefix.OperandSize) {
+        u16 val1 = ReadOperand16(inst, inst->Main.Argument1, &offset);
+        Ror16(val1, 1);
+        WriteOperand16(inst, inst->Main.Argument1, offset, val1);
+    } else {
+        u32 val1 = ReadOperand32(inst, inst->Main.Argument1, &offset);
+        Ror32(val1, 1);
+        WriteOperand32(inst, inst->Main.Argument1, offset, val1);
+    }
 }
 
 void Processor::Rcl_D1_ext2(const Instruction *inst)
