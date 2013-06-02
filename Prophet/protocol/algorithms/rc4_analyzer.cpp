@@ -80,10 +80,13 @@ void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &region )
                 ctx.Outputs.find(r.Addr + i)->second.Tnt)
             {
                 offset++;
+            } else {
+                offset = 0;
             }
-            if (offset == r.Len) {
+            if (offset == region.Len) {
                 // found match
-                TestRC4Crypt(ctx, region, MemRegion(r.Addr + i - r.Len + 1, region.Len), tRegions[0]);
+                //NOT_IMPLEMENTED();
+                TestRC4Crypt(ctx, region, MemRegion(r.Addr + i - offset + 1, offset), tRegions[0]);
             }
         }
     }
@@ -116,7 +119,7 @@ void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &input,
                 output.Addr + output.Len - 1);
             memcpy(rc4ctx.Sbox, sbox, SboxLength);
             m_algEngine->GetMessageManager()->EnqueueMessage(
-                submsg, ctx.EndSeq+1, m_algEngine->GetMessage()->GetTraceEnd());
+                submsg, ctx.EndSeq+1, parent->GetTraceEnd());
         }
         SAFE_DELETE_ARRAY(pt);
         SAFE_DELETE_ARRAY(ct);

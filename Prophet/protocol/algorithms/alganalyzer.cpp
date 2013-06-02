@@ -3,6 +3,7 @@
 
 #include "rc4_analyzer.h"
 #include "des_analyzer.h"
+#include "xor_analyzer.h"
 
 AdvAlgEngine::AdvAlgEngine( MessageManager *msgmgr, Message *msg, int minProcSize )
     : m_msgmgr(msgmgr), m_message(msg)
@@ -58,6 +59,7 @@ void AdvAlgEngine::RegisterAnalyzers()
 {
     RegisterAnalyzer(new RC4Analyzer());
     RegisterAnalyzer(new DESAnalyzer());
+    RegisterAnalyzer(new ChainedXorAnalyzer());
 }
 
 AdvAlgEngine::~AdvAlgEngine()

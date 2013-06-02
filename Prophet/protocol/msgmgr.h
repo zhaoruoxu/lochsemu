@@ -41,6 +41,7 @@ private:
     Message *       m_currRootMsg;
     RunTrace        m_tracer;
     bool            m_tracing;
+    bool            m_clearSubNodes;
 
     int             m_currId;
     std::vector<Message *>  m_messages;

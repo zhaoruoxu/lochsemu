@@ -352,6 +352,14 @@ MessageTreeNode * MessageTreeNode::GetChild( int n ) const
     return m_children[n];
 }
 
+void MessageTreeNode::ClearChildren()
+{
+    for (auto &ch : m_children) {
+        SAFE_DELETE(ch);
+    }
+    m_children.clear();
+}
+
 MessageTreeRefiner::MessageTreeRefiner()
 {
 

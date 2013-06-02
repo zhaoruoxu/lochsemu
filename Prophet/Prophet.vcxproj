@@ -233,6 +233,7 @@
     <ClInclude Include="protocol\algorithms\alganalyzer.h" />
     <ClInclude Include="protocol\algorithms\des_analyzer.h" />
     <ClInclude Include="protocol\algorithms\rc4_analyzer.h" />
+    <ClInclude Include="protocol\algorithms\xor_analyzer.h" />
     <ClInclude Include="protocol\analyzer.h" />
     <ClInclude Include="protocol\analyzers\callstack.h" />
     <ClInclude Include="protocol\analyzers\direction_field.h" />
@@ -318,6 +319,7 @@
     <ClCompile Include="protocol\algorithms\alganalyzer.cpp" />
     <ClCompile Include="protocol\algorithms\des_analyzer.cpp" />
     <ClCompile Include="protocol\algorithms\rc4_analyzer.cpp" />
+    <ClCompile Include="protocol\algorithms\xor_analyzer.cpp" />
     <ClCompile Include="protocol\analyzer.cpp" />
     <ClCompile Include="protocol\analyzers\callstack.cpp" />
     <ClCompile Include="protocol\analyzers\direction_field.cpp" />

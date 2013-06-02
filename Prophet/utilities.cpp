@@ -129,7 +129,7 @@ uint FileTimeHash( const char *path )
         lastWrite.dwLowDateTime;
 }
 
-int CompareByteArray( const pbyte l, const pbyte r, int n )
+int CompareByteArray( cpbyte l, cpbyte r, int n )
 {
     for (int i = 0; i < n; i++) {
         if (l[i] > r[i]) return 1;

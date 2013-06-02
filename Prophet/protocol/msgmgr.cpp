@@ -16,6 +16,7 @@ MessageManager::MessageManager( Protocol *protocol )
     m_tracing           = false;
     m_currId = 0;
     m_taint = new TaintEngine();
+    m_clearSubNodes = true;
 }
 
 MessageManager::~MessageManager()
@@ -89,6 +90,7 @@ void MessageManager::Serialize( Json::Value &root ) const
     root["break_on_message_begin"]  = m_breakOnMsgBegin;
     root["break_on_message_end"]    = m_breakOnMsgEnd;
     root["auto_show_memory"]        = m_autoShowMemory;
+    root["clear_sub_nodes"]         = m_clearSubNodes;
 
 //     Json::Value formatsyn;
 //     m_format.Serialize(formatsyn);
@@ -104,6 +106,7 @@ void MessageManager::Deserialize( Json::Value &root )
     m_breakOnMsgBegin   = root.get("break_on_message_begin", m_breakOnMsgBegin).asBool();
     m_breakOnMsgEnd     = root.get("break_on_message_end", m_breakOnMsgEnd).asBool();
     m_autoShowMemory    = root.get("auto_show_memory", m_autoShowMemory).asBool();
+    m_clearSubNodes = root.get("clear_sub_nodes", m_clearSubNodes).asBool();
 
 //     Json::Value formatsyn = root["format_synthesizer"];
 //     if (!formatsyn.isNull())
@@ -134,7 +137,7 @@ void MessageManager::Analyze()
         m_msgQueue.pop_front();
 
         if (msg->GetParent() != NULL) {
-            msg->GetParent()->Insert(msg);
+            msg->GetParent()->Insert(msg, m_clearSubNodes);
         } else {
             m_messages.push_back(msg);
         }

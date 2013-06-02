@@ -51,6 +51,7 @@ public:
     void    SetSubMessage(Message *msg) { m_submsg = msg; }
     Message *   GetSubMessage() const { return m_submsg; }
     MessageTreeNode *GetChild(int n) const;
+    void    ClearChildren();
 private:
     void    AppendChild(MessageTreeNode *node);
     void    SetFlag(NodeFlag f) { m_flag |= f; }

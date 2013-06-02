@@ -39,3 +39,19 @@ bool RC4_IsValidCrypt( pbyte S, const pbyte pt, const pbyte ct, int n )
     SAFE_DELETE_ARRAY(o);
     return valid;
 }
+
+void ChainedXor_Decrypt( cpbyte ct, pbyte pt, int len )
+{
+    pt[0] = ct[0];
+    for (int i = len - 1; i > 0; i--)
+        pt[i] = ct[i] ^ ct[i-1];
+}
+
+bool ChainedXor_IsValidDecrypt( cpbyte ct, cpbyte pt, int ctlen )
+{
+    pbyte t = new byte[ctlen];
+    ChainedXor_Decrypt(ct, t, ctlen);
+    bool r = CompareByteArray(pt, t, ctlen) == 0;
+    SAFE_DELETE_ARRAY(t);
+    return r;
+}

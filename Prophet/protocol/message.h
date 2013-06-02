@@ -77,7 +77,7 @@ public:
     void        DumpTree(File &f) const;
 
     void        Analyze(MessageManager *msgmgr, const RunTrace &trace);
-    void        Insert(Message *msg);
+    void        Insert(Message *msg, bool clearNode);
 
 private:
     int     m_id;

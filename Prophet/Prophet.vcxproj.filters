@@ -561,6 +561,9 @@
     <ClInclude Include="3rdparty\include\openssl\x509v3.h">
       <Filter>Header Files\3rdparty\openssl</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\algorithms\xor_analyzer.h">
+      <Filter>Header Files\protocol\algorithms</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -762,6 +765,9 @@
       <Filter>Source Files\protocol\analyzers</Filter>
     </ClCompile>
     <ClCompile Include="protocol\algorithms\des_analyzer.cpp">
+      <Filter>Source Files\protocol\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\algorithms\xor_analyzer.cpp">
       <Filter>Source Files\protocol\algorithms</Filter>
     </ClCompile>
   </ItemGroup>

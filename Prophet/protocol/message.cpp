@@ -75,9 +75,9 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
     m_fieldTree->Construct(m_accesslog, StackHashComparator());
     m_fieldTree->UpdateHistory(m_accesslog);
 
+    SanitizeRefiner().RefineTree(*m_fieldTree);
     TokenizeRefiner(this).RefineTree(*m_fieldTree);
     ParallelFieldDetector().RefineTree(*m_fieldTree);
-    SanitizeRefiner().RefineTree(*m_fieldTree);
 
     TaintEngine *taint = msgmgr->GetTaint();
     taint->Reset();
@@ -96,7 +96,7 @@ void Message::SetTraceRange( int beginIncl, int endIncl )
     m_traceEnd = endIncl;
 }
 
-void Message::Insert( Message *msg )
+void Message::Insert( Message *msg, bool clearNode )
 {
     MessageTreeNode *node = m_fieldTree->FindNode(msg->GetParentRegion());
     if (node == NULL) {
@@ -108,6 +108,10 @@ void Message::Insert( Message *msg )
     msg->m_name = name;
     node->SetSubMessage(msg);
     m_children.push_back(msg);
+
+    if (clearNode) {
+        node->ClearChildren();
+    }
 }
 
 void Message::SetID( int id )
@@ -146,7 +150,7 @@ void AlgTag::DumpDot( File &f ) const
     fprintf(f.Ptr(), "-- %s(%s) --\\l", AlgName.c_str(), Description.c_str());
     for (auto &p : Params) {
         fprintf(f.Ptr(), "[%x:%d] %s %s\\l", p->Mem.Addr, p->Mem.Len,
-            p->Type.c_str(), ByteArrayToDotString(p->Data, p->Mem.Len, 32).c_str());
+            p->Type.c_str(), ByteArrayToDotString(p->Data, p->Mem.Len, 16).c_str());
     }
     fprintf(f.Ptr(), "\"");
 }
