@@ -38,7 +38,13 @@ bool TokenizeRefiner::IsTokenChar( byte ch ) const
 bool TokenizeRefiner::CanConcatenate(const MessageTreeNode *l, 
                                      const MessageTreeNode *r ) const
 {
-    return l->IsLeaf() && r->IsLeaf() && 
-        IsTokenChar(m_msg->Get(l->m_r)) && 
-        IsTokenChar(m_msg->Get(r->m_l));
+//     return l->IsLeaf() && r->IsLeaf() && 
+//         IsTokenChar(m_msg->Get(l->m_r)) && 
+//         IsTokenChar(m_msg->Get(r->m_l));
+    if (!l->IsLeaf() || !r->IsLeaf()) return false;
+    for (int i = l->m_l; i <= l->m_r; i++)
+        if (!IsTokenChar(m_msg->Get(i))) return false;
+    for (int i = r->m_l; i <= r->m_r; i++)
+        if (!IsTokenChar(m_msg->Get(i))) return false;
+    return true;
 }

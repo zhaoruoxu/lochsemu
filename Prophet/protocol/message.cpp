@@ -73,6 +73,8 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
     traceExe.Add(&callStack, m_accesslog);
     traceExe.RunMessage(this);
 
+    m_accesslog->Dump(File(dir + "message_access_" + GetName() + ".txt", "w"));
+
     m_fieldTree = new MessageTree(this);
     m_fieldTree->Construct(m_accesslog, StackHashComparator());
     m_fieldTree->UpdateHistory(m_accesslog);
