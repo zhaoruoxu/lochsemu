@@ -4,6 +4,8 @@
 
 void ChainedXorAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
+    if (ctx.Level > 1) return;
+
     for (auto &input : ctx.InputRegions) {
         if (input.Len <= 4) continue;
         Taint tin = GetMemRegionTaintOr(ctx.Inputs, input);

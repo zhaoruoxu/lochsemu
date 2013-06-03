@@ -79,7 +79,7 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
     m_fieldTree->Construct(m_accesslog, StackHashComparator());
     m_fieldTree->UpdateHistory(m_accesslog);
 
-    SanitizeRefiner().RefineTree(*m_fieldTree);
+    //SanitizeRefiner().RefineTree(*m_fieldTree);
     TokenizeRefiner(this).RefineTree(*m_fieldTree);
     ParallelFieldDetector().RefineTree(*m_fieldTree);
 

@@ -11,6 +11,7 @@ void DESAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcConte
 {
     //ctx.Dump(StdOut(), true);
 
+    if (ctx.Level > 1) return;
     for (auto &input : ctx.InputRegions) {
         if (input.Len != BlockSize) continue;
         Taint tin = GetMemRegionTaintOr(ctx.Inputs, input);
@@ -30,6 +31,7 @@ void DESAnalyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext 
 {
     //ctx.Dump(StdOut(), true);
 
+    if (ctx.Level > 1) return;
     for (auto &input : ctx.InputRegions) {
         if (input.Len != KeySize) continue;
         Taint tin = GetMemRegionTaintOr(ctx.Inputs, input);

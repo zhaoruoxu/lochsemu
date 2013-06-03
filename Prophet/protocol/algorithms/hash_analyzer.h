@@ -15,7 +15,8 @@ public:
     static const int MDSize = 16;
 
 private:
-    void TestMD5(const ProcContext &ctx, const MemRegion &input, const MemRegion &output);
+    void TestMD5(const ProcContext &ctx, const MemRegion &input, 
+        const MemRegion &output, const TaintRegion &tr);
 };
  
 #endif // __PROPHET_PROTOCOL_ALGORITHMS_HASH_ANALYZER_H__

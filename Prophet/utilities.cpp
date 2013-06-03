@@ -235,7 +235,7 @@ std::string ByteArrayToDotString( cpbyte data, int n, int maxlen )
     std::stringstream ss;
     ss << "'";
     if (maxlen <= 0) maxlen = 0x7fffffff;
-    for (int i = 0; i < min(n, maxlen); i++) {
+    for (int i = 0; i < n; i++) {
         byte ch = data[i];
         if (ch == '\\') {
             ss << "\\\\";
@@ -246,6 +246,7 @@ std::string ByteArrayToDotString( cpbyte data, int n, int maxlen )
             sprintf(buf, "\\\\%02x", ch);
             ss << buf;
         }
+        if ((int) ss.str().size() > maxlen) break;
     }
     ss << "'";
     if (maxlen < n) {

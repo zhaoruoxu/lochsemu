@@ -28,7 +28,7 @@ void AdvAlgEngine::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx
         m_analyzers[i]->OnProcedure(event, ctx);
 
     // 2.
-    if (ctx.Level <= 1) {
+    if (ctx.Level <= 3) {
         m_taint.Reset();
         m_taint.TaintMemRegion(m_message->GetRegion());
         ProcContext pc = SingleProcExec::Run(event, ctx, &m_taint, 0);

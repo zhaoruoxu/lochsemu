@@ -45,9 +45,9 @@ void MessageTree::Construct( const MessageAccessLog *log, MessageAccessComparato
             //}
             Insert(currNode);
 
-//             if (!CheckValidity()) {
-//                 LxError("MessageTree validity check failed\n");
-//             }
+            //if (!CheckValidity()) {
+            //    LxError("MessageTree validity check failed\n");
+            //}
 
             currNode = new MessageTreeNode(curr->Offset, curr->Offset);
         }
@@ -57,7 +57,7 @@ void MessageTree::Construct( const MessageAccessLog *log, MessageAccessComparato
 
 #ifdef _DEBUG
     if (!CheckValidity()) {
-        LxError("MessageTree validity check failed\n");
+        LxFatal("MessageTree validity check failed\n");
     }
 #endif
 }
@@ -103,6 +103,12 @@ MessageTreeNode * MessageTree::FindNode( const MemRegion &r )
     int left = r.Addr - m_message->GetRegion().Addr;
     int right = left + r.Len - 1;
     MessageTreeNode *n = m_root;
+
+    m_root->Insert(new MessageTreeNode(left, right));
+    if (!CheckValidity()) {
+        LxFatal("Validity failed!\n");
+    }
+
     while (true) {
         Assert(n->m_l <= left && n->m_r >= right);
         if (n->m_l == left && n->m_r == right) return n;
@@ -175,11 +181,89 @@ void MessageTreeNode::Insert( MessageTreeNode *node )
         return;
     }
 
-    for (auto c : m_children) {
-        if (c->Contains(node)) {
-            c->Insert(node);        // found a child to insert into
+//     for (uint i = 0; i < m_children.size() - 1; i++) {
+//         MessageTreeNode *c = m_children[i];
+//         if (c->m_l == node->m_l && c->m_r > node->m_r) {
+//             c->m_r = node->m_r;
+//             m_children[i+1]->m_l = node->m_r + 1;
+//             delete node;
+//             return;
+//         }
+//     }
+
+    // check if node can be parent of several children
+    
+    for (uint i = 0; i < m_children.size(); i++) {
+        MessageTreeNode *c = m_children[i];
+        if (c->m_l == node->m_l && c->m_r == node->m_r) {
+            delete node;
             return;
         }
+    }
+
+    for (uint i = 0; i < m_children.size(); i++) {
+        if (m_children[i]->m_l > node->m_l) break;
+        if (m_children[i]->m_l != node->m_l) { continue; }
+        uint left = i;
+        for (uint j = i; j < m_children.size(); j++) {
+            if (m_children[j]->m_r > node->m_r) break;
+            if (m_children[j]->m_r != node->m_r) continue;
+            std::vector<MessageTreeNode *> newChildren;
+            for (uint k = 0; k < left; k++)
+                newChildren.push_back(m_children[k]);
+            for (uint k = left; k <= j; k++) {
+                m_children[k]->m_parent = node;
+                node->m_children.push_back(m_children[k]);
+            }
+            newChildren.push_back(node);
+            for (uint k = j + 1; k < m_children.size(); k++)
+                newChildren.push_back(m_children[k]);
+            m_children = newChildren;
+            return;
+        }
+        break;
+    }
+
+    for (uint i = 0; i < m_children.size(); i++) {
+        MessageTreeNode *c = m_children[i];
+        if (!c->Contains(node)) continue;
+        if (c->m_l == node->m_l && c->m_r == node->m_r) {
+            delete node;
+            return;
+        }
+        if (!c->IsLeaf() 
+            || (c->m_l < node->m_l && c->m_r > node->m_r)
+            ) {
+            c->Insert(node);
+            return;
+        }
+
+        std::vector<MessageTreeNode *> newChildren;
+        for (uint j = 0; j < i; j++)
+            newChildren.push_back(m_children[j]);
+        if (c->m_l < node->m_l) {
+            newChildren.push_back(new MessageTreeNode(c->m_l, node->m_l - 1, this));
+            c->m_l = node->m_l;
+        }
+        
+        newChildren.push_back(c);
+        if (c->m_r > node->m_r) {
+            newChildren.push_back(new MessageTreeNode(node->m_r + 1, c->m_r, this));
+            c->m_r = node->m_r;
+        }
+        for (uint j = i+1; j < m_children.size(); j++)
+            newChildren.push_back(m_children[j]);
+
+        Assert(newChildren.size() > m_children.size());
+
+        delete node;
+        
+        m_children = newChildren;
+        return;
+//         if (c->Contains(node)) {
+//             c->Insert(node);        // found a child to insert into
+//             return;
+//         }
     }
 
     // no big child, so insert to this
@@ -324,7 +408,7 @@ std::string MessageTreeNode::GetDotLabel( const Message *msg ) const
     //if (IsLeaf()) {
     strcat(buf, "\\n");
     return buf + ByteArrayToDotString(msg->GetRaw() + m_l, m_r - m_l + 1, 
-        IsLeaf() ? 12 : 8);
+        IsLeaf() ? 32 : 24);
     //} else {
     //    return buf;
     //}

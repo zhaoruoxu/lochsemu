@@ -6,6 +6,8 @@ void RC4Analyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcConte
 {
     //ctx.Dump(StdOut(), false);
 
+    if (ctx.Level > 1) return;
+
     if (m_contexts.empty()) return;
     for (auto &r : ctx.InputRegions) {
         TestRC4Crypt(ctx, r);
@@ -14,6 +16,8 @@ void RC4Analyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcConte
 
 void RC4Analyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
+    if (ctx.Level > 1) return;
+
     for (auto &region : ctx.OutputRegions) {
         TestKeySchedule(ctx, region);
     }
