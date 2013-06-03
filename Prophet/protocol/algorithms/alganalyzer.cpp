@@ -28,23 +28,27 @@ void AdvAlgEngine::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx
         m_analyzers[i]->OnProcedure(event, ctx);
 
     // 2.
-    m_taint.Reset();
-    m_taint.TaintMemRegion(m_message->GetRegion());
-    ProcContext pc = SingleProcExec::Run(event, ctx, &m_taint, 1);
-    
-    for (int i = 0; i < m_count; i++)
-        m_analyzers[i]->OnOriginalProcedure(event, pc);
+    if (ctx.Level <= 1) {
+        m_taint.Reset();
+        m_taint.TaintMemRegion(m_message->GetRegion());
+        ProcContext pc = SingleProcExec::Run(event, ctx, &m_taint, 0);
+
+        for (int i = 0; i < m_count; i++)
+            m_analyzers[i]->OnOriginalProcedure(event, pc);
+    }
 
     // 3.
-    m_taint.Reset();
-    //m_taint.TaintMemRegion(m_message->GetRegion());
-    for (auto &input : ctx.Inputs) {
-        if (!input.second.Tnt.IsAnyTainted())
-            m_taint.TaintByte(input.first);
+    if (ctx.Level <= 1) {
+        m_taint.Reset();
+        //m_taint.TaintMemRegion(m_message->GetRegion());
+        for (auto &input : ctx.Inputs) {
+            if (!input.second.Tnt.IsAnyTainted())
+                m_taint.TaintByte(input.first);
+        }
+        ProcContext pc = SingleProcExec::Run(event, ctx, &m_taint, 0);
+        for (int i = 0; i < m_count; i++)
+            m_analyzers[i]->OnInputProcedure(event, pc);
     }
-    pc = SingleProcExec::Run(event, ctx, &m_taint, 1);
-    for (int i = 0; i < m_count; i++)
-        m_analyzers[i]->OnInputProcedure(event, pc);
 }
 
 void AdvAlgEngine::RegisterAnalyzer( AlgorithmAnalyzer *a )

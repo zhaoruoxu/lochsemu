@@ -194,9 +194,10 @@ void SingleProcExec::OnExecuteTrace( ExecuteTraceEvent &event )
 //     if (m_maxDepth > 0) {
 //         LxWarning("SingleProcExec depth > 0 not supported\n");
 //     }
-    if (m_context.Level <= m_maxDepth) {
+//     
+    //if (m_context.Level <= m_maxDepth) {
         m_context.OnTrace(event, m_taint);
-    }
+    //}
 }
 
 std::vector<MemRegion> GenerateMemRegions( const ProcParameter &params )

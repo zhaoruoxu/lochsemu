@@ -4,13 +4,20 @@
 
 void MD5Analyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
-    
+    for (auto &output : ctx.OutputRegions) {
+        if (output.Len != 16) continue;
+        byte md[16];
+        FillMemRegionBytes(ctx.Outputs, output, md);
+        if (md[0] == 0x83 && md[1] == 0x3e && md[2] == 0x05) {
+            ctx.Dump(StdOut(), false);
+        }
+    }
+//     
 }
 
 void MD5Analyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
-    ctx.Dump(StdOut(), true);
-
+    //ctx.Dump(StdOut(), true);
     for (auto &input : ctx.InputRegions) {
         if (input.Len % 16 != 0) continue;
         Taint tin = GetMemRegionTaintOr(ctx.Inputs, input);
@@ -27,7 +34,7 @@ void MD5Analyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext 
 
 void MD5Analyzer::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
-    
+
 }
 
 void MD5Analyzer::TestMD5( const ProcContext &ctx, const MemRegion &input, const MemRegion &output )
