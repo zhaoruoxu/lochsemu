@@ -4,18 +4,6 @@
 
 void ChainedXorAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
-    
-}
-
-void ChainedXorAnalyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
-{
-    
-}
-
-void ChainedXorAnalyzer::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
-{
-    //ctx.Dump(StdOut(), true);
-
     for (auto &input : ctx.InputRegions) {
         if (input.Len <=4 ) continue;
         Taint tin = GetMemRegionTaintOr(ctx.Inputs, input);
@@ -24,7 +12,12 @@ void ChainedXorAnalyzer::OnProcedure( ExecuteTraceEvent &event, const ProcContex
         if (trs.size() != 1) continue;
 
         for (auto &output : ctx.OutputRegions) {
-            if (output.Len < input.Len - 1) continue;
+            if (output.Len < input.Len) continue;
+
+            if (input.Len == 29 || output.Len == 29) {
+                ctx.Dump(StdOut(), true);
+            }
+
             int offset = 0;
             for (int i = 0; i < (int) output.Len; i++) {
                 Taint t = ctx.Outputs.find(output.Addr + i)->second.Tnt;
@@ -48,6 +41,18 @@ void ChainedXorAnalyzer::OnProcedure( ExecuteTraceEvent &event, const ProcContex
     }
 }
 
+void ChainedXorAnalyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
+{
+
+
+}
+
+void ChainedXorAnalyzer::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
+{
+    //ctx.Dump(StdOut(), true);
+
+}
+
 void ChainedXorAnalyzer::TestCrypt( const ProcContext &ctx, const MemRegion &input, const MemRegion &output, const TaintRegion &tr )
 {
     pbyte ct = new byte[input.Len];
@@ -61,7 +66,7 @@ void ChainedXorAnalyzer::TestCrypt( const ProcContext &ctx, const MemRegion &inp
 
         Message *parent = m_algEngine->GetMessage();
         Message *msg = new Message(output, pt, parent,
-            parent->GetRegion().SubRegion(tr), tag);
+            parent->GetRegion().SubRegion(tr), tag, true);
         LxInfo("Chained-XOR sub-message: %08x-%08x\n",
             output.Addr, output.Addr + output.Len - 1);
         m_algEngine->GetMessageManager()->EnqueueMessage(msg, 

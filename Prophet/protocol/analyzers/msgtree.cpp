@@ -107,6 +107,7 @@ MessageTreeNode * MessageTree::FindNode( const MemRegion &r )
         Assert(n->m_l <= left && n->m_r >= right);
         if (n->m_l == left && n->m_r == right) return n;
         if (n->IsLeaf()) {
+            //return n;
             MessageTreeNode *newNode = new MessageTreeNode(left, right, n);
             n->Insert(newNode);
             return newNode;
@@ -120,7 +121,7 @@ MessageTreeNode * MessageTree::FindNode( const MemRegion &r )
                 break;
             }
         }
-        if (!found) { return NULL; }
+        if (!found) { return n; }
     }
 }
 
@@ -191,9 +192,14 @@ void MessageTreeNode::Insert( MessageTreeNode *node )
         }
         if (c->m_l < node->m_l) {
             // left-overlap
-            c->Insert(new MessageTreeNode(node->m_l, c->m_r));
-            newChildren.push_back(c);
-            node->m_l = c->m_r+1;
+//             if (c->IsLeaf()) {
+//                 c->m_l = node->m_l - 1;
+//                 newChildren.push_back(c);
+//             } else {
+                c->Insert(new MessageTreeNode(node->m_l, c->m_r));
+                newChildren.push_back(c);
+                node->m_l = c->m_r+1;
+/*            }*/
         } else if (c->m_r > node->m_r) {
             // right-overlap
             c->Insert(new MessageTreeNode(c->m_l, node->m_r));

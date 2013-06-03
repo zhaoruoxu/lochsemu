@@ -137,7 +137,7 @@ void MessageManager::Analyze()
         m_msgQueue.pop_front();
 
         if (msg->GetParent() != NULL) {
-            msg->GetParent()->Insert(msg, m_clearSubNodes);
+            msg->GetParent()->Insert(msg);
         } else {
             m_messages.push_back(msg);
         }

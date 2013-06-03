@@ -54,7 +54,13 @@ void RC4Analyzer::TestKeySchedule( const ProcContext &ctx, u32 sboxAddr )
             continue;
         RC4Context rc4ctx;
         if (rc4ctx.TryKeySchedule(ctx, key, MemRegion(sboxAddr, 256))) {
-            m_contexts.push_back(rc4ctx);
+            bool exist = false;
+            for (auto &c : m_contexts) {
+                if (c.KeyRegion == rc4ctx.KeyRegion && c.SboxRegion == rc4ctx.SboxRegion)
+                    exist = true;
+            }
+            if (!exist)
+                m_contexts.push_back(rc4ctx);
             LxInfo("RC4_KeySchedule: Key[%08x-%08x] Sbox[%08x-%08x]\n",
                 key.Addr, key.Addr + key.Len - 1, sboxAddr, sboxAddr + 255);
         }
@@ -114,7 +120,7 @@ void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &input,
 
             Message *parent = m_algEngine->GetMessage();
             Message *submsg = new Message(output, ct, parent,
-                parent->GetRegion().SubRegion(tin), tag);
+                parent->GetRegion().SubRegion(tin), tag, true);
             LxInfo("RC4 sub-message: [%08x-%08x]\n", output.Addr, 
                 output.Addr + output.Len - 1);
             memcpy(rc4ctx.Sbox, sbox, SboxLength);

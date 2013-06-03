@@ -124,7 +124,7 @@ void DESAnalyzer::OnComplete()
         Message *parent = m_algEngine->GetMessage();
         Message *msg = new Message(crypt->OutputRegion, 
             crypt->Output.Get(), parent, 
-            parent->GetRegion().SubRegion(crypt->MsgRegion), tag);
+            parent->GetRegion().SubRegion(crypt->MsgRegion), tag, true);
         LxInfo("DES sub-message: [%08x-%08x]\n", msg->GetRegion().Addr,
             msg->GetRegion().Addr + msg->GetRegion().Len - 1);
         m_algEngine->GetMessageManager()->EnqueueMessage(msg, crypt->BeginSeq, crypt->EndSeq);

@@ -54,7 +54,7 @@ class Message {
 public:
     //Message(u32 addr, int len);
     Message(const MemRegion &r, cpbyte data);
-    Message(const MemRegion &r, cpbyte data, Message *parent, const MemRegion &pr, AlgTag *tag);
+    Message(const MemRegion &r, cpbyte data, Message *parent, const MemRegion &pr, AlgTag *tag, bool clearNode);
     virtual ~Message();
 
     int         Size() const { return (int) m_region.Len; }
@@ -77,7 +77,7 @@ public:
     void        DumpTree(File &f) const;
 
     void        Analyze(MessageManager *msgmgr, const RunTrace &trace);
-    void        Insert(Message *msg, bool clearNode);
+    void        Insert(Message *msg);
 
 private:
     int     m_id;
@@ -91,6 +91,7 @@ private:
     MessageAccessLog *m_accesslog;
     MessageTree     *m_fieldTree;
     AlgTag *        m_tag;
+    bool    m_clearNode;
 };
 
 #endif // __PROPHET_PROTOCOL_MESSAGE_H__

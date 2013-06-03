@@ -27,10 +27,11 @@ Message::Message(const MemRegion &r, cpbyte data )
     memcpy(m_data, data, m_region.Len);
     m_name = "t";
     m_tag = NULL;
+    m_clearNode = false;
 }
 
 Message::Message(const MemRegion &r, cpbyte data, Message *parent, 
-                 const MemRegion &pr, AlgTag *tag )
+                 const MemRegion &pr, AlgTag *tag, bool clearNode )
     : m_region(r), m_parent(parent), m_parentRegion(pr)
 {
     m_id = -1;
@@ -38,6 +39,7 @@ Message::Message(const MemRegion &r, cpbyte data, Message *parent,
     m_data = new byte[m_region.Len];
     memcpy(m_data, data, m_region.Len);
     m_tag = tag;
+    m_clearNode = clearNode;
 }
 
 Message::~Message()
@@ -96,7 +98,7 @@ void Message::SetTraceRange( int beginIncl, int endIncl )
     m_traceEnd = endIncl;
 }
 
-void Message::Insert( Message *msg, bool clearNode )
+void Message::Insert( Message *msg )
 {
     MessageTreeNode *node = m_fieldTree->FindNode(msg->GetParentRegion());
     if (node == NULL) {
@@ -109,7 +111,7 @@ void Message::Insert( Message *msg, bool clearNode )
     node->SetSubMessage(msg);
     m_children.push_back(msg);
 
-    if (clearNode) {
+    if (msg->m_clearNode) {
         node->ClearChildren();
     }
 }

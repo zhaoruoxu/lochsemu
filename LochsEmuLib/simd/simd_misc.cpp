@@ -118,14 +118,18 @@ void Processor::Pcmpistri_660F3A63(const Instruction *inst)
 {
     // PCMPISTRI
     byte imm = (byte) inst->Main.Inst.Immediat;
-    if (imm != 0x0d) {
-        NOT_IMPLEMENTED();
-    }
     u128 val1 = ReadOperand128(inst, inst->Main.Argument1, NULL);
     u128 val2 = ReadOperand128(inst, inst->Main.Argument2, NULL);
     __m128i a = *((__m128i *) &val1);
     __m128i b = *((__m128i *) &val2);
-    ECX = _mm_cmpistri(a, b, 0x0d);
+    switch (imm) {
+    case 0x0c:
+        ECX = _mm_cmpistri(a, b, 0x0c); break;
+    case 0x0d:
+        ECX = _mm_cmpistri(a, b, 0x0d); break;
+    default:
+        LxFatal("Pcmpistri, immediate=%02x\n", imm);
+    }
 }
 
 END_NAMESPACE_LOCHSEMU()
