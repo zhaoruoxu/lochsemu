@@ -464,6 +464,15 @@ uint Kernel32_GetConsoleMode(Processor *cpu)
     RET_PARAMS(2);
 }
 
+uint Kernel32_GetComputerNameA(Processor *cpu)
+{
+    RET_VALUE = (u32) GetComputerNameA(
+        (LPSTR)     PARAM_PTR(0),
+        (LPDWORD)   PARAM_PTR(1)
+        );
+    RET_PARAMS(2);
+}
+
 uint Kernel32_GetCurrentDirectoryW(Processor *cpu)
 {
 	RET_VALUE = (u32) GetCurrentDirectoryW(

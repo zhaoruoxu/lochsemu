@@ -38,13 +38,6 @@ void ChainedXorAnalyzer::OnProcedure( ExecuteTraceEvent &event, const ProcContex
                     else
                         offset = 0;
                 }
-                
-//                 if ((offset == 0 && (t == s1)) ||
-//                     ) {
-//                     offset++;
-//                 } else {
-//                     offset = 0;
-//                 }
                 if (offset == input.Len) {
                     TestCrypt(ctx, input, MemRegion(output.Addr + i - offset + 1, offset),
                         trs[0]);

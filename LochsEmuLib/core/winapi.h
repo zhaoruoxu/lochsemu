@@ -113,6 +113,7 @@ DECLARE_WINAPI_ENTRY(Kernel32_GetCommandLineA);
 DECLARE_WINAPI_ENTRY(Kernel32_GetCommandLineW);
 DECLARE_WINAPI_ENTRY(Kernel32_GetConsoleCP);
 DECLARE_WINAPI_ENTRY(Kernel32_GetConsoleMode);
+DECLARE_WINAPI_ENTRY(Kernel32_GetComputerNameA);
 DECLARE_WINAPI_ENTRY(Kernel32_GetCurrentDirectoryW);
 //DECLARE_WINAPI_ENTRY(Kernel32_GetCurrentPackageId);
 DECLARE_WINAPI_ENTRY(Kernel32_GetCurrentProcess);

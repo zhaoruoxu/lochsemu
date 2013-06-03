@@ -77,6 +77,7 @@ WinAPIInfo WinAPIInfoTable[] = {
     { 01, 0, "GetConsoleMode", Kernel32_GetConsoleMode },
     { 01, 0, "GetCommandLineA", Kernel32_GetCommandLineA },
     { 01, 0, "GetCommandLineW", Kernel32_GetCommandLineW },
+    { 01, 0, "GetComputerNameA", Kernel32_GetComputerNameA },
 	{ 01, 0, "GetCurrentDirectoryW", Kernel32_GetCurrentDirectoryW },
     //{ 01, 0, "GetCurrentPackageId", Kernel32_GetCurrentPackageId },
     { 01, 0, "GetCurrentProcess", Kernel32_GetCurrentProcess },

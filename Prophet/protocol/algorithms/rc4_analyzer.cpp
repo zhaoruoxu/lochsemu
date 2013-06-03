@@ -85,8 +85,8 @@ void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &region )
             }
             if (offset == region.Len) {
                 // found match
-                //NOT_IMPLEMENTED();
                 TestRC4Crypt(ctx, region, MemRegion(r.Addr + i - offset + 1, offset), tRegions[0]);
+                break;
             }
         }
     }

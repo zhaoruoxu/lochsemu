@@ -106,11 +106,15 @@ MessageTreeNode * MessageTree::FindNode( const MemRegion &r )
     while (true) {
         Assert(n->m_l <= left && n->m_r >= right);
         if (n->m_l == left && n->m_r == right) return n;
-        if (n->IsLeaf()) return NULL;
+        if (n->IsLeaf()) {
+            MessageTreeNode *newNode = new MessageTreeNode(left, right, n);
+            n->Insert(newNode);
+            return newNode;
+        }
 
         bool found = false;
-        for (auto &ch : n->m_children) {
-            if (ch->m_l >= left && ch->m_r <= right) {
+        for (MessageTreeNode *ch : n->m_children) {
+            if (ch->m_l <= left && ch->m_r >= right) {
                 n = ch;
                 found =  true;
                 break;
@@ -262,10 +266,6 @@ void MessageTreeNode::DumpDot( File &f, const Message *msg ) const
 {
     fprintf(f.Ptr(), "%s [label=\"%s\",%s];\n", GetDotName(msg).c_str(), 
         GetDotLabel(msg).c_str(), GetDotStyle(msg).c_str());
-//     fprintf(f.Ptr(), "%s [shape=%s,label=\"%s\"%s];\n", GetDotNodeName(msg).c_str(), 
-//         m_children.size() > 0 ? "box" : "ellipse", GetMsgContent(msg).c_str(),
-//         HasFlag(TREENODE_PARALLEL) ? ",color=blue,style=bold" : "");
-
     std::string nodeName = GetDotName(msg);
     for (auto &c : m_children) {
         c->DumpDot(f, msg);
@@ -274,12 +274,12 @@ void MessageTreeNode::DumpDot( File &f, const Message *msg ) const
 
     if (m_submsg != NULL) {
         std::string tagName = m_submsg->GetName() + "_tag";
-        fprintf(f.Ptr(), "%s [shape=box,color=purple,style=filled,fontcolor=white,label=", tagName.c_str());
+        fprintf(f.Ptr(), "%s [shape=box,color=blueviolet,style=filled,fontcolor=white,label=", tagName.c_str());
         m_submsg->GetTag()->DumpDot(f);
         fprintf(f.Ptr(), "];\n");
-        fprintf(f.Ptr(), "%s -> %s [color=purple];\n", nodeName.c_str(), tagName.c_str());
+        fprintf(f.Ptr(), "%s -> %s;\n", nodeName.c_str(), tagName.c_str());
         m_submsg->GetTree()->DumpDot(f, false);
-        fprintf(f.Ptr(), "%s -> %s [color=purple];\n", tagName.c_str(), 
+        fprintf(f.Ptr(), "%s -> %s;\n", tagName.c_str(), 
             m_submsg->GetTree()->GetRoot()->GetDotName(m_submsg).c_str());
     }
 }
@@ -316,8 +316,9 @@ std::string MessageTreeNode::GetDotLabel( const Message *msg ) const
     sprintf(buf, "%s[%x:%d]", this == msg->GetTree()->GetRoot() ? "Root " : "",
         msg->GetRegion().Addr + m_l, m_r - m_l + 1);
     //if (IsLeaf()) {
-        strcat(buf, "\\n");
-        return buf + ByteArrayToDotString(msg->GetRaw() + m_l, m_r - m_l + 1, 64);
+    strcat(buf, "\\n");
+    return buf + ByteArrayToDotString(msg->GetRaw() + m_l, m_r - m_l + 1, 
+        IsLeaf() ? 12 : 8);
     //} else {
     //    return buf;
     //}

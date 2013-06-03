@@ -239,7 +239,7 @@ std::string ByteArrayToDotString( cpbyte data, int n, int maxlen )
         byte ch = data[i];
         if (ch == '\\') {
             ss << "\\\\";
-        } else if (isprint(ch)) {
+        } else if (0x2b <= ch && ch <= 0x7f) {
             ss << ch;
         } else {
             char buf[8];
