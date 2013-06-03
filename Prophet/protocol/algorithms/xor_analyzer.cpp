@@ -5,7 +5,7 @@
 void ChainedXorAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
     for (auto &input : ctx.InputRegions) {
-        if (input.Len <=4 ) continue;
+        if (input.Len <= 4) continue;
         Taint tin = GetMemRegionTaintOr(ctx.Inputs, input);
         if (!tin.IsAnyTainted()) continue;
         auto trs = tin.GenerateRegions();
@@ -14,9 +14,9 @@ void ChainedXorAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const Pr
         for (auto &output : ctx.OutputRegions) {
             if (output.Len < input.Len) continue;
 
-            if (input.Len == 29 || output.Len == 29) {
-                ctx.Dump(StdOut(), true);
-            }
+//             if (input.Len == 29 || output.Len == 29) {
+//                 ctx.Dump(StdOut(), true);
+//             }
 
             int offset = 0;
             for (int i = 0; i < (int) output.Len; i++) {
