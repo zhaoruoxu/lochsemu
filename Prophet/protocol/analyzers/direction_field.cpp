@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "direction_field.h"
-#include "instruction.h"
-#include "engine.h"
 #include "protocol/msgmgr.h"
+#include "msgtree.h"
+#include "protocol/taint/taintengine.h"
 
 /*
  * 1) 寻址寄存器被Taint；访问的内存被Taint
@@ -114,3 +114,86 @@
 // {
 //     m_inloop.clear();
 // }
+
+DirectionField::DirectionField( Message *msg, TaintEngine *taint )
+{
+    m_message = msg;
+    m_taint = taint;
+}
+
+DirectionField::~DirectionField()
+{
+
+}
+
+void DirectionField::Reset()
+{
+
+}
+
+void DirectionField::OnExecuteTrace( ExecuteTraceEvent &event )
+{
+    const TContext *ctx = event.Context;
+    pbyte p = (pbyte) &ctx->Mr.Val;
+    for (u32 i = 0; i < ctx->Mr.Len; i++) {
+        u32 addr = ctx->Mr.Addr + i;
+        if (m_message->GetRegion().Contains(addr)) {
+            m_currentNode = m_message->GetTree()->FindNode(addr);
+        }
+    }
+
+    if (IsMemoryArg(ctx->Inst->Main.Argument1) && ctx->Inst->Main.Inst.Opcode != 0x8d) {
+        Taint t = m_taint->GetTaintAddressingReg(ctx, ctx->Inst->Main.Argument1)[0];
+        if (!t.IsAnyTainted()) return;
+        auto trs = t.GenerateRegions();
+        for (auto &tr : trs) {
+            if (tr.Len > 4 /*|| tr.Len == 1*/) continue;
+            if (tr.Len + tr.Offset > m_currentNode->L()) continue;
+            LxInfo("[%d-%d] -> [%d-%d]\n", tr.Offset, tr.Offset + tr.Len - 1,
+                m_currentNode->L(), m_currentNode->R());
+            Analyze(tr, m_currentNode);
+        }
+    }
+
+//     if (m_currentNode && Instruction::IsCmpOrTest(ctx->Inst)) {
+//         Taint t1 = m_taint->GetTaintShrink(ctx, ctx->Inst->Main.Argument1);
+//         if (!t1.IsAnyTainted()) return;
+//         auto trs = t1.GenerateRegions();
+//         for (auto &tr : trs) {
+//             if (tr.Len > 4) continue;
+//             LxInfo("[%d-%d] -> [%d-%d]\n", tr.Offset, tr.Offset + tr.Len - 1,
+//                 m_currentNode->L(), m_currentNode->R());
+//         }
+//     }
+}
+
+void DirectionField::OnComplete()
+{
+
+}
+
+void DirectionField::Analyze( const TaintRegion &tr, MessageTreeNode *node )
+{
+    MessageTreeNode *from = m_message->GetTree()->FindOrCreateNode(tr);
+    if (from == NULL) return;
+
+    auto iter = m_discovered.find(from);
+    if (iter != m_discovered.end() && iter->second == node) return;
+
+    if (tr.Len == 4) {
+        int val = ((int *) (m_message->GetRaw() + tr.Offset))[0];
+        if (val >= 0 && val < m_message->Size()) {
+            while (node->GetParent() && node->Length() < val) {
+                node = node->GetParent();
+            }
+        }
+    }
+
+    auto iter1 = m_discovered.find(from);
+    if (iter1 != m_discovered.end() && iter1->second == node) return;
+
+    from->AddLink(NodeLink(node, m_message, "Len", "forward"));
+    LxInfo("Length linked added: %d-%d -> %d-%d\n", tr.Offset, tr.Offset + tr.Len - 1,
+        node->L(), node->R());
+    m_discovered[from] = node;
+}

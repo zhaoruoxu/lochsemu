@@ -185,22 +185,22 @@ Taint1 TaintEngine::GetTestedFlagTaint( const TContext *ctx, const Instruction *
     return Taint1();
 }
 
-Taint1 TaintEngine::GetTaintShrink( const TContext *ctx, const ARGTYPE &oper )
+Taint TaintEngine::GetTaintShrink( const TContext *ctx, const ARGTYPE &oper )
 {
     switch (oper.ArgSize) {
     case 32:
-        return Shrink<4>(GetTaint<4>(ctx, oper));
+        return Shrink<4>(GetTaint<4>(ctx, oper))[0];
     case 8:
-        return GetTaint<1>(ctx, oper);
+        return GetTaint<1>(ctx, oper)[0];
     case 16:
-        return Shrink<2>(GetTaint<2>(ctx, oper));
+        return Shrink<2>(GetTaint<2>(ctx, oper))[0];
     case 128:
-        return Shrink<16>(GetTaint16(ctx, oper));
+        return Shrink<16>(GetTaint16(ctx, oper))[0];
     case 64:
-        return Shrink<8>(GetTaint8(ctx, oper));
+        return Shrink<8>(GetTaint8(ctx, oper))[0];
     default:
         LxFatal("wtf\n");
-        return Taint1();
+        return Taint();
     }
 }
 

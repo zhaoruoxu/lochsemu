@@ -75,8 +75,10 @@ public:
     //const MessageTree *GetTree() const { return m_fieldTree; }
     AlgTag *    GetTag() const { return m_tag; }
     void        DumpTree(File &f) const;
+    bool        SearchData(cpbyte p, int len, MemRegion &r);
 
     void        Analyze(MessageManager *msgmgr, const RunTrace &trace);
+    void        AnalyzeAll(MessageManager *msgmgr, const RunTrace &trace);
     void        Insert(Message *msg);
 
 private:

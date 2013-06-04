@@ -4,34 +4,23 @@
 #define __PROPHET_PROTOCOL_ANALYZERS_DIRECTION_FIELD_H__
  
 #include "protocol/analyzer.h"
-#include "instruction.h"
 
-/*
-class DirectionField : public ProtocolAnalyzer {
+class DirectionField : public TraceAnalyzer {
 public:
-    DirectionField(Protocol *protocol);
+    DirectionField(Message *msg, TaintEngine *taint);
+    virtual ~DirectionField();
 
-    void    Initialize() override;
-    void    OnPreExecute(PreExecuteEvent &event) override;
-    void    OnMessageBegin(MessageBeginEvent &event) override;
-    void    OnMessageEnd(MessageEndEvent &event) override;
-
-    void    Serialize(Json::Value &root) const override;
-    void    Deserialize(Json::Value &root) override;
+    void Reset() override;
+    void OnExecuteTrace(ExecuteTraceEvent &event) override;
+    void OnComplete() override;
 
 private:
-    bool    CheckMemoryLength(PreExecuteEvent &event, const ARGTYPE &arg);
-    void    CheckFlag(PreExecuteEvent &event);
-
+    void Analyze(const TaintRegion &tr, MessageTreeNode *node);
 private:
-    Disassembler *      m_disasm;
-    //TaintEngine *       m_taint;
-    MessageManager *    m_msgmgr;
-
-    std::unordered_set<u32>     m_inloop;
-
-    bool                m_useFlag;
+    TaintEngine *m_taint;
+    Message *m_message;
+    MessageTreeNode *m_currentNode;
+    std::map<MessageTreeNode *, MessageTreeNode *> m_discovered;
 };
-*/
  
 #endif // __PROPHET_PROTOCOL_ANALYZERS_DIRECTION_FIELD_H__

@@ -69,10 +69,10 @@ void MessageManager::OnMessageEnd( MessageEndEvent &event )
 
     int nTraces = m_tracer.Count();
     EnqueueMessage(m_currRootMsg, 0, nTraces-1);
-    m_currRootMsg = NULL;
 
     Analyze();
 
+    m_currRootMsg = NULL;
     m_tracer.End();
     m_tracing = false;
     LxInfo("Finished %d run-traces\n", nTraces);
@@ -145,6 +145,12 @@ void MessageManager::Analyze()
         msg->Analyze(this, m_tracer);
     }
 
+    if (m_currRootMsg) {
+        m_currRootMsg->AnalyzeAll(this, m_tracer);
+    }
+//     for (auto &msg : m_messages) {
+//         msg->AnalyzeAll(this, m_tracer);
+//     }
 }
 
 void MessageManager::GenerateOutput()

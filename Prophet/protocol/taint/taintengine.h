@@ -66,7 +66,7 @@ public:
     void        Reset() override;
 
     Taint1      GetTaintAddressingReg(const TContext *t, const ARGTYPE &oper) const;
-    Taint1      GetTaintShrink(const TContext *t, const ARGTYPE &oper);
+    Taint       GetTaintShrink(const TContext *t, const ARGTYPE &oper);
     Taint1      GetTestedFlagTaint(const TContext *t, const Instruction *inst) const;
     //void        TaintMemoryRanged(u32 addr, u32 len, bool taintAllBits);
 

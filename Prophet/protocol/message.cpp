@@ -13,6 +13,7 @@
 #include "analyzers/tokenize_refiner.h"
 #include "analyzers/parallel_detector.h"
 #include "analyzers/sanitize_refiner.h"
+#include "analyzers/direction_field.h"
 
 const char *FieldFormatName[] = {
     "unknown", "separator", "keyword", "length", "fixed_length", "var_length", NULL
@@ -92,6 +93,38 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
     procExe.Add(&alg);
     traceExe.Add(taint, &callStack, &procExe);
     traceExe.RunMessage(this);
+
+    if (m_parent != NULL) {
+        MemRegion parentData;
+        if (m_parent->SearchData(m_data, m_region.Len, parentData)) {
+            MessageTreeNode *node = m_parent->GetTree()->FindOrCreateNode(parentData);
+            if (node) {
+                node->AddLink(NodeLink(
+                    m_fieldTree->GetRoot(), this, m_tag ? m_tag->AlgName.c_str() : "", "both"
+                    ));
+                LxInfo("link added %08x-%d\n", parentData.Addr, parentData.Len);
+            }
+        }
+    }
+    LxInfo("Message %s Analysis Complete\n", GetName().c_str());
+}
+
+void Message::AnalyzeAll( MessageManager *msgmgr, const RunTrace &trace )
+{
+    TraceExec traceExe(trace);
+    TaintEngine *taint = msgmgr->GetTaint();
+
+    taint->Reset();
+    taint->TaintRule_LoadDefault();
+    taint->TaintMemRegion(m_region);
+    DirectionField df(this, taint);
+    traceExe.Add(taint, &df);
+    traceExe.RunMessage(this);
+    LxInfo("Post-analyzing Message %s complate\n", GetName().c_str());
+
+    for (auto &msg : m_children) {
+        msg->AnalyzeAll(msgmgr, trace);
+    }
 }
 
 void Message::SetTraceRange( int beginIncl, int endIncl )
@@ -105,7 +138,7 @@ void Message::Insert( Message *msg )
 //     if (msg->Size() == 50) {
 //         LxInfo("debug\n");
 //     }
-    MessageTreeNode *node = m_fieldTree->FindNode(msg->GetParentRegion());
+    MessageTreeNode *node = m_fieldTree->FindOrCreateNode(msg->GetParentRegion());
     if (node == NULL) {
         LxError("Cannot insert sub-message into message\n");
         return;
@@ -113,7 +146,7 @@ void Message::Insert( Message *msg )
 
     if (node->Length() > msg->Size() && msg->m_clearNode) {
         node->ClearChildren();
-        node = m_fieldTree->FindNode(msg->GetParentRegion());
+        node = m_fieldTree->FindOrCreateNode(msg->GetParentRegion());
     }
 
     char name[64];
@@ -141,6 +174,18 @@ void Message::DumpTree( File &f ) const
     for (auto &ch : m_children) {
         ch->DumpTree(f);
     }
+}
+
+bool Message::SearchData( cpbyte p, int len, MemRegion &r )
+{
+    for (int i = 0; i < (int) (m_region.Len - len + 1); i++) {
+        if (CompareByteArray(p, m_data + i, len) == 0) {
+            r.Addr = m_region.Addr + i;
+            r.Len = len;
+            return true;
+        }
+    }
+    return false;
 }
 
 AlgTag::AlgTag( const std::string &name, const std::string &desc )

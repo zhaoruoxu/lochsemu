@@ -39,15 +39,15 @@ void MessageTree::Construct( const MessageAccessLog *log, MessageAccessComparato
         if (curr->Offset == prev->Offset+1 && cmp.Equals(curr, prev)) {
             currNode->m_r++;
         } else {
-            LxInfo("inserting [%d,%d]\n", currNode->m_l, currNode->m_r);
+            //LxInfo("inserting [%d,%d]\n", currNode->m_l, currNode->m_r);
             //if (currNode->m_l == 60 && currNode->m_r == 66) {
             //    LxDebug("debug\n");
             //}
             Insert(currNode);
 
-            if (!CheckValidity()) {
-                LxFatal("MessageTree validity check failed\n");
-            }
+//             if (!CheckValidity()) {
+//                 LxFatal("MessageTree validity check failed\n");
+//             }
 
             currNode = new MessageTreeNode(curr->Offset, curr->Offset);
         }
@@ -96,18 +96,42 @@ void MessageTree::UpdateHistory( const MessageAccessLog *t )
     m_root->UpdateHistory(t);
 }
 
-MessageTreeNode * MessageTree::FindNode( const MemRegion &r )
+MessageTreeNode * MessageTree::FindOrCreateNode( const MemRegion &r )
 {
-    Assert(m_message->GetRegion().Contains(r));
+    return FindOrCreateNode(TaintRegion(r.Addr - m_message->GetRegion().Addr, r.Len));
+//     int left = r.Addr - m_message->GetRegion().Addr;
+//     int right = left + r.Len - 1;
+// 
+//     m_root->Insert(new MessageTreeNode(left, right));
+//     if (!CheckValidity()) {
+//         LxFatal("Validity failed!\n");
+//     }
+// 
+//     return DoFindNode(r);
+}
 
-    int left = r.Addr - m_message->GetRegion().Addr;
-    int right = left + r.Len - 1;
-    MessageTreeNode *n = m_root;
-
+MessageTreeNode * MessageTree::FindOrCreateNode( const TaintRegion &tr )
+{
+    int left = tr.Offset, right = tr.Offset + tr.Len - 1;
     m_root->Insert(new MessageTreeNode(left, right));
     if (!CheckValidity()) {
         LxFatal("Validity failed!\n");
     }
+
+    return DoFindNode(tr);
+}
+
+MessageTreeNode * MessageTree::DoFindNode( const MemRegion &r ) const
+{
+    Assert(m_message->GetRegion().Contains(r));
+    return DoFindNode(TaintRegion(r.Addr - m_message->GetRegion().Addr, r.Len));
+}
+
+MessageTreeNode * MessageTree::DoFindNode( const TaintRegion &tr ) const
+{
+    int left = tr.Offset;
+    int right = tr.Offset + tr.Len - 1;
+    MessageTreeNode *n = m_root;
 
     while (true) {
         Assert(n->m_l <= left && n->m_r >= right);
@@ -128,6 +152,40 @@ MessageTreeNode * MessageTree::FindNode( const MemRegion &r )
             }
         }
         if (!found) { return n; }
+    }
+}
+
+MessageTreeNode * MessageTree::FindNode( u32 addr ) const
+{
+    int offset = addr - m_message->GetRegion().Addr;
+    MessageTreeNode *n = m_root;
+    while (!n->IsLeaf()) {
+        Assert(n->m_l <= offset && n->m_r >= offset);
+        for (auto &ch : n->m_children) {
+            if (ch->Contains(offset, offset)) {
+                n = ch;
+                break;
+            }
+        }
+    }
+    return n;
+}
+
+MessageTreeNode * MessageTree::FindNode( const TaintRegion &tr ) const
+{
+    int l = tr.Offset, r = tr.Offset + tr.Len - 1;
+    MessageTreeNode *n = m_root;
+    while (true) {
+        Assert(n->m_l <= l && n->m_r >= r);
+        if (n->m_l == l && n->m_r == r) return n;
+        bool found = false;
+        for (auto &ch : n->m_children) {
+            if (ch->m_l <= l && ch->m_r >= r) {
+                n = ch; found = true;
+                break;
+            }
+        }
+        if (!found) return NULL;
     }
 }
 
@@ -366,9 +424,20 @@ void MessageTreeNode::DumpDot( File &f, const Message *msg ) const
     fprintf(f.Ptr(), "%s [label=\"%s\",%s];\n", GetDotName(msg).c_str(), 
         GetDotLabel(msg).c_str(), GetDotStyle(msg).c_str());
     std::string nodeName = GetDotName(msg);
-    for (auto &c : m_children) {
-        c->DumpDot(f, msg);
-        fprintf(f.Ptr(), "%s -> %s;\n", nodeName.c_str(), c->GetDotName(msg).c_str());
+
+    if (!IsLeaf()) {
+        fprintf(f.Ptr(), "{ rank = same; rankdir=LR; ");
+        int count = 0;
+        for (auto &c : m_children) {
+            fprintf(f.Ptr(), count == 0 ? "%s" : "->%s", c->GetDotName(msg).c_str());
+            count++;
+        }
+
+        fprintf(f.Ptr(), "[color=gray,constraint=false];}\n");
+        for (auto &c : m_children) {
+            c->DumpDot(f, msg);
+            fprintf(f.Ptr(), "%s -> %s;\n", nodeName.c_str(), c->GetDotName(msg).c_str());
+        }
     }
 
     for (Message *msg : m_subMessages) {
@@ -380,6 +449,14 @@ void MessageTreeNode::DumpDot( File &f, const Message *msg ) const
         msg->GetTree()->DumpDot(f, false);
         fprintf(f.Ptr(), "%s -> %s;\n", tagName.c_str(), 
             msg->GetTree()->GetRoot()->GetDotName(msg).c_str());
+    }
+
+    for (auto &l : m_links) {
+        fprintf(f.Ptr(), "%s -> %s[label=%s,style=dashed,color=red,"
+            "fontcolor=red,dir=%s,penwidth=2.0,decorate=true];\n", 
+            nodeName.c_str(), 
+            l.Target->GetDotName(l.Msg).c_str(), 
+            l.Desc.c_str(), l.Dir.c_str());
     }
 }
 

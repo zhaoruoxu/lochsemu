@@ -43,4 +43,10 @@ bool Instruction::IsPop( const Instruction *inst )
     return m[0] == 'p' && m[1] == 'o' && m[2] == 'p';
 }
 
+bool Instruction::IsCmpOrTest( const Instruction *inst )
+{
+    const char *m = inst->Main.Inst.Mnemonic;
+    return IsCmp(inst) || (m[0] == 't' && m[1] == 'e' && m[2] == 's');
+}
+
 END_NAMESPACE_LOCHSEMU()

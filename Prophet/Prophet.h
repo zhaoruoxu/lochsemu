@@ -88,6 +88,7 @@ class MessageFieldFormat;
 class ExecuteTraceEvent;
 class MessageAccessLog;
 class MessageTree;
+class MessageTreeNode;
 
 // utilities
 class File;

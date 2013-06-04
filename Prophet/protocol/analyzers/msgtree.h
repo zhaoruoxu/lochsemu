@@ -23,6 +23,23 @@ enum NodeFlag {
     TREENODE_SEPARATOR  = 1 << 1,
 };
 
+class MessageTreeNode;
+class Message;
+
+struct NodeLink {
+    MessageTreeNode *Target;
+    Message *Msg;
+    std::string Desc;
+    std::string Dir;
+
+    NodeLink(MessageTreeNode *target, Message *msg, const std::string &desc,
+        const std::string &dir)
+        : Target(target), Msg(msg), Desc(desc), Dir(dir)
+    {
+        Assert(dir == "forward" || dir == "back" || dir == "both" || dir == "none");
+    }
+};
+
 class MessageTreeNode {
     friend class MessageTree;
     friend class MessageTreeRefiner;
@@ -38,6 +55,8 @@ public:
     void    Insert(MessageTreeNode *node);
     bool    IsLeaf() const { return m_children.size() == 0; }
     int     Length() const { return m_r - m_l + 1; }
+    int     L() const { return m_l; }
+    int     R() const { return m_r; }
 
     bool    CheckValidity() const;
     void    Dump(File &f, const Message *msg, int level) const;
@@ -52,7 +71,11 @@ public:
     void    AddSubMessage(Message *msg) { m_subMessages.push_back(msg); }
     //Message *   GetSubMessage() const { return m_submsg; }
     MessageTreeNode *GetChild(int n) const;
+    MessageTreeNode *GetParent() const { return m_parent; }
     void    ClearChildren();
+    void    AddLink(const NodeLink &link) { 
+        m_links.push_back(link);
+    }
 private:
     void    AppendChild(MessageTreeNode *node);
     void    SetFlag(NodeFlag f) { m_flag |= f; }
@@ -66,6 +89,7 @@ private:
     ExecHistory     m_execHistory;
     ExecHistoryStrict   m_execHistoryStrict;
     std::vector<Message *>  m_subMessages;
+    std::vector<NodeLink> m_links;
 };
 
 class MessageTree {
@@ -78,11 +102,18 @@ public:
     void    Dump(File &f) const;
     void    DumpDot(File &f, bool isRoot) const;
     void    UpdateHistory(const MessageAccessLog *t);
-    MessageTreeNode *   FindNode(const MemRegion &r);
+    MessageTreeNode *   FindOrCreateNode(const MemRegion &r);
+    MessageTreeNode *   FindOrCreateNode(const TaintRegion &tr);
     MessageTreeNode *   GetRoot() { return m_root; }
+    MessageTreeNode *   FindNode(u32 addr) const;
+    MessageTreeNode *   FindNode(const TaintRegion &r) const;
+
 private:
     void    Insert(MessageTreeNode *node);
     bool    CheckValidity() const;
+    MessageTreeNode *   DoFindNode(const MemRegion &r) const;
+    MessageTreeNode *   DoFindNode(const TaintRegion &tr) const;
+    
 private:
     MessageTreeNode *m_root;
     Message *m_message;
