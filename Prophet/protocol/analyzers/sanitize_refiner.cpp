@@ -26,7 +26,7 @@ void SanitizeRefiner::Refine( MessageTreeNode *node )
 
 bool SanitizeRefiner::HasTrailingZero( MessageTreeNode *node )
 {
-    if (node->m_submsg != NULL) return false;
+    if (node->m_subMessages.size() != 0) return false;
     if (node->GetChildrenCount() != 2) return false;
     MessageTreeNode *right = node->GetChild(1);
     return right->IsLeaf() && right->Length() == 1;

@@ -102,15 +102,24 @@ void Message::SetTraceRange( int beginIncl, int endIncl )
 
 void Message::Insert( Message *msg )
 {
+//     if (msg->Size() == 50) {
+//         LxInfo("debug\n");
+//     }
     MessageTreeNode *node = m_fieldTree->FindNode(msg->GetParentRegion());
     if (node == NULL) {
         LxError("Cannot insert sub-message into message\n");
         return;
     }
+
+    if (node->Length() > msg->Size() && msg->m_clearNode) {
+        node->ClearChildren();
+        node = m_fieldTree->FindNode(msg->GetParentRegion());
+    }
+
     char name[64];
     sprintf(name, "%s_%d", m_name.c_str(), m_children.size());
     msg->m_name = name;
-    node->SetSubMessage(msg);
+    node->AddSubMessage(msg);
     m_children.push_back(msg);
 
     if (msg->m_clearNode) {

@@ -39,15 +39,15 @@ void MessageTree::Construct( const MessageAccessLog *log, MessageAccessComparato
         if (curr->Offset == prev->Offset+1 && cmp.Equals(curr, prev)) {
             currNode->m_r++;
         } else {
-            //LxInfo("inserting [%d,%d]\n", currNode->m_l, currNode->m_r);
+            LxInfo("inserting [%d,%d]\n", currNode->m_l, currNode->m_r);
             //if (currNode->m_l == 60 && currNode->m_r == 66) {
             //    LxDebug("debug\n");
             //}
             Insert(currNode);
 
-            //if (!CheckValidity()) {
-            //    LxError("MessageTree validity check failed\n");
-            //}
+            if (!CheckValidity()) {
+                LxFatal("MessageTree validity check failed\n");
+            }
 
             currNode = new MessageTreeNode(curr->Offset, curr->Offset);
         }
@@ -137,7 +137,6 @@ MessageTreeNode::MessageTreeNode( int l, int r, MessageTreeNode *parent )
     Assert(m_l <= m_r);
     m_parent = parent;
     m_flag = 0;
-    m_submsg = NULL;
 }
 
 MessageTreeNode::~MessageTreeNode()
@@ -168,6 +167,15 @@ void MessageTreeNode::Insert( MessageTreeNode *node )
         return;
     }
 
+    if (m_l == node->m_l && m_r == node->m_r + 1) {
+        LxWarning("Ignoring -1 tree node %d-%d\n", node->m_l, node->m_r);
+        delete node; return;
+    }
+
+//     if (node->m_l == 132 && node->m_r == 133) {
+//         LxInfo("debug\n");
+//     }
+
     if (m_children.size() == 0) {
         // leaf node, extend to non-leaf
         if (m_l < node->m_l) {
@@ -180,27 +188,38 @@ void MessageTreeNode::Insert( MessageTreeNode *node )
         }
         return;
     }
-
-//     for (uint i = 0; i < m_children.size() - 1; i++) {
-//         MessageTreeNode *c = m_children[i];
-//         if (c->m_l == node->m_l && c->m_r > node->m_r) {
-//             c->m_r = node->m_r;
-//             m_children[i+1]->m_l = node->m_r + 1;
-//             delete node;
-//             return;
-//         }
-//     }
-
-    // check if node can be parent of several children
     
+    // delete if node == any child
     for (uint i = 0; i < m_children.size(); i++) {
         MessageTreeNode *c = m_children[i];
+        if (!c->IsLeaf()) continue;
         if (c->m_l == node->m_l && c->m_r == node->m_r) {
-            delete node;
+            delete node; return;
+        }
+        if (c->m_l == node->m_l && c->m_r == node->m_r - 1 && node->Length() > 8) {
+            delete node; return;
+        }
+        if (c->m_l == node->m_l && c->m_r == node->m_r + 1 
+            && i < m_children.size() - 1 && node->Length() > 8
+            && m_children[i+1]->IsLeaf() && c->m_r > c->m_l) 
+        {
+            // shrink c
+            c->m_r--; m_children[i+1]->m_l--;
             return;
+        }
+        if (c->m_r == node->m_l && i < m_children.size() - 1 
+            && m_children[i+1]->IsLeaf() && c->m_r > c->m_l) 
+        {
+            // shrink c; like this: 0-7,8-12 <- 7-10  => 0-6,7-10,11-12
+            c->m_r--; m_children[i+1]->m_l--; 
+            if (m_children[i+1]->m_r == node->m_r) {
+                delete node; return;
+            }
+            break;  // need further processing
         }
     }
 
+    // check if node can be parent of several children
     for (uint i = 0; i < m_children.size(); i++) {
         if (m_children[i]->m_l > node->m_l) break;
         if (m_children[i]->m_l != node->m_l) { continue; }
@@ -233,6 +252,7 @@ void MessageTreeNode::Insert( MessageTreeNode *node )
         }
         if (!c->IsLeaf() 
             || (c->m_l < node->m_l && c->m_r > node->m_r)
+            || c->m_subMessages.size() != 0
             ) {
             c->Insert(node);
             return;
@@ -255,15 +275,9 @@ void MessageTreeNode::Insert( MessageTreeNode *node )
             newChildren.push_back(m_children[j]);
 
         Assert(newChildren.size() > m_children.size());
-
         delete node;
-        
         m_children = newChildren;
         return;
-//         if (c->Contains(node)) {
-//             c->Insert(node);        // found a child to insert into
-//             return;
-//         }
     }
 
     // no big child, so insert to this
@@ -276,14 +290,9 @@ void MessageTreeNode::Insert( MessageTreeNode *node )
         }
         if (c->m_l < node->m_l) {
             // left-overlap
-//             if (c->IsLeaf()) {
-//                 c->m_l = node->m_l - 1;
-//                 newChildren.push_back(c);
-//             } else {
-                c->Insert(new MessageTreeNode(node->m_l, c->m_r));
-                newChildren.push_back(c);
-                node->m_l = c->m_r+1;
-/*            }*/
+            c->Insert(new MessageTreeNode(node->m_l, c->m_r));
+            newChildren.push_back(c);
+            node->m_l = c->m_r+1;
         } else if (c->m_r > node->m_r) {
             // right-overlap
             c->Insert(new MessageTreeNode(c->m_l, node->m_r));
@@ -362,15 +371,15 @@ void MessageTreeNode::DumpDot( File &f, const Message *msg ) const
         fprintf(f.Ptr(), "%s -> %s;\n", nodeName.c_str(), c->GetDotName(msg).c_str());
     }
 
-    if (m_submsg != NULL) {
-        std::string tagName = m_submsg->GetName() + "_tag";
+    for (Message *msg : m_subMessages) {
+        std::string tagName = msg->GetName() + "_tag";
         fprintf(f.Ptr(), "%s [shape=box,color=blueviolet,style=filled,fontcolor=white,label=", tagName.c_str());
-        m_submsg->GetTag()->DumpDot(f);
+        msg->GetTag()->DumpDot(f);
         fprintf(f.Ptr(), "];\n");
         fprintf(f.Ptr(), "%s -> %s;\n", nodeName.c_str(), tagName.c_str());
-        m_submsg->GetTree()->DumpDot(f, false);
+        msg->GetTree()->DumpDot(f, false);
         fprintf(f.Ptr(), "%s -> %s;\n", tagName.c_str(), 
-            m_submsg->GetTree()->GetRoot()->GetDotName(m_submsg).c_str());
+            msg->GetTree()->GetRoot()->GetDotName(msg).c_str());
     }
 }
 
@@ -405,13 +414,9 @@ std::string MessageTreeNode::GetDotLabel( const Message *msg ) const
     char buf[64];
     sprintf(buf, "%s[%x:%d]", this == msg->GetTree()->GetRoot() ? "Root " : "",
         msg->GetRegion().Addr + m_l, m_r - m_l + 1);
-    //if (IsLeaf()) {
     strcat(buf, "\\n");
     return buf + ByteArrayToDotString(msg->GetRaw() + m_l, m_r - m_l + 1, 
         IsLeaf() ? 32 : 24);
-    //} else {
-    //    return buf;
-    //}
 }
 
 void MessageTreeNode::UpdateHistory( const MessageAccessLog *t )
@@ -444,6 +449,35 @@ MessageTreeNode * MessageTreeNode::GetChild( int n ) const
 }
 
 void MessageTreeNode::ClearChildren()
+{
+    if (IsLeaf()) return;
+    bool childHasSubMsg = false;
+    for (auto &ch : m_children) {
+        if (ch->HasSubMessage()) {
+            childHasSubMsg = true;
+            break;
+        }
+    }
+    if (childHasSubMsg) {
+        for (auto &ch : m_children) {
+            ch->DoClearChildren();
+        }
+    } else {
+        DoClearChildren();
+    }
+
+}
+
+bool MessageTreeNode::HasSubMessage() const
+{
+    if (IsLeaf()) return m_subMessages.size() != 0;
+    for (auto &c : m_children) {
+        if (c->HasSubMessage()) return true;
+    }
+    return false;
+}
+
+void MessageTreeNode::DoClearChildren()
 {
     for (auto &ch : m_children) {
         SAFE_DELETE(ch);

@@ -48,13 +48,16 @@ public:
     void    UpdateHistory(const MessageAccessLog *t);
     int     GetChildrenCount() const { return m_children.size(); }
     bool    HasFlag(NodeFlag f) const { return (m_flag & f) != 0; }
-    void    SetSubMessage(Message *msg) { m_submsg = msg; }
-    Message *   GetSubMessage() const { return m_submsg; }
+    //void    SetSubMessage(Message *msg) { Assert(!m_submsg); m_submsg = msg; }
+    void    AddSubMessage(Message *msg) { m_subMessages.push_back(msg); }
+    //Message *   GetSubMessage() const { return m_submsg; }
     MessageTreeNode *GetChild(int n) const;
     void    ClearChildren();
 private:
     void    AppendChild(MessageTreeNode *node);
     void    SetFlag(NodeFlag f) { m_flag |= f; }
+    bool    HasSubMessage() const;
+    void    DoClearChildren();
 private:
     int m_l, m_r;
     u32 m_flag;
@@ -62,7 +65,7 @@ private:
     std::vector<MessageTreeNode *> m_children;
     ExecHistory     m_execHistory;
     ExecHistoryStrict   m_execHistoryStrict;
-    Message *   m_submsg;
+    std::vector<Message *>  m_subMessages;
 };
 
 class MessageTree {
