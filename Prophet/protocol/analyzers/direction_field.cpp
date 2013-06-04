@@ -149,8 +149,8 @@ void DirectionField::OnExecuteTrace( ExecuteTraceEvent &event )
         for (auto &tr : trs) {
             if (tr.Len > 4 /*|| tr.Len == 1*/) continue;
             if (tr.Len + tr.Offset > m_currentNode->L()) continue;
-            LxInfo("[%d-%d] -> [%d-%d]\n", tr.Offset, tr.Offset + tr.Len - 1,
-                m_currentNode->L(), m_currentNode->R());
+//             LxInfo("[%d-%d] -> [%d-%d]\n", tr.Offset, tr.Offset + tr.Len - 1,
+//                 m_currentNode->L(), m_currentNode->R());
             Analyze(tr, m_currentNode);
         }
     }

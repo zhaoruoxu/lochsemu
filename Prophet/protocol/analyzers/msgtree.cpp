@@ -39,10 +39,10 @@ void MessageTree::Construct( const MessageAccessLog *log, MessageAccessComparato
         if (curr->Offset == prev->Offset+1 && cmp.Equals(curr, prev)) {
             currNode->m_r++;
         } else {
-            //LxInfo("inserting [%d,%d]\n", currNode->m_l, currNode->m_r);
-            //if (currNode->m_l == 60 && currNode->m_r == 66) {
-            //    LxDebug("debug\n");
-            //}
+//             LxInfo("inserting [%d,%d]\n", currNode->m_l, currNode->m_r);
+//             if (currNode->m_l == 82 && currNode->m_r == 85) {
+//                 LxDebug("debug\n");
+//             }
             Insert(currNode);
 
 //             if (!CheckValidity()) {
@@ -250,13 +250,14 @@ void MessageTreeNode::Insert( MessageTreeNode *node )
     // delete if node == any child
     for (uint i = 0; i < m_children.size(); i++) {
         MessageTreeNode *c = m_children[i];
-        if (!c->IsLeaf()) continue;
+        
         if (c->m_l == node->m_l && c->m_r == node->m_r) {
             delete node; return;
         }
         if (c->m_l == node->m_l && c->m_r == node->m_r - 1 && node->Length() > 8) {
             delete node; return;
         }
+        if (!c->IsLeaf()) continue;
         if (c->m_l == node->m_l && c->m_r == node->m_r + 1 
             && i < m_children.size() - 1 && node->Length() > 8
             && m_children[i+1]->IsLeaf() && c->m_r > c->m_l) 
@@ -433,7 +434,7 @@ void MessageTreeNode::DumpDot( File &f, const Message *msg ) const
             count++;
         }
 
-        fprintf(f.Ptr(), "[color=gray,constraint=false];}\n");
+        fprintf(f.Ptr(), "[color=gray];}\n");
         for (auto &c : m_children) {
             c->DumpDot(f, msg);
             fprintf(f.Ptr(), "%s -> %s;\n", nodeName.c_str(), c->GetDotName(msg).c_str());
@@ -453,7 +454,7 @@ void MessageTreeNode::DumpDot( File &f, const Message *msg ) const
 
     for (auto &l : m_links) {
         fprintf(f.Ptr(), "%s -> %s[label=%s,style=dashed,color=red,"
-            "fontcolor=red,dir=%s,penwidth=2.0,decorate=true];\n", 
+            "fontcolor=red,dir=%s,penwidth=2.0,decorate=true,constraint=false];\n", 
             nodeName.c_str(), 
             l.Target->GetDotName(l.Msg).c_str(), 
             l.Desc.c_str(), l.Dir.c_str());
