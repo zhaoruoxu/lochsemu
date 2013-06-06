@@ -63,6 +63,8 @@ void ChainedXorAnalyzer::TestCrypt( const ProcContext &ctx, const MemRegion &inp
     FillMemRegionBytes(ctx.Outputs, output, pt);
     if (ChainedXor_IsValidDecrypt(ct, pt, input.Len)) {
         AlgTag *tag = new AlgTag("XOR", "Chained-XOR-Decrypt");
+        Assert(ct[0] == pt[0]);
+        tag->Params.push_back(new AlgParam("IV", MemRegion(input.Addr, 1), ct));
         tag->Params.push_back(new AlgParam("Ciphertext", input, ct));
         tag->Params.push_back(new AlgParam("Plaintext", output, pt));
 

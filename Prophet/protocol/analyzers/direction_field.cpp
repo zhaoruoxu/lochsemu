@@ -193,7 +193,7 @@ void DirectionField::Analyze( const TaintRegion &tr, MessageTreeNode *node )
     if (iter1 != m_discovered.end() && iter1->second == node) return;
 
     from->AddLink(NodeLink(node, m_message, "Len", "forward"));
-    LxInfo("Length linked added: %d-%d -> %d-%d\n", tr.Offset, tr.Offset + tr.Len - 1,
-        node->L(), node->R());
+    LxInfo("Length linked added: %d:%d -> %d:%d\n", tr.Offset, tr.Len,
+        node->L(), node->R() - node->L() + 1);
     m_discovered[from] = node;
 }

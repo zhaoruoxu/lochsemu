@@ -43,13 +43,17 @@ void MessageTree::Construct( const MessageAccessLog *log, MessageAccessComparato
 //             if (currNode->m_l == 82 && currNode->m_r == 85) {
 //                 LxDebug("debug\n");
 //             }
-            Insert(currNode);
+            if (currNode->Length() > 3 || currNode->Length() == 1) {
+                Insert(currNode);
+                currNode = new MessageTreeNode(curr->Offset, curr->Offset);
+            } else {
+                currNode->m_l = currNode->m_r = curr->Offset;
+            }
 
-//             if (!CheckValidity()) {
-//                 LxFatal("MessageTree validity check failed\n");
-//             }
 
-            currNode = new MessageTreeNode(curr->Offset, curr->Offset);
+            //             if (!CheckValidity()) {
+            //                 LxFatal("MessageTree validity check failed\n");
+            //             }
         }
         prev = curr;
     }
@@ -494,7 +498,7 @@ std::string MessageTreeNode::GetDotLabel( const Message *msg ) const
         msg->GetRegion().Addr + m_l, m_r - m_l + 1);
     strcat(buf, "\\n");
     return buf + ByteArrayToDotString(msg->GetRaw() + m_l, m_r - m_l + 1, 
-        IsLeaf() ? 32 : 24);
+        IsLeaf() ? 36 : 24);
 }
 
 void MessageTreeNode::UpdateHistory( const MessageAccessLog *t )
