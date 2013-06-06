@@ -8,6 +8,8 @@
 #include "apiprocessor.h"
 #include "msgmgr.h"
 
+
+
 class ExecuteTraceEvent : public Event {
 public:
     ExecuteTraceEvent(void *sender, const TContext *ctx, int seq, const RunTrace &rt) : Event(sender),
@@ -71,22 +73,16 @@ private:
 //     void        EndTrace(int *nCount = NULL);
 private:
     ProEngine *         m_engine;
-    //TaintEngine *       m_taint;
 
     static const int    MaxAnalyzers = 64;
     int                 m_totalAnalyzers;
     ProtocolAnalyzer *  m_analyzers[MaxAnalyzers];
-
-    //static const int    MaxMessages = 4096;
-    //int                 m_totalMessages;
-    //Message *           m_messages[MaxMessages];
 
     ApiProcessor        m_apiprocessor;
     MessageManager      m_msgmanager;
     
     State               m_state;
     bool                m_enabled;
-
     u32                 m_eipPreExec;
 };
  

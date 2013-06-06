@@ -15,10 +15,16 @@ private:
     void    Reset();
     bool    CheckRefinableLeft(MessageTreeNode *node);
     bool    CheckRefinableRight(MessageTreeNode *node);
-    bool    DoCheckRefinableRight(MessageTreeNode *node);
+    bool    DoCheckRefinableRight(MessageTreeNode *node, int &hitcount);
     void    LabelLeafFlags(MessageTreeNode *node);
+
 private:
-    ExecHistory    m_commonExecHist;
+    void    ToList(MessageTreeNode *&node, std::vector<MessageTreeNode *> &list);
+    void    LabelNode(MessageTreeNode *node);
+private:
+    ExecHistory     m_parallelExecHist;
+    ExecHistory     m_separatorExecHist;
+    bool            m_foundSeparator;
 };
 
  

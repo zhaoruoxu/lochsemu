@@ -6,6 +6,11 @@
 #include "prophet.h"
 #include "memregion.h"
 
+enum MessageType {
+    MESSAGE_ASCII,
+    MESSAGE_BINARY,
+};
+
 enum FieldFormat {
     Unknown     = 0,        // lower number with high priority
     Separator,
@@ -70,7 +75,7 @@ public:
     Message *   GetParent() const { return m_parent; }
     int         GetTraceBegin() const { return m_traceBegin; }
     int         GetTraceEnd() const { return m_traceEnd; }
-    std::string GetName() const { return m_name; }
+    std::string GetName() const { return GetTypeString() + m_name; }
     MessageTree *GetTree() const { return m_fieldTree; }
     //const MessageTree *GetTree() const { return m_fieldTree; }
     AlgTag *    GetTag() const { return m_tag; }
@@ -80,7 +85,10 @@ public:
     void        Analyze(MessageManager *msgmgr, const RunTrace &trace);
     void        AnalyzeAll(MessageManager *msgmgr, const RunTrace &trace);
     void        Insert(Message *msg);
-
+    MessageType GetType() const { return m_type; }
+    std::string GetTypeString() const;
+private:
+    void        ResolveType();
 private:
     int     m_id;
     int     m_traceBegin, m_traceEnd;
@@ -94,6 +102,7 @@ private:
     MessageTree     *m_fieldTree;
     AlgTag *        m_tag;
     bool    m_clearNode;
+    MessageType     m_type;
 };
 
 #endif // __PROPHET_PROTOCOL_MESSAGE_H__

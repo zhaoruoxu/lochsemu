@@ -50,7 +50,7 @@ void Protocol::Initialize()
 void Protocol::Serialize( Json::Value &root ) const 
 {
     root["enabled"] = m_enabled;
-    
+
     Json::Value analyzers;
     for (int i = 0; i < m_totalAnalyzers; i++) {
         ProtocolAnalyzer *pa = m_analyzers[i];

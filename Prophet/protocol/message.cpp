@@ -26,9 +26,9 @@ Message::Message(const MemRegion &r, cpbyte data )
     m_traceBegin = m_traceEnd = 0;
     m_data = new byte[m_region.Len];
     memcpy(m_data, data, m_region.Len);
-    m_name = "t";
     m_tag = NULL;
     m_clearNode = false;
+    ResolveType();
 }
 
 Message::Message(const MemRegion &r, cpbyte data, Message *parent, 
@@ -41,6 +41,7 @@ Message::Message(const MemRegion &r, cpbyte data, Message *parent,
     memcpy(m_data, data, m_region.Len);
     m_tag = tag;
     m_clearNode = clearNode;
+    ResolveType();
 }
 
 Message::~Message()
@@ -57,6 +58,8 @@ Message::~Message()
 
 void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
 {
+    std::string name = GetName();
+    LxInfo("Analyzing message %s ...\n", name.c_str());
     TraceExec traceExe(trace);
     ProcScope procScope;
 
@@ -81,7 +84,7 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
     m_fieldTree->UpdateHistory(m_accesslog);
 
     //SanitizeRefiner().RefineTree(*m_fieldTree);
-    TokenizeRefiner(this, 1).RefineTree(*m_fieldTree);
+    TokenizeRefiner(this, m_type, 1).RefineTree(*m_fieldTree);
     ParallelFieldDetector().RefineTree(*m_fieldTree);
 
     TaintEngine *taint = msgmgr->GetTaint();
@@ -106,7 +109,7 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
             }
         }
     }
-    LxInfo("Message %s Analysis Complete\n", GetName().c_str());
+    LxInfo("Message %s analysis complete\n", name.c_str());
 }
 
 void Message::AnalyzeAll( MessageManager *msgmgr, const RunTrace &trace )
@@ -164,7 +167,7 @@ void Message::SetID( int id )
 {
     m_id = id;
     char buf[64];
-    sprintf(buf, "T%d", m_id);
+    sprintf(buf, "%d", m_id);
     m_name = buf;
 }
 
@@ -186,6 +189,29 @@ bool Message::SearchData( cpbyte p, int len, MemRegion &r )
         }
     }
     return false;
+}
+
+void Message::ResolveType()
+{
+    m_type = MESSAGE_ASCII;
+    for (uint i = 0; i < m_region.Len; i++) {
+        if (m_data[i] > 0x7f) {
+            m_type = MESSAGE_BINARY;
+            break;
+        }
+    }
+}
+
+std::string Message::GetTypeString() const
+{
+    switch (m_type) {
+    case MESSAGE_ASCII:
+        return "Ascii";
+    case MESSAGE_BINARY:
+        return "Binary";
+    default:
+        return "Unknown";
+    }
 }
 
 AlgTag::AlgTag( const std::string &name, const std::string &desc )

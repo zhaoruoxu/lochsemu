@@ -8,7 +8,7 @@
 
 class TokenizeRefiner : public MessageTreeRefiner {
 public:
-    TokenizeRefiner(const Message *msg, int depth = 1);
+    TokenizeRefiner(const Message *msg, MessageType type, int depth = 1);
 
     virtual void RefineNode(MessageTreeNode *node) override;
     virtual void RefineTree(MessageTree &tree) override;
@@ -19,6 +19,7 @@ private:
 private:
     const Message *m_msg;
     int m_depth;
+    MessageType m_type;
     std::map<MessageTreeNode *, int> m_nodeDepth;
 };
 

@@ -39,11 +39,13 @@ void MessageTree::Construct( const MessageAccessLog *log, MessageAccessComparato
         if (curr->Offset == prev->Offset+1 && cmp.Equals(curr, prev)) {
             currNode->m_r++;
         } else {
-//             LxInfo("inserting [%d,%d]\n", currNode->m_l, currNode->m_r);
-//             if (currNode->m_l == 82 && currNode->m_r == 85) {
-//                 LxDebug("debug\n");
-//             }
+
             if (currNode->Length() > 3 || currNode->Length() == 1) {
+//                 LxInfo("inserting [%d,%d]\n", currNode->m_l, currNode->m_r);
+//                 if (currNode->m_l == 0x46 && currNode->m_r == 0x50) {
+//                     LxDebug("debug\n");
+//                 }
+
                 Insert(currNode);
                 currNode = new MessageTreeNode(curr->Offset, curr->Offset);
             } else {
@@ -268,7 +270,7 @@ void MessageTreeNode::Insert( MessageTreeNode *node )
         {
             // shrink c
             c->m_r--; m_children[i+1]->m_l--;
-            return;
+            delete node; return;
         }
         if (c->m_r == node->m_l && i < m_children.size() - 1 
             && m_children[i+1]->IsLeaf() && c->m_r > c->m_l) 
@@ -494,7 +496,8 @@ std::string MessageTreeNode::GetDotStyle( const Message *msg ) const
 std::string MessageTreeNode::GetDotLabel( const Message *msg ) const
 {
     char buf[64];
-    sprintf(buf, "%s[%x:%d]", this == msg->GetTree()->GetRoot() ? "Root " : "",
+    sprintf(buf, "%s[%x:%d]", this == msg->GetTree()->GetRoot() ? 
+        ("Root " + msg->GetName()).c_str() : "",
         msg->GetRegion().Addr + m_l, m_r - m_l + 1);
     strcat(buf, "\\n");
     return buf + ByteArrayToDotString(msg->GetRaw() + m_l, m_r - m_l + 1, 

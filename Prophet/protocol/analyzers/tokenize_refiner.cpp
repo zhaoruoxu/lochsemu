@@ -13,6 +13,10 @@ void TokenizeRefiner::RefineNode( MessageTreeNode *node )
     if (node->IsLeaf()) return;
     //if (m_nodeDepth[node] > m_depth) return;
 
+//     if (node->Length() == 11 && node->GetChildrenCount() == 3) {
+//         LxInfo("debug");
+//     }
+
     std::vector<MessageTreeNode *> newChildren;
     newChildren.push_back(node->m_children[0]);
     MessageTreeNode *prev = node->m_children[0];
@@ -35,16 +39,24 @@ void TokenizeRefiner::RefineNode( MessageTreeNode *node )
     }
 }
 
-TokenizeRefiner::TokenizeRefiner( const Message *msg, int depth )
+TokenizeRefiner::TokenizeRefiner( const Message *msg, MessageType type, int depth )
 {
     m_msg = msg;
     m_depth = depth;
+    m_type = type;
 }
 
 bool TokenizeRefiner::IsTokenChar( byte ch ) const
 {
-    //if (isspace(ch)) return false;
-    return (ch >= 0x20 && ch <= 0x7f) || ch == 0xa || ch == 0xd /*|| ch == 0*/;
+    if (m_type == MESSAGE_ASCII) {
+        return !isspace(ch) && !iscntrl(ch);
+    } else if (m_type == MESSAGE_BINARY) {
+        //if (ch == ' ') return false;
+        return (ch >= 0x20 && ch <= 0x7f) || ch == 0xa || ch == 0xd /*|| ch == 0*/;
+    } else {
+        LxFatal("shit\n");
+        return false;
+    }
 }
 
 bool TokenizeRefiner::CanConcatenate(const MessageTreeNode *l, 
@@ -54,6 +66,12 @@ bool TokenizeRefiner::CanConcatenate(const MessageTreeNode *l,
 //         IsTokenChar(m_msg->Get(l->m_r)) && 
 //         IsTokenChar(m_msg->Get(r->m_l));
     if (!l->IsLeaf() || !r->IsLeaf()) return false;
+
+    if (l->m_l == l->m_r && m_msg->Get(l->m_l) == ' ')
+        return false;
+    if (r->m_l == r->m_r && m_msg->Get(r->m_l) == ' ')
+        return false;
+
     for (int i = l->m_l; i <= l->m_r; i++)
         if (!IsTokenChar(m_msg->Get(i))) return false;
     for (int i = r->m_l; i <= r->m_r; i++)
