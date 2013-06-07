@@ -31,7 +31,7 @@ void AdvAlgEngine::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx
     if (ctx.Level <= 3) {
         m_taint.Reset();
         m_taint.TaintMemRegion(m_message->GetRegion());
-        ProcContext pc = SingleProcExec::Run(event, ctx, &m_taint, 0);
+        ProcContext pc = SingleProcExec::Run(event, ctx, &m_taint);
 
         for (int i = 0; i < m_count; i++)
             m_analyzers[i]->OnOriginalProcedure(event, pc);
@@ -40,12 +40,14 @@ void AdvAlgEngine::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx
     // 3.
     if (ctx.Level <= 1) {
         m_taint.Reset();
-        //m_taint.TaintMemRegion(m_message->GetRegion());
+#if 0
+        m_taint.TaintMemRegion(m_message->GetRegion());
+#endif
         for (auto &input : ctx.Inputs) {
             if (!input.second.Tnt.IsAnyTainted())
                 m_taint.TaintByte(input.first);
         }
-        ProcContext pc = SingleProcExec::Run(event, ctx, &m_taint, 0);
+        ProcContext pc = SingleProcExec::Run(event, ctx, &m_taint);
         for (int i = 0; i < m_count; i++)
             m_analyzers[i]->OnInputProcedure(event, pc);
     }
@@ -79,30 +81,6 @@ void AdvAlgEngine::OnComplete()
     for (int i = 0; i < m_count; i++)
         m_analyzers[i]->OnComplete();
 }
-
-/*
-AlgorithmAnalyzer::AlgorithmAnalyzer( TSnapshot &t )
-    : m_snapshot(t)
-{
-    m_taint.TaintRule_LoadMemory();
-}
-
-void AlgorithmAnalyzer::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
-{
-    if (ctx.EndSeq - ctx.BeginSeq < 100) return;
-    //m_taint.TaintRule_LoadMemory();
-    m_taint.Reset();
-    m_taint.ApplySnapshot(m_snapshot);
-
-    for (auto &input : ctx.Inputs) {
-        if (input.second.Tnt.IsAnyTainted()) continue;
-        m_taint.TaintByte(input.first);
-    }
-
-    ProcContext pc = SingleProcExec::Run(event, ctx, &m_taint, 0);
-    pc.Dump(StdOut(), false);
-}
-*/
 
 AlgorithmAnalyzer::AlgorithmAnalyzer()
 {

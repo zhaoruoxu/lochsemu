@@ -41,22 +41,10 @@ void ProcScope::Reset()
         SAFE_DELETE(entry.second);
     }
     m_procs.clear();
-    //m_postOrder.clear();
-    // m_prev = NULL;
 }
 
 void ProcScope::OnExecuteTrace( ExecuteTraceEvent &event )
 {
-    // const TContext *ctx = event.Context;
-
-//     if (m_callStack.empty() ||
-//         (m_prev && Instruction::IsCall(m_prev->Inst) && 
-//         !m_prev->HasExecFlag(LX_EXEC_WINAPI_CALL) && 
-//         !m_prev->HasExecFlag(LX_EXEC_WINAPI_JMP)) ) 
-//     {
-// 
-//     }
-
     if (m_callStack.empty()) {
         // begin a new procedure
         OnProcBegin(event);
@@ -64,27 +52,17 @@ void ProcScope::OnExecuteTrace( ExecuteTraceEvent &event )
 
     Assert(!m_callStack.empty());
     m_callStack.top()->Extend(event.Context->Eip);
-
-//     if (Instruction::IsRet(ctx->Inst)) {
-// 
-//     }
-    // m_prev = ctx;
-    // m_prevSeq = event.Seq;
 }
 
 void ProcScope::OnProcBegin( ExecuteTraceEvent &event )
 {
     m_callStack.push(GetProc(event.Context));
-    //m_beginSeqs.push(event.Seq);
 }
 
 void ProcScope::OnProcEnd( ExecuteTraceEvent &event )
 {
     m_callStack.top()->Exit(event.Context->Eip);
-    //m_postOrder.emplace_back(m_callStack.top(), m_beginSeqs.top(), event.Seq);
     m_callStack.pop();
-    //m_beginSeqs.pop();
-    // Assert(m_callStack.size() == m_beginSeqs.size());
 }
 
 void ProcScope::OnComplete()
@@ -110,13 +88,6 @@ void ProcScope::Dump( File &f ) const
     for (auto &entry : m_procs) {
         entry.second->Dump(f);
     }
-
-//     fprintf(f.Ptr(), "\nPost order execution history:\n");
-//     for (auto &entry : m_postOrder) {
-//         fprintf(f.Ptr(), "Proc %08x: from %d to %d, length %d\n", 
-//             entry.Proc->Entry(), entry.BeginSeq, entry.EndSeq, 
-//             entry.EndSeq - entry.BeginSeq + 1);
-//     }
 }
 
 

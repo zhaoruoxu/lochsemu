@@ -77,7 +77,6 @@ class WinapiPostCallEvent;
 class Protocol;
 class Message;
 class MessageManager;
-class FormatSyn;
 struct TContext;
 class RunTrace;
 class ProtocolAnalyzer;
@@ -89,6 +88,8 @@ class ExecuteTraceEvent;
 class MessageAccessLog;
 class MessageTree;
 class MessageTreeNode;
+class MessageEndEvent;
+class MessageBeginEvent;
 
 // utilities
 class File;

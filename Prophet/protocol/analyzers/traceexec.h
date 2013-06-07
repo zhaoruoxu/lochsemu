@@ -19,7 +19,6 @@ public:
     void Add(TraceAnalyzer *t);
     void Add(TraceAnalyzer *t0, TraceAnalyzer *t1);
     void Add(TraceAnalyzer *t0, TraceAnalyzer *t1, TraceAnalyzer *t2);
-    //void Run(const RunTrace &t);
     void RunPartial(int firstIncl, int lastIncl);
     void RunMessage(const Message *msg);
 

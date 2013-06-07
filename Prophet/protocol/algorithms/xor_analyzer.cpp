@@ -16,10 +16,6 @@ void ChainedXorAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const Pr
         for (auto &output : ctx.OutputRegions) {
             if (output.Len < input.Len) continue;
 
-//             if (input.Len == 29 || output.Len == 29) {
-//                 ctx.Dump(StdOut(), true);
-//             }
-
             int offset = 0;
             for (int i = 0; i < (int) output.Len; i++) {
                 Taint t = ctx.Outputs.find(output.Addr + i)->second.Tnt;
@@ -46,12 +42,10 @@ void ChainedXorAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const Pr
 void ChainedXorAnalyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
 
-
 }
 
 void ChainedXorAnalyzer::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
-    //ctx.Dump(StdOut(), true);
 
 }
 

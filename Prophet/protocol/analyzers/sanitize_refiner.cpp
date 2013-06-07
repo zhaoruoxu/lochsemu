@@ -31,26 +31,4 @@ bool SanitizeRefiner::HasTrailingZero( MessageTreeNode *node )
     MessageTreeNode *right = node->GetChild(1);
     return right->IsLeaf() && right->Length() == 1;
 }
-// 
-// void SanitizeRefiner::ClearNode( MessageTreeNode *node ) const
-// {
-//     if (node->GetSubMessage() != NULL) {
-//         for (auto &ch : node->m_children) {
-//             SAFE_DELETE(ch);
-//         }
-//         node->m_children.clear();
-//     } else {
-//         for (auto &ch : node->m_children) {
-//             ClearNode(ch);
-//         }
-//     }
-// }
-// 
-// void SanitizeRefiner::RefineTree( MessageTree &tree )
-// {
-//     if (m_removeCrypto) {
-//         ClearNode(tree.GetRoot());
-//     }
-//     MessageTreeRefiner::RefineTree(tree);
-// }
-// 
+

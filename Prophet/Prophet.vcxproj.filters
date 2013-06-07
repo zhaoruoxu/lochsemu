@@ -207,9 +207,6 @@
     <ClInclude Include="prophet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\formatsyn.h">
-      <Filter>Header Files\protocol</Filter>
-    </ClInclude>
     <ClInclude Include="plugin\advdbg.h">
       <Filter>Header Files\plugin</Filter>
     </ClInclude>
@@ -230,9 +227,6 @@
     </ClInclude>
     <ClInclude Include="gui\msgpanel.h">
       <Filter>Header Files\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="protocol\analyzers\separator.h">
-      <Filter>Header Files\protocol\analyzers</Filter>
     </ClInclude>
     <ClInclude Include="statistics.h">
       <Filter>Header Files</Filter>
@@ -305,9 +299,6 @@
     </ClInclude>
     <ClInclude Include="protocol\tcontext.h">
       <Filter>Header Files\protocol</Filter>
-    </ClInclude>
-    <ClInclude Include="protocol\analyzers\msgformat.h">
-      <Filter>Header Files\protocol\analyzers</Filter>
     </ClInclude>
     <ClInclude Include="protocol\analyzers\procexec.h">
       <Filter>Header Files\protocol\analyzers</Filter>
@@ -668,9 +659,6 @@
     <ClCompile Include="protocol\message.cpp">
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
-    <ClCompile Include="protocol\formatsyn.cpp">
-      <Filter>Source Files\protocol</Filter>
-    </ClCompile>
     <ClCompile Include="protocol\msgmgr.cpp">
       <Filter>Source Files\protocol</Filter>
     </ClCompile>
@@ -679,9 +667,6 @@
     </ClCompile>
     <ClCompile Include="gui\msgpanel.cpp">
       <Filter>Source Files\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="protocol\analyzers\separator.cpp">
-      <Filter>Source Files\protocol\analyzers</Filter>
     </ClCompile>
     <ClCompile Include="statistics.cpp">
       <Filter>Source Files</Filter>
@@ -739,9 +724,6 @@
     </ClCompile>
     <ClCompile Include="protocol\tcontext.cpp">
       <Filter>Source Files\protocol</Filter>
-    </ClCompile>
-    <ClCompile Include="protocol\analyzers\msgformat.cpp">
-      <Filter>Source Files\protocol\analyzers</Filter>
     </ClCompile>
     <ClCompile Include="protocol\analyzers\procexec.cpp">
       <Filter>Source Files\protocol\analyzers</Filter>

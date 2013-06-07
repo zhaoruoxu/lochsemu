@@ -9,7 +9,6 @@
 #include "msgmgr.h"
 
 
-
 class ExecuteTraceEvent : public Event {
 public:
     ExecuteTraceEvent(void *sender, const TContext *ctx, int seq, const RunTrace &rt) : Event(sender),
@@ -62,22 +61,15 @@ public:
     ApiProcessor *      GetApiProcessor() { return &m_apiprocessor; }
     const ApiProcessor *    GetApiProcessor() const { return &m_apiprocessor; }
 
-    //void        AddMessage(Message *msg);
-    //int         GetTotalMessages() const { return m_totalMessages; }
 
     void        UpdateTContext(const Processor *cpu, TContext *ctx) const;
 
-private:
-/*    void        ReorderAnalyzers();*/
-//     void        BeginTrace();
-//     void        EndTrace(int *nCount = NULL);
 private:
     ProEngine *         m_engine;
 
     static const int    MaxAnalyzers = 64;
     int                 m_totalAnalyzers;
     ProtocolAnalyzer *  m_analyzers[MaxAnalyzers];
-
     ApiProcessor        m_apiprocessor;
     MessageManager      m_msgmanager;
     

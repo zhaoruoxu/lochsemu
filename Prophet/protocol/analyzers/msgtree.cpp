@@ -24,7 +24,6 @@ void MessageTree::Construct( const MessageAccessLog *log, MessageAccessComparato
 {
     LxDebug("Constructing message tree\n");
     m_root = new MessageTreeNode(0, m_message->Size() - 1);
-    //m_root->m_children.push_back(new MessageTreeNode(0, msg->Size() - 1, m_root));
 
     const MessageAccess *prev = log->Get(0);
     MessageTreeNode *currNode = new MessageTreeNode(prev->Offset, prev->Offset);
@@ -41,21 +40,22 @@ void MessageTree::Construct( const MessageAccessLog *log, MessageAccessComparato
         } else {
 
             if (currNode->Length() > 3 || currNode->Length() == 1) {
-//                 LxInfo("inserting [%d,%d]\n", currNode->m_l, currNode->m_r);
-//                 if (currNode->m_l == 0x46 && currNode->m_r == 0x50) {
-//                     LxDebug("debug\n");
-//                 }
-
+#if 0
+                LxInfo("inserting [%d,%d]\n", currNode->m_l, currNode->m_r);
+                if (currNode->m_l == 0x46 && currNode->m_r == 0x50) {
+                    LxDebug("debug\n");
+                }
+#endif
                 Insert(currNode);
                 currNode = new MessageTreeNode(curr->Offset, curr->Offset);
             } else {
                 currNode->m_l = currNode->m_r = curr->Offset;
             }
-
-
-            //             if (!CheckValidity()) {
-            //                 LxFatal("MessageTree validity check failed\n");
-            //             }
+#if 0
+            if (!CheckValidity()) {
+                LxFatal("MessageTree validity check failed\n");
+            }
+#endif
         }
         prev = curr;
     }
@@ -105,15 +105,6 @@ void MessageTree::UpdateHistory( const MessageAccessLog *t )
 MessageTreeNode * MessageTree::FindOrCreateNode( const MemRegion &r )
 {
     return FindOrCreateNode(TaintRegion(r.Addr - m_message->GetRegion().Addr, r.Len));
-//     int left = r.Addr - m_message->GetRegion().Addr;
-//     int right = left + r.Len - 1;
-// 
-//     m_root->Insert(new MessageTreeNode(left, right));
-//     if (!CheckValidity()) {
-//         LxFatal("Validity failed!\n");
-//     }
-// 
-//     return DoFindNode(r);
 }
 
 MessageTreeNode * MessageTree::FindOrCreateNode( const TaintRegion &tr )
@@ -236,9 +227,11 @@ void MessageTreeNode::Insert( MessageTreeNode *node )
         delete node; return;
     }
 
-//     if (node->m_l == 132 && node->m_r == 133) {
-//         LxInfo("debug\n");
-//     }
+#if 0
+     if (node->m_l == 132 && node->m_r == 133) {
+         LxInfo("debug\n");
+     }
+#endif
 
     if (m_children.size() == 0) {
         // leaf node, extend to non-leaf
@@ -506,7 +499,6 @@ std::string MessageTreeNode::GetDotLabel( const Message *msg ) const
 
 void MessageTreeNode::UpdateHistory( const MessageAccessLog *t )
 {
-    // do work
     for (int i = 0; i < t->Count(); i++) {
         const MessageAccess *ma = t->Get(i);
         if (ma->Offset == m_l) {

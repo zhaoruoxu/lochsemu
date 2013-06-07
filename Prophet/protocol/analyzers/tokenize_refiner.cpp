@@ -11,11 +11,12 @@ void TokenizeRefiner::RefineTree( MessageTree &tree )
 void TokenizeRefiner::RefineNode( MessageTreeNode *node )
 {
     if (node->IsLeaf()) return;
-    //if (m_nodeDepth[node] > m_depth) return;
 
-//     if (node->Length() == 11 && node->GetChildrenCount() == 3) {
-//         LxInfo("debug");
-//     }
+#if 0
+     if (node->Length() == 11 && node->GetChildrenCount() == 3) {
+         LxInfo("debug");
+     }
+#endif
 
     std::vector<MessageTreeNode *> newChildren;
     newChildren.push_back(node->m_children[0]);
@@ -62,9 +63,6 @@ bool TokenizeRefiner::IsTokenChar( byte ch ) const
 bool TokenizeRefiner::CanConcatenate(const MessageTreeNode *l, 
                                      const MessageTreeNode *r ) const
 {
-//     return l->IsLeaf() && r->IsLeaf() && 
-//         IsTokenChar(m_msg->Get(l->m_r)) && 
-//         IsTokenChar(m_msg->Get(r->m_l));
     if (!l->IsLeaf() || !r->IsLeaf()) return false;
 
     if (l->m_l == l->m_r && m_msg->Get(l->m_l) == ' ')

@@ -12,7 +12,6 @@ void ParallelFieldDetector::Refine( MessageTreeNode *node )
 void ParallelFieldDetector::RefineNode( MessageTreeNode *node )
 {
     while (RefineOnce(node)) {
-        //Reset();
     }
 }
 
@@ -25,7 +24,6 @@ void ParallelFieldDetector::Reset()
 
 bool ParallelFieldDetector::CheckRefinableLeft( MessageTreeNode *node )
 {
-    //if (node->GetChildrenCount() != 2) return false;
     Reset();
     if (!node->IsLeaf()) return false;
     if (node->HasFlag(TREENODE_PARALLEL)) return false;
@@ -44,12 +42,6 @@ bool ParallelFieldDetector::CheckRefinableRight( MessageTreeNode *node )
 
 bool ParallelFieldDetector::DoCheckRefinableRight( MessageTreeNode *node, int &hitcount )
 {
-//     if (node->m_execHistory != m_parallelExecHist) return false;
-//     if (node->IsLeaf()) return true;
-//     if (node->m_children.size() != 2) return false;
-//     Assert(node->m_children[0]->m_execHistory == m_parallelExecHist);
-//     return DoCheckRefinableRight(node->m_children[1]);
-
     if (node->IsLeaf()) {
         if (node->m_execHistory == m_parallelExecHist) {
             hitcount++;
@@ -75,10 +67,6 @@ bool ParallelFieldDetector::DoCheckRefinableRight( MessageTreeNode *node, int &h
 
 bool ParallelFieldDetector::RefineOnce( MessageTreeNode *node )
 {
-//     if (node->Length() == 60 && node->GetChildrenCount() == 4) {
-//         LxInfo("debug");
-//     }
-
     if (node->HasFlag(TREENODE_PARALLEL)) return false;
     for (int i = 0; i < node->GetChildrenCount() - 1; i++) {
         MessageTreeNode *left = node->m_children[i];
@@ -101,18 +89,6 @@ bool ParallelFieldDetector::RefineOnce( MessageTreeNode *node )
         parallelNode->m_execHistoryStrict = left->m_execHistoryStrict;
         ToList(right, parallelNode->m_children);
 
-//         while (true) {
-//             MessageTreeNode *r = right;
-//             if (r->IsLeaf()) {
-//                 parallelNode->AppendChild(r);
-//                 break;
-//             }
-//             Assert(r->GetChildrenCount() == 2);
-//             parallelNode->AppendChild(r->m_children[0]);
-//             right = r->m_children[1];
-//             r->m_children.clear();
-//             delete r;
-//         }
         newChildren.push_back(parallelNode);
         for (; p < node->GetChildrenCount(); p++)
             newChildren.push_back(node->m_children[p]);
@@ -130,53 +106,14 @@ bool ParallelFieldDetector::RefineOnce( MessageTreeNode *node )
         for (auto &c : parallelNode->m_children) {
             LabelNode(c);
         }
-/*        LabelLeafFlags(parallelNode);*/
         return true;
     }
     return false;
 }
 
-void ParallelFieldDetector::LabelLeafFlags( MessageTreeNode *node )
-{
-    ExecHistory eh = node->m_execHistory;
-    std::vector<MessageTreeNode *> possibleSeparators;
-    std::deque<MessageTreeNode *> queue;
-    std::set<MessageTreeNode *> parallelParents;
-    queue.push_back(node);
-    while (!queue.empty()) {
-        MessageTreeNode *n = queue.front();
-        queue.pop_front();
-        if (n->IsLeaf()) {
-            if (n->m_execHistory == eh && 
-                parallelParents.find(n->m_parent) == parallelParents.end()) 
-            {
-                n->SetFlag(TREENODE_PARALLEL);
-                parallelParents.insert(n->m_parent);
-            } else {
-                possibleSeparators.push_back(n);
-            }
-        } else {
-            for (auto &ch : n->m_children) {
-                queue.push_back(ch);
-            }
-        }
-    }
-
-//     if (possibleSeparators.empty()) return;
-//     ExecHistory sep = possibleSeparators[0]->m_execHistory;
-//     for (uint i = 1; i < possibleSeparators.size(); i++) {
-//         if (possibleSeparators[i]->m_execHistory != sep) return;
-//         if (possibleSeparators[i]->Length() > 2) return;
-//     }
-//     for (auto &s : possibleSeparators) {
-//         s->SetFlag(TREENODE_SEPARATOR);
-//     }
-}
-
 void ParallelFieldDetector::ToList( MessageTreeNode *&node, std::vector<MessageTreeNode *> &list )
 {
     if (node->IsLeaf()) {
-        //LabelNode(node);
         list.push_back(node);
         return;
     }

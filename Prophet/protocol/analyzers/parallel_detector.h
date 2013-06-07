@@ -16,7 +16,6 @@ private:
     bool    CheckRefinableLeft(MessageTreeNode *node);
     bool    CheckRefinableRight(MessageTreeNode *node);
     bool    DoCheckRefinableRight(MessageTreeNode *node, int &hitcount);
-    void    LabelLeafFlags(MessageTreeNode *node);
 
 private:
     void    ToList(MessageTreeNode *&node, std::vector<MessageTreeNode *> &list);

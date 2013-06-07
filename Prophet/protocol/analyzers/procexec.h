@@ -86,15 +86,14 @@ public:
 class SingleProcExec : public TraceAnalyzer {
 public:
     static ProcContext Run(ExecuteTraceEvent &event, const ProcContext &ctx, 
-        TaintEngine *taint, int maxDepth);
+        TaintEngine *taint);
 private:
-    SingleProcExec(TaintEngine *te, const ProcContext &ctx, int maxDepth);
+    SingleProcExec(TaintEngine *te, const ProcContext &ctx);
     virtual void OnExecuteTrace(ExecuteTraceEvent &event) override;
     
 private:
     TaintEngine *m_taint;
     ProcContext m_context;
-    int m_maxDepth;
 };
 
 class ProcDump : public ProcAnalyzer {

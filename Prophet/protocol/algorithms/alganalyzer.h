@@ -5,6 +5,8 @@
  
 #include "protocol/analyzers/procexec.h"
 #include "protocol/taint/taintengine.h"
+#include "memregion.h"
+#include "protocol/message.h"
 
 class AlgorithmAnalyzer;
 

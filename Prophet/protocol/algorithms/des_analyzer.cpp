@@ -9,7 +9,9 @@ void DESAnalyzer::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx 
 
 void DESAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
-    //ctx.Dump(StdOut(), true);
+#if 0
+    ctx.Dump(StdOut(), true);
+#endif
 
     if (ctx.Level > 1) return;
     for (auto &input : ctx.InputRegions) {
@@ -29,7 +31,9 @@ void DESAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcConte
 
 void DESAnalyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
-    //ctx.Dump(StdOut(), true);
+#if 0
+    ctx.Dump(StdOut(), true);
+#endif
 
     if (ctx.Level > 1) return;
     for (auto &input : ctx.InputRegions) {

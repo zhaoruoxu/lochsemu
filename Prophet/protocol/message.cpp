@@ -7,7 +7,6 @@
 #include "analyzers/callstack.h"
 #include "analyzers/msgaccess.h"
 #include "analyzers/msgtree.h"
-#include "analyzers/msgformat.h"
 #include "analyzers/procexec.h"
 #include "algorithms/alganalyzer.h"
 #include "analyzers/tokenize_refiner.h"
@@ -138,9 +137,6 @@ void Message::SetTraceRange( int beginIncl, int endIncl )
 
 void Message::Insert( Message *msg )
 {
-//     if (msg->Size() == 50) {
-//         LxInfo("debug\n");
-//     }
     MessageTreeNode *node = m_fieldTree->FindOrCreateNode(msg->GetParentRegion());
     if (node == NULL) {
         LxError("Cannot insert sub-message into message\n");

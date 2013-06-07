@@ -115,8 +115,6 @@ void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &input,
         FillMemRegionBytes(ctx.Inputs, input, pt);
         FillMemRegionBytes(ctx.Outputs, output, ct);
         if (RC4_IsValidCrypt(sbox, pt, ct, len)) {
-            //ctx.Dump(StdOut(), false);
-
             AlgTag *tag = new AlgTag("RC4", "RC4 stream cipher");
             tag->Params.push_back(new AlgParam("Key", rc4ctx.KeyRegion, rc4ctx.Key));
             tag->Params.push_back(new AlgParam("Input", input, pt));

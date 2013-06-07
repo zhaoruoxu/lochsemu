@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "traceexec.h"
 #include "processor.h"
+#include "protocol/message.h"
 
 TraceExec::TraceExec(const RunTrace &t)
     : m_trace(t)
@@ -70,11 +71,6 @@ void TraceExec::Add( TraceAnalyzer *t0, TraceAnalyzer *t1, TraceAnalyzer *t2 )
 {
     Add(t0); Add(t1); Add(t2);
 }
-
-// void TraceExec::Run( const RunTrace &t )
-// {
-//     RunPartial(t, 0, t.Count()-1);
-// }
 
 void TraceExec::RunPartial( int firstIncl, int lastIncl )
 {

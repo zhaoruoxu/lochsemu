@@ -2,6 +2,7 @@
 #include "taintengine.h"
 #include "processor.h"
 #include "engine.h"
+#include "memregion.h"
 
 TSnapshot::TSnapshot( TaintEngine &t )
 {

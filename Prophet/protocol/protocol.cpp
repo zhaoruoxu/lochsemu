@@ -6,7 +6,6 @@
 
 /* Analyzers */
 #include "analyzers/direction_field.h"
-#include "analyzers/separator.h"
 
 #include "sqlite/SQLiteC++.h"
 

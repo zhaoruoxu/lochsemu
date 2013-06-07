@@ -5,7 +5,6 @@
 
 #include "prophet.h"
 #include "event.h"
-#include "formatsyn.h"
 #include "taint/taint.h"
 #include "runtrace.h"
 

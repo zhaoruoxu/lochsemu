@@ -2,7 +2,7 @@
 #include "procexec.h"
 #include "callstack.h"
 #include "protocol/taint/taintengine.h"
-
+#include "memregion.h"
 
 void ProcContext::Reset()
 {
@@ -168,9 +168,9 @@ void ProcTraceExec::RunProc( const ProcContext &ctx )
 }
 
 ProcContext SingleProcExec::Run(ExecuteTraceEvent &event, const ProcContext &ctx,
-                                TaintEngine *taint, int maxDepth)
+                                TaintEngine *taint)
 {
-    SingleProcExec sexec(taint, ctx, maxDepth);
+    SingleProcExec sexec(taint, ctx);
     ProcTraceExec exec(event.Trace);
     if (taint) exec.Add(taint);
     exec.Add(&sexec);
@@ -179,25 +179,18 @@ ProcContext SingleProcExec::Run(ExecuteTraceEvent &event, const ProcContext &ctx
     return sexec.m_context;
 }
 
-SingleProcExec::SingleProcExec( TaintEngine *te, const ProcContext &ctx, int maxDepth )
+SingleProcExec::SingleProcExec( TaintEngine *te, const ProcContext &ctx )
 {
     m_taint = te;
     m_context.Proc = ctx.Proc;
     m_context.BeginSeq = ctx.BeginSeq;
     m_context.EndSeq = ctx.EndSeq;
     m_context.Level = ctx.Level;
-    m_maxDepth = maxDepth;
 }
 
 void SingleProcExec::OnExecuteTrace( ExecuteTraceEvent &event )
 {
-//     if (m_maxDepth > 0) {
-//         LxWarning("SingleProcExec depth > 0 not supported\n");
-//     }
-//     
-    //if (m_context.Level <= m_maxDepth) {
-        m_context.OnTrace(event, m_taint);
-    //}
+    m_context.OnTrace(event, m_taint);
 }
 
 std::vector<MemRegion> GenerateMemRegions( const ProcParameter &params )

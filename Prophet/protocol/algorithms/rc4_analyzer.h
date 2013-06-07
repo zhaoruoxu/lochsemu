@@ -4,6 +4,7 @@
 #define __PROPHET_PROTOCOL_ALGORITHMS_RC4_ANALYZER_H__
  
 #include "alganalyzer.h"
+#include "memregion.h"
 
 struct RC4Context {
     static const u32 SboxLength = 256;
