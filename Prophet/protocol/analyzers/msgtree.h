@@ -81,6 +81,7 @@ private:
     void    SetFlag(NodeFlag f) { m_flag |= f; }
     bool    HasSubMessage() const;
     void    DoClearChildren();
+    void    FixParent();
 private:
     int m_l, m_r;
     u32 m_flag;

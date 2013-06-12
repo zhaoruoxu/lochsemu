@@ -57,6 +57,10 @@ void DirectionField::Analyze( const TaintRegion &tr, MessageTreeNode *node )
     auto iter = m_discovered.find(from);
     if (iter != m_discovered.end() && iter->second == node) return;
 
+    while (!from->IsLeaf() && from->Length() > tr.Len) {
+        from = from->GetChild(0);
+    }
+
     if (tr.Len == 4) {
         int val = ((int *) (m_message->GetRaw() + tr.Offset))[0];
         if (val >= 0 && val < m_message->Size()) {

@@ -66,6 +66,8 @@ void MessageTree::Construct( const MessageAccessLog *log, MessageAccessComparato
         LxFatal("MessageTree validity check failed\n");
     }
 #endif
+
+    m_root->FixParent();
 }
 
 void MessageTree::Insert( MessageTreeNode *node )
@@ -111,6 +113,7 @@ MessageTreeNode * MessageTree::FindOrCreateNode( const TaintRegion &tr )
 {
     int left = tr.Offset, right = tr.Offset + tr.Len - 1;
     m_root->Insert(new MessageTreeNode(left, right));
+    m_root->FixParent();
     if (!CheckValidity()) {
         LxFatal("Validity failed!\n");
     }
@@ -217,6 +220,12 @@ void MessageTreeNode::Insert( MessageTreeNode *node )
     Assert(Contains(node));
     Assert(node->m_children.size() == 0);
 
+#if 0
+    if (node->m_l == 130 && node->m_r == 133) {
+        LxInfo("debug\n");
+    }
+#endif
+
     if (m_l == node->m_l && m_r == node->m_r) {
         delete node;
         return;
@@ -226,12 +235,6 @@ void MessageTreeNode::Insert( MessageTreeNode *node )
         LxWarning("Ignoring -1 tree node %d-%d\n", node->m_l, node->m_r);
         delete node; return;
     }
-
-#if 0
-     if (node->m_l == 132 && node->m_r == 133) {
-         LxInfo("debug\n");
-     }
-#endif
 
     if (m_children.size() == 0) {
         // leaf node, extend to non-leaf
@@ -365,8 +368,10 @@ void MessageTreeNode::Insert( MessageTreeNode *node )
         if (node->m_children.size() == 1) {
             Assert(node->m_l == node->m_children[0]->m_l && 
                 node->m_r == node->m_children[0]->m_r);
-            delete node->m_children[0];
+            MessageTreeNode *ch0 = node->m_children[0];
             node->m_children.clear();
+            delete node;
+            node = ch0;
         }
         newChildren.push_back(node);
     } else {
@@ -387,6 +392,12 @@ bool MessageTreeNode::CheckValidity() const
 
     if (m_children.size() == 1)
         return false;       // then equals parent
+
+//     for (auto c : m_children) {
+//         if (c->m_parent != this) {
+//             return false;
+//         }
+//     }
 
     int l = m_l-1;
     for (auto c : m_children) {
@@ -562,6 +573,14 @@ void MessageTreeNode::DoClearChildren()
     m_children.clear();
 }
 
+void MessageTreeNode::FixParent()
+{
+    for (auto &c : m_children) {
+        c->m_parent = this;
+        c->FixParent();
+    }
+}
+
 MessageTreeRefiner::MessageTreeRefiner()
 {
 
@@ -574,7 +593,8 @@ MessageTreeRefiner::~MessageTreeRefiner()
 
 void MessageTreeRefiner::RefineTree( MessageTree &tree )
 {
-    Refine(tree.m_root);
+    Refine(tree.GetRoot());
+    tree.GetRoot()->FixParent();
     if (!tree.CheckValidity()) {
         LxFatal("Tree validity failed after refining\n");
     }
