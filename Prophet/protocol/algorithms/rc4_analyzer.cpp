@@ -120,6 +120,9 @@ void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &input,
             tag->Params.push_back(new AlgParam("Input", input, pt));
             tag->Params.push_back(new AlgParam("Output", output, ct));
 
+//             LxInfo("input entropy: %f, output entropy: %f\n",
+//                 CalculateEntropy(pt, input.Len), CalculateEntropy(ct, output.Len));
+
             Message *parent = m_algEngine->GetMessage();
             Message *submsg = new Message(output, ct, parent,
                 parent->GetRegion().SubRegion(tin), tag, true);

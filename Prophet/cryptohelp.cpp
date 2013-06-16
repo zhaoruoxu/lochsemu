@@ -55,3 +55,18 @@ bool ChainedXor_IsValidDecrypt( cpbyte ct, cpbyte pt, int ctlen )
     SAFE_DELETE_ARRAY(t);
     return r;
 }
+
+double CalculateEntropy( cpbyte data, int len )
+{
+    if (len <= 0) return 0;
+    double count[256];
+    for (int i = 0; i < 256; i++)
+        count[i] = 0;
+    for (int i = 0; i < len; i++)
+        count[data[i]] += 1.0 / len;
+    double entropy = 0;
+    for (int i = 0; i < 256; i++)
+        if (count[i] > 0)
+            entropy += count[i] * log(count[i]);
+    return -entropy / log(len);
+}

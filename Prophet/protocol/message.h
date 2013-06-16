@@ -39,6 +39,7 @@ struct AlgParam {
     std::string Type;
     MemRegion Mem;
     pbyte Data;
+    double Entropy;
 
     AlgParam(const std::string &t, const MemRegion &r, cpbyte d);
     ~AlgParam();

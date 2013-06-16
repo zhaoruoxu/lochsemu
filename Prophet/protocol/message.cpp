@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "message.h"
 #include "engine.h"
+#include "cryptohelp.h"
 
 #include "analyzers/procscope.h"
 #include "analyzers/traceexec.h"
@@ -228,9 +229,11 @@ void AlgTag::DumpDot( File &f ) const
 {
     fprintf(f.Ptr(), "\"");
     fprintf(f.Ptr(), "-- %s(%s) --\\l", AlgName.c_str(), Description.c_str());
+    int count = 1;
     for (auto &p : Params) {
-        fprintf(f.Ptr(), "[%x:%d] %s %s\\l", p->Mem.Addr, p->Mem.Len,
-            p->Type.c_str(), ByteArrayToDotString(p->Data, p->Mem.Len, 16).c_str());
+        fprintf(f.Ptr(), "(%d)[%x:%d] %s %s H=%.4f\\l", count++, 
+            p->Mem.Addr, p->Mem.Len, p->Type.c_str(), 
+            ByteArrayToDotString(p->Data, p->Mem.Len, 16).c_str(), p->Entropy);
     }
     fprintf(f.Ptr(), "\"");
 }
@@ -240,6 +243,7 @@ AlgParam::AlgParam( const std::string &t, const MemRegion &r, cpbyte d )
 {
     Data = new byte[r.Len];
     memcpy(Data, d, r.Len);
+    Entropy = CalculateEntropy(d, r.Len);
 }
 
 AlgParam::~AlgParam()
