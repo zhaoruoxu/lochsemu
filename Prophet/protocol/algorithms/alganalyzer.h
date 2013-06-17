@@ -41,9 +41,15 @@ class AlgorithmAnalyzer {
 public:
     AlgorithmAnalyzer();
     virtual ~AlgorithmAnalyzer() {}
-    virtual void OnProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) {}
-    virtual void OnOriginalProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) {}
-    virtual void OnInputProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) {}
+    virtual bool OnProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) {
+        return false;
+    }
+    virtual bool OnOriginalProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) {
+        return false;
+    }
+    virtual bool OnInputProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) {
+        return false;
+    }
     virtual void OnComplete() {}
 
     void SetAlgEngine(AdvAlgEngine *e) { m_algEngine = e; }

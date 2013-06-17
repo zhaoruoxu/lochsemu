@@ -36,8 +36,8 @@ void CallStack::OnProcBegin( ExecuteTraceEvent &event )
 
 void CallStack::OnProcEnd( ExecuteTraceEvent &event )
 {
+    Assert(!m_stack.empty());
     m_stack.pop_back();
-
 }
 
 void CallStack::OnComplete()

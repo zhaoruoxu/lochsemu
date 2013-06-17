@@ -70,15 +70,16 @@ public:
     T Get(int n) const { Assert(n < m_currSize); return m_data[n]; }
     int Size() const { return m_currSize; }
     void Append(const T *data, int n) {
-        if (m_currSize + n > m_currMaxSize)
-            Expand();
+        if (m_currSize + n * (int) sizeof(T) > m_currMaxSize)
+            Expand(m_currSize + n * (int) sizeof(T));
         memcpy(m_data + m_currSize, data, n * sizeof(T));
         m_currSize += n;
     }
 
 private:
-    void Expand() {
-        m_currMaxSize *= 2;
+    void Expand(int n) {
+        while (m_currMaxSize < n)
+            m_currMaxSize *= 2;
         T *newData = new T[m_currMaxSize];
         memcpy(newData, m_data, m_currSize * sizeof(T));
         SAFE_DELETE_ARRAY(m_data);

@@ -5,6 +5,7 @@
 #include "des_analyzer.h"
 #include "xor_analyzer.h"
 #include "hash_analyzer.h"
+#include "generic_analyzer.h"
 
 AdvAlgEngine::AdvAlgEngine( MessageManager *msgmgr, Message *msg, int minProcSize )
     : m_msgmgr(msgmgr), m_message(msg)
@@ -25,7 +26,8 @@ void AdvAlgEngine::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx
 
     // 1.
     for (int i = 0; i < m_count; i++)
-        m_analyzers[i]->OnProcedure(event, ctx);
+        if (m_analyzers[i]->OnProcedure(event, ctx))
+            break;
 
     // 2.
     if (ctx.Level <= 3) {
@@ -34,7 +36,8 @@ void AdvAlgEngine::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx
         ProcContext pc = SingleProcExec::Run(event, ctx, &m_taint);
 
         for (int i = 0; i < m_count; i++)
-            m_analyzers[i]->OnOriginalProcedure(event, pc);
+            if (m_analyzers[i]->OnOriginalProcedure(event, pc))
+                break;
     }
 
     // 3.
@@ -49,7 +52,8 @@ void AdvAlgEngine::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx
         }
         ProcContext pc = SingleProcExec::Run(event, ctx, &m_taint);
         for (int i = 0; i < m_count; i++)
-            m_analyzers[i]->OnInputProcedure(event, pc);
+            if (m_analyzers[i]->OnInputProcedure(event, pc))
+                break;
     }
 }
 
@@ -68,6 +72,7 @@ void AdvAlgEngine::RegisterAnalyzers()
     RegisterAnalyzer(new DESAnalyzer());
     RegisterAnalyzer(new ChainedXorAnalyzer());
     RegisterAnalyzer(new MD5Analyzer());
+    //RegisterAnalyzer(new GenericAnalyzer());
 }
 
 AdvAlgEngine::~AdvAlgEngine()

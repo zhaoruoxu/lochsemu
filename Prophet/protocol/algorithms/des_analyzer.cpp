@@ -2,18 +2,13 @@
 #include "des_analyzer.h"
 
 
-void DESAnalyzer::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
-{
-    
-}
-
-void DESAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
+bool DESAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
 #if 0
     ctx.Dump(StdOut(), true);
 #endif
 
-    if (ctx.Level > 1) return;
+    if (ctx.Level > 1) return false;
     for (auto &input : ctx.InputRegions) {
         if (input.Len != BlockSize) continue;
         Taint tin = GetMemRegionTaintOr(ctx.Inputs, input);
@@ -24,18 +19,20 @@ void DESAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcConte
             if (output.Len != BlockSize) continue;
             Taint tout = GetMemRegionTaintAnd(ctx.Outputs, output);
             if ((tout & tin) != tin) continue;
-            TestCrypt(ctx, input, output, trs[0]);
+            if (TestCrypt(ctx, input, output, trs[0]))
+                return true;
         }
     }
+    return false;
 }
 
-void DESAnalyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
+bool DESAnalyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
 #if 0
     ctx.Dump(StdOut(), true);
 #endif
 
-    if (ctx.Level > 1) return;
+    if (ctx.Level > 1) return false;
     for (auto &input : ctx.InputRegions) {
         if (input.Len != KeySize) continue;
         Taint tin = GetMemRegionTaintOr(ctx.Inputs, input);
@@ -48,6 +45,7 @@ void DESAnalyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext 
             TestKeySchedule(ctx, input, output);
         }
     }
+    return false;
 }
 
 void DESAnalyzer::TestKeySchedule( const ProcContext &ctx, const MemRegion &input, const MemRegion &output )
@@ -70,7 +68,7 @@ void DESAnalyzer::TestKeySchedule( const ProcContext &ctx, const MemRegion &inpu
     LxInfo("Found DES Key schedule\n");
 }
 
-void DESAnalyzer::TestCrypt(const ProcContext &ctx, const MemRegion &input, 
+bool DESAnalyzer::TestCrypt(const ProcContext &ctx, const MemRegion &input, 
                             const MemRegion &output, const TaintRegion &tr )
 {
     for (uint i = 0; i < m_contexts.size(); i++) {
@@ -84,8 +82,10 @@ void DESAnalyzer::TestCrypt(const ProcContext &ctx, const MemRegion &input,
             LxInfo("Found DES decrypt\n");
             OnFoundCrypt(ctx, (cpbyte) &bin, (cpbyte) &bout, input, output, 
                 tr, i, DESCRYPT_DECRYPT);
+            return true;
         }
     }
+    return false;
 }
 
 void DESAnalyzer::OnFoundCrypt(const ProcContext &ctx, cpbyte input, cpbyte output, 
@@ -102,6 +102,7 @@ void DESAnalyzer::OnFoundCrypt(const ProcContext &ctx, cpbyte input, cpbyte outp
                 LxFatal("taint merge failed\n");
             crypt->Input.Append(input, rin.Len);
             crypt->Output.Append(output, rout.Len);
+            crypt->BeginSeq = max(crypt->BeginSeq, ctx.EndSeq + 1);
             return;
         }
     }

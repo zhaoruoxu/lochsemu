@@ -2,7 +2,7 @@
 #include "hash_analyzer.h"
 #include <openssl/md5.h>
 
-void MD5Analyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
+bool MD5Analyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
     for (auto &input : ctx.InputRegions) {
         Taint tin = GetMemRegionTaintOr(ctx.Inputs, input);
@@ -12,22 +12,14 @@ void MD5Analyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcConte
 
         for (auto &output : ctx.OutputRegions) {
             if (output.Len != MDSize) continue;
-            TestMD5(ctx, input, output, trs[0]);
+            if (TestMD5(ctx, input, output, trs[0]))
+                return true;
         }
     }
+    return false;
 }
 
-void MD5Analyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
-{
-
-}
-
-void MD5Analyzer::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
-{
-
-}
-
-void MD5Analyzer::TestMD5(const ProcContext &ctx, const MemRegion &input, 
+bool MD5Analyzer::TestMD5(const ProcContext &ctx, const MemRegion &input, 
                           const MemRegion &output, const TaintRegion &tr )
 {
     pbyte in = new byte[input.Len];
@@ -37,6 +29,7 @@ void MD5Analyzer::TestMD5(const ProcContext &ctx, const MemRegion &input,
 
     byte actualMd[MDSize];
     MD5((const byte *) in, input.Len, actualMd);
+    bool found = false;
     if (CompareByteArray(md, actualMd, MDSize) == 0) {
         AlgTag *tag = new AlgTag("MD5", "Message Digest");
         tag->Params.push_back(new AlgParam("Message", input, in));
@@ -46,8 +39,10 @@ void MD5Analyzer::TestMD5(const ProcContext &ctx, const MemRegion &input,
             parent->GetRegion().SubRegion(tr), tag, false);
         LxInfo("MD5 Message Digest: %08x-%08x\n", output.Addr, output.Addr + output.Len - 1);
         m_algEngine->GetMessageManager()->EnqueueMessage(newMsg,
-            ctx.Level == 0 ? ctx.EndSeq+1:ctx.BeginSeq, parent->GetTraceEnd());
+            ctx.Level == 0 ? ctx.EndSeq+1:ctx.BeginSeq, parent->GetTraceEnd());\
+        found = true;
     }
 
     SAFE_DELETE_ARRAY(in);
+    return found;
 }

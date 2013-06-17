@@ -2,6 +2,7 @@
 #include "runtrace.h"
 #include "protocol.h"
 #include "processor.h"
+#include "message.h"
 
 RunTrace::RunTrace(Protocol *engine) : m_engine(engine)
 {
@@ -69,6 +70,13 @@ void RunTrace::Deserialize( Json::Value &root )
 void RunTrace::Dump( File &f ) const
 {
     for (int i = 0; i < m_count; i++)
+        m_traces[i].Dump(f);
+}
+
+void RunTrace::DumpMsg( Message *msg, File &f ) const
+{
+    Assert(msg->GetTraceEnd() < m_count);
+    for (int i = msg->GetTraceBegin(); i <= msg->GetTraceEnd(); i++)
         m_traces[i].Dump(f);
 }
 

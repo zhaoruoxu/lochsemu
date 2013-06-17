@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "msgaccess.h"
+#include "msgtree.h"
 
+#define FIX_ADJACENT_REVERSE_ORDER  1
 
 MessageAccessLog::MessageAccessLog( const Message *msg )
 {
@@ -38,7 +40,16 @@ void MessageAccessLog::OnExecuteTrace( ExecuteTraceEvent &event )
 
 void MessageAccessLog::OnComplete()
 {
-
+#if FIX_ADJACENT_REVERSE_ORDER
+    StackHashComparator cmp;
+    for (uint i = 0; i < m_accesses.size() - 1; i++) {
+        if (m_accesses[i]->Offset == m_accesses[i+1]->Offset + 1 && 
+            cmp.Equals(m_accesses[i], m_accesses[i+1])) 
+        {
+            std::swap(m_accesses[i], m_accesses[i+1]);
+        }
+    }
+#endif
 }
 
 void MessageAccessLog::OnMemRead( const TContext *t, u32 addr, byte data )

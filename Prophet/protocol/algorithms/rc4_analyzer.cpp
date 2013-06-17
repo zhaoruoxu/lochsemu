@@ -2,25 +2,28 @@
 #include "rc4_analyzer.h"
 #include "cryptohelp.h"
 
-void RC4Analyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
+bool RC4Analyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
     //ctx.Dump(StdOut(), false);
 
-    if (ctx.Level > 1) return;
+    if (ctx.Level > 1) return false;
 
-    if (m_contexts.empty()) return;
+    if (m_contexts.empty()) return false;
     for (auto &r : ctx.InputRegions) {
-        TestRC4Crypt(ctx, r);
+        if (TestRC4Crypt(ctx, r))
+            return true;
     }
+    return false;
 }
 
-void RC4Analyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
+bool RC4Analyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
-    if (ctx.Level > 1) return;
+    if (ctx.Level > 1) return false;
 
     for (auto &region : ctx.OutputRegions) {
         TestKeySchedule(ctx, region);
     }
+    return false;
 }
 
 void RC4Analyzer::TestKeySchedule( const ProcContext &ctx, const MemRegion &region )
@@ -69,10 +72,9 @@ void RC4Analyzer::TestKeySchedule( const ProcContext &ctx, u32 sboxAddr )
                 key.Addr, key.Addr + key.Len - 1, sboxAddr, sboxAddr + 255);
         }
     }
-    
 }
 
-void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &region )
+bool RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &region )
 {
     // region必须为连续被taint的一块内存区域
     Taint tor;
@@ -80,7 +82,7 @@ void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &region )
         tor |= ctx.Inputs.find(region.Addr + o)->second.Tnt;
     }
     auto tRegions = tor.GenerateRegions();
-    if (tRegions.size() != 1) return;       // 不满足全部被连续taint
+    if (tRegions.size() != 1) return false;       // 不满足全部被连续taint
     
     for (auto &r : ctx.OutputRegions) {
         if (r.Len < region.Len) continue;
@@ -95,17 +97,19 @@ void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &region )
             }
             if (offset == region.Len) {
                 // found match
-                TestRC4Crypt(ctx, region, MemRegion(r.Addr + i - offset + 1, offset), tRegions[0]);
-                break;
+                if (TestRC4Crypt(ctx, region, MemRegion(r.Addr + i - offset + 1, offset), tRegions[0]))
+                    return true;
             }
         }
     }
+    return false;
 }
 
-void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &input, 
+bool RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &input, 
                                const MemRegion &output, const TaintRegion &tin )
 {
     Assert(input.Len == output.Len);
+    bool found = false;
     for (auto &rc4ctx : m_contexts) {
         byte sbox[SboxLength];
         memcpy(sbox, rc4ctx.Sbox, SboxLength);
@@ -128,6 +132,7 @@ void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &input,
                 parent->GetRegion().SubRegion(tin), tag, true);
             LxInfo("RC4 sub-message: [%08x-%08x]\n", output.Addr, 
                 output.Addr + output.Len - 1);
+            found = true;
             memcpy(rc4ctx.Sbox, sbox, SboxLength);
             m_algEngine->GetMessageManager()->EnqueueMessage(
                 submsg, ctx.EndSeq+1, parent->GetTraceEnd());
@@ -135,6 +140,7 @@ void RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &input,
         SAFE_DELETE_ARRAY(pt);
         SAFE_DELETE_ARRAY(ct);
     }
+    return found;
 }
 
 bool RC4Context::TryKeySchedule(const ProcContext &ctx, const MemRegion &key, 

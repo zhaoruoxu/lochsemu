@@ -558,6 +558,9 @@
     <ClInclude Include="protocol\algorithms\hash_analyzer.h">
       <Filter>Header Files\protocol\algorithms</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\algorithms\generic_analyzer.h">
+      <Filter>Header Files\protocol\algorithms</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -756,6 +759,9 @@
       <Filter>Source Files\protocol\algorithms</Filter>
     </ClCompile>
     <ClCompile Include="protocol\algorithms\hash_analyzer.cpp">
+      <Filter>Source Files\protocol\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\algorithms\generic_analyzer.cpp">
       <Filter>Source Files\protocol\algorithms</Filter>
     </ClCompile>
   </ItemGroup>

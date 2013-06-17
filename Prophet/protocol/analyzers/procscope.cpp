@@ -41,6 +41,7 @@ void ProcScope::Reset()
         SAFE_DELETE(entry.second);
     }
     m_procs.clear();
+    m_entryProcs.clear();
 }
 
 void ProcScope::OnExecuteTrace( ExecuteTraceEvent &event )
@@ -48,6 +49,7 @@ void ProcScope::OnExecuteTrace( ExecuteTraceEvent &event )
     if (m_callStack.empty()) {
         // begin a new procedure
         OnProcBegin(event);
+        m_entryProcs.insert(m_callStack.top());
     }
 
     Assert(!m_callStack.empty());
@@ -61,6 +63,7 @@ void ProcScope::OnProcBegin( ExecuteTraceEvent &event )
 
 void ProcScope::OnProcEnd( ExecuteTraceEvent &event )
 {
+    Assert(!m_callStack.empty());
     m_callStack.top()->Exit(event.Context->Eip);
     m_callStack.pop();
 }
@@ -90,11 +93,11 @@ void ProcScope::Dump( File &f ) const
     }
 }
 
-
 void ProcScope::CheckValidity() const
 {
     std::map<u32, Procedure *>  addrProcMap;
     for (auto &proc : m_procs) {
+        if (m_entryProcs.find(proc.second) != m_entryProcs.end()) continue;
         for (auto &addr : proc.second->Addrs()) {
             auto i = addrProcMap.find(addr);
             if (i != addrProcMap.end()) {

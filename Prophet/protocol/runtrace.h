@@ -24,6 +24,7 @@ public:
     void        Deserialize(Json::Value &root) override;
     
     void        Dump(File &f) const;
+    void        DumpMsg(Message *msg, File &f) const;
 
 private:
     int         m_count;

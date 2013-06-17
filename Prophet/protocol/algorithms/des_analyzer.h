@@ -36,9 +36,8 @@ struct DESCrypt {
 class DESAnalyzer : public AlgorithmAnalyzer {
 public:
     virtual ~DESAnalyzer();
-    virtual void OnProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
-    virtual void OnOriginalProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
-    virtual void OnInputProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
+    virtual bool OnOriginalProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
+    virtual bool OnInputProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
     virtual void OnComplete() override;
 
 public:
@@ -47,7 +46,7 @@ public:
     static const uint SubKeySize = sizeof(DES_key_schedule);
 private:
     void TestKeySchedule(const ProcContext &ctx, const MemRegion &input, const MemRegion &output);
-    void TestCrypt(const ProcContext &ctx, const MemRegion &input, 
+    bool TestCrypt(const ProcContext &ctx, const MemRegion &input, 
         const MemRegion &output, const TaintRegion &tr);
     void OnFoundCrypt(const ProcContext &ctx, cpbyte input, cpbyte output, const MemRegion &rin, 
         const MemRegion &rout, const TaintRegion &tr, uint ctxIndex, DESCryptType type);

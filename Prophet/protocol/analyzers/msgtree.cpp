@@ -22,6 +22,7 @@ MsgTree::~MsgTree()
 
 void MsgTree::Construct( const MessageAccessLog *log, MessageAccessComparator &cmp )
 {
+#define MINIMUM_SEQUENCE_LENGTH 4
     LxDebug("Constructing message tree\n");
     m_root = new TreeNode(0, m_message->Size() - 1);
 
@@ -39,7 +40,7 @@ void MsgTree::Construct( const MessageAccessLog *log, MessageAccessComparator &c
             currNode->m_r++;
         } else {
 
-            if (currNode->Length() > 3 || currNode->Length() == 1) {
+            if (currNode->Length() >= MINIMUM_SEQUENCE_LENGTH || currNode->Length() == 1) {
 #if 0
                 LxInfo("inserting [%d,%d]\n", currNode->m_l, currNode->m_r);
                 if (currNode->m_l == 0x46 && currNode->m_r == 0x50) {
@@ -59,7 +60,13 @@ void MsgTree::Construct( const MessageAccessLog *log, MessageAccessComparator &c
         }
         prev = curr;
     }
-    Insert(currNode);
+
+    if (currNode->Length() >= MINIMUM_SEQUENCE_LENGTH || currNode->Length() == 1) {
+        Insert(currNode);
+    } else {
+        delete currNode;
+    }
+    
 
 #ifdef _DEBUG
     if (!CheckValidity()) {
@@ -68,6 +75,7 @@ void MsgTree::Construct( const MessageAccessLog *log, MessageAccessComparator &c
 #endif
 
     m_root->FixParent();
+#undef MINIMUM_SEQUENCE_LENGTH
 }
 
 void MsgTree::Insert( TreeNode *node )

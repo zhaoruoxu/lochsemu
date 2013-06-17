@@ -2,9 +2,9 @@
 #include "xor_analyzer.h"
 #include "cryptohelp.h"
 
-void ChainedXorAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
+bool ChainedXorAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
-    if (ctx.Level > 1) return;
+    if (ctx.Level > 1) return false;
 
     for (auto &input : ctx.InputRegions) {
         if (input.Len <= 4) continue;
@@ -30,27 +30,19 @@ void ChainedXorAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const Pr
                         offset = 0;
                 }
                 if (offset == input.Len) {
-                    TestCrypt(ctx, input, MemRegion(output.Addr + i - offset + 1, offset),
-                        trs[0]);
-                    break;
+                    if (TestCrypt(ctx, input, MemRegion(output.Addr + i - offset + 1, offset), trs[0]))
+                        return true;
                 }
             }
         }
     }
+    return false;
 }
 
-void ChainedXorAnalyzer::OnInputProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
+
+bool ChainedXorAnalyzer::TestCrypt( const ProcContext &ctx, const MemRegion &input, const MemRegion &output, const TaintRegion &tr )
 {
-
-}
-
-void ChainedXorAnalyzer::OnProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
-{
-
-}
-
-void ChainedXorAnalyzer::TestCrypt( const ProcContext &ctx, const MemRegion &input, const MemRegion &output, const TaintRegion &tr )
-{
+    bool found = false;
     pbyte ct = new byte[input.Len];
     pbyte pt = new byte[output.Len];
     FillMemRegionBytes(ctx.Inputs, input, ct);
@@ -69,7 +61,9 @@ void ChainedXorAnalyzer::TestCrypt( const ProcContext &ctx, const MemRegion &inp
             output.Addr, output.Addr + output.Len - 1);
         m_algEngine->GetMessageManager()->EnqueueMessage(msg, 
             ctx.Level == 0?ctx.EndSeq+1:ctx.BeginSeq, parent->GetTraceEnd());
+        found = true;
     }
     SAFE_DELETE_ARRAY(ct);
     SAFE_DELETE_ARRAY(pt);
+    return false;
 }

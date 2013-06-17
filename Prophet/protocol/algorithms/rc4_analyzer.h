@@ -19,9 +19,9 @@ struct RC4Context {
 
 class RC4Analyzer : public AlgorithmAnalyzer {
 public:
-    virtual void OnOriginalProcedure(ExecuteTraceEvent &event, 
+    virtual bool OnOriginalProcedure(ExecuteTraceEvent &event, 
         const ProcContext &ctx) override;
-    virtual void OnInputProcedure(ExecuteTraceEvent &event, 
+    virtual bool OnInputProcedure(ExecuteTraceEvent &event, 
         const ProcContext &ctx) override;
 
 public:
@@ -29,8 +29,8 @@ public:
 private:
     void TestKeySchedule(const ProcContext &ctx, const MemRegion &region);
     void TestKeySchedule(const ProcContext &ctx, u32 sboxAddr);
-    void TestRC4Crypt(const ProcContext &ctx, const MemRegion &region);
-    void TestRC4Crypt(const ProcContext &ctx, const MemRegion &input, 
+    bool TestRC4Crypt(const ProcContext &ctx, const MemRegion &region);
+    bool TestRC4Crypt(const ProcContext &ctx, const MemRegion &input, 
         const MemRegion &output, const TaintRegion &tin);
 
 private:
