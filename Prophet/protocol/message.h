@@ -76,7 +76,7 @@ public:
     Message *   GetParent() const { return m_parent; }
     int         GetTraceBegin() const { return m_traceBegin; }
     int         GetTraceEnd() const { return m_traceEnd; }
-    std::string GetName() const { return GetTypeString() + m_name; }
+    std::string GetName() const;
     MsgTree *GetTree() const { return m_fieldTree; }
     //const MessageTree *GetTree() const { return m_fieldTree; }
     AlgTag *    GetTag() const { return m_tag; }

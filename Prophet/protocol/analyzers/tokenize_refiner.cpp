@@ -50,7 +50,7 @@ TokenizeRefiner::TokenizeRefiner( const Message *msg, MessageType type, int dept
 bool TokenizeRefiner::IsTokenChar( byte ch ) const
 {
     if (m_type == MESSAGE_ASCII) {
-        return !isspace(ch) && !iscntrl(ch) && ch != 0x0a && ch != 0x0d;
+        return !isspace(ch) && !iscntrl(ch) && ch != 0x0a && ch != 0x0d && ch != ':';
     } else if (m_type == MESSAGE_BINARY) {
         //if (ch == ' ') return false;
         return (ch >= 0x20 && ch <= 0x7f) /*|| ch == 0xa || ch == 0xd || ch == 0*/;

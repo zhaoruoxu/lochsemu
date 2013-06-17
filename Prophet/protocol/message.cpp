@@ -164,7 +164,7 @@ void Message::SetID( int id )
 {
     m_id = id;
     char buf[64];
-    sprintf(buf, "%d", m_id);
+    sprintf(buf, "%03d", m_id);
     m_name = buf;
 }
 
@@ -203,12 +203,17 @@ std::string Message::GetTypeString() const
 {
     switch (m_type) {
     case MESSAGE_ASCII:
-        return "Ascii";
+        return "Text_ASCII";
     case MESSAGE_BINARY:
         return "Binary";
     default:
         return "Unknown";
     }
+}
+
+std::string Message::GetName() const
+{
+    return GetTypeString() + "_" + m_name;
 }
 
 AlgTag::AlgTag( const std::string &name, const std::string &desc )
