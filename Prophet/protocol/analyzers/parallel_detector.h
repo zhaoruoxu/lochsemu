@@ -7,6 +7,7 @@
 
 class ParallelFieldDetector : public MessageTreeRefiner {
 public:
+    ParallelFieldDetector(int minlen);
     virtual void Refine(TreeNode *node) override;
     virtual void RefineNode(TreeNode *node) override;
 
@@ -24,6 +25,7 @@ private:
     ExecHistory     m_parallelExecHist;
     ExecHistory     m_separatorExecHist;
     bool            m_foundSeparator;
+    int             m_minlen;
 };
 
  

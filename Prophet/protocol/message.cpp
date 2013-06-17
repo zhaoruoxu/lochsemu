@@ -85,7 +85,7 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
 
     //SanitizeRefiner().RefineTree(*m_fieldTree);
     TokenizeRefiner(this, m_type, 1).RefineTree(*m_fieldTree);
-    ParallelFieldDetector().RefineTree(*m_fieldTree);
+    ParallelFieldDetector(3).RefineTree(*m_fieldTree);
 
     TaintEngine *taint = msgmgr->GetTaint();
     taint->Reset();

@@ -2,6 +2,7 @@
 #include "parallel_detector.h"
 
 
+
 void ParallelFieldDetector::Refine( TreeNode *node )
 {
     RefineNode(node);
@@ -27,6 +28,7 @@ bool ParallelFieldDetector::CheckRefinableLeft( TreeNode *node )
     Reset();
     if (!node->IsLeaf()) return false;
     if (node->HasFlag(TREENODE_PARALLEL)) return false;
+    if (node->Length() < m_minlen) return false;
     m_parallelExecHist = node->m_execHistory;
     return true;
 }
@@ -44,8 +46,11 @@ bool ParallelFieldDetector::DoCheckRefinableRight( TreeNode *node, int &hitcount
 {
     if (node->IsLeaf()) {
         if (node->m_execHistory == m_parallelExecHist) {
-            hitcount++;
-            return true;
+            if (node->Length() >= m_minlen) {
+                hitcount++;
+                return true;
+            } else
+                return false;
         }
         if (!m_foundSeparator) {
             m_separatorExecHist = node->m_execHistory;
@@ -133,4 +138,9 @@ void ParallelFieldDetector::LabelNode( TreeNode *node )
     } else {
         LxFatal("shit\n");
     }
+}
+
+ParallelFieldDetector::ParallelFieldDetector( int minlen )
+{
+    m_minlen = minlen;
 }

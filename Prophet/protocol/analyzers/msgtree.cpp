@@ -97,7 +97,7 @@ void MsgTree::DumpDot( File &f, bool isRoot ) const
 {
     if (isRoot) {
         fprintf(f.Ptr(), "digraph %s {\n", m_message->GetName().c_str());
-        fprintf(f.Ptr(), "node [fontname=\"Consolas\", fontsize=14];\n");
+        fprintf(f.Ptr(), "node [shape=box,fontname=\"Consolas\", fontsize=14];\n");
     } else {
         fprintf(f.Ptr(), "subgraph cluster_%s {\n", m_message->GetName().c_str());
     }
@@ -494,9 +494,9 @@ std::string TreeNode::GetDotStyle( const Message *msg ) const
     if (IsLeaf()) {
         //ss << "shape=ellipse";
         if (HasFlag(TREENODE_PARALLEL)) {
-            ss << "shape=ellipse,color=blue";
+            ss << "color=blue";
         } else if (HasFlag(TREENODE_SEPARATOR)) {
-            ss << "shape=diamond,color=darkgreen";
+            ss << "color=darkgreen";
         }
     } else {
         ss << "shape=box";
