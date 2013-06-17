@@ -79,7 +79,7 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
 
     m_accesslog->Dump(File(dir + "message_access_" + GetName() + ".txt", "w"));
 
-    m_fieldTree = new MessageTree(this);
+    m_fieldTree = new MsgTree(this);
     m_fieldTree->Construct(m_accesslog, StackHashComparator());
     m_fieldTree->UpdateHistory(m_accesslog);
 
@@ -100,7 +100,7 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
     if (m_parent != NULL) {
         MemRegion parentData;
         if (m_parent->SearchData(m_data, m_region.Len, parentData)) {
-            MessageTreeNode *node = m_parent->GetTree()->FindOrCreateNode(parentData);
+            TreeNode *node = m_parent->GetTree()->FindOrCreateNode(parentData);
             if (node) {
                 node->AddLink(NodeLink(
                     m_fieldTree->GetRoot(), this, m_tag ? m_tag->AlgName.c_str() : "", "both"
@@ -138,7 +138,7 @@ void Message::SetTraceRange( int beginIncl, int endIncl )
 
 void Message::Insert( Message *msg )
 {
-    MessageTreeNode *node = m_fieldTree->FindOrCreateNode(msg->GetParentRegion());
+    TreeNode *node = m_fieldTree->FindOrCreateNode(msg->GetParentRegion());
     if (node == NULL) {
         LxError("Cannot insert sub-message into message\n");
         return;

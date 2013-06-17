@@ -2,14 +2,14 @@
 #include "parallel_detector.h"
 
 
-void ParallelFieldDetector::Refine( MessageTreeNode *node )
+void ParallelFieldDetector::Refine( TreeNode *node )
 {
     RefineNode(node);
     for (auto &c : node->m_children)
         Refine(c);
 }
 
-void ParallelFieldDetector::RefineNode( MessageTreeNode *node )
+void ParallelFieldDetector::RefineNode( TreeNode *node )
 {
     while (RefineOnce(node)) {
     }
@@ -22,7 +22,7 @@ void ParallelFieldDetector::Reset()
     m_foundSeparator = false;
 }
 
-bool ParallelFieldDetector::CheckRefinableLeft( MessageTreeNode *node )
+bool ParallelFieldDetector::CheckRefinableLeft( TreeNode *node )
 {
     Reset();
     if (!node->IsLeaf()) return false;
@@ -31,7 +31,7 @@ bool ParallelFieldDetector::CheckRefinableLeft( MessageTreeNode *node )
     return true;
 }
 
-bool ParallelFieldDetector::CheckRefinableRight( MessageTreeNode *node )
+bool ParallelFieldDetector::CheckRefinableRight( TreeNode *node )
 {
     if (node->HasFlag(TREENODE_PARALLEL)) return false;
     if (node->IsLeaf()) return false;
@@ -40,7 +40,7 @@ bool ParallelFieldDetector::CheckRefinableRight( MessageTreeNode *node )
     return r && hitcount > 1;
 }
 
-bool ParallelFieldDetector::DoCheckRefinableRight( MessageTreeNode *node, int &hitcount )
+bool ParallelFieldDetector::DoCheckRefinableRight( TreeNode *node, int &hitcount )
 {
     if (node->IsLeaf()) {
         if (node->m_execHistory == m_parallelExecHist) {
@@ -65,25 +65,25 @@ bool ParallelFieldDetector::DoCheckRefinableRight( MessageTreeNode *node, int &h
 }
 
 
-bool ParallelFieldDetector::RefineOnce( MessageTreeNode *node )
+bool ParallelFieldDetector::RefineOnce( TreeNode *node )
 {
     if (node->HasFlag(TREENODE_PARALLEL)) return false;
     for (int i = 0; i < node->GetChildrenCount() - 1; i++) {
-        MessageTreeNode *left = node->m_children[i];
-        MessageTreeNode *right = node->m_children[i+1];
+        TreeNode *left = node->m_children[i];
+        TreeNode *right = node->m_children[i+1];
         if (!CheckRefinableLeft(left)) continue;
         if (!CheckRefinableRight(right)) continue;
 
         LxInfo("Found parallel fields, refining\n");
 
-        std::vector<MessageTreeNode *> newChildren;
+        std::vector<TreeNode *> newChildren;
         int p = 0;
         for (; p < i; p++) {
             newChildren.push_back(node->m_children[p]);
         }
         p = i + 2; // skip left and right
-        MessageTreeNode *parallelNode = 
-            new MessageTreeNode(left->m_l, right->m_r, node);
+        TreeNode *parallelNode = 
+            new TreeNode(left->m_l, right->m_r, node);
         parallelNode->AppendChild(left);
         parallelNode->m_execHistory = left->m_execHistory;
         parallelNode->m_execHistoryStrict = left->m_execHistoryStrict;
@@ -111,7 +111,7 @@ bool ParallelFieldDetector::RefineOnce( MessageTreeNode *node )
     return false;
 }
 
-void ParallelFieldDetector::ToList( MessageTreeNode *&node, std::vector<MessageTreeNode *> &list )
+void ParallelFieldDetector::ToList( TreeNode *&node, std::vector<TreeNode *> &list )
 {
     if (node->IsLeaf()) {
         list.push_back(node);
@@ -124,7 +124,7 @@ void ParallelFieldDetector::ToList( MessageTreeNode *&node, std::vector<MessageT
     SAFE_DELETE(node);
 }
 
-void ParallelFieldDetector::LabelNode( MessageTreeNode *node )
+void ParallelFieldDetector::LabelNode( TreeNode *node )
 {
     if (node->m_execHistory == m_parallelExecHist) {
         node->SetFlag(TREENODE_PARALLEL);

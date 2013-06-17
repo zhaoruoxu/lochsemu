@@ -49,9 +49,9 @@ void DirectionField::OnComplete()
 
 }
 
-void DirectionField::Analyze( const TaintRegion &tr, MessageTreeNode *node )
+void DirectionField::Analyze( const TaintRegion &tr, TreeNode *node )
 {
-    MessageTreeNode *from = m_message->GetTree()->FindOrCreateNode(tr);
+    TreeNode *from = m_message->GetTree()->FindOrCreateNode(tr);
     if (from == NULL) return;
 
     auto iter = m_discovered.find(from);

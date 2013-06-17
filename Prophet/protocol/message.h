@@ -77,7 +77,7 @@ public:
     int         GetTraceBegin() const { return m_traceBegin; }
     int         GetTraceEnd() const { return m_traceEnd; }
     std::string GetName() const { return GetTypeString() + m_name; }
-    MessageTree *GetTree() const { return m_fieldTree; }
+    MsgTree *GetTree() const { return m_fieldTree; }
     //const MessageTree *GetTree() const { return m_fieldTree; }
     AlgTag *    GetTag() const { return m_tag; }
     void        DumpTree(File &f) const;
@@ -100,7 +100,7 @@ private:
     std::vector<Message *>  m_children;
     std::string     m_name;
     MessageAccessLog *m_accesslog;
-    MessageTree     *m_fieldTree;
+    MsgTree     *m_fieldTree;
     AlgTag *        m_tag;
     bool    m_clearNode;
     MessageType     m_type;

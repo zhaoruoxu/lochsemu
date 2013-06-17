@@ -8,11 +8,11 @@
 class SanitizeRefiner : public MessageTreeRefiner {
 public:
     SanitizeRefiner();
-    virtual void Refine(MessageTreeNode *node) override;
+    virtual void Refine(TreeNode *node) override;
 
 private:
 private:
-    bool    HasTrailingZero(MessageTreeNode *node);
+    bool    HasTrailingZero(TreeNode *node);
 };
  
 #endif // __PROPHET_PROTOCOL_ANALYZERS_SANITIZE_REFINER_H__

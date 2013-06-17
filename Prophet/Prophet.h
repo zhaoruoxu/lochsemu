@@ -86,8 +86,8 @@ class CallStack;
 class MessageFieldFormat;
 class ExecuteTraceEvent;
 class MessageAccessLog;
-class MessageTree;
-class MessageTreeNode;
+class MsgTree;
+class TreeNode;
 class MessageEndEvent;
 class MessageBeginEvent;
 

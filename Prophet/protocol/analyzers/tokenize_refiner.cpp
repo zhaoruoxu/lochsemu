@@ -2,13 +2,13 @@
 #include "tokenize_refiner.h"
 
 
-void TokenizeRefiner::RefineTree( MessageTree &tree )
+void TokenizeRefiner::RefineTree( MsgTree &tree )
 {
     CalculateDepth(tree.GetRoot());
     MessageTreeRefiner::RefineTree(tree);
 }
 
-void TokenizeRefiner::RefineNode( MessageTreeNode *node )
+void TokenizeRefiner::RefineNode( TreeNode *node )
 {
     if (node->IsLeaf()) return;
 
@@ -18,9 +18,9 @@ void TokenizeRefiner::RefineNode( MessageTreeNode *node )
      }
 #endif
 
-    std::vector<MessageTreeNode *> newChildren;
+    std::vector<TreeNode *> newChildren;
     newChildren.push_back(node->m_children[0]);
-    MessageTreeNode *prev = node->m_children[0];
+    TreeNode *prev = node->m_children[0];
     for (uint i = 1; i < node->m_children.size(); i++) {
         if (m_nodeDepth[node->m_children[i]] < m_depth && 
             CanConcatenate(prev, node->m_children[i])) 
@@ -60,8 +60,8 @@ bool TokenizeRefiner::IsTokenChar( byte ch ) const
     }
 }
 
-bool TokenizeRefiner::CanConcatenate(const MessageTreeNode *l, 
-                                     const MessageTreeNode *r ) const
+bool TokenizeRefiner::CanConcatenate(const TreeNode *l, 
+                                     const TreeNode *r ) const
 {
     if (!l->IsLeaf() || !r->IsLeaf()) return false;
 
@@ -77,7 +77,7 @@ bool TokenizeRefiner::CanConcatenate(const MessageTreeNode *l,
     return true;
 }
 
-void TokenizeRefiner::CalculateDepth( MessageTreeNode *node )
+void TokenizeRefiner::CalculateDepth( TreeNode *node )
 {
     if (node->IsLeaf()) {
         m_nodeDepth[node] = 0;

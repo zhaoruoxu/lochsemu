@@ -7,11 +7,11 @@ SanitizeRefiner::SanitizeRefiner(  )
     
 }
 
-void SanitizeRefiner::Refine( MessageTreeNode *node )
+void SanitizeRefiner::Refine( TreeNode *node )
 {
     if (HasTrailingZero(node)) {
-        MessageTreeNode *left = node->GetChild(0);
-        MessageTreeNode *right = node->GetChild(1);
+        TreeNode *left = node->GetChild(0);
+        TreeNode *right = node->GetChild(1);
         Refine(left);
         node->m_flag = left->m_flag;
         for (auto &ch : left->m_children) {
@@ -24,11 +24,11 @@ void SanitizeRefiner::Refine( MessageTreeNode *node )
     }
 }
 
-bool SanitizeRefiner::HasTrailingZero( MessageTreeNode *node )
+bool SanitizeRefiner::HasTrailingZero( TreeNode *node )
 {
     if (node->m_subMessages.size() != 0) return false;
     if (node->GetChildrenCount() != 2) return false;
-    MessageTreeNode *right = node->GetChild(1);
+    TreeNode *right = node->GetChild(1);
     return right->IsLeaf() && right->Length() == 1;
 }
 

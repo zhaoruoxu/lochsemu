@@ -15,12 +15,12 @@ public:
     void OnComplete() override;
 
 private:
-    void Analyze(const TaintRegion &tr, MessageTreeNode *node);
+    void Analyze(const TaintRegion &tr, TreeNode *node);
 private:
     TaintEngine *m_taint;
     Message *m_message;
-    MessageTreeNode *m_currentNode;
-    std::map<MessageTreeNode *, MessageTreeNode *> m_discovered;
+    TreeNode *m_currentNode;
+    std::map<TreeNode *, TreeNode *> m_discovered;
 };
  
 #endif // __PROPHET_PROTOCOL_ANALYZERS_DIRECTION_FIELD_H__
