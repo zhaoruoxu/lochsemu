@@ -68,7 +68,8 @@ void MessageManager::OnMessageEnd( MessageEndEvent &event )
     //m_format.OnMessageEnd(event);
 
     int nTraces = m_tracer.Count();
-    //EnqueueMessage(m_currRootMsg, 0, nTraces-1);
+    TraceMessage(m_currRootMsg, 0, nTraces-1);
+	
 
     // Analyze();
 
@@ -127,7 +128,16 @@ void MessageManager::EnqueueMessage( Message *msg, int beginIncl, int endIncl )
 {
     msg->SetTraceRange(beginIncl, endIncl);
     msg->SetID(msg->GetParent() ? msg->GetParent()->GetID() : m_currId++);
-    m_msgQueue.push_back(msg);
+    //m_msgQueue.push_back(msg);
+	m_dbtracer.TraceMessage(msg);
+}
+
+void MessageManager::TraceMessage( Message *msg, int beginIncl, int endIncl )
+{
+	msg->SetTraceRange(beginIncl, endIncl);
+	//msg->SetID(msg->GetParent() ? msg->GetParent()->GetID() : m_currId++);
+	msg->SetID(m_currId++);
+	m_dbtracer.TraceMessage(msg);
 }
 
 void MessageManager::Analyze()

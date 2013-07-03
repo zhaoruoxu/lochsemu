@@ -24,6 +24,8 @@ public:
     void            Analyze();
     void            GenerateOutput();
 
+	void			TraceMessage(Message *msg, int beginIncl, int endIncl);
+
 //     Message *       GetCurrentMessage() { return m_currRootMsg; }
 //     const Message * GetCurrentMessage() const { return m_currRootMsg; }
     RunTrace &      GetRunTrace() { return m_tracer; }
