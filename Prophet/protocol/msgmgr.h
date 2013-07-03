@@ -7,6 +7,7 @@
 #include "event.h"
 #include "taint/taint.h"
 #include "runtrace.h"
+#include "dbtrace.h"
 
 class MessageManager : ISerializable {
 public:
@@ -14,6 +15,7 @@ public:
     ~MessageManager();
 
     void            Initialize();
+	void			OnProcessPreRun(ProcessPreRunEvent &event);
     void            OnPostExecute(PostExecuteEvent &event);
     void            OnMessageBegin(MessageBeginEvent &event);
     void            OnMessageEnd(MessageEndEvent &event);
@@ -39,6 +41,7 @@ private:
     Protocol *      m_protocol;
     Message *       m_currRootMsg;
     RunTrace        m_tracer;
+	DBTrace			m_dbtracer;
     bool            m_tracing;
     bool            m_clearSubNodes;
 

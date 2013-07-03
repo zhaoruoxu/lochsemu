@@ -68,9 +68,9 @@ void MessageManager::OnMessageEnd( MessageEndEvent &event )
     //m_format.OnMessageEnd(event);
 
     int nTraces = m_tracer.Count();
-    EnqueueMessage(m_currRootMsg, 0, nTraces-1);
+    //EnqueueMessage(m_currRootMsg, 0, nTraces-1);
 
-    Analyze();
+    // Analyze();
 
     m_currRootMsg = NULL;
     m_tracer.End();
@@ -106,7 +106,7 @@ void MessageManager::Deserialize( Json::Value &root )
     m_breakOnMsgBegin   = root.get("break_on_message_begin", m_breakOnMsgBegin).asBool();
     m_breakOnMsgEnd     = root.get("break_on_message_end", m_breakOnMsgEnd).asBool();
     m_autoShowMemory    = root.get("auto_show_memory", m_autoShowMemory).asBool();
-    m_clearSubNodes = root.get("clear_sub_nodes", m_clearSubNodes).asBool();
+    m_clearSubNodes		= root.get("clear_sub_nodes", m_clearSubNodes).asBool();
 
 //     Json::Value formatsyn = root["format_synthesizer"];
 //     if (!formatsyn.isNull())
@@ -166,5 +166,13 @@ void MessageManager::GenerateOutput()
         msg->GetTree()->DumpDot(File(dotfile, "w"), true);
         DotToImage(dotfile);
     }
+}
+
+void MessageManager::OnProcessPreRun( ProcessPreRunEvent &event )
+{
+	std::string dir = g_engine.GetArchiveDir() + g_engine.GetArchiveFileName() + "\\";
+	LxCreateDirectory(dir.c_str());
+	std::string file = dir + g_engine.GetArchiveFileName() + ".db";
+	m_dbtracer.Initialize(file.c_str());
 }
 

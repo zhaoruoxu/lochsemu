@@ -2,7 +2,8 @@
  
 #ifndef __PROPHET_UTILITIES_H__
 #define __PROPHET_UTILITIES_H__
- 
+
+#include "prophet.h"
 
 int     GetCpuUsage();
 int     GetMemUsage();

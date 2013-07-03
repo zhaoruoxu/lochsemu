@@ -38,6 +38,8 @@ void Protocol::Initialize()
     m_apiprocessor.Initialize();
     m_msgmanager.Initialize();
 
+	//SQLite::Database db("d:\\test.db", SQLITE_OPEN_READWRITE);
+
     //RegisterAnalyzer(new DirectionField(this));
     //RegisterAnalyzer(new SeparatorKeyword(this));
     
@@ -182,6 +184,8 @@ void Protocol::OnProcessPreRun( ProcessPreRunEvent &event )
 {
     if (!m_enabled) return;
 
+	m_msgmanager.OnProcessPreRun(event);
+
     if (m_state == ProcessingMessage) {
 //         for (int i = 0; i < m_totalAnalyzers; i++) {
 //             ProtocolAnalyzer *pa = m_analyzers[i];
@@ -195,7 +199,7 @@ void Protocol::OnProcessPostRun( ProcessPostRunEvent &event )
 {
     if (!m_enabled) return;
 
-    m_msgmanager.GenerateOutput();
+    //m_msgmanager.GenerateOutput();
 
     if (m_state == ProcessingMessage) {
         OnMessageEnd(MessageEndEvent(this));

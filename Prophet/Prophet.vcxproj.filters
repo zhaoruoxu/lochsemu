@@ -561,6 +561,9 @@
     <ClInclude Include="protocol\algorithms\generic_analyzer.h">
       <Filter>Header Files\protocol\algorithms</Filter>
     </ClInclude>
+    <ClInclude Include="protocol\dbtrace.h">
+      <Filter>Header Files\protocol</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -763,6 +766,9 @@
     </ClCompile>
     <ClCompile Include="protocol\algorithms\generic_analyzer.cpp">
       <Filter>Source Files\protocol\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\dbtrace.cpp">
+      <Filter>Source Files\protocol</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

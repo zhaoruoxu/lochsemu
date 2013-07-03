@@ -247,6 +247,7 @@
     <ClInclude Include="protocol\analyzers\tokenize_refiner.h" />
     <ClInclude Include="protocol\analyzers\traceexec.h" />
     <ClInclude Include="protocol\apiprocessor.h" />
+    <ClInclude Include="protocol\dbtrace.h" />
     <ClInclude Include="protocol\message.h" />
     <ClInclude Include="protocol\protocol.h" />
     <ClInclude Include="protocol\msgmgr.h" />
@@ -333,6 +334,7 @@
     <ClCompile Include="protocol\analyzers\tokenize_refiner.cpp" />
     <ClCompile Include="protocol\analyzers\traceexec.cpp" />
     <ClCompile Include="protocol\apiprocessor.cpp" />
+    <ClCompile Include="protocol\dbtrace.cpp" />
     <ClCompile Include="protocol\message.cpp" />
     <ClCompile Include="protocol\protocol.cpp" />
     <ClCompile Include="protocol\msgmgr.cpp" />
