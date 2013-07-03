@@ -28,6 +28,7 @@ private:
 private:
 	SQLite::Database *	m_db;
 	SQLite::Statement * m_stmtInsertMessage;
+    SQLite::Statement * m_stmtInsertMessageData;
 };
 
 
