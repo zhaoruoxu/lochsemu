@@ -1,18 +1,19 @@
 #include "stdafx.h"
 #include "dbtrace.h"
 #include "message.h"
-
+#include "runtrace.h"
 #include "sqlite/SQLiteC++.h"
 
 DBTrace::DBTrace()
 {
-	
+	m_instid = 0;
 }
 
 DBTrace::~DBTrace()
 {
     SAFE_DELETE(m_stmtInsertMessage);
     SAFE_DELETE(m_stmtInsertMessageData);
+    SAFE_DELETE(m_stmtInsertInst);
 	SAFE_DELETE(m_db);
 }
 
@@ -41,15 +42,29 @@ void DBTrace::InitTables()
         SQLite::Transaction t(*m_db);
         m_db->exec("DROP TABLE IF EXISTS messages");
         m_db->exec("DROP TABLE IF EXISTS messages_data");
+        m_db->exec("DROP TABLE IF EXISTS insts");
         m_db->exec("CREATE TABLE messages (id INTEGER PRIMARY KEY, "
             "trace_count INTEGER, length INTEGER)");
         m_db->exec("CREATE TABLE messages_data (id INTEGER, offset INTEGER, "
             "data INTEGER, FOREIGN KEY(id) REFERENCES messages(id))");
+        m_db->exec("CREATE TABLE insts (id BIGINT, offset INTEGER, "
+            "msg_id INTEGER)");
         t.commit();
     } catch (std::exception &e) {
         LxFatal("Sqlite Exception: %s\n", e.what());
     }
 }
+
+void DBTrace::InitStatements()
+{
+    m_stmtInsertMessage = new SQLite::Statement(*m_db, 
+        "INSERT INTO messages VALUES ( :id, :trace_count, :length )");
+    m_stmtInsertMessageData = new SQLite::Statement(*m_db,
+        "INSERT INTO messages_data VALUES ( :id, :offset, :data )");
+    m_stmtInsertInst = new SQLite::Statement(*m_db,
+        "INSERT INTO insts VALUES ( :id, :offset, :msg_id )");
+}
+
 
 void DBTrace::TraceMessage( Message *msg )
 {
@@ -77,10 +92,20 @@ void DBTrace::TraceMessage( Message *msg )
 
 }
 
-void DBTrace::InitStatements()
+void DBTrace::TraceInsts( RunTrace &rt, Message *msg )
 {
-    m_stmtInsertMessage = new SQLite::Statement(*m_db, 
-        "INSERT INTO messages VALUES ( :id, :trace_count, :length )");
-    m_stmtInsertMessageData = new SQLite::Statement(*m_db,
-        "INSERT INTO messages_data VALUES ( :id, :offset, :data )");
+    try {
+        SQLite::Transaction t(*m_db);
+        for (int i = 0; i < rt.Count(); i++) {
+            const TContext *ctx = rt.Get(i);
+            m_stmtInsertInst->bind(":id", m_instid++);
+            m_stmtInsertInst->bind(":offset", (int) ctx->Eip);
+            m_stmtInsertInst->bind(":msg_id", msg->GetID());
+            m_stmtInsertInst->exec();
+            m_stmtInsertInst->reset();
+        }
+        t.commit();
+    } catch (std::exception &e) {
+        LxFatal("Sqlite Exception: %s\n", e.what());
+    }
 }

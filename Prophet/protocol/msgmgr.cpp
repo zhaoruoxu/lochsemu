@@ -69,7 +69,7 @@ void MessageManager::OnMessageEnd( MessageEndEvent &event )
 
     int nTraces = m_tracer.Count();
     TraceMessage(m_currRootMsg, 0, nTraces-1);
-	
+	m_dbtracer.TraceInsts(m_tracer, m_currRootMsg);
 
     // Analyze();
 

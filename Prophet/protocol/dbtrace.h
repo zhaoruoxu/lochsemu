@@ -22,13 +22,16 @@ public:
 	void	Deserialize(Json::Value &root) override;
 
 	void	TraceMessage(Message *msg);
+    void    TraceInsts(RunTrace &rt, Message *msg);
 private:
 	void	InitTables();
 	void    InitStatements();
 private:
+    long long m_instid;
 	SQLite::Database *	m_db;
 	SQLite::Statement * m_stmtInsertMessage;
     SQLite::Statement * m_stmtInsertMessageData;
+    SQLite::Statement * m_stmtInsertInst;
 };
 
 
