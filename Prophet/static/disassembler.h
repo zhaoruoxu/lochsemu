@@ -24,7 +24,6 @@ struct Inst : public Instruction {
     }
 };
 
-typedef Inst *  InstPtr;
 typedef AllocOnlyPool<Inst>  InstPool;
 
 class InstMem;

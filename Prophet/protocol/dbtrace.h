@@ -26,12 +26,15 @@ public:
 private:
 	void	InitTables();
 	void    InitStatements();
+    void    TraceInstr(InstPtr inst);
 private:
     long long m_instid;
+    std::unordered_set<u32>     m_insts;
 	SQLite::Database *	m_db;
 	SQLite::Statement * m_stmtInsertMessage;
     SQLite::Statement * m_stmtInsertMessageData;
     SQLite::Statement * m_stmtInsertInst;
+    SQLite::Statement * m_stmtInsertDisasm;
 };
 
 

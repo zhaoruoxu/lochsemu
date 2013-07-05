@@ -68,8 +68,13 @@ void MessageManager::OnMessageEnd( MessageEndEvent &event )
     //m_format.OnMessageEnd(event);
 
     int nTraces = m_tracer.Count();
-    TraceMessage(m_currRootMsg, 0, nTraces-1);
-	m_dbtracer.TraceInsts(m_tracer, m_currRootMsg);
+    try {
+        TraceMessage(m_currRootMsg, 0, nTraces-1);
+        m_dbtracer.TraceInsts(m_tracer, m_currRootMsg);
+    } catch (std::exception &e) {
+        LxFatal("SQLite Exception: %s\n", e.what());
+    }
+
 
     // Analyze();
 

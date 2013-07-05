@@ -45,6 +45,7 @@ class CallStack;
 // static
 struct Inst;
 class Disassembler;
+typedef Inst *  InstPtr;
 
 // taint
 class Taint;
