@@ -48,7 +48,7 @@ void DBTrace::InitTables()
     m_db->exec("DROP TABLE IF EXISTS disasm");
 
     m_db->exec("CREATE TABLE messages (id INTEGER PRIMARY KEY, "
-        "trace_count INTEGER, length INTEGER)");
+        "trace_count INTEGER, addr INTEGER, length INTEGER)");
     m_db->exec("CREATE TABLE messages_data (id INTEGER, offset INTEGER, "
         "data INTEGER, FOREIGN KEY(id) REFERENCES messages(id))");
     m_db->exec("CREATE TABLE insts (id BIGINT, msg_id INTEGER,"
@@ -59,7 +59,7 @@ void DBTrace::InitTables()
         "mw_addr INTEGER, mw_len INTEGER, mw_val INTEGER,"
         "tid INTEGER, ext_tid INTEGER, jump_taken BOOL, exec_flag INTEGER"
         ")");
-    m_db->exec("CREATE TABLE disasm (eip INTEGER, instr VARCHAR(64),"
+    m_db->exec("CREATE TABLE disasm (eip INTEGER, instr VARCHAR(64), len INTEGER,"
         "category INTEGER, opcode INTEGER, mnemonic VARCHAR(16),"
         "branch_type INTEGER, addr_val INTEGER, immediate INTEGER,"
         "a1_mnemonic VARCHAR(32), a1_type INTEGER, a1_size INTEGER, a1_pos INTEGER,"
@@ -77,7 +77,7 @@ void DBTrace::InitTables()
 void DBTrace::InitStatements()
 {
     m_stmtInsertMessage = new SQLite::Statement(*m_db, 
-        "INSERT INTO messages VALUES ( :id, :trace_count, :length )");
+        "INSERT INTO messages VALUES ( :id, :trace_count, :addr, :length )");
     m_stmtInsertMessageData = new SQLite::Statement(*m_db,
         "INSERT INTO messages_data VALUES ( :id, :offset, :data )");
     m_stmtInsertInst = new SQLite::Statement(*m_db,
@@ -87,7 +87,7 @@ void DBTrace::InitStatements()
         ":tid, :ext_tid, :jump_taken, :exec_flag"
         " )");
     m_stmtInsertDisasm = new SQLite::Statement(*m_db,
-        "INSERT INTO disasm VALUES ( :eip, :instr, :category, :opcode, :mnemonic,"
+        "INSERT INTO disasm VALUES ( :eip, :instr, :len, :category, :opcode, :mnemonic,"
         ":branch_type, :addr_val, :immediate,"
         ":a1_mnemonic, :a1_type, :a1_size, :a1_pos, :a1_basereg, :a1_indexreg, :a1_scale, :a1_disp,"
         ":a2_mnemonic, :a2_type, :a2_size, :a2_pos, :a2_basereg, :a2_indexreg, :a2_scale, :a2_disp,"
@@ -104,6 +104,7 @@ void DBTrace::TraceMessage( Message *msg )
     m_stmtInsertMessage->bind(":id", msg->GetID());
     m_stmtInsertMessage->bind(":trace_count", 
         msg->GetTraceEnd() - msg->GetTraceBegin() + 1);
+    m_stmtInsertMessage->bind(":addr", (int) msg->Base());
     m_stmtInsertMessage->bind(":length", msg->Size());
     m_stmtInsertMessage->exec();
     m_stmtInsertMessage->reset();
@@ -163,6 +164,7 @@ void DBTrace::TraceInstr( InstPtr inst )
         return;
     m_stmtInsertDisasm->bind(":eip", (int) inst->Eip);
     m_stmtInsertDisasm->bind(":instr", inst->Main.CompleteInstr);
+    m_stmtInsertDisasm->bind(":len", inst->Length);
     m_stmtInsertDisasm->bind(":category", inst->Main.Inst.Category);
     m_stmtInsertDisasm->bind(":opcode", inst->Main.Inst.Opcode);
     m_stmtInsertDisasm->bind(":mnemonic", inst->Main.Inst.Mnemonic);
