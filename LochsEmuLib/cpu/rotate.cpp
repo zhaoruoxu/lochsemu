@@ -63,6 +63,19 @@ void Processor::Rol32(u32 &a, u8 b)
     a = r;
 }
 
+void Processor::Rol16(u16 &a, u8 b)
+{
+    b &= COUNT_MASK;
+    u16 r = (a << b) | (a >> (16-b));
+    if (r & 1) {
+        CF = 1;
+    }
+    if (b == 1) {
+        OF = (MSB16(r) ^ CF) ? 1 : 0;
+    }
+    a = r;
+}
+
 void Processor::Rol8(u8 &a, u8 b)
 {
     b &= COUNT_MASK;
@@ -133,14 +146,18 @@ void Processor::Ror_C0_ext1(const Instruction *inst)
 void Processor::Rol_C1_ext0(const Instruction *inst)
 {
     // ROL r/m32, imm8
-    if (inst->Main.Prefix.OperandSize) NOT_IMPLEMENTED();
-
     u32 offset;
-    u32 val1 = ReadOperand32(inst, inst->Main.Argument1, &offset);
-    u8 val2 = (u8) inst->Main.Inst.Immediat;
-    Rol32(val1, val2);
-    WriteOperand32(inst, inst->Main.Argument1, offset, val1);
-    
+    if (inst->Main.Prefix.OperandSize) {
+        u16 val1 = ReadOperand16(inst, inst->Main.Argument1, &offset);
+        u8 val2 = (u8) inst->Main.Inst.Immediat;
+        Rol16(val1, val2);
+        WriteOperand16(inst, inst->Main.Argument1, offset, val1);
+    } else {
+        u32 val1 = ReadOperand32(inst, inst->Main.Argument1, &offset);
+        u8 val2 = (u8) inst->Main.Inst.Immediat;
+        Rol32(val1, val2);
+        WriteOperand32(inst, inst->Main.Argument1, offset, val1);
+    }
 }
 
 void Processor::Ror_C1_ext1(const Instruction *inst)

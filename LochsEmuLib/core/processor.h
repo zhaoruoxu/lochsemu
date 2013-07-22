@@ -400,6 +400,7 @@ private:
     void        Rcl16(u16 &a, u16 b);
     void        Rcl32(u32 &a, u8 b);
     void        Rol32(u32 &a, u8 b);
+    void        Rol16(u16 &a, u8 b);
     void        Rol8(u8 &a, u8 b);
     void        Ror8(u8 &a, u8 b);
     void        Ror16(u16 &a, u8 b);
