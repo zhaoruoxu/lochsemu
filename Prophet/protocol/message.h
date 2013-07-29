@@ -83,7 +83,7 @@ public:
     void        DumpTree(File &f) const;
     bool        SearchData(cpbyte p, int len, MemRegion &r);
 
-    void        Analyze(MessageManager *msgmgr, const RunTrace &trace);
+    bool        Analyze(MessageManager *msgmgr, const RunTrace &trace);
     void        AnalyzeAll(MessageManager *msgmgr, const RunTrace &trace);
     void        Insert(Message *msg);
     MessageType GetType() const { return m_type; }

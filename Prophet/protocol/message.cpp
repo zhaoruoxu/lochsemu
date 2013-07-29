@@ -56,7 +56,7 @@ Message::~Message()
     m_children.clear();
 }
 
-void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
+bool Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
 {
     std::string name = GetName();
     LxInfo("Analyzing message %s ...\n", name.c_str());
@@ -78,7 +78,7 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
     traceExe.RunMessage(this);
 
     if (m_accesslog->Count() == 0) 
-        return;
+        return false;
 
     m_accesslog->Dump(File(dir + "message_access_" + GetName() + ".txt", "w"));
 
@@ -113,6 +113,7 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
         }
     }
     LxInfo("Message %s analysis complete\n", name.c_str());
+    return true;
 }
 
 void Message::AnalyzeAll( MessageManager *msgmgr, const RunTrace &trace )

@@ -74,6 +74,7 @@ void AdvAlgEngine::RegisterAnalyzers()
     RegisterAnalyzer(new ChainedXorAnalyzer());
     RegisterAnalyzer(new MD5Analyzer());
     RegisterAnalyzer(new Base64Analyzer());
+    RegisterAnalyzer(new GenericEncodingAnalyzer(12, 0.5, 2.0, 0.5));
     //RegisterAnalyzer(new GenericAnalyzer());
 }
 
@@ -87,6 +88,14 @@ void AdvAlgEngine::OnComplete()
 {
     for (int i = 0; i < m_count; i++)
         m_analyzers[i]->OnComplete();
+}
+
+void AdvAlgEngine::EnqueueNewMessage( const MemRegion &mr, pbyte pout, const TaintRegion &tr, AlgTag *tag, const ProcContext &ctx )
+{
+    Message *parent = this->GetMessage();
+    Message *newMsg = new Message(mr, pout, parent, parent->GetRegion().SubRegion(tr), tag, false);
+    GetMessageManager()->EnqueueMessage(newMsg, 
+        ctx.Level == 0 ? ctx.EndSeq + 1 : ctx.BeginSeq, parent->GetTraceEnd());
 }
 
 AlgorithmAnalyzer::AlgorithmAnalyzer()

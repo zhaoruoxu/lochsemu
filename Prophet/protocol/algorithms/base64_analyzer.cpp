@@ -123,25 +123,30 @@ bool Base64Analyzer::TestBase64(const ProcContext &ctx, const MemRegion &input,
     pbyte pactual = new byte[input.Len];
     int lactual;
     base64_encode(pout, output.Len, pactual, &lactual);
-    if (lactual != input.Len) {
-        LxError("base64 length mismatch");
-        return false;
-    }
 
     bool found = false;
+
+    if (lactual != input.Len) {
+        LxDebug("base64 length mismatch\n");
+        goto L_END;
+    }
+
+    
     if (CompareByteArray(pactual, pin, input.Len) == 0) {
         AlgTag *tag = new AlgTag("Base64", "Decoding");
         tag->Params.push_back(new AlgParam("Encoded string", input, pin));
         tag->Params.push_back(new AlgParam("Decoded string", output, pout));
-        Message *parent = m_algEngine->GetMessage();
-        Message *newMsg = new Message(output, pout, parent, 
-            parent->GetRegion().SubRegion(tr), tag, false);
         LxInfo("Base64 decoding: %08x-%08x\n", output.Addr, output.Addr + output.Len);
-        m_algEngine->GetMessageManager()->EnqueueMessage(newMsg,
-            ctx.Level == 0 ? ctx.EndSeq+1:ctx.BeginSeq, parent->GetTraceEnd());
+        m_algEngine->EnqueueNewMessage(output, pout, tr, tag, ctx);
+        //Message *parent = m_algEngine->GetMessage();
+        //Message *newMsg = new Message(output, pout, parent, 
+        //    parent->GetRegion().SubRegion(tr), tag, false);
+        //m_algEngine->GetMessageManager()->EnqueueMessage(newMsg,
+        //    ctx.Level == 0 ? ctx.EndSeq+1:ctx.BeginSeq, parent->GetTraceEnd());
         found = true;
     }
 
+L_END:
     SAFE_DELETE_ARRAY(pin);
     SAFE_DELETE_ARRAY(pout);
     SAFE_DELETE_ARRAY(pactual);

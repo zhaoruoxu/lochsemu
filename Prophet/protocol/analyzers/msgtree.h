@@ -52,7 +52,7 @@ public:
 
     bool    Contains(int l, int r);
     bool    Contains(const TreeNode * n);
-    void    Insert(TreeNode *node);
+    void    Insert(TreeNode * &node);
     bool    IsLeaf() const { return m_children.size() == 0; }
     int     Length() const { return m_r - m_l + 1; }
     int     L() const { return m_l; }

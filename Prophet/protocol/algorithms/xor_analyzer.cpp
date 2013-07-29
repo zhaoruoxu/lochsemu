@@ -65,5 +65,5 @@ bool ChainedXorAnalyzer::TestCrypt( const ProcContext &ctx, const MemRegion &inp
     }
     SAFE_DELETE_ARRAY(ct);
     SAFE_DELETE_ARRAY(pt);
-    return false;
+    return found;
 }

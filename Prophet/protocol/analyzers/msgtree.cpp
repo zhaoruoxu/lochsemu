@@ -120,7 +120,8 @@ TreeNode * MsgTree::FindOrCreateNode( const MemRegion &r )
 TreeNode * MsgTree::FindOrCreateNode( const TaintRegion &tr )
 {
     int left = tr.Offset, right = tr.Offset + tr.Len - 1;
-    m_root->Insert(new TreeNode(left, right));
+    TreeNode *tempNode = new TreeNode(left, right);
+    m_root->Insert(tempNode);
     m_root->FixParent();
     if (!CheckValidity()) {
         LxFatal("Validity failed!\n");
@@ -148,7 +149,7 @@ TreeNode * MsgTree::DoFindNode( const TaintRegion &tr ) const
             //return n;
             TreeNode *newNode = new TreeNode(left, right, n);
             n->Insert(newNode);
-            return newNode;
+            return newNode == NULL ? n : newNode;
         }
 
         bool found = false;
@@ -223,7 +224,7 @@ bool TreeNode::Contains( const TreeNode * n )
     return Contains(n->m_l, n->m_r);
 }
 
-void TreeNode::Insert( TreeNode *node )
+void TreeNode::Insert( TreeNode *&node )
 {
     Assert(Contains(node));
     Assert(node->m_children.size() == 0);
@@ -235,13 +236,13 @@ void TreeNode::Insert( TreeNode *node )
 #endif
 
     if (m_l == node->m_l && m_r == node->m_r) {
-        delete node;
+        SAFE_DELETE(node);
         return;
     }
 
     if (m_l == node->m_l && m_r == node->m_r + 1) {
         LxWarning("Ignoring -1 tree node %d-%d\n", node->m_l, node->m_r);
-        delete node; return;
+        SAFE_DELETE(node); return;
     }
 
     if (m_children.size() == 0) {
@@ -262,10 +263,10 @@ void TreeNode::Insert( TreeNode *node )
         TreeNode *c = m_children[i];
         
         if (c->m_l == node->m_l && c->m_r == node->m_r) {
-            delete node; return;
+            SAFE_DELETE(node); return;
         }
         if (c->m_l == node->m_l && c->m_r == node->m_r - 1 && node->Length() > 8) {
-            delete node; return;
+            SAFE_DELETE(node); return;
         }
         if (!c->IsLeaf()) continue;
         if (c->m_l == node->m_l && c->m_r == node->m_r + 1 
@@ -274,7 +275,7 @@ void TreeNode::Insert( TreeNode *node )
         {
             // shrink c
             c->m_r--; m_children[i+1]->m_l--;
-            delete node; return;
+            SAFE_DELETE(node); return;
         }
         if (c->m_r == node->m_l && i < m_children.size() - 1 
             && m_children[i+1]->IsLeaf() && c->m_r > c->m_l) 
@@ -282,7 +283,7 @@ void TreeNode::Insert( TreeNode *node )
             // shrink c; like this: 0-7,8-12 <- 7-10  => 0-6,7-10,11-12
             c->m_r--; m_children[i+1]->m_l--; 
             if (m_children[i+1]->m_r == node->m_r) {
-                delete node; return;
+                SAFE_DELETE(node); return;
             }
             break;  // need further processing
         }
@@ -316,7 +317,7 @@ void TreeNode::Insert( TreeNode *node )
         TreeNode *c = m_children[i];
         if (!c->Contains(node)) continue;
         if (c->m_l == node->m_l && c->m_r == node->m_r) {
-            delete node;
+            SAFE_DELETE(node);
             return;
         }
         if (!c->IsLeaf() 
@@ -344,7 +345,7 @@ void TreeNode::Insert( TreeNode *node )
             newChildren.push_back(m_children[j]);
 
         Assert(newChildren.size() > m_children.size());
-        delete node;
+        SAFE_DELETE(node);
         m_children = newChildren;
         return;
     }
@@ -359,12 +360,14 @@ void TreeNode::Insert( TreeNode *node )
         }
         if (c->m_l < node->m_l) {
             // left-overlap
-            c->Insert(new TreeNode(node->m_l, c->m_r));
+            TreeNode *tempNode = new TreeNode(node->m_l, c->m_r);
+            c->Insert(tempNode);
             newChildren.push_back(c);
             node->m_l = c->m_r+1;
         } else if (c->m_r > node->m_r) {
             // right-overlap
-            c->Insert(new TreeNode(c->m_l, node->m_r));
+            TreeNode *tempNode = new TreeNode(c->m_l, node->m_r);
+            c->Insert(tempNode);
             newChildren.push_back(c);
             node->m_r = c->m_l-1;
         } else {
@@ -378,12 +381,12 @@ void TreeNode::Insert( TreeNode *node )
                 node->m_r == node->m_children[0]->m_r);
             TreeNode *ch0 = node->m_children[0];
             node->m_children.clear();
-            delete node;
+            SAFE_DELETE(node);
             node = ch0;
         }
         newChildren.push_back(node);
     } else {
-        delete node;
+        SAFE_DELETE(node);
     }
     m_children = newChildren;
     std::sort(m_children.begin(), m_children.end(), 

@@ -21,7 +21,8 @@ public:
     const TaintEngine *GetTaint() const { return &m_taint; }
     Message * GetMessage() { return m_message; }
     MessageManager *    GetMessageManager() { return m_msgmgr; }
-
+    void EnqueueNewMessage(const MemRegion &mr, pbyte pout, const TaintRegion &tr,
+        AlgTag *tag, const ProcContext &ctx);
 
 private:
     void RegisterAnalyzers();

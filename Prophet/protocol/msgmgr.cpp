@@ -136,13 +136,13 @@ void MessageManager::Analyze()
         Message *msg = m_msgQueue.front();
         m_msgQueue.pop_front();
 
-        if (msg->GetParent() != NULL) {
-            msg->GetParent()->Insert(msg);
-        } else {
-            m_messages.push_back(msg);
+        if (msg->Analyze(this, m_tracer)) {
+            if (msg->GetParent() != NULL) {
+                msg->GetParent()->Insert(msg);
+            } else {
+                m_messages.push_back(msg);
+            }
         }
-        
-        msg->Analyze(this, m_tracer);
     }
 
     if (m_currRootMsg) {

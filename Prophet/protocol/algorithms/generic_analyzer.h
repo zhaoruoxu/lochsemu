@@ -15,9 +15,9 @@ struct GenericCrypto {
         const MemRegion &rout, const TaintRegion &tr, int begSeq, int endSeq);
 };
 
-class GenericAnalyzer : public AlgorithmAnalyzer {
+class GenericCryptoAnalyzer : public AlgorithmAnalyzer {
 public:
-    virtual ~GenericAnalyzer();
+    virtual ~GenericCryptoAnalyzer();
     //virtual void OnProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
     virtual bool OnOriginalProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
     virtual void OnComplete() override;
@@ -26,6 +26,27 @@ private:
     bool TestCrypt(const ProcContext &ctx, const MemRegion &input,
         const MemRegion &output, const TaintRegion &tr);
     std::vector<GenericCrypto *>    m_cryptos;
+};
+
+enum GenericEncodingType {
+    GenericEncodingOrDecoding = 0,
+    GenericEncoding,
+    GenericDecoding,
+};
+
+class GenericEncodingAnalyzer : public AlgorithmAnalyzer {
+public:
+    GenericEncodingAnalyzer(int minlen, double maxSizeDown, double maxSizeUp, double minDiffRate);
+    virtual bool OnOriginalProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
+
+private:
+    bool TestEncoding(const ProcContext &ctx, const MemRegion &input,
+        const MemRegion &output, const TaintRegion &tr, const Taint &tin);
+private:
+    static std::string EncodingTypeStr[];
+private:
+    int     m_minlen;
+    double  m_maxSizeDown, m_maxSizeUp, m_minDiffRate;
 };
 
 #endif // __PROPHET_PROTOCOL_ALGORITHMS_GENERIC_ANALYZER_H__
