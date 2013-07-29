@@ -214,6 +214,12 @@ L_END:
     return result;
 }
 
-
-
-
+bool GenericChecksumAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
+{
+#if 0
+    ctx.Dump(StdOut(), true);
+    LxInfo("eax = %08x\n", event.Context->EAX);
+#endif
+    
+    return false;
+}

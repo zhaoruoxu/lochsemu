@@ -91,6 +91,13 @@ void TaintEngine::TaintMemRegion( const MemRegion &region, const Taint &t )
 
 void TaintEngine::OnExecuteTrace( ExecuteTraceEvent &event )
 {
+//     if (event.Context->Eip == 0x1b15eb) {
+//         LxDebug("debug\n");
+//         Taint a = Shrink(CpuTaint.GPRegs[0])[0];
+//         Taint b = Shrink(CpuTaint.GPRegs[3])[0];
+//     }
+
+
     TaintInstHandler h = NULL;
     u32 opcode = event.Context->Inst->Main.Inst.Opcode;
     if (INST_ONEBYTE(opcode)) {
@@ -104,6 +111,12 @@ void TaintEngine::OnExecuteTrace( ExecuteTraceEvent &event )
     if (NULL != h) {
         (this->*h)(event.Context, event.Context->Inst);
     }
+
+//     if (event.Context->Eip == 0x1b15eb) {
+//         LxDebug("debug\n");
+//         Taint a = Shrink(CpuTaint.GPRegs[0])[0];
+//         Taint b = Shrink(CpuTaint.GPRegs[3])[0];
+//     }
 }
 
 void TaintEngine::DefaultBinopHandler(const TContext *ctx, const Instruction *inst)

@@ -50,4 +50,9 @@ private:
     double  m_maxSizeDown, m_maxSizeUp, m_minDiffRate;
 };
 
+class GenericChecksumAnalyzer : public AlgorithmAnalyzer {
+public:
+    virtual bool OnOriginalProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
+};
+
 #endif // __PROPHET_PROTOCOL_ALGORITHMS_GENERIC_ANALYZER_H__

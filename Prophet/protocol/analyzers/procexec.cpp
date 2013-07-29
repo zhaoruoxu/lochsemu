@@ -58,6 +58,16 @@ void ProcContext::Dump( File &f, bool taintedOnly ) const
     fprintf(f.Ptr(), "Proc %08x: from %d to %d, length %d, count %d, level %d\n",
         Proc->Entry(), BeginSeq, EndSeq, EndSeq - BeginSeq + 1, Count, Level);
 
+    for (int i = 0; i < 8; i++) {
+        if (!TRegs[i].IsAnyTainted()) continue;
+        fprintf(f.Ptr(), "%s: ", InstContext::RegNames[i].c_str());
+        TRegs[i].Dump(f);
+    }
+    if (TEip.IsAnyTainted()) {
+        fprintf(f.Ptr(), "Eip: ");
+        TEip.Dump(f);
+    }
+
     std::vector<MemRegion> inputRegions = GenerateMemRegions(Inputs),
         outputRegions = GenerateMemRegions(Outputs);
     fprintf(f.Ptr(), "Inputs:");
@@ -86,6 +96,13 @@ void ProcContext::GenerateRegions()
 {
     InputRegions = GenerateMemRegions(Inputs);
     OutputRegions = GenerateMemRegions(Outputs);
+}
+
+void ProcContext::GetRegTaints( TaintEngine *te )
+{
+    TEip = te->CpuTaint.Eip[0];
+    for (int i = 0; i < 8; i++)
+        TRegs[i] = Shrink(te->CpuTaint.GPRegs[i])[0];
 }
 
 
@@ -135,6 +152,8 @@ void ProcExec::OnProcEnd( ExecuteTraceEvent &event )
     m_contexts.pop_back();
     back.EndSeq = event.Seq;
     back.GenerateRegions();
+    back.GetRegTaints(m_taint);
+    
     for (int i = 0; i < m_count; i++)
         m_workers[i]->OnProcedure(event, back);
     if (!m_contexts.empty()) {
@@ -176,6 +195,7 @@ ProcContext SingleProcExec::Run(ExecuteTraceEvent &event, const ProcContext &ctx
     exec.Add(&sexec);
     exec.RunProc(ctx);
     sexec.m_context.GenerateRegions();
+    sexec.m_context.GetRegTaints(taint);
     return sexec.m_context;
 }
 

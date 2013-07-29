@@ -26,6 +26,8 @@ struct ProcContext {
     int EndSeq;
     ProcParameter Inputs, Outputs;
     std::vector<MemRegion> InputRegions, OutputRegions;
+    Taint TRegs[8];
+    Taint TEip;
 
     int Count;
     int Level;
@@ -38,6 +40,7 @@ struct ProcContext {
     void OnTrace(ExecuteTraceEvent &event, TaintEngine *taint);
     void Dump(File &f, bool taintedOnly) const;
     void GenerateRegions();
+    void GetRegTaints(TaintEngine *te);
 
 private:
     void OnMemRead(u32 addr, byte val, TaintEngine *taint);
