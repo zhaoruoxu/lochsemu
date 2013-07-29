@@ -7,6 +7,7 @@
 
 class Base64Analyzer : public AlgorithmAnalyzer {
 public:
+    Base64Analyzer();
     virtual bool OnOriginalProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
 
 private:
