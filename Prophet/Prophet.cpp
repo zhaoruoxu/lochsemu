@@ -38,7 +38,7 @@ PROPHET_API bool LochsEmu_Plugin_Initialize(const LochsEmuInterface *lochsemu, P
 
     g_engine.Initialize(lochsemu->Emulator);
 
-    if (g_config.GetInt("General", "GUI", 1) != 0) {
+    if (g_config.GetInt("General", "GUI", 0) != 0) {
         RunGUI();
         g_guiSem.Wait();
     } else {

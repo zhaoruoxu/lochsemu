@@ -101,7 +101,7 @@ void ProcScope::CheckValidity() const
         for (auto &addr : proc.second->Addrs()) {
             auto i = addrProcMap.find(addr);
             if (i != addrProcMap.end()) {
-                LxFatal("Procedure overlaps, addr %08x in both Procedure %08x and %08x\n",
+                LxError("Procedure overlaps, addr %08x in both Procedure %08x and %08x\n",
                     addr, i->second->Entry(), proc.second->Entry());
             }
             addrProcMap[addr] = proc.second;

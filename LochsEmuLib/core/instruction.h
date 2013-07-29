@@ -28,6 +28,8 @@ public:
     static bool IsCmp(const Instruction *inst);
     static bool IsPop(const Instruction *inst);
     static bool IsCmpOrTest(const Instruction *inst);
+    static bool IsXchg(const Instruction *inst);
+    static bool IsJmp(const Instruction *inst);
 
     DISASM          Main;  /* BeaEngine */
 

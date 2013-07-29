@@ -24,6 +24,7 @@ public:
 
 private:
     bool IsSpecialCallPop(ExecuteTraceEvent &event) const;
+    bool IsSpecialXchgJmp(ExecuteTraceEvent &event) const;
 private:
     const RunTrace &m_trace;
     static const int MaxAnalyzers = 16;

@@ -155,7 +155,7 @@ void MessageManager::Analyze()
 
 void MessageManager::GenerateOutput()
 {
-    Analyze();
+    //Analyze();
 
     std::string dir = g_engine.GetArchiveDir() + g_engine.GetArchiveFileName() + "\\";
     LxCreateDirectory(dir.c_str());

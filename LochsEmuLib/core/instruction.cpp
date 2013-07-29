@@ -49,4 +49,16 @@ bool Instruction::IsCmpOrTest( const Instruction *inst )
     return IsCmp(inst) || (m[0] == 't' && m[1] == 'e' && m[2] == 's');
 }
 
+bool Instruction::IsXchg( const Instruction *inst )
+{
+    const char *m = inst->Main.Inst.Mnemonic;
+    return m[0] == 'x' && m[1] == 'c' && m[2] == 'h' && m[3] == 'g';
+}
+
+bool Instruction::IsJmp( const Instruction *inst )
+{
+    const char *m = inst->Main.Inst.Mnemonic;
+    return m[0] == 'j' && m[1] == 'm' && m[2] == 'p';
+}
+
 END_NAMESPACE_LOCHSEMU()

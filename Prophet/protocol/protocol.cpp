@@ -195,7 +195,7 @@ void Protocol::OnProcessPostRun( ProcessPostRunEvent &event )
 {
     if (!m_enabled) return;
 
-    m_msgmanager.GenerateOutput();
+    
 
     if (m_state == ProcessingMessage) {
         OnMessageEnd(MessageEndEvent(this));
@@ -206,6 +206,8 @@ void Protocol::OnProcessPostRun( ProcessPostRunEvent &event )
 //                 pa->OnProcessPostRun(event);
 //         }
     }
+
+    m_msgmanager.GenerateOutput();
 }
 
 void Protocol::OnProcessPreLoad( ProcessPreLoadEvent &event )

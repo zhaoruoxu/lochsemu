@@ -17,6 +17,14 @@ bool TraceExec::IsSpecialCallPop( ExecuteTraceEvent &event ) const
     return true;
 }
 
+bool TraceExec::IsSpecialXchgJmp( ExecuteTraceEvent &event ) const
+{
+    if (m_prev == NULL) return false;
+    if (!Instruction::IsXchg(m_prev->Inst)) return false;
+    if (!Instruction::IsJmp(event.Context->Inst)) return false;
+    return true;
+}
+
 void TraceExec::OnExecuteTrace( ExecuteTraceEvent &event )
 {
 
@@ -32,7 +40,7 @@ void TraceExec::OnExecuteTrace( ExecuteTraceEvent &event )
     for (int i = 0; i < m_count; i++)
         m_workers[i]->OnExecuteTrace(event);
 
-    if (Instruction::IsRet(event.Context->Inst)) {
+    if (Instruction::IsRet(event.Context->Inst) || IsSpecialXchgJmp(event)) {
         for (int i = m_count - 1; i >= 0; i--)
             m_workers[i]->OnProcEnd(event);
     }
