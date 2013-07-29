@@ -65,7 +65,7 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
 
     std::string dir = g_engine.GetArchiveDir() + g_engine.GetArchiveFileName() + "\\";
     LxCreateDirectory(dir.c_str());
-    trace.DumpMsg(this, File(dir + "trace_" + GetName() + ".txt", "w"));
+    //trace.DumpMsg(this, File(dir + "trace_" + GetName() + ".txt", "w"));
 
     // Get Procedures
     traceExe.Add(&procScope);
