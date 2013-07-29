@@ -75,7 +75,7 @@ void AdvAlgEngine::RegisterAnalyzers()
     RegisterAnalyzer(new MD5Analyzer());
     RegisterAnalyzer(new Base64Analyzer());
     RegisterAnalyzer(new GenericEncodingAnalyzer(12, 0.5, 2.0, 0.5));
-    //RegisterAnalyzer(new GenericAnalyzer());
+    RegisterAnalyzer(new GenericSymmetricAnalyzer());
 }
 
 AdvAlgEngine::~AdvAlgEngine()

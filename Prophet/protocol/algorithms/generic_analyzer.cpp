@@ -2,14 +2,14 @@
 #include "generic_analyzer.h"
 #include "cryptohelp.h"
 
-GenericCryptoAnalyzer::~GenericCryptoAnalyzer()
+GenericSymmetricAnalyzer::~GenericSymmetricAnalyzer()
 {
     for (auto &c : m_cryptos)
         SAFE_DELETE(c);
     m_cryptos.clear();
 }
 
-bool GenericCryptoAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
+bool GenericSymmetricAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
 #if 0
     ctx.Dump(StdOut(), true);
@@ -24,21 +24,24 @@ bool GenericCryptoAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const
         if (trs[0].Len != input.Len) {
             LxWarning("weird\n"); continue;
         }
+        bool hasSuccess = false;
         for (auto &output : ctx.OutputRegions) {
             Taint tout = GetMemRegionTaintAnd(ctx.Outputs, output);
             if ((tout & tin) != tin) continue;
             if (TestCrypt(ctx, input, output, trs[0])) {
-                ctx.Dump(StdOut(), true);
-                return true;
+                //ctx.Dump(StdOut(), true);
+                hasSuccess = true;
             }
         }
+        if (hasSuccess) return true;
     }
     return false;
 }
 
-bool GenericCryptoAnalyzer::TestCrypt(const ProcContext &ctx, const MemRegion &input, 
+bool GenericSymmetricAnalyzer::TestCrypt(const ProcContext &ctx, const MemRegion &input, 
                                 const MemRegion &output, const TaintRegion &tr )
 {
+    if (input.Len != output.Len) return false;  // Symmetric!!
     pbyte pin = new byte[input.Len];
     pbyte pout = new byte[output.Len];
 
@@ -48,9 +51,15 @@ bool GenericCryptoAnalyzer::TestCrypt(const ProcContext &ctx, const MemRegion &i
     LxDebug("input entropy=%f, output entropy=%f\n",
         CalculateEntropy(pin, input.Len), CalculateEntropy(pout, output.Len));
 
+    bool result = false;
+
     for (auto &crypto : m_cryptos) {
-        if (input == crypto->InputRegion || output == crypto->OutputRegion)
+        if (output == crypto->OutputRegion && crypto->InputRegion.CanMerge(input)) {
+            if (!crypto->InputRegion.TryMerge(input))
+                LxFatal("merging failed\n");
+            crypto->Ignored = true;
             goto L_END;
+        }   
         if (crypto->InputRegion.CanMerge(input) && crypto->OutputRegion.CanMerge(output))
         {
             if (!crypto->InputRegion.TryMerge(input) || !crypto->OutputRegion.TryMerge(output))
@@ -60,6 +69,7 @@ bool GenericCryptoAnalyzer::TestCrypt(const ProcContext &ctx, const MemRegion &i
             crypto->Input.Append(pin, input.Len);
             crypto->Output.Append(pout, output.Len);
             crypto->BeginSeq = max(crypto->BeginSeq, ctx.EndSeq + 1);
+            result = true;
             goto L_END;
         }
     }
@@ -71,17 +81,18 @@ bool GenericCryptoAnalyzer::TestCrypt(const ProcContext &ctx, const MemRegion &i
 L_END:
     SAFE_DELETE_ARRAY(pin);
     SAFE_DELETE_ARRAY(pout);
-    return true;
+    return result;
 }
 
-void GenericCryptoAnalyzer::OnComplete()
+void GenericSymmetricAnalyzer::OnComplete()
 {
     for (auto &crypto : m_cryptos) {
+        if (crypto->Ignored) continue;
         LxInfo("Generic crypto: len = %d\n", crypto->InputRegion.Len);
         AlgParam *input = new AlgParam("Input", crypto->InputRegion, crypto->Input.Get());
         AlgParam *output = new AlgParam("Output", crypto->OutputRegion, crypto->Output.Get());
         LxInfo("Hi=%f, Ho=%f\n", input->Entropy, output->Entropy);
-        AlgTag *tag = new AlgTag("Generic", "**");
+        AlgTag *tag = new AlgTag("Generic Crypto", "*");
         tag->Params.push_back(input);
         tag->Params.push_back(output);
 
@@ -101,6 +112,7 @@ GenericCrypto::GenericCrypto( cpbyte input, cpbyte output, const MemRegion &rin,
     Output.Append(output, OutputRegion.Len);
     BeginSeq = begSeq;
     EndSeq = endSeq;
+    Ignored = false;
 }
 
 GenericEncodingAnalyzer::GenericEncodingAnalyzer( int minlen, double sd, double su, double dr )
@@ -150,11 +162,24 @@ bool GenericEncodingAnalyzer::TestEncoding(const ProcContext &ctx, const MemRegi
 
     Taint tor = GetMemRegionTaintOr(ctx.Outputs, output);
     if ((tor & tin) != tin) return false;
+    int prevFirst, prevLast;
+    Taint t1 = ctx.Outputs.find(output.Addr)->second.Tnt;
+    GetTaintRange(t1, &prevFirst, &prevLast);
+    for (u32 addr = output.Addr + 1; addr < output.Addr + output.Len; addr++) {
+        Taint t = ctx.Outputs.find(addr)->second.Tnt;
+        int first, last;
+        GetTaintRange(t, &first, &last);
+        if (first < prevFirst || last < prevLast)
+            return false;
+        prevFirst = first; prevLast = last;
+    }
 
     pbyte pin = new byte[input.Len];
     pbyte pout = new byte[output.Len];
     FillMemRegionBytes(ctx.Inputs, input, pin);
     FillMemRegionBytes(ctx.Outputs, output, pout);
+
+    LxError("TODO: Entropy metrics\n");
 
     bool result = false;
 

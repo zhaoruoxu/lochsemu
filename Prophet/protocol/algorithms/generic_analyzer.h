@@ -10,14 +10,15 @@ struct GenericCrypto {
     MemRegion InputRegion, OutputRegion;
     TaintRegion MsgRegion;
     int BeginSeq, EndSeq;
+    bool Ignored;
 
     GenericCrypto(cpbyte input, cpbyte output, const MemRegion &rin,
         const MemRegion &rout, const TaintRegion &tr, int begSeq, int endSeq);
 };
 
-class GenericCryptoAnalyzer : public AlgorithmAnalyzer {
+class GenericSymmetricAnalyzer : public AlgorithmAnalyzer {
 public:
-    virtual ~GenericCryptoAnalyzer();
+    virtual ~GenericSymmetricAnalyzer();
     //virtual void OnProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
     virtual bool OnOriginalProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
     virtual void OnComplete() override;
