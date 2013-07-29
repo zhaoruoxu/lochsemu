@@ -77,6 +77,9 @@ void Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
     traceExe.Add(&callStack, m_accesslog);
     traceExe.RunMessage(this);
 
+    if (m_accesslog->Count() == 0) 
+        return;
+
     m_accesslog->Dump(File(dir + "message_access_" + GetName() + ".txt", "w"));
 
     m_fieldTree = new MsgTree(this);

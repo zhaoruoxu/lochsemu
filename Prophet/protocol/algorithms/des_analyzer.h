@@ -27,6 +27,7 @@ struct DESCrypt {
     uint ContextIndex;
     DESCryptType Type;
     int BeginSeq, EndSeq;
+    bool Ignored;   // used to indicate temporary result
 
     DESCrypt(cpbyte input, cpbyte output, const MemRegion &rin, 
         const MemRegion &rout, const TaintRegion &tr,
@@ -48,7 +49,7 @@ private:
     void TestKeySchedule(const ProcContext &ctx, const MemRegion &input, const MemRegion &output);
     bool TestCrypt(const ProcContext &ctx, const MemRegion &input, 
         const MemRegion &output, const TaintRegion &tr);
-    void OnFoundCrypt(const ProcContext &ctx, cpbyte input, cpbyte output, const MemRegion &rin, 
+    bool OnFoundCrypt(const ProcContext &ctx, cpbyte input, cpbyte output, const MemRegion &rin, 
         const MemRegion &rout, const TaintRegion &tr, uint ctxIndex, DESCryptType type);
     void ClearCrypts();
 private:

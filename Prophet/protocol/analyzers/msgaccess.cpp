@@ -42,7 +42,7 @@ void MessageAccessLog::OnComplete()
 {
 #if FIX_ADJACENT_REVERSE_ORDER
     StackHashComparator cmp;
-    for (uint i = 0; i < m_accesses.size() - 1; i++) {
+    for (int i = 0; i < (int) m_accesses.size() - 1; i++) {
         if (m_accesses[i]->Offset == m_accesses[i+1]->Offset + 1 && 
             cmp.Equals(m_accesses[i], m_accesses[i+1])) 
         {

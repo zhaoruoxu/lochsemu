@@ -193,6 +193,8 @@ void SingleProcExec::OnExecuteTrace( ExecuteTraceEvent &event )
     m_context.OnTrace(event, m_taint);
 }
 
+#define SEPARATE_MEMREGION_BY_TAINT 1
+
 std::vector<MemRegion> GenerateMemRegions( const ProcParameter &params )
 {
     std::vector<MemRegion> r;
@@ -200,14 +202,20 @@ std::vector<MemRegion> GenerateMemRegions( const ProcParameter &params )
     auto iter = params.begin();
     MemRegion curr(iter->first, 1);
     u32 prev = iter->first;
+    bool prevTainted = iter->second.Tnt.IsAnyTainted();
     for (iter++; iter != params.end(); iter++) {
+#if SEPARATE_MEMREGION_BY_TAINT
+        if (iter->first == prev + 1 && iter->second.Tnt.IsAnyTainted() == prevTainted) {
+#else
         if (iter->first == prev + 1) {
+#endif
             prev++;
         } else {
             curr.Len = prev - curr.Addr + 1;
             r.push_back(curr);
             curr.Addr = iter->first; curr.Len = 1;
             prev = iter->first;
+            prevTainted = iter->second.Tnt.IsAnyTainted();
         }
     }
     curr.Len = prev - curr.Addr + 1;

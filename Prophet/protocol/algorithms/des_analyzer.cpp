@@ -15,13 +15,15 @@ bool DESAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcConte
         if (!tin.IsAnyTainted()) continue;
         auto trs = tin.GenerateRegions();
         if (trs.size() != 1) continue;
+        bool hasSuccess = false;
         for (auto &output : ctx.OutputRegions) {
             if (output.Len != BlockSize) continue;
             Taint tout = GetMemRegionTaintAnd(ctx.Outputs, output);
             if ((tout & tin) != tin) continue;
             if (TestCrypt(ctx, input, output, trs[0]))
-                return true;
+                hasSuccess = true;
         }
+        if (hasSuccess) return true;
     }
     return false;
 }
@@ -80,41 +82,49 @@ bool DESAnalyzer::TestCrypt(const ProcContext &ctx, const MemRegion &input,
         DES_ecb_encrypt(&bin, &bactual, &des.Subkeys, DES_DECRYPT);
         if (CompareByteArray((pbyte) &bout, (pbyte) &bactual, BlockSize) == 0) {
             LxInfo("Found DES decrypt\n");
-            OnFoundCrypt(ctx, (cpbyte) &bin, (cpbyte) &bout, input, output, 
+            return OnFoundCrypt(ctx, (cpbyte) &bin, (cpbyte) &bout, input, output, 
                 tr, i, DESCRYPT_DECRYPT);
-            return true;
         }
     }
     return false;
 }
 
-void DESAnalyzer::OnFoundCrypt(const ProcContext &ctx, cpbyte input, cpbyte output, 
+bool DESAnalyzer::OnFoundCrypt(const ProcContext &ctx, cpbyte input, cpbyte output, 
                                const MemRegion &rin, const MemRegion &rout, 
                                const TaintRegion &tr, uint ctxIndex, DESCryptType type )
 {
     for (auto &crypt : m_crypts) {
         if (crypt->ContextIndex == ctxIndex && crypt->Type == type &&
-            crypt->InputRegion.CanMerge(rin) && crypt->OutputRegion.CanMerge(rout))
+            crypt->InputRegion.CanMerge(rin))
         {
-            if (!crypt->InputRegion.TryMerge(rin) || !crypt->OutputRegion.TryMerge(rout))
-                LxFatal("merging failed\n");
-            if (!crypt->MsgRegion.TryMerge(tr))
-                LxFatal("taint merge failed\n");
-            crypt->Input.Append(input, rin.Len);
-            crypt->Output.Append(output, rout.Len);
-            crypt->BeginSeq = max(crypt->BeginSeq, ctx.EndSeq + 1);
-            return;
+            if (crypt->OutputRegion.CanMerge(rout)) {
+                if (!crypt->InputRegion.TryMerge(rin) || !crypt->OutputRegion.TryMerge(rout))
+                    LxFatal("merging failed\n");
+                if (!crypt->MsgRegion.TryMerge(tr))
+                    LxFatal("taint merge failed\n");
+                crypt->Input.Append(input, rin.Len);
+                crypt->Output.Append(output, rout.Len);
+                crypt->BeginSeq = max(crypt->BeginSeq, ctx.EndSeq + 1);
+                return true;
+            } else if (crypt->OutputRegion == rout) {
+                if (!crypt->InputRegion.TryMerge(rin))
+                    LxFatal("merging failed\n");
+                crypt->Ignored = true;
+                return false;   // Ignore this when using the same output buffer
+            }
         }
     }
 
     DESCrypt *c = new DESCrypt(input, output, rin, rout, tr, 
         ctxIndex, type, ctx.EndSeq + 1, m_algEngine->GetMessage()->GetTraceEnd());
     m_crypts.push_back(c);
+    return true;
 }
 
 void DESAnalyzer::OnComplete()
 {
     for (auto &crypt : m_crypts) {
+        if (crypt->Ignored) continue;
         LxInfo("DES crypt: len = %d\n", crypt->InputRegion.Len);
 
         std::string desc = "Block Cipher";
@@ -164,4 +174,5 @@ DESCrypt::DESCrypt(cpbyte input, cpbyte output, const MemRegion &rin,
     Type = t;
     BeginSeq = begSeq;
     EndSeq = endSeq;
+    Ignored = false;
 }

@@ -231,6 +231,7 @@
     <ClInclude Include="plugin\vulnerability_detector.h" />
     <ClInclude Include="prophet.h" />
     <ClInclude Include="protocol\algorithms\alganalyzer.h" />
+    <ClInclude Include="protocol\algorithms\base64_analyzer.h" />
     <ClInclude Include="protocol\algorithms\des_analyzer.h" />
     <ClInclude Include="protocol\algorithms\generic_analyzer.h" />
     <ClInclude Include="protocol\algorithms\hash_analyzer.h" />
@@ -316,6 +317,7 @@
     <ClCompile Include="plugin\vulnerability_detector.cpp" />
     <ClCompile Include="prophet.cpp" />
     <ClCompile Include="protocol\algorithms\alganalyzer.cpp" />
+    <ClCompile Include="protocol\algorithms\base64_analyzer.cpp" />
     <ClCompile Include="protocol\algorithms\des_analyzer.cpp" />
     <ClCompile Include="protocol\algorithms\generic_analyzer.cpp" />
     <ClCompile Include="protocol\algorithms\hash_analyzer.cpp" />

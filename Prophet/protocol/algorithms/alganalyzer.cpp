@@ -6,6 +6,7 @@
 #include "xor_analyzer.h"
 #include "hash_analyzer.h"
 #include "generic_analyzer.h"
+#include "base64_analyzer.h"
 
 AdvAlgEngine::AdvAlgEngine( MessageManager *msgmgr, Message *msg, int minProcSize )
     : m_msgmgr(msgmgr), m_message(msg)
@@ -72,6 +73,7 @@ void AdvAlgEngine::RegisterAnalyzers()
     RegisterAnalyzer(new DESAnalyzer());
     RegisterAnalyzer(new ChainedXorAnalyzer());
     RegisterAnalyzer(new MD5Analyzer());
+    RegisterAnalyzer(new Base64Analyzer());
     //RegisterAnalyzer(new GenericAnalyzer());
 }
 
