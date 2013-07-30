@@ -13,5 +13,18 @@ void ChainedXor_Decrypt(cpbyte ct, pbyte pt, int len);
 bool ChainedXor_IsValidDecrypt(cpbyte ct, cpbyte pt, int ctlen);
 
 double CalculateEntropy(cpbyte data, int len);
- 
+
+struct Checksums {
+    u32 Sum32;
+    u8 Sum8;
+    u8 Xor;
+    u8 And;
+    u8 Or;
+    u32 Crc32;
+    u32 Adler32;
+
+    Checksums(cpbyte data, int len);
+    std::string GetChecksumType(u8 val8, u32 val32);
+};
+
 #endif // __PROPHET_CRYPTOHELP_H__

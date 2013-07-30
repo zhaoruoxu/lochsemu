@@ -221,5 +221,44 @@ bool GenericChecksumAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, con
     LxInfo("eax = %08x\n", event.Context->EAX);
 #endif
     
+    for (auto &input : ctx.InputRegions) {
+        Taint tin = GetMemRegionTaintOr(ctx.Inputs, input);
+        if (!tin.IsAnyTainted()) continue;
+        auto trs = tin.GenerateRegions();
+        if (trs.size() != 1) continue;
+
+        CheckRegisterChecksum(event, ctx, input, trs[0], tin);
+    }
+
+    return false;
+}
+
+bool GenericChecksumAnalyzer::CheckRegisterChecksum( 
+    ExecuteTraceEvent &event, const ProcContext &ctx, const MemRegion &input, 
+    const TaintRegion &tr, const Taint &tin )
+{
+    // check eax
+    Taint teax = ctx.TRegs[LX_REG_EAX];
+    if ((tin & teax) == tin) {
+        pbyte pin = new byte[input.Len];
+        FillMemRegionBytes(ctx.Inputs, input, pin);
+
+        Checksums cs(pin, input.Len);
+        std::string type = cs.GetChecksumType(event.Context->AL, event.Context->EAX);
+
+        LxInfo("Generic checksum register: %08x-%08x\n", input.Addr, input.Addr + input.Len);
+
+        AlgTag *tag = new AlgTag("Checksum", type);
+        tag->Params.push_back(new AlgParam("Data", input, pin));
+        tag->Params.push_back(new AlgParam("Checksum", MemRegion(0, 1), (cpbyte) &event.Context->EAX));
+
+        Message *parent = m_algEngine->GetMessage();
+        Message *newMsg = new Message(MemRegion(0, 1), (cpbyte) &event.Context->EAX,
+            parent, parent->GetRegion().SubRegion(tr), tag, false);
+        m_algEngine->GetMessageManager()->EnqueueMessage(newMsg, 0, 0);
+
+        SAFE_DELETE_ARRAY(pin);
+        return true;
+    }
     return false;
 }

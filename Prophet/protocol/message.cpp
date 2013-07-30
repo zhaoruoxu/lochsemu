@@ -20,7 +20,7 @@ const char *FieldFormatName[] = {
 };
 
 Message::Message(const MemRegion &r, cpbyte data )
-    : m_region(r), m_parent(NULL)
+    : m_region(r), m_parent(NULL), m_accesslog(NULL), m_fieldTree(NULL)
 {
     m_id = -1;
     m_traceBegin = m_traceEnd = 0;
@@ -33,7 +33,7 @@ Message::Message(const MemRegion &r, cpbyte data )
 
 Message::Message(const MemRegion &r, cpbyte data, Message *parent, 
                  const MemRegion &pr, AlgTag *tag, bool clearNode )
-    : m_region(r), m_parent(parent), m_parentRegion(pr)
+    : m_region(r), m_parent(parent), m_parentRegion(pr), m_accesslog(NULL), m_fieldTree(NULL)
 {
     m_id = -1;
     m_traceBegin = m_traceEnd = 0;
@@ -67,39 +67,46 @@ bool Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
     LxCreateDirectory(dir.c_str());
     //trace.DumpMsg(this, File(dir + "trace_" + GetName() + ".txt", "w"));
 
-    // Get Procedures
-    traceExe.Add(&procScope);
-    traceExe.RunMessage(this);
-    procScope.Dump(File(dir + "procs_" + GetName() + ".txt", "w"));
+    if (m_traceBegin == 0 && m_traceEnd == 0) {
+        LxInfo("Dummy message found\n");
+        m_fieldTree = new MsgTree(this);
+        m_fieldTree->Construct(NULL, StackHashComparator());
+    } else {
+        // Get Procedures
+        traceExe.Add(&procScope);
+        traceExe.RunMessage(this);
+        procScope.Dump(File(dir + "procs_" + GetName() + ".txt", "w"));
 
-    CallStack callStack(&procScope);
-    m_accesslog = new MessageAccessLog(this);
-    m_accesslog->SetCallStack(&callStack);
-    traceExe.Add(&callStack, m_accesslog);
-    traceExe.RunMessage(this);
+        CallStack callStack(&procScope);
+        m_accesslog = new MessageAccessLog(this);
+        m_accesslog->SetCallStack(&callStack);
+        traceExe.Add(&callStack, m_accesslog);
+        traceExe.RunMessage(this);
 
-    if (m_accesslog->Count() == 0) 
-        return false;
+        if (m_accesslog->Count() == 0) {
+            return false;
+        }
 
-    m_accesslog->Dump(File(dir + "message_access_" + GetName() + ".txt", "w"));
+        m_accesslog->Dump(File(dir + "message_access_" + GetName() + ".txt", "w"));
 
-    m_fieldTree = new MsgTree(this);
-    m_fieldTree->Construct(m_accesslog, StackHashComparator());
-    m_fieldTree->UpdateHistory(m_accesslog);
+        m_fieldTree = new MsgTree(this);
+        m_fieldTree->Construct(m_accesslog, StackHashComparator());
+        m_fieldTree->UpdateHistory(m_accesslog);
 
-    //SanitizeRefiner().RefineTree(*m_fieldTree);
-    TokenizeRefiner(this, m_type, 1).RefineTree(*m_fieldTree);
-    ParallelFieldDetector(3).RefineTree(*m_fieldTree);
+        //SanitizeRefiner().RefineTree(*m_fieldTree);
+        TokenizeRefiner(this, m_type, 1).RefineTree(*m_fieldTree);
+        ParallelFieldDetector(3).RefineTree(*m_fieldTree);
 
-    TaintEngine *taint = msgmgr->GetTaint();
-    taint->Reset();
-    taint->TaintRule_LoadMemory();
-    taint->TaintMemRegion(m_region);
-    AdvAlgEngine alg(msgmgr, this, 32);
-    ProcExec procExe(&callStack, taint);
-    procExe.Add(&alg);
-    traceExe.Add(taint, &callStack, &procExe);
-    traceExe.RunMessage(this);
+        TaintEngine *taint = msgmgr->GetTaint();
+        taint->Reset();
+        taint->TaintRule_LoadMemory();
+        taint->TaintMemRegion(m_region);
+        AdvAlgEngine alg(msgmgr, this, 32);
+        ProcExec procExe(&callStack, taint);
+        procExe.Add(&alg);
+        traceExe.Add(taint, &callStack, &procExe);
+        traceExe.RunMessage(this);
+    }
 
     if (m_parent != NULL) {
         MemRegion parentData;
@@ -241,9 +248,18 @@ void AlgTag::DumpDot( File &f ) const
     fprintf(f.Ptr(), "-- %s(%s) --\\l", AlgName.c_str(), Description.c_str());
     int count = 1;
     for (auto &p : Params) {
-        fprintf(f.Ptr(), "(%d)[%x:%d] %s %s H=%.4f\\l", count++, 
-            p->Mem.Addr, p->Mem.Len, p->Type.c_str(), 
-            ByteArrayToDotString(p->Data, p->Mem.Len, 16).c_str(), p->Entropy);
+        if (p->Mem.Addr <= 9) {     // 8 gp regs and Eip
+            // register
+            Assert(p->Mem.Len <= 4);    // 32-bit
+            u32 val = *(reinterpret_cast<u32p>(p->Data));
+            fprintf(f.Ptr(), "(%d)[%s] %s %08xh\\l", count++,
+                InstContext::RegNames[p->Mem.Addr].c_str(), p->Type.c_str(), val);
+        } else {  
+            // memory
+            fprintf(f.Ptr(), "(%d)[%x:%d] %s %s H=%.4f\\l", count++, 
+                p->Mem.Addr, p->Mem.Len, p->Type.c_str(), 
+                ByteArrayToDotString(p->Data, p->Mem.Len, 16).c_str(), p->Entropy);
+        }
     }
     fprintf(f.Ptr(), "\"");
 }

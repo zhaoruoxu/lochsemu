@@ -2,6 +2,8 @@
 #include "cryptohelp.h"
 #include "utilities.h"
 
+#include "zlib/zlib.h"
+
 void RC4_KeySchedule( pbyte S, const pbyte key, int n )
 {
     for (int i = 0; i < 256; i++)
@@ -69,4 +71,34 @@ double CalculateEntropy( cpbyte data, int len )
         if (count[i] > 0)
             entropy += count[i] * log(count[i]);
     return -entropy / log(len);
+}
+
+std::string Checksums::GetChecksumType( u8 val8, u32 val32 )
+{
+    if (val8 == Sum8) return "Sum 8-bit";
+    if (val8 == Xor) return "Xor 8-bit";
+    if (val8 == And) return "And 8-bit";
+    if (val8 == Or) return "Or 8-bit";
+    if (val32 == Sum32) return "Sum 32-bit";
+    if (val32 == Crc32) return "CRC 32-bit";
+    if (val32 == Adler32) return "Adler 32-bit";
+    return "Generic";
+}
+
+Checksums::Checksums( cpbyte data, int len )
+{
+    Sum8 = Xor = And = Or = 0;
+    Sum32 = Crc32 = Adler32 = 0;
+    for (int i = 0; i < len; i++) {
+        Sum8 += data[i];
+        Xor ^= data[i];
+        And &= data[i];
+        Or |= data[i];
+        Sum32 += data[i];
+    }
+
+    Adler32 = adler32(0L, Z_NULL, 0);
+    Adler32 = adler32(Adler32, data, len);
+    Crc32 = crc32(0L, Z_NULL, 0);
+    Crc32 = crc32(Crc32, data, len);
 }

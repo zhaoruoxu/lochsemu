@@ -26,6 +26,11 @@ void MsgTree::Construct( const MessageAccessLog *log, MessageAccessComparator &c
     LxDebug("Constructing message tree\n");
     m_root = new TreeNode(0, m_message->Size() - 1);
 
+    if (log == NULL) {
+        LxInfo("MsgTree::Construct  MessageAccessLog is null, skipping...\n");
+        return;
+    }
+
     const MessageAccess *prev = log->Get(0);
     TreeNode *currNode = new TreeNode(prev->Offset, prev->Offset);
     for (int i = 1; i < log->Count(); i++) {

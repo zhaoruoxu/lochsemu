@@ -53,6 +53,10 @@ private:
 class GenericChecksumAnalyzer : public AlgorithmAnalyzer {
 public:
     virtual bool OnOriginalProcedure(ExecuteTraceEvent &event, const ProcContext &ctx) override;
+
+private:
+    bool CheckRegisterChecksum(ExecuteTraceEvent &event, const ProcContext &ctx, 
+        const MemRegion &input, const TaintRegion &tr, const Taint &tin);
 };
 
 #endif // __PROPHET_PROTOCOL_ALGORITHMS_GENERIC_ANALYZER_H__
