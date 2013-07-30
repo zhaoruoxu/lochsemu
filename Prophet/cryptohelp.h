@@ -24,7 +24,7 @@ struct Checksums {
     u32 Adler32;
 
     Checksums(cpbyte data, int len);
-    std::string GetChecksumType(u8 val8, u32 val32);
+    void GetChecksumType(u8 val8, u32 val32, std::string &s, int &len);
 };
 
 #endif // __PROPHET_CRYPTOHELP_H__

@@ -244,16 +244,18 @@ bool GenericChecksumAnalyzer::CheckRegisterChecksum(
         FillMemRegionBytes(ctx.Inputs, input, pin);
 
         Checksums cs(pin, input.Len);
-        std::string type = cs.GetChecksumType(event.Context->AL, event.Context->EAX);
+        std::string type;
+        int len;
+        cs.GetChecksumType(event.Context->AL, event.Context->EAX, type, len);
 
         LxInfo("Generic checksum register: %08x-%08x\n", input.Addr, input.Addr + input.Len);
 
         AlgTag *tag = new AlgTag("Checksum", type);
         tag->Params.push_back(new AlgParam("Data", input, pin));
-        tag->Params.push_back(new AlgParam("Checksum", MemRegion(0, 1), (cpbyte) &event.Context->EAX));
+        tag->Params.push_back(new AlgParam("Checksum", MemRegion(0, len), (cpbyte) &event.Context->EAX));
 
         Message *parent = m_algEngine->GetMessage();
-        Message *newMsg = new Message(MemRegion(0, 1), (cpbyte) &event.Context->EAX,
+        Message *newMsg = new Message(MemRegion(0, len), (cpbyte) &event.Context->EAX,
             parent, parent->GetRegion().SubRegion(tr), tag, false);
         m_algEngine->GetMessageManager()->EnqueueMessage(newMsg, 0, 0);
 

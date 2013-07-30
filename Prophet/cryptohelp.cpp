@@ -73,16 +73,25 @@ double CalculateEntropy( cpbyte data, int len )
     return -entropy / log(len);
 }
 
-std::string Checksums::GetChecksumType( u8 val8, u32 val32 )
+void Checksums::GetChecksumType( u8 val8, u32 val32, std::string &s, int &len )
 {
-    if (val8 == Sum8) return "Sum 8-bit";
-    if (val8 == Xor) return "Xor 8-bit";
-    if (val8 == And) return "And 8-bit";
-    if (val8 == Or) return "Or 8-bit";
-    if (val32 == Sum32) return "Sum 32-bit";
-    if (val32 == Crc32) return "CRC 32-bit";
-    if (val32 == Adler32) return "Adler 32-bit";
-    return "Generic";
+    if (val8 == Sum8) {
+        s = "Sum 8-bit"; len = 1;
+    } else if (val8 == Xor) {
+        s = "Xor 8-bit"; len = 1;
+    } if (val8 == And) {
+        s = "And 8-bit"; len = 1;
+    } if (val8 == Or) {
+        s = "Or 8-bit"; len = 1;
+    } if (val32 == Sum32) { 
+        s = "Sum 32-bit"; len = 4;
+    } if (val32 == Crc32) {
+        s = "CRC 32-bit"; len = 4;
+    } if (val32 == Adler32) {
+        s = "Adler 32-bit"; len = 4;
+    } else {
+        s = "Generic"; len = 4;
+    }
 }
 
 Checksums::Checksums( cpbyte data, int len )
