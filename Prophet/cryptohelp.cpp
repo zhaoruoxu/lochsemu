@@ -79,15 +79,15 @@ void Checksums::GetChecksumType( u8 val8, u32 val32, std::string &s, int &len )
         s = "Sum 8-bit"; len = 1;
     } else if (val8 == Xor) {
         s = "Xor 8-bit"; len = 1;
-    } if (val8 == And) {
+    } else if (val8 == And) {
         s = "And 8-bit"; len = 1;
-    } if (val8 == Or) {
+    } else if (val8 == Or) {
         s = "Or 8-bit"; len = 1;
-    } if (val32 == Sum32) { 
+    } else if (val32 == Sum32) { 
         s = "Sum 32-bit"; len = 4;
-    } if (val32 == Crc32) {
+    } else if (val32 == Crc32) {
         s = "CRC 32-bit"; len = 4;
-    } if (val32 == Adler32) {
+    } else if (val32 == Adler32) {
         s = "Adler 32-bit"; len = 4;
     } else {
         s = "Generic"; len = 4;
@@ -110,4 +110,20 @@ Checksums::Checksums( cpbyte data, int len )
     Adler32 = adler32(Adler32, data, len);
     Crc32 = crc32(0L, Z_NULL, 0);
     Crc32 = crc32(Crc32, data, len);
+}
+
+EntropyMetrics::EntropyMetrics( cpbyte pin, int lin, cpbyte pout, int lout )
+{
+    Hi = CalculateEntropy(pin, lin);
+    Ho = CalculateEntropy(pout, lout);
+    Li = lin;
+    Lo = lout;
+    HoDivHi = Ho / Hi;
+    if (HoDivHi >= 1.1) {
+        Result = Li > Lo ? "Hash" : "Encryption";
+    } else if (HoDivHi >= 0.9) {
+        Result = Li > Lo ? "Decoding" : "Encoding";
+    } else {
+        Result = Li == Lo ? "Decryption" : "Unknown";
+    }
 }

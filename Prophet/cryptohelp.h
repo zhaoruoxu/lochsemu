@@ -27,4 +27,14 @@ struct Checksums {
     void GetChecksumType(u8 val8, u32 val32, std::string &s, int &len);
 };
 
+struct EntropyMetrics {
+    double Hi, Ho;
+    int Li, Lo;
+
+    std::string Result;
+    double HoDivHi;
+
+    EntropyMetrics(cpbyte pin, int lin, cpbyte pout, int lout);
+};
+
 #endif // __PROPHET_CRYPTOHELP_H__

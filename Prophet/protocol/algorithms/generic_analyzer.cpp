@@ -146,12 +146,6 @@ bool GenericEncodingAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, con
     return false;
 }
 
-std::string GenericEncodingAnalyzer::EncodingTypeStr [] = {
-    "Generic Encoding Decoding",
-    "Generic Encoding",
-    "Generic Decoding"
-};
-
 bool GenericEncodingAnalyzer::TestEncoding(const ProcContext &ctx, const MemRegion &input, 
                                            const MemRegion &output, const TaintRegion &tr,
                                            const Taint &tin)
@@ -163,13 +157,14 @@ bool GenericEncodingAnalyzer::TestEncoding(const ProcContext &ctx, const MemRegi
     Taint tor = GetMemRegionTaintOr(ctx.Outputs, output);
     if ((tor & tin) != tin) return false;
     int prevFirst, prevLast;
-    Taint t1 = ctx.Outputs.find(output.Addr)->second.Tnt;
-    GetTaintRange(t1, &prevFirst, &prevLast);
+    //Taint t1 = ctx.Outputs.find(output.Addr)->second.Tnt;
+    GetTaintRange(tor, &prevFirst, &prevLast);
+    prevLast = prevFirst;   // start from first
     for (u32 addr = output.Addr + 1; addr < output.Addr + output.Len; addr++) {
         Taint t = ctx.Outputs.find(addr)->second.Tnt;
         int first, last;
         GetTaintRange(t, &first, &last);
-        if (first < prevFirst || last < prevLast)
+        if (last < prevLast - 3)    // 3: failsafe
             return false;
         prevFirst = first; prevLast = last;
     }
@@ -179,10 +174,9 @@ bool GenericEncodingAnalyzer::TestEncoding(const ProcContext &ctx, const MemRegi
     FillMemRegionBytes(ctx.Inputs, input, pin);
     FillMemRegionBytes(ctx.Outputs, output, pout);
 
-    LxError("TODO: Entropy metrics\n");
+    EntropyMetrics em(pin, input.Len, pout, output.Len);
 
     bool result = false;
-
     // check minimum difference rate
     int diffCount = 0;
     for (int i = 0; i < (int) min(input.Len, output.Len); i++) {
@@ -191,16 +185,9 @@ bool GenericEncodingAnalyzer::TestEncoding(const ProcContext &ctx, const MemRegi
     if ((double) diffCount / (double) min(input.Len, output.Len) < m_minDiffRate)
         goto L_END;
 
-    GenericEncodingType t = GenericEncodingOrDecoding;
-
-    if (input.Len > output.Len)
-        t = GenericDecoding;
-    else if (input.Len < output.Len)
-        t = GenericEncoding;
-
-    LxInfo("%s found: %08x-%08x\n", EncodingTypeStr[t].c_str(), output.Addr,
+    LxInfo("Generic %s found: %08x-%08x\n", em.Result.c_str(), output.Addr,
         output.Len + output.Addr);
-    AlgTag *tag = new AlgTag(EncodingTypeStr[t], "*");
+    AlgTag *tag = new AlgTag("Generic", em.Result);
     tag->Params.push_back(new AlgParam("Input", input, pin));
     tag->Params.push_back(new AlgParam("Output", output, pout));
     m_algEngine->EnqueueNewMessage(output, pout, tr, tag, ctx);
@@ -248,7 +235,7 @@ bool GenericChecksumAnalyzer::CheckRegisterChecksum(
         int len;
         cs.GetChecksumType(event.Context->AL, event.Context->EAX, type, len);
 
-        LxInfo("Generic checksum register: %08x-%08x\n", input.Addr, input.Addr + input.Len);
+        LxInfo("Generic checksum register(%d): %08x-%08x\n", len, input.Addr, input.Addr + input.Len);
 
         AlgTag *tag = new AlgTag("Checksum", type);
         tag->Params.push_back(new AlgParam("Data", input, pin));

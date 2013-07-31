@@ -29,12 +29,6 @@ private:
     std::vector<GenericCrypto *>    m_cryptos;
 };
 
-enum GenericEncodingType {
-    GenericEncodingOrDecoding = 0,
-    GenericEncoding,
-    GenericDecoding,
-};
-
 class GenericEncodingAnalyzer : public AlgorithmAnalyzer {
 public:
     GenericEncodingAnalyzer(int minlen, double maxSizeDown, double maxSizeUp, double minDiffRate);
