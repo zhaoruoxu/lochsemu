@@ -34,7 +34,7 @@ bool MD5Analyzer::TestMD5(const ProcContext &ctx, const MemRegion &input,
         AlgTag *tag = new AlgTag("MD5", "Message Digest");
         tag->Params.push_back(new AlgParam("Message", input, in));
         tag->Params.push_back(new AlgParam("Digest", output, md));
-        m_algEngine->EnqueueNewMessage(output, md, tr, tag, ctx);
+        m_algEngine->EnqueueNewMessage(output, md, tr, tag, ctx, false);
 //         Message *parent = m_algEngine->GetMessage();
 //         Message *newMsg = new Message(output, md, parent, 
 //             parent->GetRegion().SubRegion(tr), tag, false);

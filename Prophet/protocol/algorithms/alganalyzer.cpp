@@ -91,10 +91,10 @@ void AdvAlgEngine::OnComplete()
         m_analyzers[i]->OnComplete();
 }
 
-void AdvAlgEngine::EnqueueNewMessage( const MemRegion &mr, pbyte pout, const TaintRegion &tr, AlgTag *tag, const ProcContext &ctx )
+void AdvAlgEngine::EnqueueNewMessage( const MemRegion &mr, pbyte pout, const TaintRegion &tr, AlgTag *tag, const ProcContext &ctx, bool clear )
 {
     Message *parent = this->GetMessage();
-    Message *newMsg = new Message(mr, pout, parent, parent->GetRegion().SubRegion(tr), tag, false);
+    Message *newMsg = new Message(mr, pout, parent, parent->GetRegion().SubRegion(tr), tag, clear);
     GetMessageManager()->EnqueueMessage(newMsg, 
         ctx.Level == 0 ? ctx.EndSeq + 1 : ctx.BeginSeq, parent->GetTraceEnd());
 }

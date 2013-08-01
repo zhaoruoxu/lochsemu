@@ -22,7 +22,7 @@ public:
     Message * GetMessage() { return m_message; }
     MessageManager *    GetMessageManager() { return m_msgmgr; }
     void EnqueueNewMessage(const MemRegion &mr, pbyte pout, const TaintRegion &tr,
-        AlgTag *tag, const ProcContext &ctx);
+        AlgTag *tag, const ProcContext &ctx, bool clear);
 
 private:
     void RegisterAnalyzers();

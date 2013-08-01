@@ -137,7 +137,7 @@ bool Base64Analyzer::TestBase64(const ProcContext &ctx, const MemRegion &input,
         tag->Params.push_back(new AlgParam("Encoded string", input, pin));
         tag->Params.push_back(new AlgParam("Decoded string", output, pout));
         LxInfo("Base64 decoding: %08x-%08x\n", output.Addr, output.Addr + output.Len);
-        m_algEngine->EnqueueNewMessage(output, pout, tr, tag, ctx);
+        m_algEngine->EnqueueNewMessage(output, pout, tr, tag, ctx, true);
         //Message *parent = m_algEngine->GetMessage();
         //Message *newMsg = new Message(output, pout, parent, 
         //    parent->GetRegion().SubRegion(tr), tag, false);

@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "des_analyzer.h"
 
+static void DES_cblock_xor(const DES_cblock &a, const DES_cblock &b, DES_cblock &r)
+{
+    for (int i = 0; i < sizeof(DES_cblock); i++)
+        r[i] = a[i] ^ b[i];
+}
 
 bool DESAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
@@ -10,18 +15,27 @@ bool DESAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcConte
 
     if (ctx.Level > 1) return false;
     for (auto &input : ctx.InputRegions) {
-        if (input.Len != BlockSize) continue;
+        if (input.Len % BlockSize != 0) continue;
         Taint tin = GetMemRegionTaintOr(ctx.Inputs, input);
         if (!tin.IsAnyTainted()) continue;
         auto trs = tin.GenerateRegions();
         if (trs.size() != 1) continue;
         bool hasSuccess = false;
         for (auto &output : ctx.OutputRegions) {
-            if (output.Len != BlockSize) continue;
-            Taint tout = GetMemRegionTaintAnd(ctx.Outputs, output);
-            if ((tout & tin) != tin) continue;
-            if (TestCrypt(ctx, input, output, trs[0]))
-                hasSuccess = true;
+            if (output.Len % BlockSize != 0) continue;
+
+            if (output.Len > BlockSize && output.Len == input.Len) {
+                if (TestCryptMode(ctx, input, output, trs[0])) {
+                    hasSuccess = true;
+                }
+            } else if (output.Len == BlockSize) {
+                Taint tout = GetMemRegionTaintAnd(ctx.Outputs, output);
+                if ((tout & tin) != tin) continue;
+                if (TestCrypt(ctx, input, output, trs[0])) {
+                    hasSuccess = true;
+                }
+            }
+                
         }
         if (hasSuccess) return true;
     }
@@ -89,6 +103,63 @@ bool DESAnalyzer::TestCrypt(const ProcContext &ctx, const MemRegion &input,
     return false;
 }
 
+bool DESAnalyzer::TestCryptMode( const ProcContext &ctx, const MemRegion &input, const MemRegion &output, const TaintRegion &tr )
+{
+    // first check block taint
+    Assert(input.Len == output.Len && (input.Len % BlockSize) == 0);
+    for (int block = 0; block < (int) (input.Len / BlockSize); block++) {
+        MemRegion bin(input.Addr + block * BlockSize, BlockSize);
+        MemRegion bout(output.Addr + block * BlockSize, BlockSize);
+        Taint tbin = GetMemRegionTaintOr(ctx.Inputs, bin);
+        Taint tbout = GetMemRegionTaintAnd(ctx.Outputs, bout);
+        if ((tbin & tbout) != tbin) return false;
+    }
+
+    for (uint i = 0; i < m_contexts.size(); i++) {
+        DESContext &des = m_contexts[i];
+        // retrieve IV from first block
+        if (TestCryptModeCBC(des, ctx, input, output, tr))
+            return true;
+    }
+
+    return false;
+}
+
+bool DESAnalyzer::TestCryptModeCBC(DESContext &des, const ProcContext &ctx, const MemRegion &input, const MemRegion &output, const TaintRegion &tr )
+{
+    pbyte pin = new byte[input.Len];
+    pbyte pout = new byte[output.Len];
+    FillMemRegionBytes(ctx.Inputs, input, pin);
+    FillMemRegionBytes(ctx.Outputs, output, pout);
+    bool result = false;
+
+    DES_cblock iv, dec;
+    DES_ecb_encrypt((const_DES_cblock *) pin, &dec, &des.Subkeys, DES_DECRYPT);
+    DES_cblock_xor((const DES_cblock &) *pout, dec, iv);
+
+    pbyte pdec = new byte[output.Len];
+
+    DES_cbc_encrypt(pin, pdec, input.Len, &des.Subkeys, &iv, DES_DECRYPT);
+
+    if (CompareByteArray(pdec, pout, output.Len) == 0) {
+        LxInfo("Found DES-CBC decryption\n");
+        AlgTag *tag = new AlgTag("DES-CBC", "Decryption");
+        tag->Params.push_back(new AlgParam("Key", des.KeyRegion, (cpbyte) &des.Key));
+        tag->Params.push_back(new AlgParam("IV", MemRegion(-1, BlockSize), (cpbyte) &iv));
+        tag->Params.push_back(new AlgParam("Ciphertext", output, pout));
+        tag->Params.push_back(new AlgParam("Plaintext", input, pin));
+
+        m_algEngine->EnqueueNewMessage(output, pout, tr, tag, ctx, true);
+        result = true;
+    }
+
+    SAFE_DELETE_ARRAY(pdec);
+    SAFE_DELETE_ARRAY(pin);
+    SAFE_DELETE_ARRAY(pout);
+    // retrieve IV from first block
+    return result;
+}
+
 bool DESAnalyzer::OnFoundCrypt(const ProcContext &ctx, cpbyte input, cpbyte output, 
                                const MemRegion &rin, const MemRegion &rout, 
                                const TaintRegion &tr, uint ctxIndex, DESCryptType type )
@@ -129,11 +200,11 @@ void DESAnalyzer::OnComplete()
 
         std::string desc = "Block Cipher";
         if (crypt->Type == DESCRYPT_DECRYPT)
-            desc += "/Decryption";
+            desc += "Decryption";
         else if (crypt->Type == DESCRYPT_ENCRYPT)
-            desc += "/Encryption";
+            desc += "Encryption";
         const DESContext &ctx = m_contexts[crypt->ContextIndex];
-        AlgTag *tag = new AlgTag("DES", desc.c_str());
+        AlgTag *tag = new AlgTag("DES-ECB", desc.c_str());
         tag->Params.push_back(new AlgParam("Key", ctx.KeyRegion, (cpbyte) &ctx.Key));
         tag->Params.push_back(new AlgParam("Input", crypt->InputRegion, crypt->Input.Get()));
         tag->Params.push_back(new AlgParam("Output", crypt->OutputRegion, crypt->Output.Get()));
@@ -160,6 +231,7 @@ void DESAnalyzer::ClearCrypts()
     }
     m_crypts.clear();
 }
+
 
 DESCrypt::DESCrypt(cpbyte input, cpbyte output, const MemRegion &rin, 
                    const MemRegion &rout, const TaintRegion &tr, uint idx, 

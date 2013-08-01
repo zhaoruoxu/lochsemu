@@ -190,7 +190,7 @@ bool GenericEncodingAnalyzer::TestEncoding(const ProcContext &ctx, const MemRegi
     AlgTag *tag = new AlgTag("Generic", em.Result);
     tag->Params.push_back(new AlgParam("Input", input, pin));
     tag->Params.push_back(new AlgParam("Output", output, pout));
-    m_algEngine->EnqueueNewMessage(output, pout, tr, tag, ctx);
+    m_algEngine->EnqueueNewMessage(output, pout, tr, tag, ctx, false);
     result = true;
 
 L_END:
