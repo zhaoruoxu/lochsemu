@@ -24,9 +24,16 @@ bool DESAnalyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcConte
         for (auto &output : ctx.OutputRegions) {
             if (output.Len % BlockSize != 0) continue;
 
-            if (output.Len > BlockSize && output.Len == input.Len) {
+            if (output.Len == input.Len + BlockSize) {
+                // possible CFB, hahahaho
+                for (auto &des : m_contexts) {
+                    if (TestCryptModeCFB(des, ctx, input, output, trs[0])) {
+                        hasSuccess = true; break;
+                    }
+                }
+            } else if (output.Len > BlockSize && output.Len == input.Len) {
                 if (TestCryptMode(ctx, input, output, trs[0])) {
-                    hasSuccess = true;
+                    hasSuccess = true; break;
                 }
             } else if (output.Len == BlockSize) {
                 Taint tout = GetMemRegionTaintAnd(ctx.Outputs, output);
@@ -120,6 +127,8 @@ bool DESAnalyzer::TestCryptMode( const ProcContext &ctx, const MemRegion &input,
         // retrieve IV from first block
         if (TestCryptModeCBC(des, ctx, input, output, tr))
             return true;
+        //if (TestCryptModeCFB(des, ctx, input, output, tr))
+        //    return true;
     }
 
     return false;
@@ -157,6 +166,47 @@ bool DESAnalyzer::TestCryptModeCBC(DESContext &des, const ProcContext &ctx, cons
     SAFE_DELETE_ARRAY(pin);
     SAFE_DELETE_ARRAY(pout);
     // retrieve IV from first block
+    return result;
+}
+
+bool DESAnalyzer::TestCryptModeCFB( DESContext &des, const ProcContext &ctx, const MemRegion &input, const MemRegion &output, const TaintRegion &tr )
+{
+    pbyte pin = new byte[input.Len];
+    pbyte pdec = new byte[input.Len];
+    pbyte pout = new byte[output.Len];
+    FillMemRegionBytes(ctx.Inputs, input, pin);
+    FillMemRegionBytes(ctx.Outputs, output, pout);
+    ZeroMemory(pdec, input.Len);
+
+    bool result = false;
+    for (auto &iv : ctx.InputRegions) {
+        if (iv.Len != BlockSize) continue;
+        DES_cblock ivBlock;
+        FillMemRegionBytes(ctx.Inputs, iv, (pbyte) &ivBlock);
+
+        DES_cfb_encrypt(pin, pdec, 1, input.Len, &des.Subkeys, &ivBlock, DES_DECRYPT);
+        for (uint offset = 0; offset <= output.Len - input.Len; offset++) {
+            if (CompareByteArray(pout + offset, pdec, input.Len) == 0) {
+                LxInfo("Found DES-CFB decryption\n");
+
+                FillMemRegionBytes(ctx.Inputs, iv, (pbyte) &ivBlock);
+                AlgTag *tag = new AlgTag("DES-CFB", "Decryption");
+                tag->Params.push_back(new AlgParam("Key", des.KeyRegion, (cpbyte) &des.Key));
+                tag->Params.push_back(new AlgParam("IV", iv, (cpbyte) &ivBlock));
+                tag->Params.push_back(new AlgParam("Ciphertext", output, pout));
+                tag->Params.push_back(new AlgParam("Plaintext", input, pin));
+
+                m_algEngine->EnqueueNewMessage(output, pout, tr, tag, ctx, true);
+                result = true;
+                goto L_END;
+            }
+        }
+    }
+
+    L_END:
+    SAFE_DELETE_ARRAY(pin);
+    SAFE_DELETE_ARRAY(pout);
+    SAFE_DELETE_ARRAY(pdec);
     return result;
 }
 

@@ -51,6 +51,7 @@ private:
         const MemRegion &output, const TaintRegion &tr);
     bool TestCryptMode(const ProcContext &ctx, const MemRegion &input, const MemRegion &output, const TaintRegion &tr);
     bool TestCryptModeCBC(DESContext &des, const ProcContext &ctx, const MemRegion &input, const MemRegion &output, const TaintRegion &tr);
+    bool TestCryptModeCFB(DESContext &des, const ProcContext &ctx, const MemRegion &input, const MemRegion &output, const TaintRegion &tr);
     bool OnFoundCrypt(const ProcContext &ctx, cpbyte input, cpbyte output, const MemRegion &rin, 
         const MemRegion &rout, const TaintRegion &tr, uint ctxIndex, DESCryptType type);
     void ClearCrypts();

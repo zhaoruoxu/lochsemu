@@ -316,9 +316,19 @@ LX_API uint LxNNStrLen( LPCSTR ptr )
 
 LX_API void LxRun(int argc, LPSTR argv[])
 {
+    DWORD t0 = timeGetTime();
+
 	V( LxEmulator.Initialize() );
     V( LxEmulator.LoadModule(argc, argv) );
     LxEmulator.Run();
+
+    DWORD t1 = timeGetTime() - t0;
+    DWORD ms = t1 % 1000; t1 /= 1000;
+    DWORD s = t1 % 60; t1 /= 60;
+    DWORD m = t1 % 60; t1 /= 60;
+    LxInfo("\n\nSession lasted: %d h %d m %d.%03d s\n\n",
+        t1, m, s, ms);
+
 }
 
 LX_API void LxRun( int argc, LPWSTR argv[] )
@@ -336,9 +346,10 @@ LX_API void LxRun( int argc, LPWSTR argv[] )
         args[i] = arg;
     }
     
-    V( LxEmulator.Initialize() );
-    V( LxEmulator.LoadModule(argc, args) );
-    LxEmulator.Run();
+//     V( LxEmulator.Initialize() );
+//     V( LxEmulator.LoadModule(argc, args) );
+//     LxEmulator.Run();
+    LxRun(argc, args);
 
     for (int i = 0; i < argc; i++) {
         SAFE_DELETE_ARRAY(args[i]);
