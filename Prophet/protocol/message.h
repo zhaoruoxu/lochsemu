@@ -49,10 +49,12 @@ struct AlgTag {
     std::string AlgName;
     std::string Description;
     std::vector<AlgParam *> Params;
+    u32 Proc;
 
+    void AddParam(const std::string &t, const MemRegion &r, cpbyte d);
     void DumpDot(File &f) const;
 
-    AlgTag(const std::string &name, const std::string &desc);
+    AlgTag(const std::string &name, const std::string &desc, u32 proc);
     ~AlgTag();
 };
 

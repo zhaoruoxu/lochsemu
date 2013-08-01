@@ -48,19 +48,23 @@ bool ChainedXorAnalyzer::TestCrypt( const ProcContext &ctx, const MemRegion &inp
     FillMemRegionBytes(ctx.Inputs, input, ct);
     FillMemRegionBytes(ctx.Outputs, output, pt);
     if (ChainedXor_IsValidDecrypt(ct, pt, input.Len)) {
-        AlgTag *tag = new AlgTag("XOR", "Chained-XOR-Decrypt");
+        AlgTag *tag = new AlgTag("XOR", "Chained-XOR-Decrypt", ctx.Proc->Entry());
         Assert(ct[0] == pt[0]);
-        tag->Params.push_back(new AlgParam("IV", MemRegion(input.Addr, 1), ct));
-        tag->Params.push_back(new AlgParam("Ciphertext", input, ct));
-        tag->Params.push_back(new AlgParam("Plaintext", output, pt));
+        tag->AddParam("IV", MemRegion(input.Addr, 1), ct);
+        tag->AddParam("Ciphertext", input, ct);
+        tag->AddParam("Plaintext", output, pt);
 
-        Message *parent = m_algEngine->GetMessage();
-        Message *msg = new Message(output, pt, parent,
-            parent->GetRegion().SubRegion(tr), tag, true);
         LxInfo("Chained-XOR sub-message: %08x-%08x\n",
             output.Addr, output.Addr + output.Len - 1);
-        m_algEngine->GetMessageManager()->EnqueueMessage(msg, 
-            ctx.Level == 0?ctx.EndSeq+1:ctx.BeginSeq, parent->GetTraceEnd());
+
+        m_algEngine->EnqueueNewMessage(output, pt, tr, tag, ctx, true);
+
+//         Message *parent = m_algEngine->GetMessage();
+//         Message *msg = new Message(output, pt, parent,
+//             parent->GetRegion().SubRegion(tr), tag, true);
+// 
+//         m_algEngine->GetMessageManager()->EnqueueMessage(msg, 
+//             ctx.Level == 0?ctx.EndSeq+1:ctx.BeginSeq, parent->GetTraceEnd());
         found = true;
     }
     SAFE_DELETE_ARRAY(ct);

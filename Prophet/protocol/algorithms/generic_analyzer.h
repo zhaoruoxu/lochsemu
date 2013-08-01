@@ -11,9 +11,10 @@ struct GenericCrypto {
     TaintRegion MsgRegion;
     int BeginSeq, EndSeq;
     bool Ignored;
+    u32 Proc;
 
     GenericCrypto(cpbyte input, cpbyte output, const MemRegion &rin,
-        const MemRegion &rout, const TaintRegion &tr, int begSeq, int endSeq);
+        const MemRegion &rout, const TaintRegion &tr, int begSeq, int endSeq, u32 proc);
 };
 
 class GenericSymmetricAnalyzer : public AlgorithmAnalyzer {

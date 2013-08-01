@@ -28,10 +28,11 @@ struct DESCrypt {
     DESCryptType Type;
     int BeginSeq, EndSeq;
     bool Ignored;   // used to indicate temporary result
+    u32 Proc;
 
     DESCrypt(cpbyte input, cpbyte output, const MemRegion &rin, 
         const MemRegion &rout, const TaintRegion &tr,
-        uint idx, DESCryptType t, int begSeq, int endSeq);
+        uint idx, DESCryptType t, int begSeq, int endSeq, u32 proc);
 };
 
 class DESAnalyzer : public AlgorithmAnalyzer {

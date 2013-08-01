@@ -45,9 +45,6 @@ void base64_decode(const char *data, int input_length, byte *buf, int *output_le
     if (data[input_length - 1] == '=') (*output_length)--;
     if (data[input_length - 2] == '=') (*output_length)--;
 
-    //unsigned char *decoded_data = (byte *) malloc(*output_length);
-    //if (decoded_data == NULL) return NULL;
-
     for (int i = 0, j = 0; i < input_length;) {
 
         uint32_t sextet_a = data[i] == '=' ? 0 & i++ : decoding_table[data[i++]];
@@ -64,8 +61,6 @@ void base64_decode(const char *data, int input_length, byte *buf, int *output_le
         if (j < *output_length) buf[j++] = (triple >> 1 * 8) & 0xFF;
         if (j < *output_length) buf[j++] = (triple >> 0 * 8) & 0xFF;
     }
-
-    //return decoded_data;
 }
 
 
@@ -133,16 +128,11 @@ bool Base64Analyzer::TestBase64(const ProcContext &ctx, const MemRegion &input,
 
     
     if (CompareByteArray(pactual, pin, input.Len) == 0) {
-        AlgTag *tag = new AlgTag("Base64", "Decoding");
-        tag->Params.push_back(new AlgParam("Encoded string", input, pin));
-        tag->Params.push_back(new AlgParam("Decoded string", output, pout));
+        AlgTag *tag = new AlgTag("Base64", "Decoding", ctx.Proc->Entry());
+        tag->AddParam("Encoded string", input, pin);
+        tag->AddParam("Decoded string", output, pout);
         LxInfo("Base64 decoding: %08x-%08x\n", output.Addr, output.Addr + output.Len);
         m_algEngine->EnqueueNewMessage(output, pout, tr, tag, ctx, true);
-        //Message *parent = m_algEngine->GetMessage();
-        //Message *newMsg = new Message(output, pout, parent, 
-        //    parent->GetRegion().SubRegion(tr), tag, false);
-        //m_algEngine->GetMessageManager()->EnqueueMessage(newMsg,
-        //    ctx.Level == 0 ? ctx.EndSeq+1:ctx.BeginSeq, parent->GetTraceEnd());
         found = true;
     }
 

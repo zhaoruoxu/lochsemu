@@ -152,11 +152,11 @@ bool DESAnalyzer::TestCryptModeCBC(DESContext &des, const ProcContext &ctx, cons
 
     if (CompareByteArray(pdec, pout, output.Len) == 0) {
         LxInfo("Found DES-CBC decryption\n");
-        AlgTag *tag = new AlgTag("DES-CBC", "Decryption");
-        tag->Params.push_back(new AlgParam("Key", des.KeyRegion, (cpbyte) &des.Key));
-        tag->Params.push_back(new AlgParam("IV", MemRegion(-1, BlockSize), (cpbyte) &iv));
-        tag->Params.push_back(new AlgParam("Ciphertext", output, pout));
-        tag->Params.push_back(new AlgParam("Plaintext", input, pin));
+        AlgTag *tag = new AlgTag("DES-CBC", "Decryption", ctx.Proc->Entry());
+        tag->AddParam("Key", des.KeyRegion, (cpbyte) &des.Key);
+        tag->AddParam("IV", MemRegion(-1, BlockSize), (cpbyte) &iv);
+        tag->AddParam("Ciphertext", output, pout);
+        tag->AddParam("Plaintext", input, pin);
 
         m_algEngine->EnqueueNewMessage(output, pout, tr, tag, ctx, true);
         result = true;
@@ -190,11 +190,11 @@ bool DESAnalyzer::TestCryptModeCFB( DESContext &des, const ProcContext &ctx, con
                 LxInfo("Found DES-CFB decryption\n");
 
                 FillMemRegionBytes(ctx.Inputs, iv, (pbyte) &ivBlock);
-                AlgTag *tag = new AlgTag("DES-CFB", "Decryption");
-                tag->Params.push_back(new AlgParam("Key", des.KeyRegion, (cpbyte) &des.Key));
-                tag->Params.push_back(new AlgParam("IV", iv, (cpbyte) &ivBlock));
-                tag->Params.push_back(new AlgParam("Ciphertext", output, pout));
-                tag->Params.push_back(new AlgParam("Plaintext", input, pin));
+                AlgTag *tag = new AlgTag("DES-CFB", "Decryption", ctx.Proc->Entry());
+                tag->AddParam("Key", des.KeyRegion, (cpbyte) &des.Key);
+                tag->AddParam("IV", iv, (cpbyte) &ivBlock);
+                tag->AddParam("Ciphertext", output, pout);
+                tag->AddParam("Plaintext", input, pin);
 
                 m_algEngine->EnqueueNewMessage(output, pout, tr, tag, ctx, true);
                 result = true;
@@ -237,7 +237,8 @@ bool DESAnalyzer::OnFoundCrypt(const ProcContext &ctx, cpbyte input, cpbyte outp
     }
 
     DESCrypt *c = new DESCrypt(input, output, rin, rout, tr, 
-        ctxIndex, type, ctx.EndSeq + 1, m_algEngine->GetMessage()->GetTraceEnd());
+        ctxIndex, type, ctx.EndSeq + 1, 
+        m_algEngine->GetMessage()->GetTraceEnd(), ctx.Proc->Entry());
     m_crypts.push_back(c);
     return true;
 }
@@ -254,10 +255,10 @@ void DESAnalyzer::OnComplete()
         else if (crypt->Type == DESCRYPT_ENCRYPT)
             desc += "Encryption";
         const DESContext &ctx = m_contexts[crypt->ContextIndex];
-        AlgTag *tag = new AlgTag("DES-ECB", desc.c_str());
-        tag->Params.push_back(new AlgParam("Key", ctx.KeyRegion, (cpbyte) &ctx.Key));
-        tag->Params.push_back(new AlgParam("Input", crypt->InputRegion, crypt->Input.Get()));
-        tag->Params.push_back(new AlgParam("Output", crypt->OutputRegion, crypt->Output.Get()));
+        AlgTag *tag = new AlgTag("DES-ECB", desc.c_str(), crypt->Proc);
+        tag->AddParam("Key", ctx.KeyRegion, (cpbyte) &ctx.Key);
+        tag->AddParam("Input", crypt->InputRegion, crypt->Input.Get());
+        tag->AddParam("Output", crypt->OutputRegion, crypt->Output.Get());
 
         Message *parent = m_algEngine->GetMessage();
         Message *msg = new Message(crypt->OutputRegion, 
@@ -285,7 +286,7 @@ void DESAnalyzer::ClearCrypts()
 
 DESCrypt::DESCrypt(cpbyte input, cpbyte output, const MemRegion &rin, 
                    const MemRegion &rout, const TaintRegion &tr, uint idx, 
-                   DESCryptType t, int begSeq, int endSeq )
+                   DESCryptType t, int begSeq, int endSeq, u32 proc )
 {
     InputRegion = rin;
     OutputRegion = rout;
@@ -297,4 +298,5 @@ DESCrypt::DESCrypt(cpbyte input, cpbyte output, const MemRegion &rin,
     BeginSeq = begSeq;
     EndSeq = endSeq;
     Ignored = false;
+    Proc = proc;
 }

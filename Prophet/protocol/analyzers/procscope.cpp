@@ -2,16 +2,19 @@
 #include "procscope.h"
 #include "processor.h"
 
-void Procedure::Dump( File &f ) const
+void Procedure::Dump( File &f, Disassembler *disasm ) const
 {
-    fprintf(f.Ptr(), "Procedure %08x\n", m_entry);
+    fprintf(f.Ptr(), "proc_%08x PROC\n", m_entry);
+    u32 next = *m_addrs.begin();
     for (auto &t : m_addrs) {
-        if (m_exits.find(t) != m_exits.end())
-            fprintf(f.Ptr(), "\t%08x(exit)\n", t);
-        else
-            fprintf(f.Ptr(), "\t%08x\n", t);
+        if (t != next) {
+            fprintf(f.Ptr(), "  ; bbl\n");
+        }
+        InstPtr pinst = disasm->GetInst(t);
+        fprintf(f.Ptr(), "  [%08x]  %s\n", t, pinst->Main.CompleteInstr);
+        next = t + pinst->Length;
     }
-    fprintf(f.Ptr(), "\n");
+    fprintf(f.Ptr(), "proc_%08x ENDP\n\n\n", m_entry);
 }
 
 void Procedure::Exit( u32 addr )
@@ -86,10 +89,10 @@ Procedure * ProcScope::GetProc( const TContext *entry )
     return r;
 }
 
-void ProcScope::Dump( File &f ) const
+void ProcScope::Dump( File &f, Disassembler *disasm ) const
 {
     for (auto &entry : m_procs) {
-        entry.second->Dump(f);
+        entry.second->Dump(f, disasm);
     }
 }
 

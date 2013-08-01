@@ -48,11 +48,7 @@ bool GenericSymmetricAnalyzer::TestCrypt(const ProcContext &ctx, const MemRegion
     FillMemRegionBytes(ctx.Inputs, input, pin);
     FillMemRegionBytes(ctx.Outputs, output, pout);
 
-    LxDebug("input entropy=%f, output entropy=%f\n",
-        CalculateEntropy(pin, input.Len), CalculateEntropy(pout, output.Len));
-
     bool result = false;
-
     for (auto &crypto : m_cryptos) {
         if (output == crypto->OutputRegion && crypto->InputRegion.CanMerge(input)) {
             if (!crypto->InputRegion.TryMerge(input))
@@ -75,7 +71,7 @@ bool GenericSymmetricAnalyzer::TestCrypt(const ProcContext &ctx, const MemRegion
     }
 
     GenericCrypto *g = new GenericCrypto(pin, pout, input, output, tr, 
-        ctx.EndSeq + 1, m_algEngine->GetMessage()->GetTraceEnd());
+        ctx.EndSeq + 1, m_algEngine->GetMessage()->GetTraceEnd(), ctx.Proc->Entry());
     m_cryptos.push_back(g);
 
 L_END:
@@ -89,12 +85,9 @@ void GenericSymmetricAnalyzer::OnComplete()
     for (auto &crypto : m_cryptos) {
         if (crypto->Ignored) continue;
         LxInfo("Generic crypto: len = %d\n", crypto->InputRegion.Len);
-        AlgParam *input = new AlgParam("Input", crypto->InputRegion, crypto->Input.Get());
-        AlgParam *output = new AlgParam("Output", crypto->OutputRegion, crypto->Output.Get());
-        LxInfo("Hi=%f, Ho=%f\n", input->Entropy, output->Entropy);
-        AlgTag *tag = new AlgTag("Generic Crypto", "*");
-        tag->Params.push_back(input);
-        tag->Params.push_back(output);
+        AlgTag *tag = new AlgTag("Generic Crypto", "*", crypto->Proc);
+        tag->AddParam("Input", crypto->InputRegion, crypto->Input.Get());
+        tag->AddParam("Output", crypto->OutputRegion, crypto->Output.Get());
 
         Message *parent = m_algEngine->GetMessage();
         Message *msg = new Message(crypto->OutputRegion,
@@ -103,7 +96,9 @@ void GenericSymmetricAnalyzer::OnComplete()
     }
 }
 
-GenericCrypto::GenericCrypto( cpbyte input, cpbyte output, const MemRegion &rin, const MemRegion &rout, const TaintRegion &tr, int begSeq, int endSeq )
+GenericCrypto::GenericCrypto( cpbyte input, cpbyte output, const MemRegion &rin, 
+                             const MemRegion &rout, const TaintRegion &tr, 
+                             int begSeq, int endSeq, u32 proc )
 {
     InputRegion = rin;
     OutputRegion = rout;
@@ -113,6 +108,7 @@ GenericCrypto::GenericCrypto( cpbyte input, cpbyte output, const MemRegion &rin,
     BeginSeq = begSeq;
     EndSeq = endSeq;
     Ignored = false;
+    Proc = proc;
 }
 
 GenericEncodingAnalyzer::GenericEncodingAnalyzer( int minlen, double sd, double su, double dr )
@@ -187,9 +183,9 @@ bool GenericEncodingAnalyzer::TestEncoding(const ProcContext &ctx, const MemRegi
 
     LxInfo("Generic %s found: %08x-%08x\n", em.Result.c_str(), output.Addr,
         output.Len + output.Addr);
-    AlgTag *tag = new AlgTag("Generic", em.Result);
-    tag->Params.push_back(new AlgParam("Input", input, pin));
-    tag->Params.push_back(new AlgParam("Output", output, pout));
+    AlgTag *tag = new AlgTag("Generic", em.Result, ctx.Proc->Entry());
+    tag->AddParam("Input", input, pin);
+    tag->AddParam("Output", output, pout);
     m_algEngine->EnqueueNewMessage(output, pout, tr, tag, ctx, false);
     result = true;
 
@@ -237,9 +233,9 @@ bool GenericChecksumAnalyzer::CheckRegisterChecksum(
 
         LxInfo("Generic checksum register(%d): %08x-%08x\n", len, input.Addr, input.Addr + input.Len);
 
-        AlgTag *tag = new AlgTag("Checksum", type);
-        tag->Params.push_back(new AlgParam("Data", input, pin));
-        tag->Params.push_back(new AlgParam("Checksum", MemRegion(0, len), (cpbyte) &event.Context->EAX));
+        AlgTag *tag = new AlgTag("Checksum", type, ctx.Proc->Entry());
+        tag->AddParam("Data", input, pin);
+        tag->AddParam("Checksum", MemRegion(0, len), (cpbyte) &event.Context->EAX);
 
         Message *parent = m_algEngine->GetMessage();
         Message *newMsg = new Message(MemRegion(0, len), (cpbyte) &event.Context->EAX,

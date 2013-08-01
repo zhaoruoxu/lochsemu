@@ -4,7 +4,9 @@
 
 bool RC4Analyzer::OnOriginalProcedure( ExecuteTraceEvent &event, const ProcContext &ctx )
 {
-    //ctx.Dump(StdOut(), false);
+#if 0
+    ctx.Dump(StdOut(), false);
+#endif
 
     if (ctx.Level > 1) return false;
 
@@ -30,8 +32,7 @@ void RC4Analyzer::TestKeySchedule( const ProcContext &ctx, const MemRegion &regi
 {
     if (region.Len < SboxLength) return;
     if (region.Len > SboxLength) {
-        //LxWarning("RC4 key schedule test %d iterations\n", region.Len - SboxLength);
-        return;
+        return;     // WTF? Who wrote this
     }
     for (auto &c : m_contexts) {
         if (c.SboxRegion == region) return;
@@ -76,13 +77,12 @@ void RC4Analyzer::TestKeySchedule( const ProcContext &ctx, u32 sboxAddr )
 
 bool RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &region )
 {
-    // region必须为连续被taint的一块内存区域
     Taint tor;
     for (u32 o = 0; o < region.Len; o++) {
         tor |= ctx.Inputs.find(region.Addr + o)->second.Tnt;
     }
     auto tRegions = tor.GenerateRegions();
-    if (tRegions.size() != 1) return false;       // 不满足全部被连续taint
+    if (tRegions.size() != 1) return false;       
     
     for (auto &r : ctx.OutputRegions) {
         if (r.Len < region.Len) continue;
@@ -119,23 +119,20 @@ bool RC4Analyzer::TestRC4Crypt(const ProcContext &ctx, const MemRegion &input,
         FillMemRegionBytes(ctx.Inputs, input, pt);
         FillMemRegionBytes(ctx.Outputs, output, ct);
         if (RC4_IsValidCrypt(sbox, pt, ct, len)) {
-            AlgTag *tag = new AlgTag("RC4", "RC4 stream cipher");
-            tag->Params.push_back(new AlgParam("Key", rc4ctx.KeyRegion, rc4ctx.Key));
-            tag->Params.push_back(new AlgParam("Input", input, pt));
-            tag->Params.push_back(new AlgParam("Output", output, ct));
+            AlgTag *tag = new AlgTag("RC4", "RC4 stream cipher", ctx.Proc->Entry());
+            tag->AddParam("Key", rc4ctx.KeyRegion, rc4ctx.Key);
+            tag->AddParam("Input", input, pt);
+            tag->AddParam("Output", output, ct);
 
-//             LxInfo("input entropy: %f, output entropy: %f\n",
-//                 CalculateEntropy(pt, input.Len), CalculateEntropy(ct, output.Len));
-
-            Message *parent = m_algEngine->GetMessage();
-            Message *submsg = new Message(output, ct, parent,
-                parent->GetRegion().SubRegion(tin), tag, true);
-            LxInfo("RC4 sub-message: [%08x-%08x]\n", output.Addr, 
-                output.Addr + output.Len - 1);
             found = true;
             memcpy(rc4ctx.Sbox, sbox, SboxLength);
-            m_algEngine->GetMessageManager()->EnqueueMessage(
-                submsg, ctx.EndSeq+1, parent->GetTraceEnd());
+            LxInfo("RC4 sub-message: [%08x-%08x]\n", output.Addr, output.Addr + output.Len - 1);
+            m_algEngine->EnqueueNewMessage(output, ct, tin, tag, ctx, true);
+//             Message *parent = m_algEngine->GetMessage();
+//             Message *submsg = new Message(output, ct, parent,
+//                 parent->GetRegion().SubRegion(tin), tag, true);
+//             m_algEngine->GetMessageManager()->EnqueueMessage(
+//                 submsg, ctx.EndSeq+1, parent->GetTraceEnd());
         }
         SAFE_DELETE_ARRAY(pt);
         SAFE_DELETE_ARRAY(ct);

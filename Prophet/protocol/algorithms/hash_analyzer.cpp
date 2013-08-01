@@ -31,16 +31,10 @@ bool MD5Analyzer::TestMD5(const ProcContext &ctx, const MemRegion &input,
     MD5((const byte *) in, input.Len, actualMd);
     bool found = false;
     if (CompareByteArray(md, actualMd, MDSize) == 0) {
-        AlgTag *tag = new AlgTag("MD5", "Message Digest");
-        tag->Params.push_back(new AlgParam("Message", input, in));
-        tag->Params.push_back(new AlgParam("Digest", output, md));
+        AlgTag *tag = new AlgTag("MD5", "Message Digest", ctx.Proc->Entry());
+        tag->AddParam("Message", input, in);
+        tag->AddParam("Digest", output, md);
         m_algEngine->EnqueueNewMessage(output, md, tr, tag, ctx, false);
-//         Message *parent = m_algEngine->GetMessage();
-//         Message *newMsg = new Message(output, md, parent, 
-//             parent->GetRegion().SubRegion(tr), tag, false);
-//         LxInfo("MD5 Message Digest: %08x-%08x\n", output.Addr, output.Addr + output.Len - 1);
-//         m_algEngine->GetMessageManager()->EnqueueMessage(newMsg,
-//             ctx.Level == 0 ? ctx.EndSeq+1:ctx.BeginSeq, parent->GetTraceEnd());
         found = true;
     }
 

@@ -75,7 +75,7 @@ bool Message::Analyze( MessageManager *msgmgr, const RunTrace &trace )
         // Get Procedures
         traceExe.Add(&procScope);
         traceExe.RunMessage(this);
-        procScope.Dump(File(dir + "procs_" + GetName() + ".txt", "w"));
+        procScope.Dump(File(dir + "procs_" + GetName() + ".txt", "w"), g_engine.GetDisassembler());
 
         CallStack callStack(&procScope);
         m_accesslog = new MessageAccessLog(this);
@@ -228,8 +228,8 @@ std::string Message::GetName() const
     return GetTypeString() + "_" + m_name;
 }
 
-AlgTag::AlgTag( const std::string &name, const std::string &desc )
-    : AlgName(name), Description(desc)
+AlgTag::AlgTag( const std::string &name, const std::string &desc, u32 proc )
+    : AlgName(name), Description(desc), Proc(proc)
 {
 
 }
@@ -245,7 +245,7 @@ AlgTag::~AlgTag()
 void AlgTag::DumpDot( File &f ) const
 {
     fprintf(f.Ptr(), "\"");
-    fprintf(f.Ptr(), "-- %s(%s) --\\l", AlgName.c_str(), Description.c_str());
+    fprintf(f.Ptr(), "-- %s(%s) Proc_%08x --\\l", AlgName.c_str(), Description.c_str(), Proc);
     int count = 1;
     for (auto &p : Params) {
         if (p->Mem.Addr <= 9) {     // 8 gp regs and Eip
@@ -262,6 +262,11 @@ void AlgTag::DumpDot( File &f ) const
         }
     }
     fprintf(f.Ptr(), "\"");
+}
+
+void AlgTag::AddParam( const std::string &t, const MemRegion &r, cpbyte d )
+{
+    Params.push_back(new AlgParam(t, r, d));
 }
 
 AlgParam::AlgParam( const std::string &t, const MemRegion &r, cpbyte d )
