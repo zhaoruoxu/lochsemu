@@ -185,7 +185,7 @@ bool DESAnalyzer::TestCryptModeCFB( DESContext &des, const ProcContext &ctx, con
         FillMemRegionBytes(ctx.Inputs, iv, (pbyte) &ivBlock);
 
         DES_cfb_encrypt(pin, pdec, 1, input.Len, &des.Subkeys, &ivBlock, DES_DECRYPT);
-        for (uint offset = 0; offset <= output.Len - input.Len; offset++) {
+        for (uint offset = 0; offset <= output.Len - input.Len; offset += BlockSize) {
             if (CompareByteArray(pout + offset, pdec, input.Len) == 0) {
                 LxInfo("Found DES-CFB decryption\n");
 
