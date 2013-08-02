@@ -200,7 +200,21 @@ void File::Close()
 
 #define GRAPHVIZ_MULTITHREADED   0
 
-DWORD __stdcall DotToImageRoutine(LPVOID lpParams)
+DWORD __stdcall DotToImageRoutineEps(LPVOID lpParams)
+{
+    char dotbuf[1024], outbuf[MAX_PATH];
+    const char *p = (const char *) lpParams;
+    strcpy(outbuf, p);
+    size_t l = strlen(outbuf);
+    if (strcmp(outbuf + l - 4, ".dot") == 0) {
+        outbuf[l-3] = 's'; outbuf[l-2] = 'v'; outbuf[l-1] = 'g';
+    }
+    sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tsvg %s -o %s", p, outbuf);
+    system(dotbuf);
+    return 0;
+}
+
+DWORD __stdcall DotToImageRoutinePng(LPVOID lpParams)
 {
     char dotbuf[1024], outbuf[MAX_PATH];
     const char *p = (const char *) lpParams;
@@ -211,12 +225,12 @@ DWORD __stdcall DotToImageRoutine(LPVOID lpParams)
     }
     sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tpng %s -o %s", p, outbuf);
     system(dotbuf);
-    delete [] p;      // p is 'new'ed
     return 0;
 }
 
 void DotToImage(const std::string &filename)
 {
+    LxInfo("Generating figure for %s...\n", filename.c_str());
     char *p = new char[filename.size() + 1];  // use c++ allocation so that memory leaks can be detected
     strcpy(p, filename.c_str());
 
@@ -226,7 +240,9 @@ void DotToImage(const std::string &filename)
         LxError("Cannot create DotToImage thread\n");
     }
 #else   // DOT_IN_ANOTHER_THREAD
-    DotToImageRoutine((LPVOID) p);
+    DotToImageRoutineEps((LPVOID) p);
+    DotToImageRoutinePng((LPVOID) p);
+    SAFE_DELETE_ARRAY(p);
 #endif  // DOT_IN_ANOTHER_THREAD
 }
 
