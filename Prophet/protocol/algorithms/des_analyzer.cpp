@@ -190,13 +190,14 @@ bool DESAnalyzer::TestCryptModeCFB( DESContext &des, const ProcContext &ctx, con
                 LxInfo("Found DES-CFB decryption\n");
 
                 FillMemRegionBytes(ctx.Inputs, iv, (pbyte) &ivBlock);
+                MemRegion mr(output.Addr + offset, input.Len);
                 AlgTag *tag = new AlgTag("DES-CFB", "Decryption", ctx.Proc->Entry());
                 tag->AddParam("Key", des.KeyRegion, (cpbyte) &des.Key);
                 tag->AddParam("IV", iv, (cpbyte) &ivBlock);
-                tag->AddParam("Ciphertext", output, pout);
+                tag->AddParam("Ciphertext", mr, pout);
                 tag->AddParam("Plaintext", input, pin);
 
-                m_algEngine->EnqueueNewMessage(output, pout, tr, tag, ctx, true);
+                m_algEngine->EnqueueNewMessage(mr, pout, tr, tag, ctx, true);
                 result = true;
                 goto L_END;
             }
@@ -249,11 +250,11 @@ void DESAnalyzer::OnComplete()
         if (crypt->Ignored) continue;
         LxInfo("DES crypt: len = %d\n", crypt->InputRegion.Len);
 
-        std::string desc = "Block Cipher";
+        std::string desc;
         if (crypt->Type == DESCRYPT_DECRYPT)
-            desc += "Decryption";
+            desc = "Decryption";
         else if (crypt->Type == DESCRYPT_ENCRYPT)
-            desc += "Encryption";
+            desc = "Encryption";
         const DESContext &ctx = m_contexts[crypt->ContextIndex];
         AlgTag *tag = new AlgTag("DES-ECB", desc.c_str(), crypt->Proc);
         tag->AddParam("Key", ctx.KeyRegion, (cpbyte) &ctx.Key);

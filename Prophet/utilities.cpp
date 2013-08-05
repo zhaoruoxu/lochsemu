@@ -207,6 +207,20 @@ DWORD __stdcall DotToImageRoutineEps(LPVOID lpParams)
     strcpy(outbuf, p);
     size_t l = strlen(outbuf);
     if (strcmp(outbuf + l - 4, ".dot") == 0) {
+        outbuf[l-3] = 'e'; outbuf[l-2] = 'p'; outbuf[l-1] = 's';
+    }
+    sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Teps %s -o %s", p, outbuf);
+    system(dotbuf);
+    return 0;
+}
+
+DWORD __stdcall DotToImageRoutineSvg(LPVOID lpParams)
+{
+    char dotbuf[1024], outbuf[MAX_PATH];
+    const char *p = (const char *) lpParams;
+    strcpy(outbuf, p);
+    size_t l = strlen(outbuf);
+    if (strcmp(outbuf + l - 4, ".dot") == 0) {
         outbuf[l-3] = 's'; outbuf[l-2] = 'v'; outbuf[l-1] = 'g';
     }
     sprintf(dotbuf, "%%GRAPHVIZ%%\\dot.exe -Tsvg %s -o %s", p, outbuf);
@@ -242,6 +256,7 @@ void DotToImage(const std::string &filename)
 #else   // DOT_IN_ANOTHER_THREAD
     DotToImageRoutineEps((LPVOID) p);
     DotToImageRoutinePng((LPVOID) p);
+    DotToImageRoutineSvg((LPVOID) p);
     SAFE_DELETE_ARRAY(p);
 #endif  // DOT_IN_ANOTHER_THREAD
 }

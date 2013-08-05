@@ -471,7 +471,7 @@ void TreeNode::DumpDot( File &f, const Message *msg ) const
 
     for (Message *msg : m_subMessages) {
         std::string tagName = msg->GetName() + "_tag";
-        fprintf(f.Ptr(), "%s [shape=box,color=blueviolet,style=filled,fontcolor=white,label=", tagName.c_str());
+        fprintf(f.Ptr(), "%s [shape=box,color=blue,penwidth=2.0,fontcolor=black,label=", tagName.c_str());
         msg->GetTag()->DumpDot(f);
         fprintf(f.Ptr(), "];\n");
         fprintf(f.Ptr(), "%s -> %s;\n", nodeName.c_str(), tagName.c_str());
